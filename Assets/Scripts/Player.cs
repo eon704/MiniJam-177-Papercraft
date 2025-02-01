@@ -3,10 +3,10 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    public BoardPiecePrefab BoardPiecePrefab { get; private set; }
     private StateMachine _stateMachine;
-
     private SpriteRenderer _spriteRenderer;
-    
+
     [Header("State sprites")]
     [SerializeField] private Sprite defaultStateSprite;
     [SerializeField] private Sprite craneStateSprite;
@@ -20,14 +20,15 @@ public class Player : MonoBehaviour
     private IState _boatState;
     private IState _frogState;
 
-    private void Initialize()
+    public void Initialize(BoardPiece boardPiece, CellPrefab startCell)
     {
-        _spriteRenderer = GetComponent<SpriteRenderer>();
+        this.BoardPiecePrefab.Initialize(boardPiece, startCell);
     }
 
     private void Awake()
     {
-        Initialize();
+        _spriteRenderer = GetComponent<SpriteRenderer>();
+        this.BoardPiecePrefab = GetComponent<BoardPiecePrefab>();
         _stateMachine = new StateMachine();
 
         _defaultState = new DefaultState(defaultStateSprite, _spriteRenderer);
@@ -45,7 +46,6 @@ public class Player : MonoBehaviour
     public void SerFrogState() { _stateMachine.SetState(_frogState); }
     public void SetPlaneState() { _stateMachine.SetState(_planeState); }
     public void SetBoatState() { _stateMachine.SetState(_boatState); }
-    
     
     private void Update() => _stateMachine.Tick();
 }
