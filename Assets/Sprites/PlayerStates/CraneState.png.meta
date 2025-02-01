@@ -100,7 +100,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Frame 362_0
+      name: CraneStateSprite
       rect:
         serializedVersion: 2
         x: 0
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Frame 362_0: 4106357240509828695
+      CraneStateSprite: 4106357240509828695
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
