@@ -2,12 +2,31 @@ using UnityEngine;
 
 public class CellPrefab : MonoBehaviour
 {
-    [SerializeField] private SpriteRenderer spriteRenderer;
+    [SerializeField] private SpriteRenderer fill;
+    [SerializeField] private Color defaultColor;
+    [SerializeField] private Color highlightColor;
 
-    private Cell cell;
+    public Cell Cell { get; private set; }
+    private Player player;
 
-    public void Initialize(Cell cellData)
+    public void Initialize(Cell cellData, Player player)
     {
-        this.cell = cellData;
+        this.Cell = cellData;
+        this.player = player;
+    }
+
+    private void OnMouseUp()
+    {
+        this.player.BoardPiecePrefab.Move(this);
+    }
+
+    private void OnMouseEnter()
+    {
+        this.fill.color = this.highlightColor;
+    }
+
+    private void OnMouseExit()
+    {
+        this.fill.color = this.defaultColor;
     }
 }

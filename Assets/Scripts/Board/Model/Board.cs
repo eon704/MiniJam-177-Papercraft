@@ -7,7 +7,7 @@ public class Board
   
   public Board(Vector2Int size)
   {
-    this.Size = size;
+    this.Size = size; 
     this.CellArray = new Cell[size.x, size.y];
     
     for (int x = 0; x < size.x; x++)
@@ -17,5 +17,10 @@ public class Board
         this.CellArray[x, y] = new Cell(new Vector2Int(x, y));
       }
     }
+  }
+
+  public BoardPiece CreateNewPiece(Vector2Int coord)
+  {
+    return new BoardPiece(this, this.CellArray[coord.x, coord.y]);
   }
 }

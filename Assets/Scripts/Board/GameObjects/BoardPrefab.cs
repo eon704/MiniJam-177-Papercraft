@@ -2,20 +2,26 @@ using UnityEngine;
 
 public class BoardPrefab : MonoBehaviour
 {
+  [SerializeField] private Player player;
   [SerializeField] private Vector2Int size;
   [SerializeField] private Transform boardBorder;
   [SerializeField] private CellPrefab cellPrefab;
     
   private Grid worldGrid;
-  private Board board;
+  public Board Board { get; private set; }
   
   private CellPrefab[,] cellPrefabs;
-    
+
+  public CellPrefab GetCellPrefab(Vector2Int coord)
+  {
+    return this.cellPrefabs[coord.x, coord.y];
+  }
+  
   private void Awake()
   {
     this.worldGrid = this.GetComponent<Grid>();
     
-    this.board = new Board(this.size);
+    this.Board = new Board(this.size);
     this.cellPrefabs = new CellPrefab[this.size.x, this.size.y];
     
     this.InstantiateBoard();
@@ -39,10 +45,10 @@ public class BoardPrefab : MonoBehaviour
     {
       for (int y = 0; y < this.size.y; y++)
       {
-        Cell cell = this.board.CellArray[x, y];
+        Cell cell = this.Board.CellArray[x, y];
         Vector3 cellPosition = this.worldGrid.GetCellCenterWorld(new Vector3Int(x, y, 0));
         this.cellPrefabs[x, y] = Instantiate(this.cellPrefab, cellPosition, Quaternion.identity, this.transform);
-        this.cellPrefabs[x, y].Initialize(cell);
+        this.cellPrefabs[x, y].Initialize(cell, this.player);
       }
     }
   }
