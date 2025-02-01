@@ -33,7 +33,7 @@ public class MainMenuUI : MonoBehaviour
         
         Tween tween = this._foreground
                           .DOFade(1, 1)
-                          .SetEase(Ease.InCubic);
+                          .SetEase(Ease.OutCubic);
 
         yield return tween.WaitForCompletion();
     }
@@ -45,7 +45,7 @@ public class MainMenuUI : MonoBehaviour
         
         Tween tween = this._foreground
                           .DOFade(0, 1)
-                          .SetEase(Ease.OutCubic);
+                          .SetEase(Ease.InCubic);
 
         yield return new WaitForSeconds(0.5f);
         yield return tween.WaitForCompletion();

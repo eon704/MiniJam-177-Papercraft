@@ -28,7 +28,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 347.83585, y: 371.86383, z: -14.242681}
-  m_LocalScale: {x: 0.099999994, y: 0.099999994, z: 0.099999994}
+  m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
@@ -77,12 +77,12 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -6072478696709255694, guid: aec3c68e4d5b4d8458bb4fc3f3063526, type: 3}
+  m_Sprite: {fileID: -3944081545240076649, guid: d4bf1c9f3e37c0e4bb719ee81e2cb364, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 9, y: 8.16}
+  m_Size: {x: 1.86, y: 1.68}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -100,7 +100,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d764ff9736ed6aa479293531a9480c30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  defaultStateSprite: {fileID: -6072478696709255694, guid: aec3c68e4d5b4d8458bb4fc3f3063526, type: 3}
+  defaultStateSprite: {fileID: -3944081545240076649, guid: d4bf1c9f3e37c0e4bb719ee81e2cb364, type: 3}
   craneStateSprite: {fileID: 4106357240509828695, guid: f66d76d12a4456e4fb45eb0882a2546b, type: 3}
   planeStateSprite: {fileID: -6127424406416134269, guid: f6799e458b00ede49b984f5bcd0dfb9f, type: 3}
   boatStateSprite: {fileID: 5030105475705660051, guid: 1371d5a5472508042a5ba9605ce75331, type: 3}
