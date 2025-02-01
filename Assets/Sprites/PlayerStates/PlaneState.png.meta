@@ -100,7 +100,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Frame 364_0
+      name: PlaneStateSprite
       rect:
         serializedVersion: 2
         x: 0
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Frame 364_0: -6127424406416134269
+      PlaneStateSprite: -6127424406416134269
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

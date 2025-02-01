@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 1371d5a5472508042a5ba9605ce75331
+guid: d4bf1c9f3e37c0e4bb719ee81e2cb364
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 5030105475705660051
-    second: Frame 365_0
+      213: -3944081545240076649
+    second: Frame 366_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: BoatStateSprite
+      name: DefaultStateSprite
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 360
-        height: 360
+        x: 31
+        y: 31
+        width: 298
+        height: 296
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 392ee2e87468ec540800000000000000
-      internalID: 5030105475705660051
+      spriteID: 79e9ac23bbec349c0800000000000000
+      internalID: -3944081545240076649
       vertices: []
       indices: 
       edges: []
@@ -125,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: d14f70468673f97409c7518334063ed4
+    spriteID: 135c02a92bf2a974c92ce3fd6009b8ae
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      BoatStateSprite: 5030105475705660051
+      DefaultStateSprite: -3944081545240076649
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

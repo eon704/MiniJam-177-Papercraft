@@ -100,7 +100,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Frame 363_0
+      name: FrogStateSprite
       rect:
         serializedVersion: 2
         x: 0
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Frame 363_0: 8475130039064758194
+      FrogStateSprite: 8475130039064758194
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
