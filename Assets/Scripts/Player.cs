@@ -1,5 +1,5 @@
-using System;
 using System.Collections;
+using System.Collections.Generic;
 using PlayerStateMachine;
 using UnityEngine;
 
@@ -27,9 +27,12 @@ public class Player : MonoBehaviour
     private IState _boatState;
     private IState _frogState;
 
+    private Dictionary<IState, int> transformationLeft;
+
     public void Initialize(BoardPiece boardPiece, CellPrefab startCell)
     {
         this.BoardPiecePrefab.Initialize(boardPiece, startCell);
+        this.BoardPiecePrefab.BoardPiece.OccupiedCell.OnChanged += OnCellChanged;
     }
 
     private void Awake()
@@ -43,12 +46,33 @@ public class Player : MonoBehaviour
         _planeState = new PlaneState(planeStateSprite, _spriteRenderer, this);
         _boatState = new BoatState(boatStateSprite, _spriteRenderer, this);
         _frogState = new FrogState(frogStateSprite, _spriteRenderer, this);
+
+        this.transformationLeft = new Dictionary<IState, int>
+        {
+            { _defaultState, 1 },
+            { _craneState, 2 },
+            { _planeState, 1 },
+            { _boatState, 2 },
+            { _frogState, 2 },
+        };
     }
 
     private IEnumerator Start()
     {
         yield return null;
         SetDefaultState();
+    }
+
+    private void OnCellChanged(Observable<Cell> cell, Cell oldCell, Cell newCell)
+    {
+        Cell.TerrainType terrainType = newCell.Terrain;
+        if (terrainType == Cell.TerrainType.Fire)
+        {
+            print("Game Over");
+        } else if (terrainType == Cell.TerrainType.End)
+        {
+            print("You Win");
+        }
     }
 
     private void SetDefaultState()

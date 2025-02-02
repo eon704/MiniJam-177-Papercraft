@@ -79,7 +79,6 @@ public class BoardPiece
     if (!targetCell.IsFree)
       return false;
     
-    Debug.Log("Trying to move to " + targetCell.Terrain);
     if (!this.moveTerrain.Contains(targetCell.Terrain))
       return false;
     
