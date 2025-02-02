@@ -28,18 +28,7 @@ public class BoardPrefab : MonoBehaviour
     this.cellPrefabs = new CellPrefab[this.size.x, this.size.y];
     
     this.InstantiateBoard();
-    this.boardBorder.gameObject.SetActive(true);
-    this.boardBorder.localScale = new Vector3(this.size.x + 0.1f, this.size.y + 0.1f, 1);
-    
-    Vector3 borderPosition = this.worldGrid.GetCellCenterWorld(new Vector3Int(this.size.x / 2, this.size.y / 2, 0));
-    
-    if (this.size.x % 2 == 0)
-      borderPosition.x -= this.worldGrid.cellSize.x / 2;
-    
-    if (this.size.y % 2 == 0)
-      borderPosition.y -= this.worldGrid.cellSize.y / 2;
-
-    this.boardBorder.position = borderPosition;
+    this.UpdateBorder();
   }
 
   private char[,] ParseMap()
@@ -81,5 +70,22 @@ public class BoardPrefab : MonoBehaviour
         this.cellPrefabs[x, y].Initialize(cell, this.player);
       }
     }
+  }
+
+
+  private void UpdateBorder()
+  {
+    this.boardBorder.gameObject.SetActive(true);
+    this.boardBorder.localScale = new Vector3(this.size.x + 0.1f, this.size.y + 0.1f, 1);
+    
+    Vector3 borderPosition = this.worldGrid.GetCellCenterWorld(new Vector3Int(this.size.x / 2, this.size.y / 2, 0));
+    
+    if (this.size.x % 2 == 0)
+      borderPosition.x -= this.worldGrid.cellSize.x / 2;
+    
+    if (this.size.y % 2 == 0)
+      borderPosition.y -= this.worldGrid.cellSize.y / 2;
+
+    this.boardBorder.position = borderPosition;
   }
 }

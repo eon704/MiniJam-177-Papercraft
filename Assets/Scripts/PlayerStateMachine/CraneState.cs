@@ -18,7 +18,8 @@ namespace PlayerStateMachine
             new Vector2Int(-1, 0)
         };
 
-        public List<Cell.TerrainType> MoveTerrain => new() { Cell.TerrainType.Default, Cell.TerrainType.Stone };
+        public List<Cell.TerrainType> MoveTerrain => new()
+            { Cell.TerrainType.Default, Cell.TerrainType.Stone, Cell.TerrainType.Fire };
         
         public CraneState(Sprite sprite, SpriteRenderer spriteRenderer, Player player)
         {

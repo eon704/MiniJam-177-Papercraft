@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Cell
@@ -16,10 +17,17 @@ public class Cell
     
     public TerrainType Terrain { get; private set; }
     
+    public List<Cell> Neighbors { get; private set; }
+    
     public Cell(Vector2Int position, TerrainType type)
     {
         this.Position = position;
         this.Terrain = type;
+    }
+    
+    public void SetNeighbors(List<Cell> neighbors)
+    {
+        this.Neighbors = neighbors;
     }
     
     public void FreePiece()

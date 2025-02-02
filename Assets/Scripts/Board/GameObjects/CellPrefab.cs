@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 public class CellPrefab : MonoBehaviour
@@ -11,6 +10,8 @@ public class CellPrefab : MonoBehaviour
     [SerializeField] private Color defaultColor;
     [SerializeField] private Color highlightColor;
     [SerializeField] private Color reachableColor;
+    
+    private bool isReachable;
     
     public Cell Cell { get; private set; }
     private Player player;

@@ -43,6 +43,24 @@ public class BoardPiece
     GlobalSoundManager.PlayRandomSoundByType(SoundType.Move);
     return true;
   }
+
+  public List<Cell> GetReachableCells()
+  {
+    Vector2Int currentPosition = this.OccupiedCell.Value.Position;
+    List<Cell> reachableCells = new();
+    
+    foreach (Vector2Int motion in this.moveOptions)
+    {
+      Vector2Int targetPosition = currentPosition + motion;
+      Cell targetCell = this.board.GetCell(targetPosition);
+      if (!this.moveTerrain.Contains(targetCell.Terrain))
+        continue;
+      
+      reachableCells.Add(targetCell);
+    }
+
+    return reachableCells;
+  }
   
   public void SetState(IState state)
   {

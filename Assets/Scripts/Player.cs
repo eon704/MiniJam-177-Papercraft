@@ -53,31 +53,31 @@ public class Player : MonoBehaviour
 
     public void SetCraneState()
     {
-        GlobalSoundManager.PlayRandomSoundByType(SoundType.ChangeState);
-        _stateMachine.SetState(_craneState);
-        this.BoardPiecePrefab.BoardPiece.SetState(_craneState);
+        SetState(_craneState);
     }
 
     public void SerFrogState()
     {
-        GlobalSoundManager.PlayRandomSoundByType(SoundType.ChangeState);
-        _stateMachine.SetState(_frogState);
-        this.BoardPiecePrefab.BoardPiece.SetState(_frogState);
+        SetState(_frogState);
     }
 
     public void SetPlaneState()
     {
-        GlobalSoundManager.PlayRandomSoundByType(SoundType.ChangeState);
-        _stateMachine.SetState(_planeState);
-        this.BoardPiecePrefab.BoardPiece.SetState(_planeState);
+        SetState(_planeState);
     }
 
     public void SetBoatState()
     {
-        GlobalSoundManager.PlayRandomSoundByType(SoundType.ChangeState);
-        _stateMachine.SetState(_boatState);
-        this.BoardPiecePrefab.BoardPiece.SetState(_boatState);
+        SetState(_boatState);
     }
 
     private void Update() => _stateMachine.Tick();
+
+    private void SetState(IState state)
+    {
+        GlobalSoundManager.PlayRandomSoundByType(SoundType.ChangeState);
+        _stateMachine.SetState(state);
+        this.BoardPiecePrefab.BoardPiece.SetState(state);
+        // this.BoardPiecePrefab.CurrentCell.Neighbors.
+    }
 }

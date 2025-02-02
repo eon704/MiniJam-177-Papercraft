@@ -4,6 +4,7 @@ using UnityEngine;
 public class BoardPiecePrefab : MonoBehaviour
 {
   public BoardPiece BoardPiece { get; private set; }
+  public CellPrefab CurrentCell { get; private set; }
     
   public void Initialize(BoardPiece boardPieceData, CellPrefab startCell)
   {
@@ -17,9 +18,14 @@ public class BoardPiecePrefab : MonoBehaviour
      
     this.DOKill();
     if (success)
+    {
       this.transform.DOMove(targetCell.transform.position, 0.5f);
+      this.CurrentCell = targetCell;
+    }
     else
+    {
       this.transform.DOShakePosition(0.5f, 0.3f);
+    }
   }
   
   public void Teleport(CellPrefab targetCell)
@@ -33,5 +39,6 @@ public class BoardPiecePrefab : MonoBehaviour
     }
 
     this.transform.position = targetCell.transform.position;
+    this.CurrentCell = targetCell;
   }
 }

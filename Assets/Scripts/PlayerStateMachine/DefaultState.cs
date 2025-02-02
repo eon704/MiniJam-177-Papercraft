@@ -17,7 +17,7 @@ namespace PlayerStateMachine
             new Vector2Int(0, 1)
         };
 
-        public List<Cell.TerrainType> MoveTerrain => new() { Cell.TerrainType.Default };
+        public List<Cell.TerrainType> MoveTerrain => new() { Cell.TerrainType.Default, Cell.TerrainType.Fire };
         
         public DefaultState(Sprite sprite, SpriteRenderer spriteRenderer, Player player)
         {
