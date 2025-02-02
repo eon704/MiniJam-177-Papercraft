@@ -26,6 +26,7 @@ public class BoardPiece
       return false;
     
     this.Cell.Value = targetCell;
+    this.Cell.Value.AssignPiece(this);
     return true;
   }
   
@@ -34,7 +35,9 @@ public class BoardPiece
     if (!this.CanMoveTo(targetCell))
       return false;
     
+    this.Cell.Value.FreePiece();
     this.Cell.Value = targetCell;
+    this.Cell.Value.AssignPiece(this);
     GlobalSoundManager.PlayRandomSoundByType(SoundType.Move);
     return true;
   }

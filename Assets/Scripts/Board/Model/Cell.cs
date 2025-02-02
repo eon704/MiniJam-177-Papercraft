@@ -16,13 +16,15 @@ public class Cell
     
     public TerrainType Terrain { get; private set; }
     
-    // terrain: Water, Hills, etc...
-    // modifier: Fire, ...
-    
     public Cell(Vector2Int position, TerrainType type)
     {
         this.Position = position;
         this.Terrain = type;
+    }
+    
+    public void FreePiece()
+    {
+        this.Piece = null;
     }
     
     public void AssignPiece(BoardPiece piece)
