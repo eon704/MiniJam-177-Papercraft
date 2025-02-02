@@ -41,5 +41,14 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Board
+    uniqueID: 3116176737
+    locked: 0
+  - name: Terrain
+    uniqueID: 3348065411
+    locked: 0
+  - name: Player
+    uniqueID: 2979331597
+    locked: 0
   m_RenderingLayers:
   - Default

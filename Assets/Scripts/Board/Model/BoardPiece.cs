@@ -3,21 +3,23 @@ using UnityEngine;
 
 public class BoardPiece
 {
-  public readonly Observable<Cell> Cell;
+  public readonly Observable<Cell> OccupiedCell;
   private readonly Board board;
 
-  private readonly List<Vector2Int> moveOptions = new()
+  private List<Vector2Int> moveOptions = new()
   {
     new Vector2Int(-1, 0),
     new Vector2Int(1, 0),
     new Vector2Int(0, -1),
     new Vector2Int(0, 1)
   };
+
+  private List<Cell.TerrainType> moveTerrain = new() { Cell.TerrainType.Default };
   
   public BoardPiece(Board board, Cell startCell)
   {
     this.board = board;
-    this.Cell = new Observable<Cell>(startCell);
+    this.OccupiedCell = new Observable<Cell>(startCell);
   }
   
   public bool TeleportTo(Cell targetCell)
@@ -25,7 +27,8 @@ public class BoardPiece
     if (!targetCell.IsFree)
       return false;
     
-    this.Cell.Value = targetCell;
+    this.OccupiedCell.Value = targetCell;
+    this.OccupiedCell.Value.AssignPiece(this);
     return true;
   }
   
@@ -34,9 +37,35 @@ public class BoardPiece
     if (!this.CanMoveTo(targetCell))
       return false;
     
-    this.Cell.Value = targetCell;
+    this.OccupiedCell.Value.FreePiece();
+    this.OccupiedCell.Value = targetCell;
+    this.OccupiedCell.Value.AssignPiece(this);
     GlobalSoundManager.PlayRandomSoundByType(SoundType.Move);
     return true;
+  }
+
+  public List<Cell> GetReachableCells()
+  {
+    Vector2Int currentPosition = this.OccupiedCell.Value.Position;
+    List<Cell> reachableCells = new();
+    
+    foreach (Vector2Int motion in this.moveOptions)
+    {
+      Vector2Int targetPosition = currentPosition + motion;
+      Cell targetCell = this.board.GetCell(targetPosition);
+      if (!this.moveTerrain.Contains(targetCell.Terrain))
+        continue;
+      
+      reachableCells.Add(targetCell);
+    }
+
+    return reachableCells;
+  }
+  
+  public void SetState(IState state)
+  {
+    this.moveOptions = state.MoveOptions;
+    this.moveTerrain = state.MoveTerrain;
   }
 
   private bool CanMoveTo(Cell targetCell)
@@ -44,7 +73,10 @@ public class BoardPiece
     if (!targetCell.IsFree)
       return false;
     
-    Vector2Int motion = targetCell.Position - this.Cell.Value.Position;
+    if (!this.moveTerrain.Contains(targetCell.Terrain))
+      return false;
+    
+    Vector2Int motion = targetCell.Position - this.OccupiedCell.Value.Position;
     return this.moveOptions.Contains(motion);
   }
 }

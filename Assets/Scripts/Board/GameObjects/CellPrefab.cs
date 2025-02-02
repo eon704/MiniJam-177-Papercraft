@@ -3,9 +3,16 @@ using UnityEngine;
 public class CellPrefab : MonoBehaviour
 {
     [SerializeField] private SpriteRenderer fill;
+    [SerializeField] private GameObject fire;
+    [SerializeField] private GameObject water;
+    [SerializeField] private GameObject stone;
+    
     [SerializeField] private Color defaultColor;
     [SerializeField] private Color highlightColor;
-
+    [SerializeField] private Color reachableColor;
+    
+    private bool isReachable;
+    
     public Cell Cell { get; private set; }
     private Player player;
 
@@ -13,6 +20,10 @@ public class CellPrefab : MonoBehaviour
     {
         this.Cell = cellData;
         this.player = player;
+        
+        this.fire.SetActive(this.Cell.Terrain == Cell.TerrainType.Fire);
+        this.water.SetActive(this.Cell.Terrain == Cell.TerrainType.Water);
+        this.stone.SetActive(this.Cell.Terrain == Cell.TerrainType.Stone);
     }
 
     private void OnMouseUp()

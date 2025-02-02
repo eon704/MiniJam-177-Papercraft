@@ -17,9 +17,7 @@ public class GlobalSoundManager : MonoBehaviour
     [SerializeField] private SoundList[] soundList;
 
     private AudioSource _audioSource;
-
-
-#if UNITY_EDITOR
+    
     private void OnEnable()
     {
         var soundTypeNames = Enum.GetNames(typeof(SoundType));
@@ -71,5 +69,3 @@ public struct SoundList
     public string name;
     [SerializeField] private AudioClip[] sounds;
 }
-
-#endif

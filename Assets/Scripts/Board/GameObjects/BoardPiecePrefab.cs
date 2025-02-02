@@ -3,28 +3,34 @@ using UnityEngine;
 
 public class BoardPiecePrefab : MonoBehaviour
 {
-  private BoardPiece boardPiece;
+  public BoardPiece BoardPiece { get; private set; }
+  public CellPrefab CurrentCell { get; private set; }
     
   public void Initialize(BoardPiece boardPieceData, CellPrefab startCell)
   {
-    this.boardPiece = boardPieceData;
+    this.BoardPiece = boardPieceData;
     this.Teleport(startCell);
   }
 
   public void Move(CellPrefab targetCell)
   {
-    bool success = this.boardPiece.MoveTo(targetCell.Cell);
+    bool success = this.BoardPiece.MoveTo(targetCell.Cell);
      
     this.DOKill();
     if (success)
+    {
       this.transform.DOMove(targetCell.transform.position, 0.5f);
+      this.CurrentCell = targetCell;
+    }
     else
+    {
       this.transform.DOShakePosition(0.5f, 0.3f);
+    }
   }
   
   public void Teleport(CellPrefab targetCell)
   {
-    bool success = this.boardPiece.TeleportTo(targetCell.Cell);
+    bool success = this.BoardPiece.TeleportTo(targetCell.Cell);
 
     if (!success)
     {
@@ -33,5 +39,6 @@ public class BoardPiecePrefab : MonoBehaviour
     }
 
     this.transform.position = targetCell.transform.position;
+    this.CurrentCell = targetCell;
   }
 }
