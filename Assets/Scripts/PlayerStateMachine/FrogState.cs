@@ -7,10 +7,12 @@ namespace PlayerStateMachine
     {
         private readonly Sprite _stateSprite;
         private readonly SpriteRenderer _spriteRenderer;
-        public FrogState(Sprite sprite, SpriteRenderer spriteRenderer)
+        private readonly Player _player;
+        public FrogState(Sprite sprite, SpriteRenderer spriteRenderer, Player player)
         {
             _stateSprite = sprite;
             _spriteRenderer = spriteRenderer;
+            _player = player;
         }
 
         public void Tick()
@@ -19,6 +21,7 @@ namespace PlayerStateMachine
 
         public void OnEnter()
         {
+            _player.changeStateEffect.GetComponent<Animator>().SetTrigger("ChangeState");
             _spriteRenderer.sprite = _stateSprite;
         }
 

@@ -1,14 +1,19 @@
 using PlayerStateMachine;
 using UnityEngine;
 
+
 public class Player : MonoBehaviour
 {
     public BoardPiecePrefab BoardPiecePrefab { get; private set; }
+
+    public GameObject changeStateEffect;
+
     private StateMachine _stateMachine;
     private SpriteRenderer _spriteRenderer;
 
-    [Header("State sprites")]
-    [SerializeField] private Sprite defaultStateSprite;
+    [Header("State sprites")] [SerializeField]
+    private Sprite defaultStateSprite;
+
     [SerializeField] private Sprite craneStateSprite;
     [SerializeField] private Sprite planeStateSprite;
     [SerializeField] private Sprite boatStateSprite;
@@ -31,21 +36,44 @@ public class Player : MonoBehaviour
         this.BoardPiecePrefab = GetComponent<BoardPiecePrefab>();
         _stateMachine = new StateMachine();
 
-        _defaultState = new DefaultState(defaultStateSprite, _spriteRenderer);
-        _craneState = new CraneState(craneStateSprite, _spriteRenderer); 
-        _planeState = new PlaneState(planeStateSprite, _spriteRenderer);
-        _boatState = new BoatState(boatStateSprite, _spriteRenderer);
-        _frogState = new FrogState(frogStateSprite, _spriteRenderer);
-        
+        _defaultState = new DefaultState(defaultStateSprite, _spriteRenderer, this);
+        _craneState = new CraneState(craneStateSprite, _spriteRenderer, this);
+        _planeState = new PlaneState(planeStateSprite, _spriteRenderer, this);
+        _boatState = new BoatState(boatStateSprite, _spriteRenderer, this);
+        _frogState = new FrogState(frogStateSprite, _spriteRenderer, this);
 
-        _stateMachine.SetState(_defaultState); // Set the default state
+
+        SetDefaultState();  
     }
 
-    public void SetDefaultState() { _stateMachine.SetState(_defaultState); }
-    public void SetCraneState()  { _stateMachine.SetState(_craneState); }
-    public void SerFrogState() { _stateMachine.SetState(_frogState); }
-    public void SetPlaneState() { _stateMachine.SetState(_planeState); }
-    public void SetBoatState() { _stateMachine.SetState(_boatState); }
-    
+    private void SetDefaultState()
+    {
+        _stateMachine.SetState(_defaultState);
+    }
+
+    public void SetCraneState()
+    {
+        GlobalSoundManager.PlayRandomSoundByType(SoundType.ChangeState);
+        _stateMachine.SetState(_craneState);
+    }
+
+    public void SerFrogState()
+    {
+        GlobalSoundManager.PlayRandomSoundByType(SoundType.ChangeState);
+        _stateMachine.SetState(_frogState);
+    }
+
+    public void SetPlaneState()
+    {
+        GlobalSoundManager.PlayRandomSoundByType(SoundType.ChangeState);
+        _stateMachine.SetState(_planeState);
+    }
+
+    public void SetBoatState()
+    {
+        GlobalSoundManager.PlayRandomSoundByType(SoundType.ChangeState);
+        _stateMachine.SetState(_boatState);
+    }
+
     private void Update() => _stateMachine.Tick();
 }

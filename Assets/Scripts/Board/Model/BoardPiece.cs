@@ -35,6 +35,7 @@ public class BoardPiece
       return false;
     
     this.Cell.Value = targetCell;
+    GlobalSoundManager.PlayRandomSoundByType(SoundType.Move);
     return true;
   }
 
