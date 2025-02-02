@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: ff942afb9b0a47b4786e0c83869cadf6
+guid: a39bfbb2a3f60d24089c58a1a8cce654
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 1984619329435343206
-    second: origami-dragon-stroke-by-Vexels 3_0
+      213: -723760753730645639
+    second: Group 137 (3)_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: origami-dragon-stroke-by-Vexels 3_0
+      name: Group 137 (3)_0
       rect:
         serializedVersion: 2
-        x: 124
-        y: 65
-        width: 568
-        height: 585
+        x: 302
+        y: 0
+        width: 1245
+        height: 1806
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 6691e51e3c8ca8b10800000000000000
-      internalID: 1984619329435343206
+      spriteID: 971148bdd6fa4f5f0800000000000000
+      internalID: -723760753730645639
       vertices: []
       indices: 
       edges: []
