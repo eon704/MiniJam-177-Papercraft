@@ -47,6 +47,9 @@ TagManager:
   - name: Terrain
     uniqueID: 3348065411
     locked: 0
+  - name: Border
+    uniqueID: 597209927
+    locked: 0
   - name: Player
     uniqueID: 2979331597
     locked: 0
