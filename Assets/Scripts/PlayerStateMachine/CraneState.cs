@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace PlayerStateMachine
@@ -9,6 +10,15 @@ namespace PlayerStateMachine
         private readonly Sprite _stateSprite;
         private readonly Player _player;
       
+        public List<Vector2Int> MoveOptions => new()
+        {
+            new Vector2Int(0, 1),
+            new Vector2Int(0, -1),
+            new Vector2Int(1, 0),
+            new Vector2Int(-1, 0)
+        };
+
+        public List<Cell.TerrainType> MoveTerrain => new() { Cell.TerrainType.Default, Cell.TerrainType.Stone };
         
         public CraneState(Sprite sprite, SpriteRenderer spriteRenderer, Player player)
         {

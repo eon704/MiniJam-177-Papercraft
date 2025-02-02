@@ -3,17 +3,17 @@ using UnityEngine;
 
 public class BoardPiecePrefab : MonoBehaviour
 {
-  private BoardPiece boardPiece;
+  public BoardPiece BoardPiece { get; private set; }
     
   public void Initialize(BoardPiece boardPieceData, CellPrefab startCell)
   {
-    this.boardPiece = boardPieceData;
+    this.BoardPiece = boardPieceData;
     this.Teleport(startCell);
   }
 
   public void Move(CellPrefab targetCell)
   {
-    bool success = this.boardPiece.MoveTo(targetCell.Cell);
+    bool success = this.BoardPiece.MoveTo(targetCell.Cell);
      
     this.DOKill();
     if (success)
@@ -24,7 +24,7 @@ public class BoardPiecePrefab : MonoBehaviour
   
   public void Teleport(CellPrefab targetCell)
   {
-    bool success = this.boardPiece.TeleportTo(targetCell.Cell);
+    bool success = this.BoardPiece.TeleportTo(targetCell.Cell);
 
     if (!success)
     {
