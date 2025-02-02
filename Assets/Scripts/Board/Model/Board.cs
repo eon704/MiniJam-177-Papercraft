@@ -14,7 +14,7 @@ public class Board
     {
       for (int y = 0; y < size.y; y++)
       {
-        this.CellArray[x, y] = new Cell(new Vector2Int(x, y));
+        this.CellArray[x, y] = new Cell(new Vector2Int(x, y), (Cell.TerrainType)Random.Range(0, 4));
       }
     }
   }
