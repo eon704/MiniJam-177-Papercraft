@@ -6,6 +6,8 @@ public class CellPrefab : MonoBehaviour
     [SerializeField] private GameObject fire;
     [SerializeField] private GameObject water;
     [SerializeField] private GameObject stone;
+    [SerializeField] private GameObject start;
+    [SerializeField] private GameObject end;
     
     [SerializeField] private Color defaultColor;
     [SerializeField] private Color highlightColor;
@@ -20,7 +22,9 @@ public class CellPrefab : MonoBehaviour
     {
         this.Cell = cellData;
         this.player = player;
-        
+
+        this.start.SetActive(this.Cell.Terrain == Cell.TerrainType.Start);
+        this.end.SetActive(this.Cell.Terrain == Cell.TerrainType.End);
         this.fire.SetActive(this.Cell.Terrain == Cell.TerrainType.Fire);
         this.water.SetActive(this.Cell.Terrain == Cell.TerrainType.Water);
         this.stone.SetActive(this.Cell.Terrain == Cell.TerrainType.Stone);

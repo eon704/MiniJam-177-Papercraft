@@ -11,8 +11,8 @@ public class GameController : MonoBehaviour
 
   private IEnumerator Start()
   {
-    CellPrefab cellPrefab = this.boardPrefab.GetCellPrefab(this.playerStartCoord);
-    this.playerPiece = this.boardPrefab.Board.CreateNewPiece(this.playerStartCoord);
+    CellPrefab cellPrefab;
+    (this.playerPiece, cellPrefab) = this.boardPrefab.CreateNewPlayerPrefab();
     this.playerPrefab.Initialize(this.playerPiece, cellPrefab);
     
     yield return null;

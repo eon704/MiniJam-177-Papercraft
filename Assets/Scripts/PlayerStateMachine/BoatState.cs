@@ -17,7 +17,13 @@ namespace PlayerStateMachine
             new Vector2Int(0, 1)
         };
 
-        public List<Cell.TerrainType> MoveTerrain => new() { Cell.TerrainType.Water, Cell.TerrainType.Fire };
+        public List<Cell.TerrainType> MoveTerrain => new()
+        {
+            Cell.TerrainType.Water, 
+            Cell.TerrainType.Fire,
+            Cell.TerrainType.Start,
+            Cell.TerrainType.End,
+        };
 
         public BoatState(Sprite sprite, SpriteRenderer spriteRenderer, Player player)
         {

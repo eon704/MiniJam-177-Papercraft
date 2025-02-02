@@ -14,7 +14,13 @@ public class BoardPiece
     new Vector2Int(0, 1)
   };
 
-  private List<Cell.TerrainType> moveTerrain = new() { Cell.TerrainType.Default };
+  private List<Cell.TerrainType> moveTerrain = new()
+  {
+    Cell.TerrainType.Default,
+    Cell.TerrainType.Start,
+    Cell.TerrainType.End,
+    Cell.TerrainType.Fire
+  };
   
   public BoardPiece(Board board, Cell startCell)
   {
@@ -73,6 +79,7 @@ public class BoardPiece
     if (!targetCell.IsFree)
       return false;
     
+    Debug.Log("Trying to move to " + targetCell.Terrain);
     if (!this.moveTerrain.Contains(targetCell.Terrain))
       return false;
     

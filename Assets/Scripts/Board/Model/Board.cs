@@ -5,6 +5,7 @@ public class Board
 {
   public readonly Vector2Int Size;
   public readonly Cell[,] CellArray;
+  public readonly Cell StartCell;
   
   public Board(Vector2Int size, char[,] map)
   {
@@ -22,12 +23,17 @@ public class Board
           '-' => Cell.TerrainType.Water,
           '+' => Cell.TerrainType.Stone,
           'x' => Cell.TerrainType.Fire,
-          'S' => Cell.TerrainType.Default,
-          'E' => Cell.TerrainType.Default,
+          'S' => Cell.TerrainType.Start,
+          'E' => Cell.TerrainType.End,
           _ => Cell.TerrainType.Default
         };
         
         this.CellArray[x, y] = new Cell(new Vector2Int(x, y), type);
+
+        if (type == Cell.TerrainType.Start)
+        {
+          this.StartCell = this.CellArray[x, y];
+        }
       }
     }
     
@@ -98,5 +104,10 @@ public class Board
   public BoardPiece CreateNewPiece(Vector2Int coord)
   {
     return new BoardPiece(this, this.CellArray[coord.x, coord.y]);
+  }
+
+  public BoardPiece CreatePlayerPiece()
+  {
+    return new BoardPiece(this, this.StartCell);
   }
 }

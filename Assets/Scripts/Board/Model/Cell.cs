@@ -10,6 +10,8 @@ public class Cell
     public enum TerrainType
     {
         Default,
+        Start,
+        End,
         Water,
         Stone,
         Fire

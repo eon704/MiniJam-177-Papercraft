@@ -19,7 +19,13 @@ namespace PlayerStateMachine
         };
 
         public List<Cell.TerrainType> MoveTerrain => new()
-            { Cell.TerrainType.Default, Cell.TerrainType.Stone, Cell.TerrainType.Fire };
+        {
+            Cell.TerrainType.Default, 
+            Cell.TerrainType.Stone, 
+            Cell.TerrainType.Fire, 
+            Cell.TerrainType.Start,
+            Cell.TerrainType.End,
+        };
         
         public CraneState(Sprite sprite, SpriteRenderer spriteRenderer, Player player)
         {

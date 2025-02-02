@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using PlayerStateMachine;
 using UnityEngine;
 
@@ -41,14 +43,17 @@ public class Player : MonoBehaviour
         _planeState = new PlaneState(planeStateSprite, _spriteRenderer, this);
         _boatState = new BoatState(boatStateSprite, _spriteRenderer, this);
         _frogState = new FrogState(frogStateSprite, _spriteRenderer, this);
+    }
 
-
-        SetDefaultState();  
+    private IEnumerator Start()
+    {
+        yield return null;
+        SetDefaultState();
     }
 
     private void SetDefaultState()
     {
-        _stateMachine.SetState(_defaultState);
+        SetState(_defaultState);
     }
 
     public void SetCraneState()

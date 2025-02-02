@@ -20,6 +20,13 @@ public class BoardPrefab : MonoBehaviour
     return this.cellPrefabs[coord.x, coord.y];
   }
   
+  public (BoardPiece, CellPrefab) CreateNewPlayerPrefab()
+  {
+    BoardPiece playerPiece = this.Board.CreatePlayerPiece();
+    CellPrefab startCell = this.GetCellPrefab(playerPiece.OccupiedCell.Value.Position);
+    return (playerPiece, startCell);
+  }
+  
   private void Awake()
   {
     this.worldGrid = this.GetComponent<Grid>();
