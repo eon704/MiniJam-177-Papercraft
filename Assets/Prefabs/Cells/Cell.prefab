@@ -129,8 +129,8 @@ Transform:
   m_GameObject: {fileID: 3440258006361833604}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.0028, y: -0.0029, z: 0}
-  m_LocalScale: {x: 0.50407183, y: 0.5049403, z: 0.9957502}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.38, y: 0.38, z: 0.38}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 4111734587096593915}
@@ -179,7 +179,7 @@ SpriteRenderer:
   m_SortingLayerID: -1178790559
   m_SortingLayer: 1
   m_SortingOrder: 0
-  m_Sprite: {fileID: -6738828768528167240, guid: daae65bd165adb94ea56db08c312375b, type: 3}
+  m_Sprite: {fileID: 9066923050458740672, guid: a8c40f250e6b15b438f9c6ef5f4b6b18, type: 3}
   m_Color: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -267,7 +267,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 1
   m_Sprite: {fileID: -651064882976865019, guid: a12076e5ffdf3492c80607334ff70625, type: 3}
-  m_Color: {r: 0.16470589, g: 0.13725491, b: 0.12941177, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.78039217}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -285,21 +285,33 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 4111734587096593915}
     m_Modifications:
+    - target: {fileID: 1247527534302779644, guid: eaf886e7bf78f444eaca0c8b0f368fbd, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.007
+      objectReference: {fileID: 0}
     - target: {fileID: 2722833577935112601, guid: eaf886e7bf78f444eaca0c8b0f368fbd, type: 3}
       propertyPath: m_Name
       value: 'StoneCell '
       objectReference: {fileID: 0}
     - target: {fileID: 2722833577935112601, guid: eaf886e7bf78f444eaca0c8b0f368fbd, type: 3}
       propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4886619491046709081, guid: eaf886e7bf78f444eaca0c8b0f368fbd, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 4886619491046709081, guid: eaf886e7bf78f444eaca0c8b0f368fbd, type: 3}
+      propertyPath: m_WasSpriteAssigned
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6946120778423589486, guid: eaf886e7bf78f444eaca0c8b0f368fbd, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.145
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6946120778423589486, guid: eaf886e7bf78f444eaca0c8b0f368fbd, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.01
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6946120778423589486, guid: eaf886e7bf78f444eaca0c8b0f368fbd, type: 3}
       propertyPath: m_LocalPosition.z
@@ -333,8 +345,13 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7027940737753266211, guid: eaf886e7bf78f444eaca0c8b0f368fbd, type: 3}
+      propertyPath: m_SortingOrder
+      value: 2
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 4424091184998190102, guid: eaf886e7bf78f444eaca0c8b0f368fbd, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: eaf886e7bf78f444eaca0c8b0f368fbd, type: 3}
@@ -356,17 +373,9 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 4111734587096593915}
     m_Modifications:
-    - target: {fileID: 907701220242177790, guid: b1c2de8bb535b704fb5504121cb50b44, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 4807324404388009430, guid: b1c2de8bb535b704fb5504121cb50b44, type: 3}
       propertyPath: m_Name
       value: WaterCell
-      objectReference: {fileID: 0}
-    - target: {fileID: 4807324404388009430, guid: b1c2de8bb535b704fb5504121cb50b44, type: 3}
-      propertyPath: m_IsActive
-      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7196845019529956619, guid: b1c2de8bb535b704fb5504121cb50b44, type: 3}
       propertyPath: m_LocalPosition.x
@@ -474,10 +483,6 @@ PrefabInstance:
     - target: {fileID: 4514720848628985876, guid: 512b7f0d382a40348b9e4df4c52aa18f, type: 3}
       propertyPath: m_Name
       value: FireCell
-      objectReference: {fileID: 0}
-    - target: {fileID: 4514720848628985876, guid: 512b7f0d382a40348b9e4df4c52aa18f, type: 3}
-      propertyPath: m_IsActive
-      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
