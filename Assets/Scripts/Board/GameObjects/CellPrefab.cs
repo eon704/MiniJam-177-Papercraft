@@ -8,9 +8,10 @@ public class CellPrefab : MonoBehaviour
     [SerializeField] private GameObject water;
     [SerializeField] private GameObject stone;
     
-    // [Header("Default Colors")]
-    // [SerializeField] private Color defaultColor;
-
+    [SerializeField] private Color defaultColor;
+    [SerializeField] private Color highlightColor;
+    [SerializeField] private Color reachableColor;
+    
     public Cell Cell { get; private set; }
     private Player player;
 
@@ -31,11 +32,11 @@ public class CellPrefab : MonoBehaviour
 
     private void OnMouseEnter()
     {
-        // this.fill.color = this.defaultColor + new Color(0.2f, 0.2f, 0.2f);
+        this.fill.color = this.highlightColor;
     }
 
     private void OnMouseExit()
     {
-        // this.fill.color = this.defaultColor;
+        this.fill.color = this.defaultColor;
     }
 }
