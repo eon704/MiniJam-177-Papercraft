@@ -77,118 +77,25 @@ MonoBehaviour:
     - State: 4
       Moves: 2
   - MapSize: {x: 10, y: 10}
-    Map: 'Eoo+ooo+oo
+    Map: 'Sooo+ooooo
 
-      oo+oo+oooo
+      o+ooo+oooo
 
-      o+oo+oo+oo
+      oo-ooo-ooo
 
-      oo+o-+oooo
+      ooo+ooo+oo
 
-      +oo+oo+ooo
+      ooooxoooxo
 
-      o+oB+oo+oo
+      oooooooooo
 
-      oo+o-+oooo
+      ooo+ooo+oo
 
-      +oo+oo+ooo
+      oo-ooo-ooo
 
-      o+oo+oo+oo
+      o+ooo+oooo
 
-      So+oo+oooo'
-    StartMovesPerForm:
-    - State: 0
-      Moves: 0
-    - State: 1
-      Moves: 4
-    - State: 2
-      Moves: 2
-    - State: 3
-      Moves: 2
-    - State: 4
-      Moves: 2
-  - MapSize: {x: 10, y: 10}
-    Map: 'Eoo+ooo+oo
-
-      oo+oo+oooo
-
-      o+oo+oo+oo
-
-      oo+o-+oooo
-
-      +oo+oo+ooo
-
-      o+oB+oo+oo
-
-      oo+o-+oooo
-
-      +oo+oo+ooo
-
-      o+oo+oo+oo
-
-      So+oo+oooo'
-    StartMovesPerForm:
-    - State: 0
-      Moves: 0
-    - State: 1
-      Moves: 3
-    - State: 2
-      Moves: 1
-    - State: 3
-      Moves: 2
-    - State: 4
-      Moves: 2
-  - MapSize: {x: 10, y: 10}
-    Map: 'Eoo+ooo+oo
-
-      oo+oo+oooo
-
-      o+oo+oo+oo
-
-      oo+o-+oooo
-
-      +oo+oo+ooo
-
-      o+oB+oo+oo
-
-      oo+o-+oooo
-
-      +oo+oo+ooo
-
-      o+oo+oo+oo
-
-      So+oo+oooo'
-    StartMovesPerForm:
-    - State: 0
-      Moves: 0
-    - State: 1
-      Moves: 4
-    - State: 2
-      Moves: 2
-    - State: 3
-      Moves: 2
-    - State: 4
-      Moves: 2
-  - MapSize: {x: 10, y: 10}
-    Map: 'Eoo+ooo+oo
-
-      oo+oo+oooo
-
-      o+oo+oo+oo
-
-      oo+o-+oooo
-
-      +oo+oo+ooo
-
-      o+Bo+oo+oo
-
-      oo+o-+oooo
-
-      +oo+oo+ooo
-
-      o+oo+oo+oo
-
-      So+oo+oooo'
+      oooo+oooEo'
     StartMovesPerForm:
     - State: 0
       Moves: 0

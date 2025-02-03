@@ -330,6 +330,56 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
+      propertyPath: levels.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
+      propertyPath: levels.Array.data[1].Map
+      value: 'Sooo+ooooo
+
+        o+ooo+oooo
+
+        oo-ooo-ooo
+
+        ooo+ooo+oo
+
+        ooooxoooxo
+
+        oooooooooo
+
+        ooo+ooo+oo
+
+        oo-ooo-ooo
+
+        o+ooo+oooo
+
+        oooo+oooEo'
+      objectReference: {fileID: 0}
+    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
+      propertyPath: levels.Array.data[3].StartMovesPerForm.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
+      propertyPath: levels.Array.data[4].StartMovesPerForm.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
+      propertyPath: levels.Array.data[1].StartMovesPerForm.Array.data[1].Moves
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
+      propertyPath: levels.Array.data[1].StartMovesPerForm.Array.data[2].Moves
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
+      propertyPath: levels.Array.data[3].StartMovesPerForm.Array.data[2].State
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
+      propertyPath: levels.Array.data[3].StartMovesPerForm.Array.data[3].State
+      value: 4
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

@@ -55,11 +55,12 @@ public class BoardPrefab : MonoBehaviour
     for (int i = 0; i < this.map.Length; i++)
     {
       char key = this.map[i];
-      if (key == '\n')
+      if (key == '\n' || key == '\r')
         continue;
       
       int x = i % rowLength;
       int y = i / rowLength;
+      print(x + "q" +y +"q" + key);
       parsedMap[x, y] = key;
     }
     
