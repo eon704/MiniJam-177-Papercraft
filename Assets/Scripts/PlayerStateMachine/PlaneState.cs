@@ -9,6 +9,8 @@ namespace PlayerStateMachine
         private readonly SpriteRenderer _spriteRenderer;
         private readonly Player _player;
         
+        public Player.StateType StateType => Player.StateType.Plane;
+        
         public List<Vector2Int> MoveOptions => new()
         {
             new Vector2Int(-1, 1),

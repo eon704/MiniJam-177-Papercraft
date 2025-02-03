@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 
@@ -8,14 +9,26 @@ public class GameController : MonoBehaviour
   [SerializeField] private BoardPrefab boardPrefab;
 
   private BoardPiece playerPiece;
+  private Dictionary<Player.StateType, int> startTransformations = new()
+  {
+    {Player.StateType.Crane, 2},
+    {Player.StateType.Plane, 1},
+    {Player.StateType.Boat, 2},
+    {Player.StateType.Frog, 1}
+  };
+  
+  Sequence respawnSequence;
 
   public void ResetMap()
   {
     GlobalSoundManager.PlayRandomSoundByType(SoundType.Lose);
     CellPrefab startCell = this.boardPrefab.GetStartCellPrefab();
-
-    Sequence respawnSequence = DOTween.Sequence();
+    startCell.Cell.FreePiece();
+    
+    respawnSequence?.Kill();
+    respawnSequence = DOTween.Sequence();
     respawnSequence.Append(this.playerPrefab.transform.DOScale(0, 0.5f));
+    respawnSequence.AppendCallback(() => this.playerPrefab.SetDefaultState());
     respawnSequence.AppendCallback(() => this.playerPrefab.BoardPiecePrefab.Teleport(startCell));
     respawnSequence.Append(this.playerPrefab.transform.DOScale(0.3f, 0.5f));
   }
@@ -24,7 +37,7 @@ public class GameController : MonoBehaviour
   {
     CellPrefab cellPrefab;
     (this.playerPiece, cellPrefab) = this.boardPrefab.CreateNewPlayerPrefab();
-    this.playerPrefab.Initialize(this.playerPiece, cellPrefab);
+    this.playerPrefab.Initialize(this.playerPiece, cellPrefab, startTransformations);
     this.playerPrefab.OnPlayerWon.AddListener(this.OnWin);
     this.playerPrefab.OnPlayerDied.AddListener(this.ResetMap);
     
