@@ -7,16 +7,17 @@ public class GameController : MonoBehaviour
 {
   [SerializeField] private Player playerPrefab;
   [SerializeField] private BoardPrefab boardPrefab;
+  [SerializeField] private List<PulseImage> nudgeImages;
 
   private BoardPiece playerPiece;
 
-  private Dictionary<Player.StateType, int> startTransformations = new()
+  private Dictionary<Player.StateType, int> startMovesPerForm = new()
   {
-    { Player.StateType.Default, 99 },
-    { Player.StateType.Crane, 2 },
-    { Player.StateType.Plane, 1 },
-    { Player.StateType.Boat, 2 },
-    { Player.StateType.Frog, 1 }
+    { Player.StateType.Default, 0 },
+    { Player.StateType.Crane, 5 },
+    { Player.StateType.Plane, 5 },
+    { Player.StateType.Boat, 5 },
+    { Player.StateType.Frog, 5 }
   };
   
   Sequence respawnSequence;
@@ -27,12 +28,14 @@ public class GameController : MonoBehaviour
     CellPrefab startCell = this.boardPrefab.GetStartCellPrefab();
     startCell.Cell.FreePiece();
     
+    this.nudgeImages.ForEach(image => image.gameObject.SetActive(true));
+    
     respawnSequence?.Kill();
     respawnSequence = DOTween.Sequence();
     respawnSequence.Append(this.playerPrefab.transform.DOScale(0, 0.5f));
     respawnSequence.AppendCallback(() => this.playerPrefab.SetDefaultState());
     respawnSequence.AppendCallback(() => this.playerPrefab.BoardPiecePrefab.Teleport(startCell));
-    respawnSequence.AppendCallback(() => this.playerPrefab.SetTransformationLimits(startTransformations));
+    respawnSequence.AppendCallback(() => this.playerPrefab.SetTransformationLimits(this.startMovesPerForm));
     respawnSequence.Append(this.playerPrefab.transform.DOScale(0.3f, 0.5f));
   }
 
@@ -45,9 +48,11 @@ public class GameController : MonoBehaviour
 
     this.playerPrefab.OnPlayerWon.AddListener(this.OnWin);
     this.playerPrefab.OnPlayerDied.AddListener(this.ResetMap);
+    this.playerPrefab.OnTransformation.AddListener(() => nudgeImages.ForEach(image => image.gameObject.SetActive(false)));
 
     yield return null;
-    this.playerPrefab.SetTransformationLimits(startTransformations);
+    this.playerPrefab.SetTransformationLimits(this.startMovesPerForm);
+    this.nudgeImages.ForEach(image => image.gameObject.SetActive(true));
   }
 
   private void Update()

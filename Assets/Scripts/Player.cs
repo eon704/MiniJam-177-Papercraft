@@ -13,7 +13,8 @@ public class Player : MonoBehaviour
     
     public readonly UnityEvent OnPlayerWon = new();
     public readonly UnityEvent OnPlayerDied = new();
-    public readonly UnityEvent<StateType, int> OnTransformation = new();
+    public readonly UnityEvent OnTransformation = new();
+    public readonly UnityEvent<StateType, int> OnMovesLeftChanged = new();
 
     private StateMachine _stateMachine;
     private SpriteRenderer _spriteRenderer;
@@ -42,21 +43,21 @@ public class Player : MonoBehaviour
         Frog
     }
 
-    private Dictionary<StateType, int> transformationsLeft;
+    private Dictionary<StateType, int> movesPerForm;
 
     public void Initialize(BoardPiece boardPiece, CellPrefab startCell)
     {
         this.BoardPiecePrefab.Initialize(boardPiece, startCell);
     }
 
-    public void SetTransformationLimits(Dictionary<StateType, int> startTransformations)
+    public void SetTransformationLimits(Dictionary<StateType, int> startingMoves)
     {
-        this.transformationsLeft = new Dictionary<StateType, int>(startTransformations);
-        this.OnTransformation?.Invoke(StateType.Boat, transformationsLeft[StateType.Boat]);
-        this.OnTransformation?.Invoke(StateType.Crane, transformationsLeft[StateType.Crane]);
-        this.OnTransformation?.Invoke(StateType.Frog, transformationsLeft[StateType.Frog]);
-        this.OnTransformation?.Invoke(StateType.Plane, transformationsLeft[StateType.Plane]);
-    }
+        this.movesPerForm = new Dictionary<StateType, int>(startingMoves);
+        this.OnMovesLeftChanged?.Invoke(StateType.Boat, this.movesPerForm[StateType.Boat]);
+        this.OnMovesLeftChanged?.Invoke(StateType.Crane, this.movesPerForm[StateType.Crane]);
+        this.OnMovesLeftChanged?.Invoke(StateType.Frog, this.movesPerForm[StateType.Frog]);
+        this.OnMovesLeftChanged?.Invoke(StateType.Plane, this.movesPerForm[StateType.Plane]);
+    } 
     
 
     private void Awake()
@@ -85,44 +86,49 @@ public class Player : MonoBehaviour
 
     public void SetCraneState()
     {
+        this.OnTransformation?.Invoke();
         SetState(_craneState);
     }
 
     public void SerFrogState()
     {
+        this.OnTransformation?.Invoke();
         SetState(_frogState);
     }
 
     public void SetPlaneState()
     {
+        this.OnTransformation?.Invoke();
         SetState(_planeState);
     }
 
     public void SetBoatState()
     {
+        this.OnTransformation?.Invoke();
         SetState(_boatState);
     }
 
     public void Move(CellPrefab targetCell)
     {
-        this.BoardPiecePrefab.Move(targetCell, this.OnMove);
+        IState currentState = (this._stateMachine.CurrentState as IState)!; 
+        StateType type = currentState.StateType;
+        bool forceFailMovement = this.movesPerForm[type] <= 0;
+        bool success = this.BoardPiecePrefab.Move(targetCell, this.OnMove, forceFailMovement);
+        
+        if (success)
+        {
+            this.movesPerForm[type]--;
+            this.OnMovesLeftChanged?.Invoke(type, this.movesPerForm[type]);
+        }
     }
 
     private void Update() => _stateMachine.Tick();
 
     private void SetState(IState state)
     {
-        StateType type = state.StateType;
-        if (type != StateType.Default && this.transformationsLeft[type] <= 0)
-        {
-            return;
-        }
-
-        this.transformationsLeft[type]--;
         GlobalSoundManager.PlayRandomSoundByType(SoundType.ChangeState);
         _stateMachine.SetState(state);
         this.BoardPiecePrefab.BoardPiece.SetState(state);
-        OnTransformation?.Invoke(state.StateType, transformationsLeft[type]);
     }
 
     private void OnMove()

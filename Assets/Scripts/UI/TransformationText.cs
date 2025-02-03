@@ -10,7 +10,7 @@ public class TransformationText : MonoBehaviour
 
     private void Start()
     {
-        this.player.OnTransformation.AddListener(this.OnTransformation);
+        this.player.OnMovesLeftChanged.AddListener(this.OnTransformation);
     }
     
     private void OnTransformation(Player.StateType stateType, int transformationsLeft)

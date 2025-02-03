@@ -13,9 +13,9 @@ public class BoardPiecePrefab : MonoBehaviour
     this.Teleport(startCell);
   }
 
-  public void Move(CellPrefab targetCell, UnityAction onComplete = null)
+  public bool Move(CellPrefab targetCell, UnityAction onComplete = null, bool forceFailMovement = false)
   {
-    bool success = this.BoardPiece.MoveTo(targetCell.Cell);
+    bool success = !forceFailMovement && this.BoardPiece.MoveTo(targetCell.Cell);
     
     if (success)
     {
@@ -33,8 +33,10 @@ public class BoardPiecePrefab : MonoBehaviour
           .DOShakePosition(0.5f, 0.3f)
           .OnComplete(() => onComplete?.Invoke());
     }
+
+    return success;
   }
-  
+
   public void Teleport(CellPrefab targetCell)
   {
     bool success = this.BoardPiece.TeleportTo(targetCell.Cell);
