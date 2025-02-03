@@ -45,46 +45,158 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   levels:
-  - MapSize: {x: 3, y: 1}
-    Map: SoE
-    StartMovesPerForm:
-    - State: 0
-      Moves: 0
-    - State: 1
-      Moves: 0
-    - State: 2
-      Moves: 0
-    - State: 3
-      Moves: 0
-    - State: 4
-      Moves: 5
-  - MapSize: {x: 3, y: 1}
-    Map: S-E
-    StartMovesPerForm:
-    - State: 0
-      Moves: 0
-    - State: 1
-      Moves: 0
-    - State: 2
-      Moves: 0
-    - State: 3
-      Moves: 5
-    - State: 4
-      Moves: 5
-  - MapSize: {x: 3, y: 3}
-    Map: 'Sox
+  - MapSize: {x: 10, y: 10}
+    Map: 'Eoo+ooo+oo
 
-      xox
+      oo+oo+oooo
 
-      xoE'
+      o+oo+oo+oo
+
+      oo+o-+oooo
+
+      +oo+oo+ooo
+
+      o+oo+oo+oo
+
+      oo+o-+oooo
+
+      +oo+oo+ooo
+
+      o+oo+oo+oo
+
+      So+o+ooooo'
     StartMovesPerForm:
     - State: 0
       Moves: 0
     - State: 1
-      Moves: 0
+      Moves: 4
     - State: 2
-      Moves: 0
+      Moves: 2
     - State: 3
-      Moves: 0
+      Moves: 2
     - State: 4
-      Moves: 5
+      Moves: 2
+  - MapSize: {x: 10, y: 10}
+    Map: 'Eoo+ooo+oo
+
+      oo+oo+oooo
+
+      o+oo+oo+oo
+
+      oo+o-+oooo
+
+      +oo+oo+ooo
+
+      o+oB+oo+oo
+
+      oo+o-+oooo
+
+      +oo+oo+ooo
+
+      o+oo+oo+oo
+
+      So+oo+oooo'
+    StartMovesPerForm:
+    - State: 0
+      Moves: 0
+    - State: 1
+      Moves: 4
+    - State: 2
+      Moves: 2
+    - State: 3
+      Moves: 2
+    - State: 4
+      Moves: 2
+  - MapSize: {x: 10, y: 10}
+    Map: 'Eoo+ooo+oo
+
+      oo+oo+oooo
+
+      o+oo+oo+oo
+
+      oo+o-+oooo
+
+      +oo+oo+ooo
+
+      o+oB+oo+oo
+
+      oo+o-+oooo
+
+      +oo+oo+ooo
+
+      o+oo+oo+oo
+
+      So+oo+oooo'
+    StartMovesPerForm:
+    - State: 0
+      Moves: 0
+    - State: 1
+      Moves: 3
+    - State: 2
+      Moves: 1
+    - State: 3
+      Moves: 2
+    - State: 4
+      Moves: 2
+  - MapSize: {x: 10, y: 10}
+    Map: 'Eoo+ooo+oo
+
+      oo+oo+oooo
+
+      o+oo+oo+oo
+
+      oo+o-+oooo
+
+      +oo+oo+ooo
+
+      o+oB+oo+oo
+
+      oo+o-+oooo
+
+      +oo+oo+ooo
+
+      o+oo+oo+oo
+
+      So+oo+oooo'
+    StartMovesPerForm:
+    - State: 0
+      Moves: 0
+    - State: 1
+      Moves: 4
+    - State: 2
+      Moves: 2
+    - State: 3
+      Moves: 2
+    - State: 4
+      Moves: 2
+  - MapSize: {x: 10, y: 10}
+    Map: 'Eoo+ooo+oo
+
+      oo+oo+oooo
+
+      o+oo+oo+oo
+
+      oo+o-+oooo
+
+      +oo+oo+ooo
+
+      o+Bo+oo+oo
+
+      oo+o-+oooo
+
+      +oo+oo+ooo
+
+      o+oo+oo+oo
+
+      So+oo+oooo'
+    StartMovesPerForm:
+    - State: 0
+      Moves: 0
+    - State: 1
+      Moves: 4
+    - State: 2
+      Moves: 2
+    - State: 3
+      Moves: 2
+    - State: 4
+      Moves: 2
