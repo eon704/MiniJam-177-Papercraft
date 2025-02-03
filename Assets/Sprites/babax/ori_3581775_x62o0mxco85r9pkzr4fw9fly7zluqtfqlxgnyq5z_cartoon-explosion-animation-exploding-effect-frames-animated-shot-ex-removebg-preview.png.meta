@@ -1,0 +1,478 @@
+fileFormatVersion: 2
+guid: a426db4ccd71c3f4ebbf2a507460c715
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 3910647743233514659
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_0
+  - first:
+      213: -4346069065488133392
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_1
+  - first:
+      213: 2100900296005171425
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_2
+  - first:
+      213: 5416074423031533926
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_3
+  - first:
+      213: -5525849704388615681
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_4
+  - first:
+      213: -9020299722740938181
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_5
+  - first:
+      213: -5830688218685816834
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_6
+  - first:
+      213: -7778694260389795071
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_7
+  - first:
+      213: 2619067663491405712
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_8
+  - first:
+      213: -5636959147909154088
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_9
+  - first:
+      213: -956922725473997607
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_10
+  - first:
+      213: -4600382044853287999
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_11
+  - first:
+      213: -6041648303453348429
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_12
+  - first:
+      213: -5444018376443066616
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_13
+  - first:
+      213: 8234531369183050895
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_14
+  - first:
+      213: 8507188462548788234
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_15
+  - first:
+      213: -2581468920828774607
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_16
+  - first:
+      213: -2785748488881534938
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_17
+  - first:
+      213: 4044427789751182571
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_18
+  - first:
+      213: 8711132160508728970
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_19
+  - first:
+      213: -8522657245307092889
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_20
+  - first:
+      213: 6021808044981777687
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_21
+  - first:
+      213: -5768480645016514017
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_22
+  - first:
+      213: -4935973497260728568
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_23
+  - first:
+      213: -7189970108952270156
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_24
+  - first:
+      213: -8317788859224775239
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_25
+  - first:
+      213: 7364673121366353413
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_26
+  - first:
+      213: -2680785663204699924
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_27
+  - first:
+      213: -2431559111408425809
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_28
+  - first:
+      213: -56576265137505744
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_29
+  - first:
+      213: 3279897878028375669
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_30
+  - first:
+      213: -8058017300064348872
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_31
+  - first:
+      213: -8691694102597007785
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_32
+  - first:
+      213: 4038388773519181212
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_33
+  - first:
+      213: -2131078101538575163
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_34
+  - first:
+      213: 3667137084440261786
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_35
+  - first:
+      213: 1113522501091106910
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_36
+  - first:
+      213: -6280111969936223456
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_37
+  - first:
+      213: -1566579952746268287
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_38
+  - first:
+      213: 8220468392589156796
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_39
+  - first:
+      213: 2589022645681172507
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_40
+  - first:
+      213: -5181926361865339668
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_41
+  - first:
+      213: 8833374456007666867
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_42
+  - first:
+      213: 1766814767159942615
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_43
+  - first:
+      213: 3126126751448341726
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_44
+  - first:
+      213: -8341581773004432913
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_45
+  - first:
+      213: -8471072168696903133
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_46
+  - first:
+      213: 6136916214839533378
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_47
+  - first:
+      213: -1860087544800325058
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_48
+  - first:
+      213: -1361647356276750392
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_49
+  - first:
+      213: -8070002550994280303
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_50
+  - first:
+      213: -7138882045962838329
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_51
+  - first:
+      213: -9218833570096230157
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_52
+  - first:
+      213: -1869647520178294606
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_53
+  - first:
+      213: -6785641144510982775
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_54
+  - first:
+      213: -6744908356203281838
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_55
+  - first:
+      213: 5619863347467561009
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_56
+  - first:
+      213: 688080637425942085
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_57
+  - first:
+      213: -8822535365734138574
+    second: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_58
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 192
+        width: 162
+        height: 192
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9adbc77d3a98a8f4ab26901d99bc4c3c
+      internalID: -1694624467
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_1
+      rect:
+        serializedVersion: 2
+        x: 162
+        y: 192
+        width: 162
+        height: 192
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8f74bcaa9fac4374e83eedbc140266a5
+      internalID: -1259351994
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_2
+      rect:
+        serializedVersion: 2
+        x: 324
+        y: 192
+        width: 162
+        height: 192
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3de49093ac521bd42aebf3e0e85c2235
+      internalID: 1650011825
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_3
+      rect:
+        serializedVersion: 2
+        x: 486
+        y: 192
+        width: 162
+        height: 192
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 93c08d958426d854e85a4d4e945bcba4
+      internalID: -215266990
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_4
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 162
+        height: 192
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b7ddd7521b7e42f4ea096034107cfff9
+      internalID: 1382207801
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_5
+      rect:
+        serializedVersion: 2
+        x: 162
+        y: 0
+        width: 162
+        height: 192
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 772876ff14681854e98a27b8f5848703
+      internalID: 498101875
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_6
+      rect:
+        serializedVersion: 2
+        x: 324
+        y: 0
+        width: 162
+        height: 192
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a988512cca3669540af2d57e3728d1ee
+      internalID: 1806291069
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_7
+      rect:
+        serializedVersion: 2
+        x: 486
+        y: 0
+        width: 162
+        height: 192
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4eac8e943e703db42ac278efb913d893
+      internalID: 18738702
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 63fa5fc0314cf574fb90c881c28cd576
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_0: -1694624467
+      ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_1: -1259351994
+      ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_2: 1650011825
+      ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_3: -215266990
+      ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_4: 1382207801
+      ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_5: 498101875
+      ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_6: 1806291069
+      ori_3581775_x62o0mxco85r9pkzr4fw9fly7zluqtfqlxgnyq5z_cartoon-explosion-animation-exploding-effect-frames-animated-shot-ex-removebg-preview_7: 18738702
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
