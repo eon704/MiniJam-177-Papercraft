@@ -10,6 +10,7 @@ public class GameController : MonoBehaviour
   [SerializeField] private BoardPrefab boardPrefab;
   [SerializeField] private List<PulseImage> nudgeImages;
   [SerializeField] private GameObject winScreen;
+  [SerializeField] private GameObject finalScreen;
 
   private BoardPiece playerPiece;
 
@@ -72,7 +73,15 @@ public class GameController : MonoBehaviour
 
   private void OnWin()
   {
-    this.winScreen.SetActive(true);
+    if (LevelManager.Instance.IsLastLevel())
+    {
+      this.finalScreen.SetActive(true);
+    }
+    else
+    {
+      this.winScreen.SetActive(true);
+    }
+
     LevelManager.Instance.SetCurrentLevelComplete();
     GlobalSoundManager.PlayRandomSoundByType(SoundType.Win);
   }

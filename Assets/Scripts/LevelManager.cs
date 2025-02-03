@@ -29,6 +29,11 @@ public class LevelManager : MonoBehaviour
     Instance = null;
   }
 
+  public bool IsLastLevel()
+  {
+    return this.nextLevelIndex >= this.levels.Count - 1;
+  }
+
   public void SetLevel(int index)
   {
     index = Mathf.Clamp(index, 0, this.levels.Count - 1);
