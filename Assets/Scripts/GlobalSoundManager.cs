@@ -8,7 +8,8 @@ public enum SoundType // DON'T CHANGE THE ORDER OF THIS ENUM !!!!!!
     ChangeState,
     Move,
     Win,
-    Lose
+    Lose,
+    Fail
 }
 
 
