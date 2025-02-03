@@ -589,6 +589,12 @@ MonoBehaviour:
   - name: Move
     sounds:
     - {fileID: 8300000, guid: c323651ceeaf6da4185e3c2c15ef626c, type: 3}
+  - name: Win
+    sounds:
+    - {fileID: 8300000, guid: 9815bbf7919881f48b5c8585e0b510af, type: 3}
+  - name: Lose
+    sounds:
+    - {fileID: 8300000, guid: b68a40a6b663116468dd419a6cb6667d, type: 3}
 --- !u!4 &1738763962
 Transform:
   m_ObjectHideFlags: 0
