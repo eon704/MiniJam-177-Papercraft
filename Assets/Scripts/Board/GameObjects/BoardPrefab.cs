@@ -50,6 +50,9 @@ public class BoardPrefab : MonoBehaviour
 
   private char[,] ParseMap()
   {
+    // Normalize newlines to '\n'
+    this.map = this.map.Replace("\r\n", "\n");
+    
     char[,] parsedMap = new char[this.size.x, this.size.y];
     int rowLength = this.size.x + 1;
     for (int i = 0; i < this.map.Length; i++)
@@ -60,7 +63,6 @@ public class BoardPrefab : MonoBehaviour
       
       int x = i % rowLength;
       int y = i / rowLength;
-      print(x + "q" +y +"q" + key);
       parsedMap[x, y] = key;
     }
     

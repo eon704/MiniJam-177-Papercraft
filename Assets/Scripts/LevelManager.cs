@@ -4,7 +4,7 @@ using UnityEngine;
 public class LevelManager : MonoBehaviour
 {
   [SerializeField] private List<LevelData> levels;
-  private int nextLevelIndex = 0;
+  public int NextLevelIndex { get; private set; }
   public static LevelManager Instance { get; private set; }
 
   public LevelData CurrentLevel => this.currentLevel ?? LevelData.DefaultLevel;
@@ -15,8 +15,8 @@ public class LevelManager : MonoBehaviour
     if (Instance == null)
     {
       Instance = this;
-      this.nextLevelIndex = PlayerPrefs.GetInt("NextLevelIndex", 0);
-      this.SetLevel(this.nextLevelIndex);
+      this.NextLevelIndex = PlayerPrefs.GetInt("NextLevelIndex", 0);
+      this.SetLevel(this.NextLevelIndex);
     }
     else
     {
@@ -31,7 +31,7 @@ public class LevelManager : MonoBehaviour
 
   public bool IsLastLevel()
   {
-    return this.nextLevelIndex >= this.levels.Count - 1;
+    return this.NextLevelIndex >= this.levels.Count - 1;
   }
 
   public void SetLevel(int index)
@@ -42,7 +42,7 @@ public class LevelManager : MonoBehaviour
 
   public void SetCurrentLevelComplete()
   {
-    this.nextLevelIndex++;
-    PlayerPrefs.SetInt("NextLevelIndex", this.nextLevelIndex);
+    this.NextLevelIndex++;
+    PlayerPrefs.SetInt("NextLevelIndex", this.NextLevelIndex);
   }
 }
