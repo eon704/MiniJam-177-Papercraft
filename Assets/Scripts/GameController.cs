@@ -12,6 +12,7 @@ public class GameController : MonoBehaviour
 
   private Dictionary<Player.StateType, int> startTransformations = new()
   {
+    { Player.StateType.Default, 99 },
     { Player.StateType.Crane, 2 },
     { Player.StateType.Plane, 1 },
     { Player.StateType.Boat, 2 },
@@ -31,6 +32,7 @@ public class GameController : MonoBehaviour
     respawnSequence.Append(this.playerPrefab.transform.DOScale(0, 0.5f));
     respawnSequence.AppendCallback(() => this.playerPrefab.SetDefaultState());
     respawnSequence.AppendCallback(() => this.playerPrefab.BoardPiecePrefab.Teleport(startCell));
+    respawnSequence.AppendCallback(() => this.playerPrefab.SetTransformationLimits(startTransformations));
     respawnSequence.Append(this.playerPrefab.transform.DOScale(0.3f, 0.5f));
   }
 
@@ -38,11 +40,14 @@ public class GameController : MonoBehaviour
   {
     CellPrefab cellPrefab;
     (this.playerPiece, cellPrefab) = this.boardPrefab.CreateNewPlayerPrefab();
-    this.playerPrefab.Initialize(this.playerPiece, cellPrefab, startTransformations);
+    
+    this.playerPrefab.Initialize(this.playerPiece, cellPrefab);
+
     this.playerPrefab.OnPlayerWon.AddListener(this.OnWin);
     this.playerPrefab.OnPlayerDied.AddListener(this.ResetMap);
-    
+
     yield return null;
+    this.playerPrefab.SetTransformationLimits(startTransformations);
   }
 
   private void Update()

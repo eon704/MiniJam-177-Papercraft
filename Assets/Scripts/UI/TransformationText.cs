@@ -16,8 +16,6 @@ public class TransformationText : MonoBehaviour
     private void OnTransformation(Player.StateType stateType, int transformationsLeft)
     {
         if (stateType != this.stateType) return;
-        
-        print("Upgrading " + stateType + " to " + transformationsLeft);
         this.text.text = transformationsLeft.ToString("D2");
     }
 }

@@ -44,11 +44,20 @@ public class Player : MonoBehaviour
 
     private Dictionary<StateType, int> transformationsLeft;
 
-    public void Initialize(BoardPiece boardPiece, CellPrefab startCell, Dictionary<StateType, int> startTransformations)
+    public void Initialize(BoardPiece boardPiece, CellPrefab startCell)
     {
         this.BoardPiecePrefab.Initialize(boardPiece, startCell);
-        this.transformationsLeft = startTransformations;
     }
+
+    public void SetTransformationLimits(Dictionary<StateType, int> startTransformations)
+    {
+        this.transformationsLeft = new Dictionary<StateType, int>(startTransformations);
+        this.OnTransformation?.Invoke(StateType.Boat, transformationsLeft[StateType.Boat]);
+        this.OnTransformation?.Invoke(StateType.Crane, transformationsLeft[StateType.Crane]);
+        this.OnTransformation?.Invoke(StateType.Frog, transformationsLeft[StateType.Frog]);
+        this.OnTransformation?.Invoke(StateType.Plane, transformationsLeft[StateType.Plane]);
+    }
+    
 
     private void Awake()
     {
@@ -67,12 +76,6 @@ public class Player : MonoBehaviour
     {
         yield return null;
         SetDefaultState();
-        
-        // Send updated counts to UI
-        this.OnTransformation?.Invoke(StateType.Boat, transformationsLeft[StateType.Boat]);
-        this.OnTransformation?.Invoke(StateType.Crane, transformationsLeft[StateType.Crane]);
-        this.OnTransformation?.Invoke(StateType.Frog, transformationsLeft[StateType.Frog]);
-        this.OnTransformation?.Invoke(StateType.Plane, transformationsLeft[StateType.Plane]);
     }
 
     public void SetDefaultState()
