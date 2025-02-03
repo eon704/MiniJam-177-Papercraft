@@ -2,23 +2,19 @@ using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameController : MonoBehaviour
 {
   [SerializeField] private Player playerPrefab;
   [SerializeField] private BoardPrefab boardPrefab;
   [SerializeField] private List<PulseImage> nudgeImages;
+  [SerializeField] private GameObject winScreen;
+  [SerializeField] private GameObject finalScreen;
 
   private BoardPiece playerPiece;
 
-  private Dictionary<Player.StateType, int> startMovesPerForm = new()
-  {
-    { Player.StateType.Default, 0 },
-    { Player.StateType.Crane, 5 },
-    { Player.StateType.Plane, 5 },
-    { Player.StateType.Boat, 5 },
-    { Player.StateType.Frog, 5 }
-  };
+  private Dictionary<Player.StateType, int> startMovesPerForm;
   
   Sequence respawnSequence;
 
@@ -39,8 +35,20 @@ public class GameController : MonoBehaviour
     respawnSequence.Append(this.playerPrefab.transform.DOScale(0.3f, 0.5f));
   }
 
+  public void NextLevel()
+  {
+    SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+  }
+
   private IEnumerator Start()
   {
+    this.startMovesPerForm = new Dictionary<Player.StateType, int>();
+    foreach (MovePerFormEntry movesPerForm in LevelManager.Instance.CurrentLevel.StartMovesPerForm)
+    {
+      this.startMovesPerForm[movesPerForm.State] = movesPerForm.Moves;
+    }
+    
+    this.boardPrefab.Initialize(LevelManager.Instance.CurrentLevel.Map, LevelManager.Instance.CurrentLevel.MapSize);
     CellPrefab cellPrefab;
     (this.playerPiece, cellPrefab) = this.boardPrefab.CreateNewPlayerPrefab();
     
@@ -65,6 +73,16 @@ public class GameController : MonoBehaviour
 
   private void OnWin()
   {
+    if (LevelManager.Instance.IsLastLevel())
+    {
+      this.finalScreen.SetActive(true);
+    }
+    else
+    {
+      this.winScreen.SetActive(true);
+    }
+
+    LevelManager.Instance.SetCurrentLevelComplete();
     GlobalSoundManager.PlayRandomSoundByType(SoundType.Win);
   }
 }
