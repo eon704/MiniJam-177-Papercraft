@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using DG.Tweening;
 using PlayerStateMachine;
 using UnityEngine;
 using UnityEngine.Events;
@@ -12,8 +11,9 @@ public class Player : MonoBehaviour
 
     public GameObject changeStateEffect;
     
-    public UnityEvent OnPlayerWon;
-    public UnityEvent OnPlayerDied;
+    public readonly UnityEvent OnPlayerWon = new();
+    public readonly UnityEvent OnPlayerDied = new();
+    public readonly UnityEvent<StateType, int> OnTransformation = new();
 
     private StateMachine _stateMachine;
     private SpriteRenderer _spriteRenderer;
@@ -31,18 +31,27 @@ public class Player : MonoBehaviour
     private IState _planeState;
     private IState _boatState;
     private IState _frogState;
+    
+    
+    public enum StateType
+    {
+        Default,
+        Crane,
+        Plane,
+        Boat,
+        Frog
+    }
 
-    private Dictionary<IState, int> transformationLeft;
+    private Dictionary<StateType, int> transformationsLeft;
 
-    public void Initialize(BoardPiece boardPiece, CellPrefab startCell)
+    public void Initialize(BoardPiece boardPiece, CellPrefab startCell, Dictionary<StateType, int> startTransformations)
     {
         this.BoardPiecePrefab.Initialize(boardPiece, startCell);
+        this.transformationsLeft = startTransformations;
     }
 
     private void Awake()
     {
-        OnPlayerWon = new UnityEvent();
-        OnPlayerDied = new UnityEvent();
         _spriteRenderer = GetComponent<SpriteRenderer>();
         this.BoardPiecePrefab = GetComponent<BoardPiecePrefab>();
         _stateMachine = new StateMachine();
@@ -52,15 +61,6 @@ public class Player : MonoBehaviour
         _planeState = new PlaneState(planeStateSprite, _spriteRenderer, this);
         _boatState = new BoatState(boatStateSprite, _spriteRenderer, this);
         _frogState = new FrogState(frogStateSprite, _spriteRenderer, this);
-
-        this.transformationLeft = new Dictionary<IState, int>
-        {
-            { _defaultState, 1 },
-            { _craneState, 2 },
-            { _planeState, 1 },
-            { _boatState, 2 },
-            { _frogState, 2 },
-        };
     }
 
     private IEnumerator Start()
@@ -69,7 +69,7 @@ public class Player : MonoBehaviour
         SetDefaultState();
     }
 
-    private void SetDefaultState()
+    public void SetDefaultState()
     {
         SetState(_defaultState);
     }
@@ -77,6 +77,7 @@ public class Player : MonoBehaviour
     public void SetCraneState()
     {
         SetState(_craneState);
+        OnTransformation?.Invoke(StateType.Crane, transformationsLeft[StateType.Crane]);
     }
 
     public void SerFrogState()
