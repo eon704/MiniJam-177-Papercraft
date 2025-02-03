@@ -67,6 +67,12 @@ public class Player : MonoBehaviour
     {
         yield return null;
         SetDefaultState();
+        
+        // Send updated counts to UI
+        this.OnTransformation?.Invoke(StateType.Boat, transformationsLeft[StateType.Boat]);
+        this.OnTransformation?.Invoke(StateType.Crane, transformationsLeft[StateType.Crane]);
+        this.OnTransformation?.Invoke(StateType.Frog, transformationsLeft[StateType.Frog]);
+        this.OnTransformation?.Invoke(StateType.Plane, transformationsLeft[StateType.Plane]);
     }
 
     public void SetDefaultState()
@@ -77,7 +83,6 @@ public class Player : MonoBehaviour
     public void SetCraneState()
     {
         SetState(_craneState);
-        OnTransformation?.Invoke(StateType.Crane, transformationsLeft[StateType.Crane]);
     }
 
     public void SerFrogState()
@@ -104,11 +109,17 @@ public class Player : MonoBehaviour
 
     private void SetState(IState state)
     {
+        StateType type = state.StateType;
+        if (type != StateType.Default && this.transformationsLeft[type] <= 0)
+        {
+            return;
+        }
+
+        this.transformationsLeft[type]--;
         GlobalSoundManager.PlayRandomSoundByType(SoundType.ChangeState);
-        
         _stateMachine.SetState(state);
         this.BoardPiecePrefab.BoardPiece.SetState(state);
-        // this.BoardPiecePrefab.CurrentCell.Neighbors.
+        OnTransformation?.Invoke(state.StateType, transformationsLeft[type]);
     }
 
     private void OnMove()

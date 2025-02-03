@@ -9,12 +9,13 @@ public class GameController : MonoBehaviour
   [SerializeField] private BoardPrefab boardPrefab;
 
   private BoardPiece playerPiece;
+
   private Dictionary<Player.StateType, int> startTransformations = new()
   {
-    {Player.StateType.Crane, 2},
-    {Player.StateType.Plane, 1},
-    {Player.StateType.Boat, 2},
-    {Player.StateType.Frog, 1}
+    { Player.StateType.Crane, 2 },
+    { Player.StateType.Plane, 1 },
+    { Player.StateType.Boat, 2 },
+    { Player.StateType.Frog, 1 }
   };
   
   Sequence respawnSequence;
