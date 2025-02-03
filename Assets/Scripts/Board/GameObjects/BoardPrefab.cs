@@ -20,6 +20,11 @@ public class BoardPrefab : MonoBehaviour
     return this.cellPrefabs[coord.x, coord.y];
   }
   
+  public CellPrefab GetStartCellPrefab()
+  {
+    return this.GetCellPrefab(this.Board.StartCell.Position);
+  }
+  
   public (BoardPiece, CellPrefab) CreateNewPlayerPrefab()
   {
     BoardPiece playerPiece = this.Board.CreatePlayerPiece();

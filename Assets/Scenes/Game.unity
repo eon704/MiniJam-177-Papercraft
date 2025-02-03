@@ -679,6 +679,17 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &2033416540 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5853703254329433214, guid: 9b91cb75ffea040578771d321da2431e, type: 3}
+  m_PrefabInstance: {fileID: 91588103641488630}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec137d0ae90c46f180b17f8ec1fb859d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &91588103641488630
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -836,10 +847,6 @@ PrefabInstance:
       propertyPath: m_Camera
       value: 
       objectReference: {fileID: 519420031}
-    - target: {fileID: 1174951676668343321, guid: a1469df6d19204a1eb27ac8f721565ba, type: 3}
-      propertyPath: m_Sprite
-      value: 
-      objectReference: {fileID: -6738828768528167240, guid: daae65bd165adb94ea56db08c312375b, type: 3}
     - target: {fileID: 1257886217091190532, guid: a1469df6d19204a1eb27ac8f721565ba, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -956,10 +963,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: GameUI
       objectReference: {fileID: 0}
-    - target: {fileID: 4637114549494908268, guid: a1469df6d19204a1eb27ac8f721565ba, type: 3}
-      propertyPath: m_text
-      value: "\u0421an fly over roks"
-      objectReference: {fileID: 0}
     - target: {fileID: 5015294657785136066, guid: a1469df6d19204a1eb27ac8f721565ba, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -1000,10 +1003,6 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 6273721070179436126}
-    - target: {fileID: 6265270746611082726, guid: a1469df6d19204a1eb27ac8f721565ba, type: 3}
-      propertyPath: m_text
-      value: ROCK
-      objectReference: {fileID: 0}
     - target: {fileID: 6762005501156749028, guid: a1469df6d19204a1eb27ac8f721565ba, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
@@ -1016,6 +1015,18 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 6273721070179436126}
+    - target: {fileID: 8627812050601860783, guid: a1469df6d19204a1eb27ac8f721565ba, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2033416540}
+    - target: {fileID: 8627812050601860783, guid: a1469df6d19204a1eb27ac8f721565ba, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: ResetMap
+      objectReference: {fileID: 0}
+    - target: {fileID: 8627812050601860783, guid: a1469df6d19204a1eb27ac8f721565ba, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: GameController, Assembly-CSharp
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

@@ -32,7 +32,7 @@ public class CellPrefab : MonoBehaviour
 
     private void OnMouseUp()
     {
-        this.player.BoardPiecePrefab.Move(this);
+        this.player.Move(this);
     }
 
     private void OnMouseEnter()

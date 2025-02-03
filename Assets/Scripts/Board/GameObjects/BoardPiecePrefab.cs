@@ -1,5 +1,6 @@
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class BoardPiecePrefab : MonoBehaviour
 {
@@ -12,19 +13,25 @@ public class BoardPiecePrefab : MonoBehaviour
     this.Teleport(startCell);
   }
 
-  public void Move(CellPrefab targetCell)
+  public void Move(CellPrefab targetCell, UnityAction onComplete = null)
   {
     bool success = this.BoardPiece.MoveTo(targetCell.Cell);
-     
-    this.DOKill();
+    
     if (success)
     {
-      this.transform.DOMove(targetCell.transform.position, 0.5f);
-      this.CurrentCell = targetCell;
+      this.transform
+          .DOMove(targetCell.transform.position, 0.5f)
+          .OnComplete(() =>
+          {
+            this.CurrentCell = targetCell;
+            onComplete?.Invoke();
+          });
     }
     else
     {
-      this.transform.DOShakePosition(0.5f, 0.3f);
+      this.transform
+          .DOShakePosition(0.5f, 0.3f)
+          .OnComplete(() => onComplete?.Invoke());
     }
   }
   

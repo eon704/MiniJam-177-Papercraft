@@ -33,6 +33,7 @@ public class BoardPiece
     if (!targetCell.IsFree)
       return false;
     
+    this.OccupiedCell.Value?.FreePiece();
     this.OccupiedCell.Value = targetCell;
     this.OccupiedCell.Value.AssignPiece(this);
     return true;

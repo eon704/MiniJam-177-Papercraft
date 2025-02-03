@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 using PlayerStateMachine;
 using UnityEngine;
+using UnityEngine.Events;
 
 
 public class Player : MonoBehaviour
@@ -9,6 +11,9 @@ public class Player : MonoBehaviour
     public BoardPiecePrefab BoardPiecePrefab { get; private set; }
 
     public GameObject changeStateEffect;
+    
+    public UnityEvent OnPlayerWon;
+    public UnityEvent OnPlayerDied;
 
     private StateMachine _stateMachine;
     private SpriteRenderer _spriteRenderer;
@@ -32,11 +37,12 @@ public class Player : MonoBehaviour
     public void Initialize(BoardPiece boardPiece, CellPrefab startCell)
     {
         this.BoardPiecePrefab.Initialize(boardPiece, startCell);
-        this.BoardPiecePrefab.BoardPiece.OccupiedCell.OnChanged += OnCellChanged;
     }
 
     private void Awake()
     {
+        OnPlayerWon = new UnityEvent();
+        OnPlayerDied = new UnityEvent();
         _spriteRenderer = GetComponent<SpriteRenderer>();
         this.BoardPiecePrefab = GetComponent<BoardPiecePrefab>();
         _stateMachine = new StateMachine();
@@ -61,18 +67,6 @@ public class Player : MonoBehaviour
     {
         yield return null;
         SetDefaultState();
-    }
-
-    private void OnCellChanged(Observable<Cell> cell, Cell oldCell, Cell newCell)
-    {
-        Cell.TerrainType terrainType = newCell.Terrain;
-        if (terrainType == Cell.TerrainType.Fire)
-        {
-            print("Game Over");
-        } else if (terrainType == Cell.TerrainType.End)
-        {
-            print("You Win");
-        }
     }
 
     private void SetDefaultState()
@@ -100,6 +94,11 @@ public class Player : MonoBehaviour
         SetState(_boatState);
     }
 
+    public void Move(CellPrefab targetCell)
+    {
+        this.BoardPiecePrefab.Move(targetCell, this.OnMove);
+    }
+
     private void Update() => _stateMachine.Tick();
 
     private void SetState(IState state)
@@ -108,5 +107,17 @@ public class Player : MonoBehaviour
         _stateMachine.SetState(state);
         this.BoardPiecePrefab.BoardPiece.SetState(state);
         // this.BoardPiecePrefab.CurrentCell.Neighbors.
+    }
+
+    private void OnMove()
+    {
+        Cell targetCell = this.BoardPiecePrefab.CurrentCell.Cell;
+        if (targetCell.Terrain == Cell.TerrainType.End)
+        {
+            this.OnPlayerWon?.Invoke();
+        } else if (targetCell.Terrain == Cell.TerrainType.Fire)
+        {
+            this.OnPlayerDied?.Invoke();
+        }
     }
 }

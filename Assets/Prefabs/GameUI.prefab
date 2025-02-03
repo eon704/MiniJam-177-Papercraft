@@ -488,7 +488,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u0421an fly over holes"
+  m_text: "\u0421an fly over roks"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 78671bae153fbdf42b5d79854861604b, type: 2}
   m_sharedMaterial: {fileID: 3768399438023502506, guid: 78671bae153fbdf42b5d79854861604b, type: 2}
@@ -1742,7 +1742,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -7371509505491802261, guid: 3a252a1c622424a4ea6898d524634c9b, type: 3}
+  m_Sprite: {fileID: -6738828768528167240, guid: daae65bd165adb94ea56db08c312375b, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -3554,7 +3554,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: HOLE
+  m_text: ROCK
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 78671bae153fbdf42b5d79854861604b, type: 2}
   m_sharedMaterial: {fileID: 3768399438023502506, guid: 78671bae153fbdf42b5d79854861604b, type: 2}
