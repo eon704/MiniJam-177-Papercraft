@@ -5,7 +5,9 @@ public enum SoundType // DON'T CHANGE THE ORDER OF THIS ENUM !!!!!!
 {
    Click,
    ChangeState,
-   Move
+   Move,
+   Win,
+   Lose
 }
 
 

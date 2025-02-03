@@ -11,6 +11,7 @@ public class GameController : MonoBehaviour
 
   public void ResetMap()
   {
+    GlobalSoundManager.PlayRandomSoundByType(SoundType.Lose);
     CellPrefab startCell = this.boardPrefab.GetStartCellPrefab();
 
     Sequence respawnSequence = DOTween.Sequence();
@@ -24,6 +25,7 @@ public class GameController : MonoBehaviour
     CellPrefab cellPrefab;
     (this.playerPiece, cellPrefab) = this.boardPrefab.CreateNewPlayerPrefab();
     this.playerPrefab.Initialize(this.playerPiece, cellPrefab);
+    this.playerPrefab.OnPlayerWon.AddListener(this.OnWin);
     this.playerPrefab.OnPlayerDied.AddListener(this.ResetMap);
     
     yield return null;
@@ -35,5 +37,10 @@ public class GameController : MonoBehaviour
     {
       this.ResetMap();
     }
+  }
+
+  private void OnWin()
+  {
+    GlobalSoundManager.PlayRandomSoundByType(SoundType.Win);
   }
 }
