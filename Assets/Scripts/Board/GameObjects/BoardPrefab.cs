@@ -2,29 +2,18 @@ using UnityEngine;
 
 public class BoardPrefab : MonoBehaviour
 {
+  [TextArea(3, 10)]
+  [SerializeField] private string map;
   [Header("Setup")]
   [SerializeField] private Player player;
+  [SerializeField] private Vector2Int size;
   [SerializeField] private Transform boardBorder;
   [SerializeField] private CellPrefab cellPrefab;
   
   private Grid worldGrid;
-  private string map;
-  private Vector2Int size;
-  
   public Board Board { get; private set; }
   
   private CellPrefab[,] cellPrefabs;
-  
-  public void Initialize(string newMap, Vector2Int newSize)
-  {
-    this.map = newMap;
-    this.size = newSize;
-    this.Board = new Board(this.size, this.ParseMap());
-    this.cellPrefabs = new CellPrefab[this.size.x, this.size.y];
-    
-    this.InstantiateBoard();
-    this.UpdateBorder();
-  }
 
   public CellPrefab GetCellPrefab(Vector2Int coord)
   {
@@ -42,10 +31,16 @@ public class BoardPrefab : MonoBehaviour
     CellPrefab startCell = this.GetCellPrefab(playerPiece.OccupiedCell.Value.Position);
     return (playerPiece, startCell);
   }
-
+  
   private void Awake()
   {
     this.worldGrid = this.GetComponent<Grid>();
+    
+    this.Board = new Board(this.size, this.ParseMap());
+    this.cellPrefabs = new CellPrefab[this.size.x, this.size.y];
+    
+    this.InstantiateBoard();
+    this.UpdateBorder();
   }
 
   private char[,] ParseMap()
