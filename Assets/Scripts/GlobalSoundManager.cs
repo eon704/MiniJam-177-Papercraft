@@ -1,13 +1,14 @@
 using UnityEngine;
 using System;
 
+
 public enum SoundType // DON'T CHANGE THE ORDER OF THIS ENUM !!!!!!
 {
-   Click,
-   ChangeState,
-   Move,
-   Win,
-   Lose
+    Click,
+    ChangeState,
+    Move,
+    Win,
+    Lose
 }
 
 
@@ -19,7 +20,7 @@ public class GlobalSoundManager : MonoBehaviour
     [SerializeField] private SoundList[] soundList;
 
     private AudioSource _audioSource;
-    
+
     private void OnEnable()
     {
         var soundTypeNames = Enum.GetNames(typeof(SoundType));

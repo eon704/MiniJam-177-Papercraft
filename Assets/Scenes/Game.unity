@@ -595,8 +595,6 @@ MonoBehaviour:
   - name: Lose
     sounds:
     - {fileID: 8300000, guid: b68a40a6b663116468dd419a6cb6667d, type: 3}
-  - name: Lose
-    sounds: []
 --- !u!4 &1738763962
 Transform:
   m_ObjectHideFlags: 0
@@ -774,17 +772,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9b91cb75ffea040578771d321da2431e, type: 3}
---- !u!114 &91588103641488631 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5853703254329433214, guid: 9b91cb75ffea040578771d321da2431e, type: 3}
-  m_PrefabInstance: {fileID: 91588103641488630}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec137d0ae90c46f180b17f8ec1fb859d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &6273721070179436124
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1296,18 +1283,6 @@ PrefabInstance:
     - target: {fileID: 8627812050601860783, guid: a1469df6d19204a1eb27ac8f721565ba, type: 3}
       propertyPath: m_Colors.m_HighlightedColor.r
       value: 0.6431373
-      objectReference: {fileID: 0}
-    - target: {fileID: 8627812050601860783, guid: a1469df6d19204a1eb27ac8f721565ba, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
-      value: 
-      objectReference: {fileID: 91588103641488631}
-    - target: {fileID: 8627812050601860783, guid: a1469df6d19204a1eb27ac8f721565ba, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: ResetMap
-      objectReference: {fileID: 0}
-    - target: {fileID: 8627812050601860783, guid: a1469df6d19204a1eb27ac8f721565ba, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: GameController, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 8774670723720867227, guid: a1469df6d19204a1eb27ac8f721565ba, type: 3}
       propertyPath: m_AnchoredPosition.x

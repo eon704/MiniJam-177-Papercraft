@@ -104,6 +104,7 @@ public class Player : MonoBehaviour
     private void SetState(IState state)
     {
         GlobalSoundManager.PlayRandomSoundByType(SoundType.ChangeState);
+        
         _stateMachine.SetState(state);
         this.BoardPiecePrefab.BoardPiece.SetState(state);
         // this.BoardPiecePrefab.CurrentCell.Neighbors.
