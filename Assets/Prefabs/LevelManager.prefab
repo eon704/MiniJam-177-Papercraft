@@ -46,64 +46,132 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   levels:
   - MapSize: {x: 10, y: 10}
-    Map: 'Eoo+ooo+oo
-
-      oo+oo+oooo
-
-      o+oo+oo+oo
-
-      oo+o-+oooo
-
-      +oo+oo+ooo
-
-      o+oo+oo+oo
-
-      oo+o-+oooo
-
-      +oo+oo+ooo
-
-      o+oo+oo+oo
-
-      So+o+ooooo'
+    Map: "Sooo++ooEo\r\no++ooxxoo+\r\no--ooxxoo+\r\no--oo++oo+\r\noo--oooo++\r\noo--oo++o+\r\noooo--oo+o\r\noo++--oooo\r\nooo++--oo+\r\nooooooo++o\r"
     StartMovesPerForm:
     - State: 0
       Moves: 0
     - State: 1
-      Moves: 4
+      Moves: 2
     - State: 2
       Moves: 2
     - State: 3
-      Moves: 2
+      Moves: 0
     - State: 4
-      Moves: 2
+      Moves: 3
   - MapSize: {x: 10, y: 10}
-    Map: 'Sooo+ooooo
-
-      o+ooo+oooo
-
-      oo-ooo-ooo
-
-      ooo+ooo+oo
-
-      ooooxoooxo
-
-      oooooooooo
-
-      ooo+ooo+oo
-
-      oo-ooo-ooo
-
-      o+ooo+oooo
-
-      oooo+oooEo'
+    Map: "ooo++ooEoo\r\noo++ooxxoo\r\no--ooxxoo+\r\no--oo++oo+\r\noo--oooo++\r\nS--oo++o+o\r\noooo--oo+o\r\noo++--oooo\r\nooo++--oo+\r\nooooooo++o\r"
     StartMovesPerForm:
     - State: 0
       Moves: 0
     - State: 1
-      Moves: 6
+      Moves: 1
+    - State: 2
+      Moves: 3
+    - State: 3
+      Moves: 3
+    - State: 4
+      Moves: 1
+  - MapSize: {x: 10, y: 10}
+    Map: "Sooo++ooo+\no++ooxxoo+\no--ooxxoo+\no--oo++oo+\noo--oooo++\noo--oo++o+\noooo--oo+o\noo++--oooo\nooo++--oo+\nEoooooo++o\r"
+    StartMovesPerForm:
+    - State: 0
+      Moves: 0
+    - State: 1
+      Moves: 1
+    - State: 2
+      Moves: 1
+    - State: 3
+      Moves: 2
+    - State: 4
+      Moves: 3
+  - MapSize: {x: 10, y: 10}
+    Map: "Sooo++ooEo\no++ooxxoo+\no--ooxxoo+\no--oo++oo+\noo--oooo++\noo--oo++o+\noooo--oo+o\noo++--oooo\nooo++--oo+\nooooooo++o\r"
+    StartMovesPerForm:
+    - State: 0
+      Moves: 0
+    - State: 1
+      Moves: 2
+    - State: 2
+      Moves: 3
+    - State: 3
+      Moves: 3
+    - State: 4
+      Moves: 2
+  - MapSize: {x: 10, y: 10}
+    Map: "ooo++ooo+E\noo++ooxxoo\no--ooxxoo+\no--oo++oo+\noo--oooo++\nS--oo++o+o\noooo--oo+o\noo++--oooo\nooo++--oo+\nooooooo++o\r"
+    StartMovesPerForm:
+    - State: 0
+      Moves: 0
+    - State: 1
+      Moves: 2
+    - State: 2
+      Moves: 3
+    - State: 3
+      Moves: 3
+    - State: 4
+      Moves: 2
+  - MapSize: {x: 10, y: 10}
+    Map: "Soo+++xxoo\r\no++ooxxoo+\r\no--ooxxoo+\r\no--oo++oo+\r\noo--oo--+o\r\no--oo++o+o\r\nooxx--oo+o\r\no++--ooooo\r\no++--ooE+o\r\nooooooo++o\r\r"
+    StartMovesPerForm:
+    - State: 0
+      Moves: 0
+    - State: 1
+      Moves: 3
+    - State: 2
+      Moves: 2
+    - State: 3
+      Moves: 3
+    - State: 4
+      Moves: 3
+  - MapSize: {x: 10, y: 10}
+    Map: "Sooo++oo+o\r\no++ooxxoo+\r\no--ooxxoo+\r\no--oo++oo+\r\noo--oooo++\r\noo--oo++o+\r\noooo--oo+o\r\noo++--oooo\r\nooo++--ooE\r\nooooooo++o\r\r\r"
+    StartMovesPerForm:
+    - State: 0
+      Moves: 0
+    - State: 1
+      Moves: 3
     - State: 2
       Moves: 3
     - State: 3
       Moves: 2
     - State: 4
-      Moves: 4
+      Moves: 3
+  - MapSize: {x: 10, y: 10}
+    Map: "ooo++ooo+E\no++ooxxoo+\no--ooxxoo+\no--oo++oo+\noo--oooo++\noo--oo++o+\nSooo--oo+o\noo++--oooo\nooo++--oo+\nooooooo++o\r\r\r"
+    StartMovesPerForm:
+    - State: 0
+      Moves: 0
+    - State: 1
+      Moves: 1
+    - State: 2
+      Moves: 3
+    - State: 3
+      Moves: 2
+    - State: 4
+      Moves: 3
+  - MapSize: {x: 10, y: 10}
+    Map: "ooo++ooo+o\no++ooxxoo+\no--ooxxoo+\no--oo++oo+\noo--oooo++\noo--oo++o+\noooo--oo+o\noo++--oooo\nSoo++--ooE\nooooooo++o\r\r\r"
+    StartMovesPerForm:
+    - State: 0
+      Moves: 0
+    - State: 1
+      Moves: 2
+    - State: 2
+      Moves: 3
+    - State: 3
+      Moves: 3
+    - State: 4
+      Moves: 2
+  - MapSize: {x: 10, y: 10}
+    Map: "Soo++xxooo\r\no++ooxx+o+\r\no--ooxx++o\r\no--oo++--o\r\noo--o+o--o\r\no--oo+++oo\r\nooxx--o++o\r\no++--oo+oo\r\no++--oE++o\r\nooooooo++o\r\r\r\r"
+    StartMovesPerForm:
+    - State: 0
+      Moves: 0
+    - State: 1
+      Moves: 2
+    - State: 2
+      Moves: 2
+    - State: 3
+      Moves: 3
+    - State: 4
+      Moves: 3

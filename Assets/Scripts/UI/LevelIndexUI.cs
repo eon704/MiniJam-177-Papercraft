@@ -7,6 +7,6 @@ public class LevelIndexUI : MonoBehaviour
 
   private void Start()
   {
-    this.levelIndexText.text = $"Level {LevelManager.Instance.NextLevelIndex + 1}";
+    this.levelIndexText.text = $"LEVEL:  {LevelManager.Instance.NextLevelIndex + 1}";
   }
 }
