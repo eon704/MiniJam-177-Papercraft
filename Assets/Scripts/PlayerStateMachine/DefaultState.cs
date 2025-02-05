@@ -41,12 +41,13 @@ namespace PlayerStateMachine
 
         public void OnEnter()
         {
-            
+            _player.defaultStateSpritePreview.SetActive(true);
             _spriteRenderer.sprite = _stateSprite;
         }
 
         public void OnExit()
         {
+            _player.defaultStateSpritePreview.SetActive(false);
         }
     }
 }

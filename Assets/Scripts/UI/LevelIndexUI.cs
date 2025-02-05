@@ -5,8 +5,10 @@ public class LevelIndexUI : MonoBehaviour
 {
   [SerializeField] private TMP_Text levelIndexText;
 
+  private int _levelIndex;
   private void Start()
   {
-    this.levelIndexText.text = $"LEVEL:  {LevelManager.Instance.NextLevelIndex + 1}";
+    _levelIndex = LevelManager.Instance.NextLevelIndex;
+    this.levelIndexText.text = $"LEVEL: {_levelIndex -1}";
   }
 }

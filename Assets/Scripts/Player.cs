@@ -19,19 +19,26 @@ public class Player : MonoBehaviour
     private StateMachine _stateMachine;
     private SpriteRenderer _spriteRenderer;
 
-    [Header("State sprites")] [SerializeField]
-    private Sprite defaultStateSprite;
-
+    [Header("State sprites")]
+    [SerializeField] private Sprite defaultStateSprite;
     [SerializeField] private Sprite craneStateSprite;
     [SerializeField] private Sprite planeStateSprite;
     [SerializeField] private Sprite boatStateSprite;
     [SerializeField] private Sprite frogStateSprite;
+    
+    [Header("State sprites Preview")] 
+    public GameObject defaultStateSpritePreview;
+    public GameObject craneStateSpritePreview;
+    public GameObject planeStateSpritePreview;
+    public GameObject boatStateSpritePreview;
+    public GameObject frogStateSpritePreview;
 
     private IState _defaultState;
     private IState _craneState;
     private IState _planeState;
     private IState _boatState;
     private IState _frogState;
+    
     
     
     public enum StateType

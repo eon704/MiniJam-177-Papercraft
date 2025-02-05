@@ -8,7 +8,7 @@ public class LevelManager : MonoBehaviour
   public static LevelManager Instance { get; private set; }
 
   public LevelData CurrentLevel => this.currentLevel ?? LevelData.DefaultLevel;
-  private LevelData currentLevel;
+  public  LevelData currentLevel;
   
   private void Awake()
   {

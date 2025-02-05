@@ -44,6 +44,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec137d0ae90c46f180b17f8ec1fb859d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerStartCoord: {x: 2, y: 2}
   playerPrefab: {fileID: 0}
   boardPrefab: {fileID: 0}
+  nudgeImages:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  winScreen: {fileID: 0}
+  finalScreen: {fileID: 0}

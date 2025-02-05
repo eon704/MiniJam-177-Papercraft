@@ -41,12 +41,14 @@ namespace PlayerStateMachine
 
         public void OnEnter()
         {
+            _player.boatStateSpritePreview.SetActive(true);
             _player.changeStateEffect.GetComponent<Animator>().SetTrigger("ChangeState");
             _spriteRenderer.sprite = _stateSprite;
         }
 
         public void OnExit()
         {
+            _player.boatStateSpritePreview.SetActive(false);
         }
     }
 }
