@@ -85,19 +85,6 @@ MonoBehaviour:
     - State: 4
       Moves: 3
   - MapSize: {x: 10, y: 10}
-    Map: "Sooo++ooEo\no++ooxxoo+\no--ooxxoo+\no--oo++oo+\noo--oooo++\noo--oo++o+\noooo--oo+o\noo++--oooo\nooo++--oo+\nooooooo++o\r"
-    StartMovesPerForm:
-    - State: 0
-      Moves: 0
-    - State: 1
-      Moves: 2
-    - State: 2
-      Moves: 3
-    - State: 3
-      Moves: 3
-    - State: 4
-      Moves: 2
-  - MapSize: {x: 10, y: 10}
     Map: "ooo++ooo+E\noo++ooxxoo\no--ooxxoo+\no--oo++oo+\noo--oooo++\nS--oo++o+o\noooo--oo+o\noo++--oooo\nooo++--oo+\nooooooo++o\r"
     StartMovesPerForm:
     - State: 0
@@ -175,3 +162,7 @@ MonoBehaviour:
       Moves: 3
     - State: 4
       Moves: 3
+  currentLevel:
+    MapSize: {x: 0, y: 0}
+    Map: 
+    StartMovesPerForm: []
