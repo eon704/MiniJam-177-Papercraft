@@ -4,7 +4,7 @@ using UnityEngine;
 public class LevelManager : MonoBehaviour
 {
   [SerializeField] private List<LevelData> levels;
-  public int NextLevelIndex { get; private set; }
+  public int NextLevelIndex { get; private set; } = 0;
   public static LevelManager Instance { get; private set; }
 
   public LevelData CurrentLevel => this.currentLevel ?? LevelData.DefaultLevel;

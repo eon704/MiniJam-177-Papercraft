@@ -6,7 +6,30 @@ using UnityEngine.UI;
 
 public class MainMenuUI : MonoBehaviour
 {
-    [SerializeField] private Image _foreground;
+    [SerializeField] private RectTransform title;
+    [SerializeField] private CanvasGroup startPanel;
+    [SerializeField] private CanvasGroup levelsPanel;
+    [SerializeField] private Image foreground;
+
+    public void ShowLevels()
+    {
+        this.startPanel.interactable = false;
+        
+        Sequence sequence = DOTween.Sequence();
+        sequence.Append(this.title.DOAnchorPosY(-100, 1f).SetEase(Ease.InOutCubic));
+        sequence.Join(this.startPanel.DOFade(0, 1f).SetEase(Ease.InOutCubic));
+        sequence.AppendCallback(() =>
+        {
+            this.startPanel.gameObject.SetActive(false);
+            this.levelsPanel.gameObject.SetActive(true);
+            this.levelsPanel.alpha = 0;
+        });
+        sequence.AppendInterval(0.2f);
+        sequence.Append(this.levelsPanel.DOFade(1, 1f).SetEase(Ease.InOutCubic));
+        sequence.AppendCallback(() => this.levelsPanel.interactable = true);
+
+        sequence.Play();
+    }
     
     public void StartGame()
     {
@@ -28,10 +51,10 @@ public class MainMenuUI : MonoBehaviour
     
     private IEnumerator ForegroundFadeIn()
     {
-        this._foreground.color = new Color(0, 0, 0, 0);
-        this._foreground.gameObject.SetActive(true);
+        this.foreground.color = new Color(0, 0, 0, 0);
+        this.foreground.gameObject.SetActive(true);
         
-        Tween tween = this._foreground
+        Tween tween = this.foreground
                           .DOFade(1, 1)
                           .SetEase(Ease.OutCubic);
 
@@ -40,15 +63,15 @@ public class MainMenuUI : MonoBehaviour
     
     private IEnumerator ForegroundFadeOut()
     {
-        this._foreground.color = Color.black;
-        this._foreground.gameObject.SetActive(true);
+        this.foreground.color = Color.black;
+        this.foreground.gameObject.SetActive(true);
         
-        Tween tween = this._foreground
+        Tween tween = this.foreground
                           .DOFade(0, 1)
                           .SetEase(Ease.InCubic);
 
         yield return new WaitForSeconds(0.5f);
         yield return tween.WaitForCompletion();
-        this._foreground.gameObject.SetActive(false);
+        this.foreground.gameObject.SetActive(false);
     }
 }
