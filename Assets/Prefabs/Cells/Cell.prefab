@@ -60,7 +60,7 @@ MonoBehaviour:
   end: {fileID: 7369992391863353425}
   defaultColor: {r: 0.16470589, g: 0.13333334, b: 0.1254902, a: 1}
   highlightColor: {r: 0, g: 1, b: 0.66128135, a: 1}
-  reachableColor: {r: 0.78431374, g: 0, b: 0, a: 1}
+  reachableColor: {r: 0.5170863, g: 0, b: 0.78431374, a: 1}
 --- !u!61 &4982970618470214028
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -210,7 +210,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &921660271630193011
 Transform:
   m_ObjectHideFlags: 0
@@ -267,11 +267,11 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 597209927
+  m_SortingLayerID: -1994681605
   m_SortingLayer: 3
-  m_SortingOrder: 1
+  m_SortingOrder: 0
   m_Sprite: {fileID: -651064882976865019, guid: a12076e5ffdf3492c80607334ff70625, type: 3}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.78039217}
+  m_Color: {r: 0.16470589, g: 0.13333334, b: 0.1254902, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
