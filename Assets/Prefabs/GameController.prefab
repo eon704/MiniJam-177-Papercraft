@@ -53,3 +53,4 @@ MonoBehaviour:
   - {fileID: 0}
   winScreen: {fileID: 0}
   finalScreen: {fileID: 0}
+  enableInfiniteMoves: 0

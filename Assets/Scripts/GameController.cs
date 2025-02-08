@@ -6,11 +6,16 @@ using UnityEngine.SceneManagement;
 
 public class GameController : MonoBehaviour
 {
+  [Header("References")]
   [SerializeField] private Player playerPrefab;
   [SerializeField] private BoardPrefab boardPrefab;
   [SerializeField] private List<PulseImage> nudgeImages;
   [SerializeField] private GameObject winScreen;
   [SerializeField] private GameObject finalScreen;
+  
+  [Header("Testing Tools")]
+  [Tooltip("Only works in the editor")]
+  [SerializeField] private bool enableInfiniteMoves;
 
   private BoardPiece playerPiece;
 
@@ -35,8 +40,9 @@ public class GameController : MonoBehaviour
     respawnSequence.Append(this.playerPrefab.transform.DOScale(0.3f, 0.5f));
   }
 
-  public void NextLevel()
+  public void LoadNextLevel()
   {
+    LevelManager.Instance.PrepareNextLevel();
     SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
   }
 
@@ -47,6 +53,18 @@ public class GameController : MonoBehaviour
     {
       this.startMovesPerForm[movesPerForm.State] = movesPerForm.Moves;
     }
+    
+    #if UNITY_EDITOR
+
+    if (this.enableInfiniteMoves)
+    {
+      foreach (Player.StateType state in System.Enum.GetValues(typeof(Player.StateType)))
+      {
+          this.startMovesPerForm[state] = 99;
+      }
+    }
+
+    #endif
     
     this.boardPrefab.Initialize(LevelManager.Instance.CurrentLevel.Map, LevelManager.Instance.CurrentLevel.MapSize);
     CellPrefab cellPrefab;
@@ -81,7 +99,7 @@ public class GameController : MonoBehaviour
     {
       this.winScreen.SetActive(true);
     }
-
+    
     LevelManager.Instance.SetCurrentLevelComplete();
     GlobalSoundManager.PlayRandomSoundByType(SoundType.Win);
   }
