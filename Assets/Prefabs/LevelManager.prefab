@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   levels:
-  - MapSize: {x: 10, y: 10}
+  - MapSize: {x: 3, y: 1}
     Map: "SoE\r\r\r\r"
     StartMovesPerForm:
     - State: 0

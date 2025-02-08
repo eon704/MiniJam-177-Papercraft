@@ -854,6 +854,7 @@ MonoBehaviour:
   startPanel: {fileID: 2367216914796533630}
   levelsPanel: {fileID: 3260863641658127236}
   foreground: {fileID: 2859147629321037341}
+  titleWaveUI: {fileID: 6624146882276312627}
 --- !u!1 &6492467661252338186
 GameObject:
   m_ObjectHideFlags: 0

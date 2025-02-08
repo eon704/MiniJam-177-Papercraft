@@ -10,6 +10,7 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private CanvasGroup startPanel;
     [SerializeField] private CanvasGroup levelsPanel;
     [SerializeField] private Image foreground;
+    [SerializeField] private TitleWaveUI titleWaveUI;
 
     public void ShowLevels()
     {
@@ -44,6 +45,7 @@ public class MainMenuUI : MonoBehaviour
     private IEnumerator LoadGame()
     {
         yield return this.ForegroundFadeIn();
+        this.titleWaveUI.StopSequence();
         yield return new WaitForSeconds(0.5f);
         AsyncOperation loadSceneAsync = SceneManager.LoadSceneAsync("Game");
         yield return new WaitUntil(() => loadSceneAsync!.isDone);

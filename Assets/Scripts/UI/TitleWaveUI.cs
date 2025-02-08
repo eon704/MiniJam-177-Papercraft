@@ -5,10 +5,11 @@ using UnityEngine;
 public class TitleWaveUI : MonoBehaviour
 {
   [SerializeField] private List<RectTransform> icons;
+  private Sequence sequence;
   
   private void Start()
   {
-    Sequence sequence = DOTween.Sequence();
+    sequence = DOTween.Sequence();
     
     sequence.AppendInterval(2f);
     foreach (RectTransform icon in this.icons)
@@ -19,5 +20,10 @@ public class TitleWaveUI : MonoBehaviour
 
     sequence.SetLoops(-1);
     sequence.Play();
+  }
+
+  public void StopSequence()
+  {
+    this.sequence.Kill();
   }
 }
