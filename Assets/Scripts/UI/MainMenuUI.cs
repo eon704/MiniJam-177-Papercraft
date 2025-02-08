@@ -16,8 +16,8 @@ public class MainMenuUI : MonoBehaviour
         this.startPanel.interactable = false;
         
         Sequence sequence = DOTween.Sequence();
-        sequence.Append(this.title.DOAnchorPosY(-100, 1f).SetEase(Ease.InOutCubic));
-        sequence.Join(this.startPanel.DOFade(0, 1f).SetEase(Ease.InOutCubic));
+        sequence.Append(this.title.DOAnchorPosY(-100, 0.75f).SetEase(Ease.InOutCubic));
+        sequence.Join(this.startPanel.DOFade(0, 0.75f).SetEase(Ease.InOutCubic));
         sequence.AppendCallback(() =>
         {
             this.startPanel.gameObject.SetActive(false);
@@ -25,7 +25,7 @@ public class MainMenuUI : MonoBehaviour
             this.levelsPanel.alpha = 0;
         });
         sequence.AppendInterval(0.2f);
-        sequence.Append(this.levelsPanel.DOFade(1, 1f).SetEase(Ease.InOutCubic));
+        sequence.Append(this.levelsPanel.DOFade(1, 0.75f).SetEase(Ease.InOutCubic));
         sequence.AppendCallback(() => this.levelsPanel.interactable = true);
 
         sequence.Play();

@@ -27,7 +27,6 @@ public class LevelButtonUI : MonoBehaviour
 
     private void SetLevelIndex()
     {
-        print("Setting level index to " + this.levelNumber);
         LevelManager.Instance.SetCurrentLevel(this.levelNumber);
     }
 }
