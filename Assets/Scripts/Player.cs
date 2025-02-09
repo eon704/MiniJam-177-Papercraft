@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
@@ -175,6 +176,11 @@ public class Player : MonoBehaviour
     }
 
     private void Update() => this.stateMachine.Tick();
+
+    private void OnDisable()
+    {
+        this.pulseSequence?.Kill();
+    }
 
     private void SetState(IState state)
     {
