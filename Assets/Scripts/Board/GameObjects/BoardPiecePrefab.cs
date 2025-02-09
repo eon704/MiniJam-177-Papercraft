@@ -14,8 +14,11 @@ public class BoardPiecePrefab : MonoBehaviour
   {
     this.boardPrefab = initBoardPrefab;
     this.BoardPiece = boardPieceData;
-    this.BoardPiece.OccupiedCell.OnChanged += (_, _, newCell) =>
-      this.CurrentCell = this.boardPrefab.GetCellPrefab(newCell); 
+    this.BoardPiece.OccupiedCell.OnChanged += (_, oldCell, newCell) =>
+    {
+      this.boardPrefab.GetCellPrefab(oldCell).ResetPulse();
+      this.CurrentCell = this.boardPrefab.GetCellPrefab(newCell);
+    };
     this.Teleport(startCell);
   }
 
