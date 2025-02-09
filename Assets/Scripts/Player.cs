@@ -52,6 +52,7 @@ public class Player : MonoBehaviour
     }
 
     private Dictionary<StateType, int> movesPerForm;
+    private List<CellPrefab> reachableCells;
 
     public void Initialize(BoardPiece boardPiece, CellPrefab startCell, BoardPrefab boardPrefab)
     {
@@ -90,10 +91,12 @@ public class Player : MonoBehaviour
 
     private void OnPlayerMoved(Observable<Cell> cell, Cell oldCell, Cell newCell)
     {
+        this.reachableCells?.ForEach(cellPrefab => cellPrefab.ResetPulse());
+        
         Dictionary<int, List<CellPrefab>> reachableCellsByDistance = new();
-        List<CellPrefab> reachableCells = this.BoardPiecePrefab.GetReachableCellPrefabs();
+        this.reachableCells = this.BoardPiecePrefab.GetReachableCellPrefabs();
 
-        foreach (CellPrefab cellPrefab in reachableCells)
+        foreach (CellPrefab cellPrefab in this.reachableCells)
         {
             int distance = Cell.Distance(newCell, cellPrefab.Cell);
             if (!reachableCellsByDistance.ContainsKey(distance))

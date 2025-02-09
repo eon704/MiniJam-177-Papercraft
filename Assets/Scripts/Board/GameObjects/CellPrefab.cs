@@ -18,6 +18,8 @@ public class CellPrefab : MonoBehaviour
     
     public Cell Cell { get; private set; }
     private Player player;
+    
+    private Sequence pulseSequence;
 
     public void Initialize(Cell cellData, Player player)
     {
@@ -35,11 +37,17 @@ public class CellPrefab : MonoBehaviour
     {
         this.fill.color = this.defaultColor;
         
-        Sequence sequence = DOTween.Sequence();
-        sequence.Append(this.fill.DOColor(this.reachableColor, duration / 2).SetEase(Ease.OutSine));
-        sequence.Append(this.fill.DOColor(this.defaultColor, duration / 2).SetEase(Ease.InSine));
+        pulseSequence = DOTween.Sequence();
+        pulseSequence.Append(this.fill.DOColor(this.reachableColor, duration / 2).SetEase(Ease.OutSine));
+        pulseSequence.Append(this.fill.DOColor(this.defaultColor, duration / 2).SetEase(Ease.InSine));
         
-        return sequence;
+        return pulseSequence;
+    }
+
+    public void ResetPulse()
+    {
+        pulseSequence?.Kill();
+        this.fill.color = this.defaultColor;
     }
 
     private void OnMouseUp()
