@@ -10,15 +10,15 @@ public class Player : MonoBehaviour
 {
     public BoardPiecePrefab BoardPiecePrefab { get; private set; }
 
-    public GameObject changeStateEffect;
+    public GameObject ChangeStateEffect;
     
     public readonly UnityEvent OnPlayerWon = new();
     public readonly UnityEvent OnPlayerDied = new();
     public readonly UnityEvent OnTransformation = new();
     public readonly UnityEvent<StateType, int> OnMovesLeftChanged = new();
 
-    private StateMachine _stateMachine;
-    private SpriteRenderer _spriteRenderer;
+    private StateMachine stateMachine;
+    private SpriteRenderer spriteRenderer;
 
     [Header("State sprites")]
     [SerializeField] private Sprite defaultStateSprite;
@@ -72,15 +72,15 @@ public class Player : MonoBehaviour
 
     private void Awake()
     {
-        _spriteRenderer = GetComponent<SpriteRenderer>();
+        this.spriteRenderer = GetComponent<SpriteRenderer>();
         this.BoardPiecePrefab = GetComponent<BoardPiecePrefab>();
-        _stateMachine = new StateMachine();
+        this.stateMachine = new StateMachine();
 
-        _defaultState = new DefaultState(defaultStateSprite, _spriteRenderer, this);
-        _craneState = new CraneState(craneStateSprite, _spriteRenderer, this);
-        _planeState = new PlaneState(planeStateSprite, _spriteRenderer, this);
-        _boatState = new BoatState(boatStateSprite, _spriteRenderer, this);
-        _frogState = new FrogState(frogStateSprite, _spriteRenderer, this);
+        _defaultState = new DefaultState(defaultStateSprite, this.spriteRenderer, this);
+        _craneState = new CraneState(craneStateSprite, this.spriteRenderer, this);
+        _planeState = new PlaneState(planeStateSprite, this.spriteRenderer, this);
+        _boatState = new BoatState(boatStateSprite, this.spriteRenderer, this);
+        _frogState = new FrogState(frogStateSprite, this.spriteRenderer, this);
     }
 
     private IEnumerator Start()
@@ -91,6 +91,12 @@ public class Player : MonoBehaviour
 
     private void OnPlayerMoved(Observable<Cell> cell, Cell oldCell, Cell newCell)
     {
+        this.PulseReachableCells();
+    }
+
+    private void PulseReachableCells()
+    {
+        Cell startCell = this.BoardPiecePrefab.CurrentCell.Cell;
         this.reachableCells?.ForEach(cellPrefab => cellPrefab.ResetPulse());
         
         Dictionary<int, List<CellPrefab>> reachableCellsByDistance = new();
@@ -98,7 +104,7 @@ public class Player : MonoBehaviour
 
         foreach (CellPrefab cellPrefab in this.reachableCells)
         {
-            int distance = Cell.Distance(newCell, cellPrefab.Cell);
+            int distance = Cell.Distance(startCell, cellPrefab.Cell);
             if (!reachableCellsByDistance.ContainsKey(distance))
             {
                 reachableCellsByDistance[distance] = new List<CellPrefab>();
@@ -109,20 +115,20 @@ public class Player : MonoBehaviour
 
         float duration = 1f;
         float delay = duration / 4;
-        pulseSequence?.Kill(true);
-        pulseSequence = DOTween.Sequence();
-        pulseSequence.Insert(0, this.BoardPiecePrefab.CurrentCell.DoPulse(duration));
+        this.pulseSequence?.Kill(true);
+        this.pulseSequence = DOTween.Sequence();
+        this.pulseSequence.Insert(0, this.BoardPiecePrefab.CurrentCell.DoPulse(duration));
         
         foreach (KeyValuePair<int, List<CellPrefab>> distanceToCellsPair in reachableCellsByDistance)
         {
             foreach (CellPrefab cellPrefab in distanceToCellsPair.Value)
             {
-                pulseSequence.Insert(distanceToCellsPair.Key * delay, cellPrefab.DoPulse(duration));
+                this.pulseSequence.Insert(distanceToCellsPair.Key * delay, cellPrefab.DoPulse(duration));
             }
         }
 
-        pulseSequence.SetLoops(-1);
-        pulseSequence.Play();
+        this.pulseSequence.SetLoops(-1);
+        this.pulseSequence.Play();
     }
 
     public void SetDefaultState()
@@ -156,7 +162,7 @@ public class Player : MonoBehaviour
 
     public void Move(CellPrefab targetCell)
     {
-        IState currentState = (this._stateMachine.CurrentState as IState)!; 
+        IState currentState = (this.stateMachine.CurrentState as IState)!; 
         StateType type = currentState.StateType;
         bool forceFailMovement = this.movesPerForm[type] <= 0;
         bool success = this.BoardPiecePrefab.Move(targetCell, this.OnMove, forceFailMovement);
@@ -168,13 +174,14 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void Update() => _stateMachine.Tick();
+    private void Update() => this.stateMachine.Tick();
 
     private void SetState(IState state)
     {
         GlobalSoundManager.PlayRandomSoundByType(SoundType.ChangeState);
-        _stateMachine.SetState(state);
+        this.stateMachine.SetState(state);
         this.BoardPiecePrefab.BoardPiece.SetState(state);
+        this.PulseReachableCells();
     }
 
     private void OnMove()

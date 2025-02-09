@@ -46,7 +46,7 @@ namespace PlayerStateMachine
         public void OnEnter()
         {
             _player.frogStateSpritePreview.SetActive(true);
-            _player.changeStateEffect.GetComponent<Animator>().SetTrigger("ChangeState");
+            _player.ChangeStateEffect.GetComponent<Animator>().SetTrigger("ChangeState");
             _spriteRenderer.sprite = _stateSprite;
         }
 
