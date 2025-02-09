@@ -41,4 +41,9 @@ public class Cell
     {
         this.Piece = piece;
     }
+
+    public static int Distance(Cell cell1, Cell cell2)
+    {
+        return Mathf.Abs(cell1.Position.x - cell2.Position.x) + Mathf.Abs(cell1.Position.y - cell2.Position.y);
+    }
 }

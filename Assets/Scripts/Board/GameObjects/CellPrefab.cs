@@ -1,3 +1,4 @@
+using DG.Tweening;
 using UnityEngine;
 
 public class CellPrefab : MonoBehaviour
@@ -28,6 +29,17 @@ public class CellPrefab : MonoBehaviour
         this.fire.SetActive(this.Cell.Terrain == Cell.TerrainType.Fire);
         this.water.SetActive(this.Cell.Terrain == Cell.TerrainType.Water);
         this.stone.SetActive(this.Cell.Terrain == Cell.TerrainType.Stone);
+    }
+
+    public Sequence DoPulse(float duration)
+    {
+        this.fill.color = this.defaultColor;
+        
+        Sequence sequence = DOTween.Sequence();
+        sequence.Append(this.fill.DOColor(this.reachableColor, duration / 2).SetEase(Ease.OutSine));
+        sequence.Append(this.fill.DOColor(this.defaultColor, duration / 2).SetEase(Ease.InSine));
+        
+        return sequence;
     }
 
     private void OnMouseUp()

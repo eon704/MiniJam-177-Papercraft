@@ -60,7 +60,7 @@ public class BoardPiece
     {
       Vector2Int targetPosition = currentPosition + motion;
       Cell targetCell = this.board.GetCell(targetPosition);
-      if (!this.moveTerrain.Contains(targetCell.Terrain))
+      if (targetCell == null || !this.moveTerrain.Contains(targetCell.Terrain))
         continue;
       
       reachableCells.Add(targetCell);

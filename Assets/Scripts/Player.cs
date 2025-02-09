@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 using PlayerStateMachine;
 using UnityEngine;
 using UnityEngine.Events;
@@ -39,7 +40,7 @@ public class Player : MonoBehaviour
     private IState _boatState;
     private IState _frogState;
     
-    
+    private Sequence pulseSequence;
     
     public enum StateType
     {
@@ -52,9 +53,10 @@ public class Player : MonoBehaviour
 
     private Dictionary<StateType, int> movesPerForm;
 
-    public void Initialize(BoardPiece boardPiece, CellPrefab startCell)
+    public void Initialize(BoardPiece boardPiece, CellPrefab startCell, BoardPrefab boardPrefab)
     {
-        this.BoardPiecePrefab.Initialize(boardPiece, startCell);
+        this.BoardPiecePrefab.Initialize(boardPiece, startCell, boardPrefab);
+        this.BoardPiecePrefab.BoardPiece.OccupiedCell.OnChanged += this.OnPlayerMoved;
     }
 
     public void SetTransformationLimits(Dictionary<StateType, int> startingMoves)
@@ -84,6 +86,40 @@ public class Player : MonoBehaviour
     {
         yield return null;
         SetDefaultState();
+    }
+
+    private void OnPlayerMoved(Observable<Cell> cell, Cell oldCell, Cell newCell)
+    {
+        Dictionary<int, List<CellPrefab>> reachableCellsByDistance = new();
+        List<CellPrefab> reachableCells = this.BoardPiecePrefab.GetReachableCellPrefabs();
+
+        foreach (CellPrefab cellPrefab in reachableCells)
+        {
+            int distance = Cell.Distance(newCell, cellPrefab.Cell);
+            if (!reachableCellsByDistance.ContainsKey(distance))
+            {
+                reachableCellsByDistance[distance] = new List<CellPrefab>();
+            }
+
+            reachableCellsByDistance[distance].Add(cellPrefab);
+        }
+
+        float duration = 1f;
+        float delay = duration / 4;
+        pulseSequence?.Kill(true);
+        pulseSequence = DOTween.Sequence();
+        pulseSequence.Insert(0, this.BoardPiecePrefab.CurrentCell.DoPulse(duration));
+        
+        foreach (KeyValuePair<int, List<CellPrefab>> distanceToCellsPair in reachableCellsByDistance)
+        {
+            foreach (CellPrefab cellPrefab in distanceToCellsPair.Value)
+            {
+                pulseSequence.Insert(distanceToCellsPair.Key * delay, cellPrefab.DoPulse(duration));
+            }
+        }
+
+        pulseSequence.SetLoops(-1);
+        pulseSequence.Play();
     }
 
     public void SetDefaultState()
