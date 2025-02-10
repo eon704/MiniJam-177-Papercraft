@@ -27,8 +27,8 @@ Transform:
   m_GameObject: {fileID: 3476254729616013388}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.404, y: -0.23, z: 0}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 1778729080347273923}
@@ -139,7 +139,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 347.83585, y: 371.86383, z: -14.242681}
-  m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1889331912103242907}
@@ -218,6 +218,11 @@ MonoBehaviour:
   planeStateSprite: {fileID: -6127424406416134269, guid: f6799e458b00ede49b984f5bcd0dfb9f, type: 3}
   boatStateSprite: {fileID: 5030105475705660051, guid: 1371d5a5472508042a5ba9605ce75331, type: 3}
   frogStateSprite: {fileID: 8475130039064758194, guid: 519140cfd6dba4741bc9f1fa11adcbb4, type: 3}
+  defaultStateSpritePreview: {fileID: 0}
+  craneStateSpritePreview: {fileID: 0}
+  planeStateSpritePreview: {fileID: 0}
+  boatStateSpritePreview: {fileID: 0}
+  frogStateSpritePreview: {fileID: 0}
 --- !u!114 &266725254704290304
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,25 +1,10 @@
 fileFormatVersion: 2
-guid: 17a245e9e2414674f971440ffb39403c
+guid: b39672496d8b9314a88a0dd55352ded5
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -72638311350910028
-    second: Frame 457_0
-  - first:
-      213: 4686791121803648925
-    second: Frame 457_1
-  - first:
-      213: 3992338817860294572
-    second: Frame 457_2
-  - first:
-      213: 3445033862743497400
-    second: Frame 457_3
-  - first:
-      213: -8038820499306169211
-    second: Frame 457_4
-  - first:
-      213: -4702722152254178846
-    second: Frame 457_5
+      213: -3816963279903701138
+    second: Frame 488 (2)_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -66,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 70
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -128,23 +113,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Frame 457_0
+      name: Frame 488 (2)_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 826
-        height: 1240
+        width: 70
+        height: 70
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: 67d3633e1c854f147a3e4534b23af88c
-      internalID: 397697327
+      spriteID: e6741acbe1c670bc0800000000000000
+      internalID: -3816963279903701138
       vertices: []
       indices: 
       edges: []
@@ -153,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: ec40bc762dd6f7d47a74c162d13a9967
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -163,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Frame 457_0: 397697327
+      Frame 488 (2)_0: -3816963279903701138
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
