@@ -23,7 +23,7 @@ public class LevelManager : MonoBehaviour
     if (Instance == null)
     {
       Instance = this;
-      this.NextLevelIndex = PlayerPrefs.GetInt("NextLevelIndex", 0);
+      this.NextLevelIndex = PlayerPrefs.GetInt("NextLevelIndex", 1);
       this.CurrentLevelIndex = this.NextLevelIndex;
       DontDestroyOnLoad(this.gameObject);
     }
