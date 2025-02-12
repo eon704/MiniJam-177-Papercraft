@@ -59,36 +59,80 @@ MonoBehaviour:
     - State: 4
       Moves: 3
   - MapSize: {x: 10, y: 10}
-    Map: 'Sooo+ooooo
-
-      o+ooo+oooo
-
-      oo-ooo-ooo
-
-      ooo+ooo+oo
-
-      ooooxoooxo
+    Map: 'oooooooooo
 
       oooooooooo
 
-      ooo+ooo+oo
+      oooooooooo
 
-      oo-ooo-ooo
+      oooooooooo
 
-      o+ooo+oooo
+      oooSo+Eooo
 
-      oooo+oooEo'
+      oooooooooo
+
+      oooooooooo
+
+      oooooooooo
+
+      oooooooooo
+
+      oooooooooo'
     StartMovesPerForm:
     - State: 0
       Moves: 0
     - State: 1
-      Moves: 2
+      Moves: 3
     - State: 2
-      Moves: 2
+      Moves: 0
+    - State: 3
+      Moves: 0
+    - State: 4
+      Moves: 0
+  - MapSize: {x: 10, y: 10}
+    Map: 'oooooooooo
+
+      oooooooooo
+
+      ++++++++++
+
+      +xxxxxxxx+
+
+      +SooxoxEx+
+
+      +xxxxxxxx+
+
+      ++++++++++
+
+      oooooooooo
+
+      oooooooooo
+
+      oooooooooo'
+    StartMovesPerForm:
+    - State: 0
+      Moves: 0
+    - State: 1
+      Moves: 0
+    - State: 2
+      Moves: 0
     - State: 3
       Moves: 0
     - State: 4
       Moves: 3
+  - MapSize: {x: 10, y: 10}
+    Map: "oooooooooo\noooooooooo\n++++++++++\n+xxxxxxxx+\n+xoS--Exx+\n+xxxxxxxx+\n++++++++++\noooooooooo\noooooooooo\noooooooooo\r\r\r\r"
+    StartMovesPerForm:
+    - State: 0
+      Moves: 0
+    - State: 1
+      Moves: 1
+    - State: 2
+      Moves: 0
+    - State: 3
+      Moves: 2
+    - State: 4
+      Moves: 0
   - MapSize: {x: 10, y: 10}
     Map: "ooo++ooEoo\r\noo++ooxxoo\r\no--ooxxoo+\r\no--oo++oo+\r\noo--oooo++\r\nS--oo++o+o\r\noooo--oo+o\r\noo++--oooo\r\nooo++--oo+\r\nooooooo++o\r"
     StartMovesPerForm:
