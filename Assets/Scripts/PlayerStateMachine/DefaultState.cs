@@ -11,21 +11,9 @@ namespace PlayerStateMachine
         
         public Player.StateType StateType => Player.StateType.Default;
         
-        public List<Vector2Int> MoveOptions => new()
-        {
-            new Vector2Int(-1, 0),
-            new Vector2Int(1, 0),
-            new Vector2Int(0, -1),
-            new Vector2Int(0, 1)
-        };
+        public List<Vector2Int> MoveOptions => new();
 
-        public List<Cell.TerrainType> MoveTerrain => new()
-        {
-            Cell.TerrainType.Default, 
-            Cell.TerrainType.Fire,
-            Cell.TerrainType.Start,
-            Cell.TerrainType.End
-        };
+        public List<Cell.TerrainType> MoveTerrain => new();
         
         public DefaultState(Sprite sprite, SpriteRenderer spriteRenderer, Player player)
         {

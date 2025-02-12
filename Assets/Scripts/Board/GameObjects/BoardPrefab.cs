@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class BoardPrefab : MonoBehaviour
@@ -25,7 +27,22 @@ public class BoardPrefab : MonoBehaviour
     this.InstantiateBoard();
     this.UpdateBorder();
   }
+  
+  public List<CellPrefab> GetCellPrefabs(List<Cell> cells)
+  {
+    return cells.Select(cell => this.GetCellPrefab(cell.Position)).ToList();
+  }
+  
+  public List<CellPrefab> GetCellPrefabs(List<Vector2Int> coords)
+  {
+    return coords.Select(this.GetCellPrefab).ToList();
+  }
 
+  public CellPrefab GetCellPrefab(Cell cell)
+  {
+    return this.GetCellPrefab(cell.Position);
+  }
+  
   public CellPrefab GetCellPrefab(Vector2Int coord)
   {
     return this.cellPrefabs[coord.x, coord.y];

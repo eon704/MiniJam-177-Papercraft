@@ -6,21 +6,9 @@ public class BoardPiece
   public readonly Observable<Cell> OccupiedCell;
   private readonly Board board;
 
-  private List<Vector2Int> moveOptions = new()
-  {
-    new Vector2Int(-1, 0),
-    new Vector2Int(1, 0),
-    new Vector2Int(0, -1),
-    new Vector2Int(0, 1)
-  };
+  private List<Vector2Int> moveOptions = new();
 
-  private List<Cell.TerrainType> moveTerrain = new()
-  {
-    Cell.TerrainType.Default,
-    Cell.TerrainType.Start,
-    Cell.TerrainType.End,
-    Cell.TerrainType.Fire
-  };
+  private List<Cell.TerrainType> moveTerrain = new();
   
   public BoardPiece(Board board, Cell startCell)
   {
@@ -60,7 +48,7 @@ public class BoardPiece
     {
       Vector2Int targetPosition = currentPosition + motion;
       Cell targetCell = this.board.GetCell(targetPosition);
-      if (!this.moveTerrain.Contains(targetCell.Terrain))
+      if (targetCell == null || !this.moveTerrain.Contains(targetCell.Terrain))
         continue;
       
       reachableCells.Add(targetCell);

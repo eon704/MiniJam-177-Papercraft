@@ -212,7 +212,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d764ff9736ed6aa479293531a9480c30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  changeStateEffect: {fileID: 3476254729616013388}
+  ChangeStateEffect: {fileID: 3476254729616013388}
   defaultStateSprite: {fileID: -3944081545240076649, guid: d4bf1c9f3e37c0e4bb719ee81e2cb364, type: 3}
   craneStateSprite: {fileID: 4106357240509828695, guid: f66d76d12a4456e4fb45eb0882a2546b, type: 3}
   planeStateSprite: {fileID: -6127424406416134269, guid: f6799e458b00ede49b984f5bcd0dfb9f, type: 3}

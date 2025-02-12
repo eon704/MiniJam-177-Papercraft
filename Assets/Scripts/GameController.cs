@@ -70,7 +70,7 @@ public class GameController : MonoBehaviour
     CellPrefab cellPrefab;
     (this.playerPiece, cellPrefab) = this.boardPrefab.CreateNewPlayerPrefab();
     
-    this.playerPrefab.Initialize(this.playerPiece, cellPrefab);
+    this.playerPrefab.Initialize(this.playerPiece, cellPrefab, this.boardPrefab);
 
     this.playerPrefab.OnPlayerWon.AddListener(this.OnWin);
     this.playerPrefab.OnPlayerDied.AddListener(this.ResetMap);
