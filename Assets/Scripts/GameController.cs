@@ -37,7 +37,7 @@ public class GameController : MonoBehaviour
     respawnSequence.AppendCallback(() => this.playerPrefab.SetDefaultState());
     respawnSequence.AppendCallback(() => this.playerPrefab.BoardPiecePrefab.Teleport(startCell));
     respawnSequence.AppendCallback(() => this.playerPrefab.SetTransformationLimits(this.startMovesPerForm));
-    respawnSequence.Append(this.playerPrefab.transform.DOScale(0.3f, 0.5f));
+    respawnSequence.Append(this.playerPrefab.transform.DOScale(1f, 0.5f));
   }
 
   public void LoadNextLevel()

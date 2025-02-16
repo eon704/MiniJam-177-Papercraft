@@ -54,6 +54,7 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     public void OnPointerEnter(PointerEventData eventData)
     {
         this.fill.color = this.highlightColor;
+        GlobalSoundManager.PlayRandomSoundByType(SoundType.Click, 0.05f);
     }
     public void OnPointerExit(PointerEventData eventData)
     {
