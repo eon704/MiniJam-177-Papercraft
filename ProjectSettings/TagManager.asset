@@ -50,11 +50,11 @@ TagManager:
   - name: Border
     uniqueID: 597209927
     locked: 0
-  - name: Player
-    uniqueID: 2979331597
-    locked: 0
   - name: Item
     uniqueID: 211138569
+    locked: 0
+  - name: Player
+    uniqueID: 2979331597
     locked: 0
   m_RenderingLayers:
   - Default
