@@ -17,14 +17,23 @@ public class Cell
         Fire
     }
     
+    public enum CellItem
+    {
+        None,
+        Star,
+        RandomPowerup
+    }
+    
     public TerrainType Terrain { get; private set; }
+    public Observable<CellItem> Item { get; private set; }
     
     public List<Cell> Neighbors { get; private set; }
     
-    public Cell(Vector2Int position, TerrainType type)
+    public Cell(Vector2Int position, TerrainType type, CellItem item)
     {
         this.Position = position;
         this.Terrain = type;
+        this.Item = new Observable<CellItem>(item);
     }
     
     public void SetNeighbors(List<Cell> neighbors)
@@ -35,6 +44,14 @@ public class Cell
     public void FreePiece()
     {
         this.Piece = null;
+    }
+
+    public void CollectStar()
+    {
+        if (this.Item.Value == CellItem.Star)
+        {
+            this.Item.Value = CellItem.None;
+        }
     }
     
     public void AssignPiece(BoardPiece piece)

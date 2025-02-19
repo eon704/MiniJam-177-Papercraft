@@ -27,8 +27,14 @@ public class Board
           'E' => Cell.TerrainType.End,
           _ => Cell.TerrainType.Default
         };
+
+        Cell.CellItem item = map[x, y] switch
+        {
+          'G' => Cell.CellItem.Star,
+          _ => Cell.CellItem.None
+        };
         
-        this.CellArray[x, y] = new Cell(new Vector2Int(x, y), type);
+        this.CellArray[x, y] = new Cell(new Vector2Int(x, y), type, item);
 
         if (type == Cell.TerrainType.Start)
         {

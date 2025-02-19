@@ -16,7 +16,7 @@ public class LevelData
     public static LevelData DefaultLevel => new()
     {
         MapSize = new Vector2Int(5, 5),
-        Map = "ooooo\nooooo\nSoooE\nooooo\nooooo\n",
+        Map = "ooooo\nooooo\nSoGoE\nooooo\nooooo\n",
         StartMovesPerForm = new List<MovePerFormEntry>()
         {
             new() {State = Player.StateType.Default, Moves = 0 },

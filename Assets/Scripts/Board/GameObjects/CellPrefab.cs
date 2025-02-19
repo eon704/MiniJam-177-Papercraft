@@ -11,6 +11,8 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     [SerializeField] private GameObject start;
     [SerializeField] private GameObject end;
     
+    [SerializeField] private GameObject star;
+    
     [SerializeField] private Color defaultColor;
     [SerializeField] private Color highlightColor;
     [SerializeField] private Color reachableColor;
@@ -25,6 +27,8 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     public void Initialize(Cell cellData, Player newPlayer)
     {
         this.Cell = cellData;
+        this.Cell.Item.OnChanged += this.OnStarCollect;
+        
         this.player = newPlayer;
 
         this.start.SetActive(this.Cell.Terrain == Cell.TerrainType.Start);
@@ -32,6 +36,8 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         this.fire.SetActive(this.Cell.Terrain == Cell.TerrainType.Fire);
         this.water.SetActive(this.Cell.Terrain == Cell.TerrainType.Water);
         this.stone.SetActive(this.Cell.Terrain == Cell.TerrainType.Stone);
+        
+        this.star.SetActive(this.Cell.Item == Cell.CellItem.Star);
     }
 
     public Sequence DoPulse(float duration)
@@ -65,5 +71,15 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     public void OnPointerUp(PointerEventData eventData)
     {
         this.player.Move(this);
+    }
+
+    private void OnStarCollect(Observable<Cell.CellItem> item, Cell.CellItem oldValue, Cell.CellItem newValue)
+    {
+        if (oldValue == Cell.CellItem.Star && newValue == Cell.CellItem.None)
+        {
+            this.star.transform
+                .DOScale(Vector3.zero, 0.5f)
+                .OnComplete(() => this.star.SetActive(false));
+        }
     }
 }

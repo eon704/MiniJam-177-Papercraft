@@ -44,6 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3f299329cc54106888ee10d5a5c224e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  forceLevelIndex: 1
   levels:
   - MapSize: {x: 3, y: 1}
     Map: "SoE\r\r\r\r"
@@ -67,7 +68,7 @@ MonoBehaviour:
 
       oooooooo
 
-      ooSo+Eoo
+      ooSG+Eoo
 
       oooooooo
 

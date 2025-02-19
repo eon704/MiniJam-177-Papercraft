@@ -75,7 +75,7 @@ public class BoardPrefab : MonoBehaviour
     for (int i = 0; i < this.map.Length; i++)
     {
       char key = this.map[i];
-      if (key == '\n' || key == '\r')
+      if (key == '\n')
         continue;
       
       int x = i % rowLength;

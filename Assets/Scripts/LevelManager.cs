@@ -3,7 +3,11 @@ using UnityEngine;
 
 public class LevelManager : MonoBehaviour
 {
-  [Header("Note: Level 0 is the debug level")]
+  [Header("Testing tools")]
+  [Tooltip("Disabled if index is -1 or less.")]
+  [SerializeField] private int forceLevelIndex = -1;
+  
+  [Header("Note: Level 0 is the debug level.")]
   [SerializeField] private List<LevelData> levels;
   public int NextLevelIndex { get; private set; }
   public static LevelManager Instance { get; private set; }
@@ -25,6 +29,14 @@ public class LevelManager : MonoBehaviour
       Instance = this;
       this.NextLevelIndex = PlayerPrefs.GetInt("NextLevelIndex", 1);
       this.CurrentLevelIndex = this.NextLevelIndex;
+      
+      #if UNITY_EDITOR
+      if (this.forceLevelIndex >= 0)
+      {
+        this.CurrentLevelIndex = this.forceLevelIndex;
+      }
+      #endif
+        
       DontDestroyOnLoad(this.gameObject);
     }
     else

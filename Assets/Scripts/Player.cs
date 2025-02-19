@@ -16,6 +16,7 @@ public class Player : MonoBehaviour
     public readonly UnityEvent OnPlayerWon = new();
     public readonly UnityEvent OnPlayerDied = new();
     public readonly UnityEvent OnTransformation = new();
+    public readonly UnityEvent OnCollectStar = new();
     public readonly UnityEvent<StateType, int> OnMovesLeftChanged = new();
 
     private StateMachine stateMachine;
@@ -193,6 +194,13 @@ public class Player : MonoBehaviour
     private void OnMove()
     {
         Cell targetCell = this.BoardPiecePrefab.CurrentCell.Cell;
+
+        if (targetCell.Item == Cell.CellItem.Star)
+        {
+            targetCell.CollectStar();
+            this.OnCollectStar?.Invoke();
+        }
+        
         if (targetCell.Terrain == Cell.TerrainType.End)
         {
             this.OnPlayerWon?.Invoke();
