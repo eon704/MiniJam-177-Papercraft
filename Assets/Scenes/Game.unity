@@ -886,6 +886,10 @@ PrefabInstance:
       propertyPath: 'nudgeImages.Array.data[3]'
       value: 
       objectReference: {fileID: 1054182539}
+    - target: {fileID: 5853703254329433214, guid: 9b91cb75ffea040578771d321da2431e, type: 3}
+      propertyPath: <PlayerPrefab>k__BackingField
+      value: 
+      objectReference: {fileID: 6273721070179436126}
     - target: {fileID: 7714655615103614734, guid: 9b91cb75ffea040578771d321da2431e, type: 3}
       propertyPath: m_Name
       value: GameController
@@ -1344,6 +1348,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5086779018085956818, guid: a1469df6d19204a1eb27ac8f721565ba, type: 3}
+      propertyPath: gameController
+      value: 
+      objectReference: {fileID: 244730296}
     - target: {fileID: 5262300454121174718, guid: a1469df6d19204a1eb27ac8f721565ba, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0

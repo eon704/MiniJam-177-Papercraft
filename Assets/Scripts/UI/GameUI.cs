@@ -6,16 +6,54 @@ using UnityEngine.UI;
 
 public class GameUI : MonoBehaviour
 {
+  [Header("Game References")]
+  [SerializeField] private GameController gameController;
+  
+  [Header("Internal UI References")]
   [SerializeField] private Image _foreground;
-    
+  [SerializeField] private GameObject winScreen;
+  [SerializeField] private StarsUI starsUI;
+  [SerializeField] private WinScreenStarsUI WinScreenStarsUI;
+
+  private int starCount;
+  
   public void FinishGame()
   {
     this.StartCoroutine(this.LoadMainMenu());
   }
-    
+
+  private void Awake()
+  {
+    this.starCount = 0;
+  }
+
   private IEnumerator Start()
   {
+    yield return null;
+    this.gameController.PlayerPrefab.OnCollectStar.AddListener(this.AddStar);
+    this.gameController.PlayerPrefab.OnPlayerWon.AddListener(this.AddStar);
+    this.gameController.OnMapReset.AddListener(this.OnReset);
+    this.gameController.PlayerPrefab.OnPlayerWon.AddListener(this.OnWin);
+    
     yield return this.ForegroundFadeOut();
+  }
+
+  private void OnWin()
+  {
+    this.winScreen.SetActive(true);
+    this.WinScreenStarsUI.AnimateStars(this.starCount);
+  }
+
+  private void AddStar()
+  {
+    this.starsUI.AddStar(this.starCount);
+    this.starCount++;
+  }
+
+  private void OnReset()
+  {
+    this.starCount = 0;
+    this.starsUI.Reset();
   }
 
   private IEnumerator LoadMainMenu()

@@ -2,21 +2,23 @@ using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
 public class GameController : MonoBehaviour
 {
   [Header("References")]
-  [SerializeField] private Player playerPrefab;
+  [field:SerializeField] public Player PlayerPrefab { get; private set; }
   [SerializeField] private BoardPrefab boardPrefab;
   [SerializeField] private List<PulseImage> nudgeImages;
-  [SerializeField] private GameObject winScreen;
   [SerializeField] private GameObject finalScreen;
   
   [Header("Testing Tools")]
   [Tooltip("Only works in the editor")]
   [SerializeField] private bool enableInfiniteMoves;
 
+  public readonly UnityEvent OnMapReset = new();
+  
   private BoardPiece playerPiece;
 
   private Dictionary<Player.StateType, int> startMovesPerForm;
@@ -30,14 +32,15 @@ public class GameController : MonoBehaviour
     startCell.Cell.FreePiece();
     
     this.nudgeImages.ForEach(image => image.gameObject.SetActive(true));
+    this.OnMapReset?.Invoke();
     
     respawnSequence?.Kill();
     respawnSequence = DOTween.Sequence();
-    respawnSequence.Append(this.playerPrefab.transform.DOScale(0, 0.5f));
-    respawnSequence.AppendCallback(() => this.playerPrefab.SetDefaultState());
-    respawnSequence.AppendCallback(() => this.playerPrefab.BoardPiecePrefab.Teleport(startCell));
-    respawnSequence.AppendCallback(() => this.playerPrefab.SetTransformationLimits(this.startMovesPerForm));
-    respawnSequence.Append(this.playerPrefab.transform.DOScale(1f, 0.5f));
+    respawnSequence.Append(this.PlayerPrefab.transform.DOScale(0, 0.5f));
+    respawnSequence.AppendCallback(() => this.PlayerPrefab.SetDefaultState());
+    respawnSequence.AppendCallback(() => this.PlayerPrefab.BoardPiecePrefab.Teleport(startCell));
+    respawnSequence.AppendCallback(() => this.PlayerPrefab.SetTransformationLimits(this.startMovesPerForm));
+    respawnSequence.Append(this.PlayerPrefab.transform.DOScale(1f, 0.5f));
   }
 
   public void LoadNextLevel()
@@ -70,14 +73,14 @@ public class GameController : MonoBehaviour
     CellPrefab cellPrefab;
     (this.playerPiece, cellPrefab) = this.boardPrefab.CreateNewPlayerPrefab();
     
-    this.playerPrefab.Initialize(this.playerPiece, cellPrefab, this.boardPrefab);
+    this.PlayerPrefab.Initialize(this.playerPiece, cellPrefab, this.boardPrefab);
 
-    this.playerPrefab.OnPlayerWon.AddListener(this.OnWin);
-    this.playerPrefab.OnPlayerDied.AddListener(this.ResetMap);
-    this.playerPrefab.OnTransformation.AddListener(() => nudgeImages.ForEach(image => image.gameObject.SetActive(false)));
+    this.PlayerPrefab.OnPlayerWon.AddListener(this.OnWin);
+    this.PlayerPrefab.OnPlayerDied.AddListener(this.ResetMap);
+    this.PlayerPrefab.OnTransformation.AddListener(() => nudgeImages.ForEach(image => image.gameObject.SetActive(false)));
 
     yield return null;
-    this.playerPrefab.SetTransformationLimits(this.startMovesPerForm);
+    this.PlayerPrefab.SetTransformationLimits(this.startMovesPerForm);
     this.nudgeImages.ForEach(image => image.gameObject.SetActive(true));
   }
 
@@ -94,10 +97,6 @@ public class GameController : MonoBehaviour
     if (LevelManager.Instance.IsLastLevel())
     {
       this.finalScreen.SetActive(true);
-    }
-    else
-    {
-      this.winScreen.SetActive(true);
     }
     
     LevelManager.Instance.SetCurrentLevelComplete();
