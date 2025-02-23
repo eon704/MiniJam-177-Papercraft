@@ -3,20 +3,21 @@ using DG.Tweening;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-
 public class MainMenuUI : MonoBehaviour
 {
     [SerializeField] private RectTransform title;
     [SerializeField] private CanvasGroup startPanel;
     [SerializeField] private CanvasGroup levelsPanel;
     [SerializeField] private Image foreground;
+   
 
+ 
     public void ShowLevels()
     {
         this.startPanel.interactable = false;
         
         Sequence sequence = DOTween.Sequence();
-        sequence.Append(this.title.DOAnchorPosY( 300, 0.75f).SetEase(Ease.InOutCubic));
+        sequence.Append(this.title.DOAnchorPosY(250, 0.75f).SetEase(Ease.InOutCubic));
         sequence.Join(this.startPanel.DOFade(0, 0.75f).SetEase(Ease.InOutCubic));
         sequence.AppendCallback(() =>
         {
@@ -48,6 +49,8 @@ public class MainMenuUI : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
         AsyncOperation loadSceneAsync = SceneManager.LoadSceneAsync("Game");
         yield return new WaitUntil(() => loadSceneAsync!.isDone);
+        
+        GlobalSoundManager.Instance.PlaySoundtrack(SettingsManager.Instance.gameSoundtrack);
     }
     
     private IEnumerator ForegroundFadeIn()
@@ -75,4 +78,5 @@ public class MainMenuUI : MonoBehaviour
         yield return tween.WaitForCompletion();
         this.foreground.gameObject.SetActive(false);
     }
+    
 }
