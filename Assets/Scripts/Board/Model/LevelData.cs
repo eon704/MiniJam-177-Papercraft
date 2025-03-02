@@ -19,11 +19,11 @@ public class LevelData
         Map = "ooooo\nooooo\nSoooE\nooooo\nooooo\n",
         StartMovesPerForm = new List<MovePerFormEntry>()
         {
-            new() {State = Player.StateType.Default, Moves = 0 },
-            new() {State = Player.StateType.Crane, Moves = 0 },
-            new() {State = Player.StateType.Plane, Moves = 0 },
-            new() {State = Player.StateType.Boat, Moves = 0 },
-            new() {State = Player.StateType.Frog, Moves = 0 }
+            new() {State = Player.StateType.Default, Moves = -1 },
+            new() {State = Player.StateType.Crane, Moves = -1 },
+            new() {State = Player.StateType.Plane, Moves = -1 },
+            new() {State = Player.StateType.Boat, Moves = -1 },
+            new() {State = Player.StateType.Frog, Moves = -1 }
         }
     };
 }

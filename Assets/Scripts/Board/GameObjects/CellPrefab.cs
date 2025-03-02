@@ -1,3 +1,4 @@
+using System;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -65,5 +66,10 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     public void OnPointerUp(PointerEventData eventData)
     {
         this.player.Move(this);
+    }
+
+    private void OnDestroy()
+    {
+        this.pulseSequence.Kill();
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
@@ -62,5 +63,10 @@ public class BoardPiecePrefab : MonoBehaviour
     }
 
     this.transform.position = targetCell.transform.position;
+  }
+
+  private void OnDestroy()
+  {
+    this.transform.DOKill();
   }
 }

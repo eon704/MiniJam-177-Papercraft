@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using DG.Tweening;
 using UnityEngine;
@@ -16,6 +17,11 @@ public class GameUI : MonoBehaviour
   private IEnumerator Start()
   {
     yield return this.ForegroundFadeOut();
+  }
+
+  private void OnDestroy()
+  {
+    this._foreground.DOKill(); 
   }
 
   private IEnumerator LoadMainMenu()

@@ -10,9 +10,10 @@ public class SettingsManager : Singleton<SettingsManager>
 
     protected override void Awake()
     {
-        
         base.Awake();
-        LoadSettings();
+        
+        if (Instance == this)
+            LoadSettings();
     }
 
     private void Start()

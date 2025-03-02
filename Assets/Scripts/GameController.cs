@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
@@ -90,6 +91,11 @@ public class GameController : MonoBehaviour
     {
       this.ResetMap();
     }
+  }
+
+  private void OnDestroy()
+  {
+    this.respawnSequence?.Kill();
   }
 
   private void OnWin()

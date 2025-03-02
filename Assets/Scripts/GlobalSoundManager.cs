@@ -33,7 +33,14 @@ public class GlobalSoundManager : Singleton<GlobalSoundManager>
     protected override void Awake()
     {
         base.Awake();
-        _audioSource = GetComponent<AudioSource>();
+        if (Instance == this)
+        {
+            _audioSource = GetComponent<AudioSource>();
+        }
+    }
+
+    private void Start()
+    {
         UpdateSFXVolume();
         UpdateSoundtrackVolume();
     }

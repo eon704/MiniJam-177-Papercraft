@@ -1,12 +1,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class LevelManager : MonoBehaviour
+public class LevelManager : Singleton<LevelManager>
 {
   [Header("Note: Level 0 is the debug level")]
   [SerializeField] private List<LevelData> levels;
   public int NextLevelIndex { get; private set; }
-  public static LevelManager Instance { get; private set; }
 
   public int LevelsCount => this.levels.Count;
   
@@ -16,20 +15,25 @@ public class LevelManager : MonoBehaviour
   /// </summary>
   public int CurrentLevelIndex { get; private set; }
   
-  public LevelData CurrentLevel => this.CurrentLevelIndex > 0 ? this.levels[this.CurrentLevelIndex] : LevelData.DefaultLevel;
-  
-  private void Awake()
+  public LevelData CurrentLevel
   {
-    if (Instance == null)
+    get
     {
-      Instance = this;
+      if (this.CurrentLevelIndex >= this.levels.Count)
+        return this.levels[this.levels.Count - 1];
+      
+      return this.CurrentLevelIndex > 0 ? this.levels[this.CurrentLevelIndex] : LevelData.DefaultLevel;
+    }
+  }
+
+  protected override void Awake()
+  {
+    base.Awake();
+    
+    if (Instance == this)
+    {
       this.NextLevelIndex = PlayerPrefs.GetInt("NextLevelIndex", 1);
       this.CurrentLevelIndex = this.NextLevelIndex;
-      DontDestroyOnLoad(this.gameObject);
-    }
-    else
-    {
-      Destroy(this.gameObject); 
     }
   }
 
@@ -50,7 +54,10 @@ public class LevelManager : MonoBehaviour
 
   public void SetCurrentLevelComplete()
   {
-    this.NextLevelIndex++;
+    if (this.CurrentLevelIndex + 1 <= this.NextLevelIndex)
+      return;
+    
+    this.NextLevelIndex = this.CurrentLevelIndex + 1;
     PlayerPrefs.SetInt("NextLevelIndex", this.NextLevelIndex);
   }
 }
