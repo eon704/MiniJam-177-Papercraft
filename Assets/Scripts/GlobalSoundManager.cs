@@ -77,11 +77,9 @@ public class GlobalSoundManager : MonoBehaviour
 
     public void PlaySoundtrack(AudioClip clip)
     {
-        if (soundtrackSource != null)
-        {
-            soundtrackSource.clip = clip;
-            soundtrackSource.Play();
-        }
+        if (!soundtrackSource) return;
+        soundtrackSource.clip = clip;
+        soundtrackSource.Play();
     }
 
     [Serializable]
