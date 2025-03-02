@@ -1,31 +1,20 @@
 using UnityEngine;
 
-public class SettingsManager : MonoBehaviour
+public class SettingsManager : Singleton<SettingsManager>
 {
-    public static SettingsManager Instance { get; private set; }
-    
     public float SFXVolume { get; private set; }
     public float SoundtrackVolume { get; private set; }
 
-     public AudioClip mainMenuSoundtrack;
-     public AudioClip gameSoundtrack;
-    
-    private void Awake()
+    public AudioClip mainMenuSoundtrack;
+    public AudioClip gameSoundtrack;
+
+    protected override void Awake()
     {
-       
         
-        if (Instance == null)
-        {
-            Instance = this; 
-            DontDestroyOnLoad(gameObject);
-            LoadSettings();
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        base.Awake();
+        LoadSettings();
     }
-    
+
     private void Start()
     {
         GlobalSoundManager.Instance.PlaySoundtrack(mainMenuSoundtrack);
@@ -52,6 +41,4 @@ public class SettingsManager : MonoBehaviour
         SFXVolume = PlayerPrefs.GetFloat("SFXVolume", 1.0f);
         SoundtrackVolume = PlayerPrefs.GetFloat("SoundtrackVolume", 1.0f);
     }
-    
-    
 }

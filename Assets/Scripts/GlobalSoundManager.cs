@@ -11,13 +11,9 @@ public enum SoundType
     Fail
 }
 
-[RequireComponent(typeof(AudioSource)), ExecuteInEditMode]
-public class GlobalSoundManager : MonoBehaviour
+[RequireComponent(typeof(AudioSource))]
+public class GlobalSoundManager : Singleton<GlobalSoundManager>
 {
-    public static GlobalSoundManager Instance { get; private set; }
-
-   
-    
     [SerializeField] private SoundList[] soundList;
     [SerializeField] private AudioSource soundtrackSource;
 
@@ -34,19 +30,9 @@ public class GlobalSoundManager : MonoBehaviour
         }
     }
 
-    private void Awake()
+    protected override void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
-        {
-            Destroy(gameObject);
-            return;
-        }
-
+        base.Awake();
         _audioSource = GetComponent<AudioSource>();
         UpdateSFXVolume();
         UpdateSoundtrackVolume();
