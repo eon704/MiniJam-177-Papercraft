@@ -1,8 +1,7 @@
 using UnityEngine;
 using System;
 
-
-public enum SoundType // DON'T CHANGE THE ORDER OF THIS ENUM !!!!!!
+public enum SoundType
 {
     Click,
     ChangeState,
@@ -12,13 +11,11 @@ public enum SoundType // DON'T CHANGE THE ORDER OF THIS ENUM !!!!!!
     Fail
 }
 
-
-[RequireComponent(typeof(AudioSource)), ExecuteInEditMode]
-public class GlobalSoundManager : MonoBehaviour
+[RequireComponent(typeof(AudioSource))]
+public class GlobalSoundManager : Singleton<GlobalSoundManager>
 {
-    private static GlobalSoundManager Instance { get; set; }
-
     [SerializeField] private SoundList[] soundList;
+    [SerializeField] private AudioSource soundtrackSource;
 
     private AudioSource _audioSource;
 
@@ -33,43 +30,60 @@ public class GlobalSoundManager : MonoBehaviour
         }
     }
 
-    private void Awake()
+    protected override void Awake()
     {
-        Initialize();
+        base.Awake();
+        if (Instance == this)
+        {
+            _audioSource = GetComponent<AudioSource>();
+        }
     }
 
-    private void Initialize()
+    private void Start()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-
-        _audioSource = GetComponent<AudioSource>();
+        UpdateSFXVolume();
+        UpdateSoundtrackVolume();
     }
 
     public static void PlayRandomSoundByType(SoundType sound, float volume = 1)
     {
         var clips = Instance.soundList[(int)sound].Sounds;
         var randomClip = clips[UnityEngine.Random.Range(0, clips.Length)];
-        Instance._audioSource.PlayOneShot(randomClip, volume);
+        Instance._audioSource.PlayOneShot(randomClip, volume * SettingsManager.Instance.SFXVolume);
     }
-}
 
-[Serializable]
-public struct SoundList
-{
-    public AudioClip[] Sounds
+    public void UpdateSFXVolume()
     {
-        get => sounds;
+        if (_audioSource != null)
+        {
+            _audioSource.volume = SettingsManager.Instance.SFXVolume;
+        }
     }
 
-    public string name;
-    [SerializeField] private AudioClip[] sounds;
+    public void UpdateSoundtrackVolume()
+    {
+        if (soundtrackSource != null)
+        {
+            soundtrackSource.volume = SettingsManager.Instance.SoundtrackVolume;
+        }
+    }
+
+    public void PlaySoundtrack(AudioClip clip)
+    {
+        if (!soundtrackSource) return;
+        soundtrackSource.clip = clip;
+        soundtrackSource.Play();
+    }
+
+    [Serializable]
+    public struct SoundList
+    {
+        public AudioClip[] Sounds
+        {
+            get => sounds;
+        }
+
+        public string name;
+        [SerializeField] private AudioClip[] sounds;
+    }
 }

@@ -44,6 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3f299329cc54106888ee10d5a5c224e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  persistent: 1
   forceLevelIndex: 1
   levels:
   - MapSize: {x: 3, y: 1}
@@ -68,7 +69,7 @@ MonoBehaviour:
 
       oooooooo
 
-      ooSG+Eoo
+      oSG+GGEo
 
       oooooooo
 
@@ -79,7 +80,7 @@ MonoBehaviour:
     - State: 0
       Moves: 0
     - State: 1
-      Moves: 3
+      Moves: 5
     - State: 2
       Moves: 0
     - State: 3

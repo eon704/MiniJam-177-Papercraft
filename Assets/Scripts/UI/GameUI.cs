@@ -31,11 +31,15 @@ public class GameUI : MonoBehaviour
   {
     yield return null;
     this.gameController.PlayerPrefab.OnCollectStar.AddListener(this.AddStar);
-    this.gameController.PlayerPrefab.OnPlayerWon.AddListener(this.AddStar);
     this.gameController.OnMapReset.AddListener(this.OnReset);
     this.gameController.PlayerPrefab.OnPlayerWon.AddListener(this.OnWin);
     
     yield return this.ForegroundFadeOut();
+  }
+
+  private void OnDestroy()
+  {
+    this._foreground.DOKill(); 
   }
 
   private void OnWin()

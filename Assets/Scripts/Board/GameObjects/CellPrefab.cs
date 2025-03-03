@@ -1,3 +1,4 @@
+using System;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -81,5 +82,10 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
                 .DOScale(Vector3.zero, 0.5f)
                 .OnComplete(() => this.star.SetActive(false));
         }
+    }
+
+    private void OnDestroy()
+    {
+        this.pulseSequence.Kill();
     }
 }
