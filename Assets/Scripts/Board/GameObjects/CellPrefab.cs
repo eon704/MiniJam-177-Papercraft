@@ -1,4 +1,3 @@
-using System;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -13,6 +12,7 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     [SerializeField] private GameObject end;
     
     [SerializeField] private GameObject star;
+    private float starDefaultScale;
     
     [SerializeField] private Color defaultColor;
     [SerializeField] private Color highlightColor;
@@ -28,7 +28,7 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     public void Initialize(Cell cellData, Player newPlayer)
     {
         this.Cell = cellData;
-        this.Cell.Item.OnChanged += this.OnStarCollect;
+        this.Cell.Item.OnChanged += this.OnCellItemChange;
         
         this.player = newPlayer;
 
@@ -39,6 +39,7 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         this.stone.SetActive(this.Cell.Terrain == Cell.TerrainType.Stone);
         
         this.star.SetActive(this.Cell.Item == Cell.CellItem.Star);
+        this.starDefaultScale = this.star.transform.localScale.x;
     }
 
     public Sequence DoPulse(float duration)
@@ -74,13 +75,17 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         this.player.Move(this);
     }
 
-    private void OnStarCollect(Observable<Cell.CellItem> item, Cell.CellItem oldValue, Cell.CellItem newValue)
+    private void OnCellItemChange(Observable<Cell.CellItem> item, Cell.CellItem oldValue, Cell.CellItem newValue)
     {
         if (oldValue == Cell.CellItem.Star && newValue == Cell.CellItem.None)
         {
             this.star.transform
                 .DOScale(Vector3.zero, 0.5f)
                 .OnComplete(() => this.star.SetActive(false));
+        } else if (oldValue == Cell.CellItem.None && newValue == Cell.CellItem.Star)
+        {
+            this.star.SetActive(true);
+            this.star.transform.DOScale(Vector3.one * this.starDefaultScale, 0.5f);
         }
     }
 

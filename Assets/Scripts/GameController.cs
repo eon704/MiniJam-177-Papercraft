@@ -32,6 +32,9 @@ public class GameController : MonoBehaviour
     CellPrefab startCell = this.boardPrefab.GetStartCellPrefab();
     startCell.Cell.FreePiece();
     
+    List<CellPrefab> starCells = this.boardPrefab.GetStarCellPrefabs();
+    starCells.ForEach(cell => cell.Cell.ReassignStar());
+    
     this.nudgeImages.ForEach(image => image.gameObject.SetActive(true));
     this.OnMapReset?.Invoke();
     
@@ -62,7 +65,7 @@ public class GameController : MonoBehaviour
 
     if (this.enableInfiniteMoves)
     {
-      foreach (Player.StateType state in System.Enum.GetValues(typeof(Player.StateType)))
+      foreach (Player.StateType state in Enum.GetValues(typeof(Player.StateType)))
       {
           this.startMovesPerForm[state] = 99;
       }
@@ -91,11 +94,6 @@ public class GameController : MonoBehaviour
     {
       this.ResetMap();
     }
-  }
-
-  private void OnDestroy()
-  {
-    this.respawnSequence?.Kill();
   }
 
   private void OnWin()

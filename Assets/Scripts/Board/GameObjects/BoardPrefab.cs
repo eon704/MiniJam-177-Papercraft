@@ -52,6 +52,11 @@ public class BoardPrefab : MonoBehaviour
   {
     return this.GetCellPrefab(this.Board.StartCell.Position);
   }
+
+  public List<CellPrefab> GetStarCellPrefabs()
+  {
+    return this.GetCellPrefabs(this.Board.StarCells);
+  }
   
   public (BoardPiece, CellPrefab) CreateNewPlayerPrefab()
   {

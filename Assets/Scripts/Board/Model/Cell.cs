@@ -46,6 +46,11 @@ public class Cell
         this.Piece = null;
     }
 
+    public void ReassignStar()
+    {
+        this.Item.Value = CellItem.Star;
+    }
+
     public void CollectStar()
     {
         if (this.Item.Value == CellItem.Star)

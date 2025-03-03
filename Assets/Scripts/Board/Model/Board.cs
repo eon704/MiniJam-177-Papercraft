@@ -6,6 +6,7 @@ public class Board
   public readonly Vector2Int Size;
   public readonly Cell[,] CellArray;
   public readonly Cell StartCell;
+  public readonly List<Cell> StarCells = new();
   
   public Board(Vector2Int size, char[,] map)
   {
@@ -39,6 +40,11 @@ public class Board
         if (type == Cell.TerrainType.Start)
         {
           this.StartCell = this.CellArray[x, y];
+        }
+        
+        if (item == Cell.CellItem.Star)
+        {
+          this.StarCells.Add(this.CellArray[x, y]);
         }
       }
     }
