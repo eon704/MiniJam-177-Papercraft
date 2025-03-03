@@ -32,6 +32,8 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         
         this.player = newPlayer;
 
+        this.gameObject.SetActive(this.Cell.Terrain != Cell.TerrainType.None);
+        
         this.start.SetActive(this.Cell.Terrain == Cell.TerrainType.Start);
         this.end.SetActive(this.Cell.Terrain == Cell.TerrainType.End);
         this.fire.SetActive(this.Cell.Terrain == Cell.TerrainType.Fire);

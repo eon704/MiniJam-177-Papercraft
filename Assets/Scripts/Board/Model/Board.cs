@@ -20,6 +20,7 @@ public class Board
       {
         Cell.TerrainType type = map[x, y] switch
         {
+          ' ' => Cell.TerrainType.None,
           'o' => Cell.TerrainType.Default,
           '-' => Cell.TerrainType.Water,
           '+' => Cell.TerrainType.Stone,

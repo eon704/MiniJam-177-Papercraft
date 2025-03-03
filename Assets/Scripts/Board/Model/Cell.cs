@@ -9,6 +9,7 @@ public class Cell
 
     public enum TerrainType
     {
+        None,
         Default,
         Start,
         End,
