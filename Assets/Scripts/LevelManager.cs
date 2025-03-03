@@ -69,8 +69,21 @@ public class LevelManager : Singleton<LevelManager>
     this.SetCurrentLevel(this.CurrentLevelIndex + 1);
   }
 
-  public void SetCurrentLevelComplete()
+  public int GetLevelStars(int levelIndex)
   {
+    string key = "level" + levelIndex + "_stars";
+    return PlayerPrefs.GetInt(key, 0);
+  }
+
+  public void SetCurrentLevelComplete(int stars)
+  {
+    string key = "level" + LevelManager.Instance.CurrentLevelIndex + "_stars";
+    int bestStars = PlayerPrefs.GetInt(key, 0);
+    if (stars > bestStars)
+    {
+      PlayerPrefs.SetInt(key, stars);
+    }
+    
     if (this.CurrentLevelIndex + 1 <= this.NextLevelIndex)
       return;
     

@@ -34,6 +34,8 @@ public class GameController : MonoBehaviour
     
     List<CellPrefab> starCells = this.boardPrefab.GetStarCellPrefabs();
     starCells.ForEach(cell => cell.Cell.ReassignStar());
+
+    this.PlayerPrefab.StarAmount.Value = 0;
     
     this.nudgeImages.ForEach(image => image.gameObject.SetActive(true));
     this.OnMapReset?.Invoke();
@@ -103,7 +105,7 @@ public class GameController : MonoBehaviour
       this.finalScreen.SetActive(true);
     }
     
-    LevelManager.Instance.SetCurrentLevelComplete();
+    LevelManager.Instance.SetCurrentLevelComplete(stars);
     GlobalSoundManager.PlayRandomSoundByType(SoundType.Win);
   }
 }
