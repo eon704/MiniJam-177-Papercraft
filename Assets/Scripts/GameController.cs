@@ -96,7 +96,7 @@ public class GameController : MonoBehaviour
     }
   }
 
-  private void OnWin()
+  private void OnWin(int stars)
   {
     if (LevelManager.Instance.IsLastLevel())
     {

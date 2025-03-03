@@ -7,21 +7,16 @@ public class StarsUI : MonoBehaviour
     [SerializeField] private Sprite emptyStar;
     [SerializeField] private Sprite fullStar;
     
-    public void AddStar(int newStar)
+    public void OnStarChange(int newStar)
     {
-        this.stars[newStar].sprite = this.fullStar;
-    }
-
-    public void Reset()
-    {
-        foreach (Image star in this.stars)
+        for (int i = 0; i < this.stars.Length; i++)
         {
-            star.sprite = this.emptyStar;
+            this.stars[i].sprite = i < newStar ? this.fullStar : this.emptyStar;
         }
     }
 
     private void Start()
     {
-        this.Reset();
+        this.OnStarChange(0);
     }
 }

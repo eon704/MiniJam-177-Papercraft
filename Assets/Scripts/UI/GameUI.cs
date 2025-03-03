@@ -14,24 +14,16 @@ public class GameUI : MonoBehaviour
   [SerializeField] private GameObject winScreen;
   [SerializeField] private StarsUI starsUI;
   [SerializeField] private WinScreenStarsUI WinScreenStarsUI;
-
-  private int starCount;
   
   public void FinishGame()
   {
     this.StartCoroutine(this.LoadMainMenu());
   }
 
-  private void Awake()
-  {
-    this.starCount = 0;
-  }
-
   private IEnumerator Start()
   {
     yield return null;
-    this.gameController.PlayerPrefab.OnCollectStar.AddListener(this.AddStar);
-    this.gameController.OnMapReset.AddListener(this.OnReset);
+    this.gameController.PlayerPrefab.StarAmount.OnChanged += this.OnStarChange;
     this.gameController.PlayerPrefab.OnPlayerWon.AddListener(this.OnWin);
     
     yield return this.ForegroundFadeOut();
@@ -42,22 +34,15 @@ public class GameUI : MonoBehaviour
     this._foreground.DOKill(); 
   }
 
-  private void OnWin()
+  private void OnWin(int stars)
   {
     this.winScreen.SetActive(true);
-    this.WinScreenStarsUI.AnimateStars(this.starCount);
+    this.WinScreenStarsUI.AnimateStars(stars);
   }
 
-  private void AddStar()
+  private void OnStarChange(Observable<int> stars, int oldVal, int newVal)
   {
-    this.starsUI.AddStar(this.starCount);
-    this.starCount++;
-  }
-
-  private void OnReset()
-  {
-    this.starCount = 0;
-    this.starsUI.Reset();
+    this.starsUI.OnStarChange(newVal);
   }
 
   private IEnumerator LoadMainMenu()

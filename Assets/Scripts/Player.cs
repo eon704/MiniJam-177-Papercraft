@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
@@ -12,11 +11,12 @@ public class Player : MonoBehaviour
     public BoardPiecePrefab BoardPiecePrefab { get; private set; }
 
     public GameObject ChangeStateEffect;
+
+    public readonly Observable<int> StarAmount = new(0);
     
-    public readonly UnityEvent OnPlayerWon = new();
+    public readonly UnityEvent<int> OnPlayerWon = new();
     public readonly UnityEvent OnPlayerDied = new();
     public readonly UnityEvent OnTransformation = new();
-    public readonly UnityEvent OnCollectStar = new();
     public readonly UnityEvent<StateType, int> OnMovesLeftChanged = new();
 
     private StateMachine stateMachine;
@@ -198,12 +198,12 @@ public class Player : MonoBehaviour
         if (targetCell.Item == Cell.CellItem.Star)
         {
             targetCell.CollectStar();
-            this.OnCollectStar?.Invoke();
+            this.StarAmount.Value += 1;
         }
         
         if (targetCell.Terrain == Cell.TerrainType.End)
         {
-            this.OnPlayerWon?.Invoke();
+            this.OnPlayerWon?.Invoke(this.StarAmount);
         } else if (targetCell.Terrain == Cell.TerrainType.Fire)
         {
             this.OnPlayerDied?.Invoke();
