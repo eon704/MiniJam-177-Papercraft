@@ -50,7 +50,7 @@ public class GameUI : MonoBehaviour
     yield return this.ForegroundFadeIn();
     yield return new WaitForSeconds(0.5f);
     AsyncOperation loadSceneAsync = SceneManager.LoadSceneAsync("MainMenu");
-    yield return new WaitUntil(() => loadSceneAsync!.isDone);
+    yield return new WaitUntil(() => loadSceneAsync == null || loadSceneAsync.isDone);
   }
     
   private IEnumerator ForegroundFadeIn()
