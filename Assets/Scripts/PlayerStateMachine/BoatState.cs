@@ -24,7 +24,7 @@ namespace PlayerStateMachine
             Cell.TerrainType.Water, 
             Cell.TerrainType.Fire,
             Cell.TerrainType.Start,
-            Cell.TerrainType.End,
+          //  Cell.TerrainType.End,
         };
 
         public BoatState(Sprite sprite, SpriteRenderer spriteRenderer, Player player)
