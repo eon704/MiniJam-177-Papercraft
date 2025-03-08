@@ -41,11 +41,12 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5088318347519769222}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 46371fb8192884b41a157d285084a4bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  persistent: 1
   soundList:
   - name: Click
     sounds:
@@ -205,8 +206,8 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 38fa685ce06d6614c98613f2f3e4e219, type: 3}
-  m_Resource: {fileID: 8300000, guid: 38fa685ce06d6614c98613f2f3e4e219, type: 3}
+  m_audioClip: {fileID: 8300000, guid: 69196ae9c2a93bf42b4184076f1e7972, type: 3}
+  m_Resource: {fileID: 8300000, guid: 69196ae9c2a93bf42b4184076f1e7972, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 0.417
   m_Pitch: 1

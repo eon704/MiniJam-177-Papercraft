@@ -107,7 +107,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &776425478806285135
 RectTransform:
   m_ObjectHideFlags: 0
@@ -440,9 +440,9 @@ RectTransform:
   - {fileID: 38569078038567306}
   m_Father: {fileID: 1019845995239788465}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 229.701, y: -50}
   m_SizeDelta: {x: 90, y: 90}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &14898166561939124
@@ -874,7 +874,7 @@ RectTransform:
   m_Father: {fileID: 1437755049129356819}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0.429, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -1409,8 +1409,8 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 3146099542126963771}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMin: {x: 0.429, y: 0}
+  m_AnchorMax: {x: 0.429, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -1560,7 +1560,7 @@ RectTransform:
   m_Father: {fileID: 7581468997259048673}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0.429, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -1760,8 +1760,8 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 695890791624583266}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMin: {x: 0.429, y: 0}
+  m_AnchorMax: {x: 0.429, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -1816,6 +1816,7 @@ GameObject:
   - component: {fileID: 857888168734826093}
   - component: {fileID: 2686741742869892537}
   - component: {fileID: 5458818528396829012}
+  - component: {fileID: 5098391430725406938}
   m_Layer: 5
   m_Name: SettingsUI
   m_TagString: Untagged
@@ -1920,3 +1921,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sfxVolumeSlider: {fileID: 856166786604118206}
   soundtrackVolumeSlider: {fileID: 4730204682338322149}
+--- !u!114 &5098391430725406938
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9051837684215049020}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1212e4ee44c518b41ab793d0f0773595, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  persistent: 1
+  mainMenuSoundtrack: {fileID: 8300000, guid: 69196ae9c2a93bf42b4184076f1e7972, type: 3}
+  gameSoundtrack: {fileID: 8300000, guid: 69196ae9c2a93bf42b4184076f1e7972, type: 3}

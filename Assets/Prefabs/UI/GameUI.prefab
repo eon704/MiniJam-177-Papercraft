@@ -1166,7 +1166,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4232a2170f7a33e40bad825ea9b4e93e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tooltipPrefab: {fileID: 2624798514517835844, guid: f7bf062a0eb97e143a9c469f5635ca5f, type: 3}
+  tooltipPrefab: {fileID: 2624798514517835844, guid: 22e34e55128cca345b535cceb56d18e7, type: 3}
 --- !u!1 &1415735198604797267
 GameObject:
   m_ObjectHideFlags: 0
@@ -1825,7 +1825,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4232a2170f7a33e40bad825ea9b4e93e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tooltipPrefab: {fileID: 2624798514517835844, guid: f7bf062a0eb97e143a9c469f5635ca5f, type: 3}
+  tooltipPrefab: {fileID: 2624798514517835844, guid: 555692faaeeb4764cb4a7e602111e6f6, type: 3}
 --- !u!1 &2231292564751179035
 GameObject:
   m_ObjectHideFlags: 0
@@ -3478,7 +3478,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4232a2170f7a33e40bad825ea9b4e93e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tooltipPrefab: {fileID: 2624798514517835844, guid: f7bf062a0eb97e143a9c469f5635ca5f, type: 3}
+  tooltipPrefab: {fileID: 2624798514517835844, guid: ebfab5a9139ff3a478c88c6f93c56f89, type: 3}
 --- !u!1 &5606174838180261527
 GameObject:
   m_ObjectHideFlags: 0

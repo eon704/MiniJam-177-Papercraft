@@ -61,7 +61,21 @@ MonoBehaviour:
     - State: 4
       Moves: 3
   - MapSize: {x: 8, y: 8}
-    Map: "        \n        \n        \noooooooo\noSG+GGEo\noooooooo\n        \n        "
+    Map: '00000000
+
+      00000000
+
+      00000000
+
+      ++++++++
+
+      +xGSGGy+
+
+      ++++++++
+
+      00000000
+
+      00000000'
     StartMovesPerForm:
     - State: 0
       Moves: 0
@@ -74,247 +88,83 @@ MonoBehaviour:
     - State: 4
       Moves: 0
   - MapSize: {x: 8, y: 8}
-    Map: 'oooooooo
+    Map: '00000000
 
-      oooooooo
+      00000000
 
-      oooooooo
+      000x0000
 
-      SoGxGxEx
+      000W+000
 
-      oooooooo
+      00SG+000
 
-      oooooooo
+      00+S0G00
 
-      oooooooo
+      00FWG0y0
 
-      oooooooo
-
-'
+      00000000'
     StartMovesPerForm:
     - State: 0
       Moves: 0
     - State: 1
-      Moves: 0
+      Moves: 1
     - State: 2
-      Moves: 0
+      Moves: 2
     - State: 3
+      Moves: 1
+    - State: 4
+      Moves: 2
+  - MapSize: {x: 8, y: 8}
+    Map: '00000000
+
+      0x+S+000
+
+      0FWF+000
+
+      0+W+F+G0
+
+      0SW0+S+0
+
+      0+WF+G+0
+
+      0+S+++W0
+
+      000G0+0y'
+    StartMovesPerForm:
+    - State: 0
       Moves: 0
+    - State: 1
+      Moves: 3
+    - State: 2
+      Moves: 4
+    - State: 3
+      Moves: 3
     - State: 4
       Moves: 3
   - MapSize: {x: 8, y: 8}
-    Map: 'oooooooo
+    Map: '00000000
 
-      oooooooo
+      0x+0+000
 
-      oooooooo
+      0+W0+G00
 
-      ooS--Eoo
+      00W0F+00
 
-      oooooooo
+      00WF0+00
 
-      oooooooo
+      0+0S++00
 
-      oooooooo
+      0+S+++W0
 
-      oooooooo'
+      00G00+Gy'
     StartMovesPerForm:
     - State: 0
       Moves: 0
     - State: 1
-      Moves: 1
-    - State: 2
-      Moves: 0
-    - State: 3
-      Moves: 2
-    - State: 4
-      Moves: 0
-  - MapSize: {x: 8, y: 8}
-    Map: 'oooooooo
-
-      oooooooo
-
-      ooSooooo
-
-      oooooooo
-
-      xoo+oooo
-
-      oo-oo+oo
-
-      o+oo-xoo
-
-      oEoo+ooo'
-    StartMovesPerForm:
-    - State: 0
-      Moves: 0
-    - State: 1
-      Moves: 1
-    - State: 2
-      Moves: 1
-    - State: 3
-      Moves: 1
-    - State: 4
-      Moves: 1
-  - MapSize: {x: 8, y: 8}
-    Map: 'oooooooo
-
-      oooooooo
-
-      oooooooo
-
-      ooo+oooo
-
-      ooo+So+o
-
-      oo-oo+oo
-
-      o+oo-xoo
-
-      oEoo+ooo'
-    StartMovesPerForm:
-    - State: 0
-      Moves: 0
-    - State: 1
-      Moves: 1
-    - State: 2
-      Moves: 1
-    - State: 3
-      Moves: 1
-    - State: 4
-      Moves: 1
-  - MapSize: {x: 8, y: 8}
-    Map: 'oo+oo-oo
-
-      oo-xo-oo
-
-      S+oo-xoo
-
-      oo-oo+oo
-
-      oo+oo-oo
-
-      o-xoo-oo
-
-      xoo+oo-o
-
-      oo+oo-xE'
-    StartMovesPerForm:
-    - State: 0
-      Moves: 0
-    - State: 1
-      Moves: 2
-    - State: 2
-      Moves: 2
-    - State: 3
-      Moves: 2
-    - State: 4
-      Moves: 2
-  - MapSize: {x: 8, y: 8}
-    Map: 'oo+oo-oo
-
-      oo-xoo-o
-
-      o+oo-ooS
-
-      oo-oo+oo
-
-      oo+oo-oo
-
-      xoo-oo-o
-
-      oo-xoo+o
-
-      oEoo+oo'
-    StartMovesPerForm:
-    - State: 0
-      Moves: 0
-    - State: 1
-      Moves: 1
-    - State: 2
-      Moves: 2
-    - State: 3
-      Moves: 2
-    - State: 4
-      Moves: 2
-  - MapSize: {x: 8, y: 8}
-    Map: 'oo+oo-oo
-
-      o+oo-xoo
-
-      oSoo+oo-
-
-      oo+oo-oo
-
-      xoo-oo+o
-
-      oo-xoo-o
-
-      oo+oo-xo
-
-      oo+ooEo'
-    StartMovesPerForm:
-    - State: 0
-      Moves: 0
-    - State: 1
-      Moves: 1
-    - State: 2
-      Moves: 2
-    - State: 3
-      Moves: 1
-    - State: 4
-      Moves: 2
-  - MapSize: {x: 8, y: 8}
-    Map: 'oo-xoo-o
-
-      oo+oo-oo
-
-      S+oo-xoo
-
-      oo-oo+oo
-
-      oo+oo-oo
-
-      oo-xoo-o
-
-      xoo+oo-o
-
-      oo+oo-xE'
-    StartMovesPerForm:
-    - State: 0
-      Moves: 0
-    - State: 1
-      Moves: 1
+      Moves: 6
     - State: 2
       Moves: 3
     - State: 3
-      Moves: 1
-    - State: 4
-      Moves: 2
-  - MapSize: {x: 8, y: 8}
-    Map: 'oo+oo-oo
-
-      oo-xoo-o
-
-      o+oo-ooS
-
-      oo-oo+oo
-
-      oo+oo-oo
-
-      xoo-oo-o
-
-      oo-xoo+o
-
-      oEoo+ooo'
-    StartMovesPerForm:
-    - State: 0
-      Moves: 0
-    - State: 1
-      Moves: 1
-    - State: 2
-      Moves: 3
-    - State: 3
-      Moves: 1
+      Moves: 5
     - State: 4
       Moves: 2

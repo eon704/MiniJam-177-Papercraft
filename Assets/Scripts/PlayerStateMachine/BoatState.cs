@@ -23,7 +23,7 @@ namespace PlayerStateMachine
         {
             Cell.TerrainType.Water, 
             Cell.TerrainType.Fire,
-            Cell.TerrainType.Start,
+            //  Cell.TerrainType.Start,
           //  Cell.TerrainType.End,
         };
 

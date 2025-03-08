@@ -20,13 +20,13 @@ public class Board
       {
         Cell.TerrainType type = map[x, y] switch
         {
-          ' ' => Cell.TerrainType.None,
-          'o' => Cell.TerrainType.Default,
-          '-' => Cell.TerrainType.Water,
-          '+' => Cell.TerrainType.Stone,
-          'x' => Cell.TerrainType.Fire,
-          'S' => Cell.TerrainType.Start,
-          'E' => Cell.TerrainType.End,
+          '0' => Cell.TerrainType.None,
+          '+' => Cell.TerrainType.Default,
+          'W' => Cell.TerrainType.Water,
+          'S' => Cell.TerrainType.Stone,
+          'F' => Cell.TerrainType.Fire,
+          'x' => Cell.TerrainType.Start,
+          'y' => Cell.TerrainType.End,
           _ => Cell.TerrainType.Default
         };
 
