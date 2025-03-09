@@ -88,33 +88,6 @@ MonoBehaviour:
     - State: 4
       Moves: 2
   - MapSize: {x: 8, y: 8}
-    Map: '00000000
-
-      0x+S+000
-
-      0FWF+000
-
-      0+W+F+G0
-
-      0SW0+S+0
-
-      0+WF+G+0
-
-      0+S+++W0
-
-      000G0+0y'
-    StartMovesPerForm:
-    - State: 0
-      Moves: 0
-    - State: 1
-      Moves: 3
-    - State: 2
-      Moves: 4
-    - State: 3
-      Moves: 3
-    - State: 4
-      Moves: 3
-  - MapSize: {x: 8, y: 8}
     Map: '0000000y
 
       0+SFGW+0
@@ -279,6 +252,33 @@ MonoBehaviour:
   - MapSize: {x: 8, y: 8}
     Map: '00000000
 
+      0x+S+000
+
+      0FWF+000
+
+      0+W+F+G0
+
+      0SW0+S+0
+
+      0+WF+G+0
+
+      0+S+++W0
+
+      000G0+0y'
+    StartMovesPerForm:
+    - State: 0
+      Moves: 0
+    - State: 1
+      Moves: 3
+    - State: 2
+      Moves: 4
+    - State: 3
+      Moves: 3
+    - State: 4
+      Moves: 3
+  - MapSize: {x: 8, y: 8}
+    Map: '00000000
+
       0xF0F000
 
       0+WSWG00
@@ -327,7 +327,7 @@ MonoBehaviour:
     - State: 2
       Moves: 4
     - State: 3
-      Moves: 6
+      Moves: 4
     - State: 4
       Moves: 4
   - MapSize: {x: 8, y: 8}
