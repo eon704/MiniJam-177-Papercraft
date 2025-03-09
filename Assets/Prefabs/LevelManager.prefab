@@ -88,6 +88,141 @@ MonoBehaviour:
     - State: 4
       Moves: 2
   - MapSize: {x: 8, y: 8}
+    Map: '00000000
+
+      0xF0+S00
+
+      0+W+W+00
+
+      0S+F0G00
+
+      00+0WF00
+
+      0GF+0+Sy
+
+      0+W0G+F0
+
+      00000000'
+    StartMovesPerForm:
+    - State: 0
+      Moves: 0
+    - State: 1
+      Moves: 4
+    - State: 2
+      Moves: 4
+    - State: 3
+      Moves: 0
+    - State: 4
+      Moves: 3
+  - MapSize: {x: 8, y: 8}
+    Map: '00000000
+
+      0xF+F000
+
+      0+WS0F0y
+
+      0S+W0+G0
+
+      0F+0SW+0
+
+      00G+F0W0
+
+      0+W+0S+0
+
+      00F0G+F0'
+    StartMovesPerForm:
+    - State: 0
+      Moves: 0
+    - State: 1
+      Moves: 2
+    - State: 2
+      Moves: 5
+    - State: 3
+      Moves: 1
+    - State: 4
+      Moves: 2
+  - MapSize: {x: 8, y: 8}
+    Map: '00F0F000
+
+      0+S0SW00
+
+      x+++0WF0
+
+      FW++G+S0
+
+      0S+F+W+0
+
+      00G+SW+y
+
+      0F0+0+G0
+
+      000F0000'
+    StartMovesPerForm:
+    - State: 0
+      Moves: 0
+    - State: 1
+      Moves: 3
+    - State: 2
+      Moves: 3
+    - State: 3
+      Moves: 2
+    - State: 4
+      Moves: 3
+  - MapSize: {x: 8, y: 8}
+    Map: '00000000
+
+      0xF00000
+
+      0+S+F000
+
+      0F+W+G00
+
+      00+F0+F0
+
+      000S+W+y
+
+      0000G+G0
+
+      00000000'
+    StartMovesPerForm:
+    - State: 0
+      Moves: 0
+    - State: 1
+      Moves: 3
+    - State: 2
+      Moves: 3
+    - State: 3
+      Moves: 1
+    - State: 4
+      Moves: 2
+  - MapSize: {x: 8, y: 8}
+    Map: '00000000
+
+      0xF0F000
+
+      0+WSWG00
+
+      0F+F+S+0
+
+      00S0W0Fy
+
+      0GF+0WS0
+
+      0+W0GF+0
+
+      00000000'
+    StartMovesPerForm:
+    - State: 0
+      Moves: 0
+    - State: 1
+      Moves: 5
+    - State: 2
+      Moves: 5
+    - State: 3
+      Moves: 1
+    - State: 4
+      Moves: 3
+  - MapSize: {x: 8, y: 8}
     Map: '0000000y
 
       0+SFGW+0
@@ -274,33 +409,6 @@ MonoBehaviour:
       Moves: 4
     - State: 3
       Moves: 3
-    - State: 4
-      Moves: 3
-  - MapSize: {x: 8, y: 8}
-    Map: '00000000
-
-      0xF0F000
-
-      0+WSWG00
-
-      0F+F+S+0
-
-      00S0W0Fy
-
-      0GF+0WS0
-
-      0+W0GF+0
-
-      00000000'
-    StartMovesPerForm:
-    - State: 0
-      Moves: 0
-    - State: 1
-      Moves: 5
-    - State: 2
-      Moves: 5
-    - State: 3
-      Moves: 1
     - State: 4
       Moves: 3
   - MapSize: {x: 8, y: 8}
