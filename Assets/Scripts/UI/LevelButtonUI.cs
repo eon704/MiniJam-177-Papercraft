@@ -10,6 +10,8 @@ public class LevelButtonUI : MonoBehaviour
     [SerializeField] private List<Image> starImages;
     [SerializeField] private Sprite emptyStar;
     [SerializeField] private Sprite fullStar;
+    [SerializeField] private Sprite defaultLevel;
+    [SerializeField] private Sprite finishedLevel;
     
     private int levelNumber;
 
