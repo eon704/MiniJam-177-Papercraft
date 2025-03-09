@@ -45,5 +45,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   persistent: 1
-  mainMenuSoundtrack: {fileID: 8300000, guid: 38fa685ce06d6614c98613f2f3e4e219, type: 3}
+  mainMenuSoundtrack: {fileID: 8300000, guid: 69196ae9c2a93bf42b4184076f1e7972, type: 3}
   gameSoundtrack: {fileID: 8300000, guid: 69196ae9c2a93bf42b4184076f1e7972, type: 3}
