@@ -10,17 +10,22 @@ public class WinScreenStarsUI : MonoBehaviour
     [SerializeField] private Sprite fullStar;
 
     private TextPulsing[] texts;
-    
+
     public void AnimateStars(int totalStars)
     {
         Sequence sequence = DOTween.Sequence();
-        sequence.AppendInterval(0.2f);
+        sequence.AppendInterval(1f);
 
         for (int i = 0; i < totalStars; i++)
         {
-            Image star = this.stars[i]; 
-            sequence.AppendCallback(() => star.sprite = this.fullStar);
-            sequence.AppendInterval(0.5f);
+            Image star = this.stars[i];
+            sequence.AppendCallback(() =>
+            {
+                GlobalSoundManager.PlayRandomSoundByType(SoundType.Ding);
+                star.sprite = this.fullStar;
+                star.transform.DOScale(Vector3.one * 1.5f, 0.5f).SetLoops(2, LoopType.Yoyo);
+            });
+            sequence.AppendInterval(1f);
         }
 
         sequence.OnComplete(() =>

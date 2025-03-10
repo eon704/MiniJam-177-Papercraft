@@ -8,7 +8,8 @@ public enum SoundType
     Move,
     Win,
     Lose,
-    Fail
+    Fail,
+    Ding
 }
 
 [RequireComponent(typeof(AudioSource))]

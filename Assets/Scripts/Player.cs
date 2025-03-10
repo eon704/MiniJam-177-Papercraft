@@ -198,6 +198,7 @@ public class Player : MonoBehaviour
         if (targetCell.Item == Cell.CellItem.Star)
         {
             targetCell.CollectStar();
+            GlobalSoundManager.PlayRandomSoundByType(SoundType.Ding,1f);
             this.StarAmount.Value += 1;
         }
         

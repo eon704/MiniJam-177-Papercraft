@@ -13,6 +13,7 @@ public class StarsUI : MonoBehaviour
         {
             this.stars[i].sprite = i < newStar ? this.fullStar : this.emptyStar;
         }
+        
     }
 
     private void Start()
