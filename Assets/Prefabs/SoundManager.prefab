@@ -66,6 +66,12 @@ MonoBehaviour:
   - name: Fail
     sounds:
     - {fileID: 8300000, guid: 6edb1357d0d33e94f9225537f7cc3d1a, type: 3}
+  - name: Ding
+    sounds:
+    - {fileID: 8300000, guid: e726036fdf3b12a4980ce2ab07853d0f, type: 3}
+  - name: Card
+    sounds:
+    - {fileID: 8300000, guid: 4e1c18b5ffe8b884791296d640dbef74, type: 3}
   soundtrackSource: {fileID: 2112911085611960578}
 --- !u!82 &8772165836158369560
 AudioSource:

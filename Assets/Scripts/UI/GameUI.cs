@@ -42,6 +42,7 @@ public class GameUI : MonoBehaviour
 
   private void OnStarChange(Observable<int> stars, int oldVal, int newVal)
   {
+    
     this.starsUI.OnStarChange(newVal);
   }
 

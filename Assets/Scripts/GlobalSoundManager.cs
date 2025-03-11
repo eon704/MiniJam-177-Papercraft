@@ -9,7 +9,8 @@ public enum SoundType
     Win,
     Lose,
     Fail,
-    Ding
+    Ding,
+    Card
 }
 
 [RequireComponent(typeof(AudioSource))]
