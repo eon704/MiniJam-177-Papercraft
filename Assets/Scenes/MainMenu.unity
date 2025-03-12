@@ -493,6 +493,24 @@ PrefabInstance:
       propertyPath: levels.Array.data[5].Map
       value: '00000000
 
+        0x++F+00
+
+        0+0W0G+0
+
+        0FW0S+00
+
+        0+0S0WF0
+
+        00G++W00
+
+        0++FS++0
+
+        000G00y0'
+      objectReference: {fileID: 0}
+    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
+      propertyPath: levels.Array.data[6].Map
+      value: '00000000
+
         0xF0F000
 
         0+WSWG00
@@ -508,7 +526,7 @@ PrefabInstance:
         00000000'
       objectReference: {fileID: 0}
     - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
-      propertyPath: levels.Array.data[6].Map
+      propertyPath: levels.Array.data[7].Map
       value: '0000000y
 
         0+SFGW+0
@@ -524,24 +542,6 @@ PrefabInstance:
         0GSFW0+0
 
         x0000000'
-      objectReference: {fileID: 0}
-    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
-      propertyPath: levels.Array.data[7].Map
-      value: '00000000
-
-        0x++F+00
-
-        0+0W0G+0
-
-        0FW0S+00
-
-        0+0S0WF0
-
-        00G++W00
-
-        0++FS++0
-
-        000G00y0'
       objectReference: {fileID: 0}
     - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
       propertyPath: levels.Array.data[8].Map
@@ -562,6 +562,14 @@ PrefabInstance:
         000F0000'
       objectReference: {fileID: 0}
     - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
+      propertyPath: levels.Array.data[4].StartMovesPerForm.Array.data[1].Moves
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
+      propertyPath: levels.Array.data[4].StartMovesPerForm.Array.data[2].Moves
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
       propertyPath: levels.Array.data[4].StartMovesPerForm.Array.data[3].Moves
       value: 1
       objectReference: {fileID: 0}
@@ -575,39 +583,43 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
       propertyPath: levels.Array.data[5].StartMovesPerForm.Array.data[2].Moves
-      value: 5
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
+      propertyPath: levels.Array.data[5].StartMovesPerForm.Array.data[3].Moves
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
       propertyPath: levels.Array.data[5].StartMovesPerForm.Array.data[4].Moves
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
       propertyPath: levels.Array.data[6].StartMovesPerForm.Array.data[1].Moves
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
-      propertyPath: levels.Array.data[6].StartMovesPerForm.Array.data[2].Moves
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
-      propertyPath: levels.Array.data[6].StartMovesPerForm.Array.data[3].Moves
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
-      propertyPath: levels.Array.data[6].StartMovesPerForm.Array.data[4].Moves
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
-      propertyPath: levels.Array.data[7].StartMovesPerForm.Array.data[1].Moves
       value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
-      propertyPath: levels.Array.data[7].StartMovesPerForm.Array.data[2].Moves
+      propertyPath: levels.Array.data[6].StartMovesPerForm.Array.data[2].Moves
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
+      propertyPath: levels.Array.data[6].StartMovesPerForm.Array.data[3].Moves
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
+      propertyPath: levels.Array.data[6].StartMovesPerForm.Array.data[4].Moves
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
+      propertyPath: levels.Array.data[7].StartMovesPerForm.Array.data[1].Moves
       value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
+      propertyPath: levels.Array.data[7].StartMovesPerForm.Array.data[2].Moves
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
       propertyPath: levels.Array.data[7].StartMovesPerForm.Array.data[4].Moves
-      value: 4
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
       propertyPath: levels.Array.data[8].StartMovesPerForm.Array.data[1].Moves
