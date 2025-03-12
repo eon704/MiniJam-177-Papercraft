@@ -36,9 +36,9 @@ public class MainMenuUI : MonoBehaviour
         this.startPanel.interactable = false;
 
         var sequence = DOTween.Sequence();
-        sequence.Append(title.DOScale(0.5f, 1f).SetEase(Ease.InOutCubic));
-        sequence.Append(this.title.DOAnchorPosY(-100, 0.75f).SetEase(Ease.InOutCubic));
-        sequence.Join(this.startPanel.DOFade(0, 0.75f).SetEase(Ease.InOutCubic));
+        sequence.Append(title.DOScale(0.5f, 0.5f).SetEase(Ease.InOutCubic));
+        sequence.Append(this.title.DOAnchorPosY(-100, 0.5f).SetEase(Ease.InOutCubic));
+        sequence.Join(this.startPanel.DOFade(0, 0.2f).SetEase(Ease.InOutCubic));
 
         sequence.AppendCallback(() =>
         {
@@ -58,9 +58,9 @@ public class MainMenuUI : MonoBehaviour
         this.levelsPanel.interactable = false;
 
         var sequence = DOTween.Sequence();
-        sequence.Append(this.levelsPanel.DOFade(-250, 0.75f).SetEase(Ease.InOutCubic));
-        sequence.Append(title.DOScale(0.8f, 0.5f).SetEase(Ease.InOutCubic));
-        sequence.Join(this.title.DOAnchorPosY(-330, 0.75f).SetEase(Ease.InOutCubic));
+        sequence.Append(this.levelsPanel.DOFade(-250, 0.3f).SetEase(Ease.InOutCubic));
+        sequence.Append(title.DOScale(0.8f, 0.3f).SetEase(Ease.InOutCubic));
+        sequence.Join(this.title.DOAnchorPosY(-250, 0.3f).SetEase(Ease.InOutCubic));
       
         sequence.AppendCallback(() =>
         {
@@ -69,7 +69,7 @@ public class MainMenuUI : MonoBehaviour
             this.startPanel.alpha = 0;
         });
         sequence.AppendInterval(0.2f);
-        sequence.Append(this.startPanel.DOFade(1, 0.75f).SetEase(Ease.InOutCubic));
+        sequence.Append(this.startPanel.DOFade(1, 0.3f).SetEase(Ease.InOutCubic));
         sequence.AppendCallback(() => this.startPanel.interactable = true);
 
         sequence.Play();

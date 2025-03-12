@@ -60,7 +60,7 @@ public class GameUI : MonoBehaviour
     this._foreground.gameObject.SetActive(true);
         
     Tween tween = this._foreground
-                      .DOFade(1, 1)
+                      .DOFade(1, 2)
                       .SetEase(Ease.OutCubic);
 
     yield return tween.WaitForCompletion();
