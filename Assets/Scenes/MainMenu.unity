@@ -472,6 +472,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
+      propertyPath: levels.Array.size
+      value: 17
+      objectReference: {fileID: 0}
+    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
       propertyPath: levels.Array.data[4].Map
       value: '00000000
 
@@ -562,6 +566,36 @@ PrefabInstance:
         000F0000'
       objectReference: {fileID: 0}
     - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
+      propertyPath: levels.Array.data[16].Map
+      value: '00000000
+
+        0x+SF000
+
+        0F0W+WG0
+
+        0S+F0+F0
+
+        00WSWS00
+
+        0G++0+S0
+
+        00F+WGy0
+
+        00000000'
+      objectReference: {fileID: 0}
+    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
+      propertyPath: levels.Array.data[16].MapSize.x
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
+      propertyPath: levels.Array.data[16].MapSize.y
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
+      propertyPath: levels.Array.data[16].StartMovesPerForm.Array.size
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
       propertyPath: levels.Array.data[4].StartMovesPerForm.Array.data[1].Moves
       value: 3
       objectReference: {fileID: 0}
@@ -632,6 +666,38 @@ PrefabInstance:
     - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
       propertyPath: levels.Array.data[8].StartMovesPerForm.Array.data[4].Moves
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
+      propertyPath: levels.Array.data[16].StartMovesPerForm.Array.data[1].Moves
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
+      propertyPath: levels.Array.data[16].StartMovesPerForm.Array.data[1].State
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
+      propertyPath: levels.Array.data[16].StartMovesPerForm.Array.data[2].Moves
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
+      propertyPath: levels.Array.data[16].StartMovesPerForm.Array.data[2].State
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
+      propertyPath: levels.Array.data[16].StartMovesPerForm.Array.data[3].Moves
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
+      propertyPath: levels.Array.data[16].StartMovesPerForm.Array.data[3].State
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
+      propertyPath: levels.Array.data[16].StartMovesPerForm.Array.data[4].Moves
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
+      propertyPath: levels.Array.data[16].StartMovesPerForm.Array.data[4].State
+      value: 4
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -856,6 +922,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6957523569741240165, guid: f9fe4958d8245412ba75e561e4126af7, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 708355409881883967, guid: 529e9999bb6610e46a9f5fe47d73aae2, type: 3}
     - target: {fileID: 7326548391318804362, guid: f9fe4958d8245412ba75e561e4126af7, type: 3}
       propertyPath: m_Pivot.x
       value: 0
