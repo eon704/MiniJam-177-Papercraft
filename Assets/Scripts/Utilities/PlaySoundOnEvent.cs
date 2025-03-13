@@ -14,11 +14,11 @@ public class PlaySoundOnEvent : MonoBehaviour, IPointerEnterHandler, IPointerCli
             isPlayingSound = true;
             if (isCard)
             {
-                GlobalSoundManager.PlayRandomSoundByType(SoundType.Card, 0.6f);
+                GlobalSoundManager.PlayRandomSoundByType(SoundType.Card, 0.4f);
             }
             else
             {
-                GlobalSoundManager.PlayRandomSoundByType(SoundType.Click, 0.6f);
+                GlobalSoundManager.PlayRandomSoundByType(SoundType.Click, 0.4f);
             }
             StartCoroutine(ResetSoundFlag());
         }
@@ -31,7 +31,7 @@ public class PlaySoundOnEvent : MonoBehaviour, IPointerEnterHandler, IPointerCli
 
     private IEnumerator ResetSoundFlag()
     {
-        yield return new WaitForSeconds(1f); // Adjust the delay to match the sound duration
+        yield return new WaitForSeconds(0.6f); // Adjust the delay to match the sound duration
         isPlayingSound = false;
     }
 }
