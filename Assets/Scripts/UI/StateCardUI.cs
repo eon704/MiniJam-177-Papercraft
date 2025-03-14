@@ -1,30 +1,34 @@
 using System;
 using UnityEngine;
-using UnityEngine.PlayerLoop;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 
-public class StateCardUI : MonoBehaviour
+public class StateCardUI : MonoBehaviour, ISelectHandler, IDeselectHandler
 {
     [SerializeField] private GameObject cardGlow; 
     private Button _button;
 
+    private void Awake()
+    {
+        _button = GetComponent<Button>();   
+    }
+
     private void Start()
     {
-        _button = GetComponent<Button>(); 
         cardGlow.SetActive(false);
-        
     }
-    private void Update()
+
+    public void OnSelect(BaseEventData eventData)
     {
-        if (!_button) return;
-        if (_button.IsInteractable() && _button.gameObject == UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject)
-        {
-            cardGlow.SetActive(true);
-        }
-        else
-        {
-            cardGlow.SetActive(false);
-        }
+        if (!_button.interactable)
+            return;
+        
+        cardGlow.SetActive(true);
+    }
+
+    public void OnDeselect(BaseEventData eventData)
+    {
+        cardGlow.SetActive(false);
     }
 }
