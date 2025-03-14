@@ -18,6 +18,8 @@ public class Player : MonoBehaviour
     public readonly UnityEvent OnPlayerDied = new();
     public readonly UnityEvent OnTransformation = new();
     public readonly UnityEvent<StateType, int> OnMovesLeftChanged = new();
+    
+    private int MovesLeftForCurrentState => movesPerForm[(stateMachine.CurrentState as IState)!.StateType];
 
     private StateMachine stateMachine;
     private SpriteRenderer spriteRenderer;
@@ -119,8 +121,9 @@ public class Player : MonoBehaviour
         float delay = duration / 4;
         pulseSequence?.Kill();
         pulseSequence = DOTween.Sequence();
-        pulseSequence.Insert(0, BoardPiecePrefab.CurrentCell.DoPulse(duration, true));
         
+        pulseSequence.Insert(0, BoardPiecePrefab.CurrentCell.DoPulse(duration, true));
+
         foreach (KeyValuePair<int, List<(CellPrefab, bool)>> distanceToCellsPair in reachableCellsByDistance)
         {
             foreach (var (cellPrefab, isValid) in distanceToCellsPair.Value)
@@ -171,8 +174,13 @@ public class Player : MonoBehaviour
         
         if (success)
         {
-            this.movesPerForm[type]--;
-            this.OnMovesLeftChanged?.Invoke(type, this.movesPerForm[type]);
+            movesPerForm[type]--;
+            OnMovesLeftChanged?.Invoke(type, this.movesPerForm[type]);
+            
+            if (movesPerForm[type] <= 0)
+            {
+                OnOutOfMoves();
+            }
         }
     }
 
@@ -202,6 +210,16 @@ public class Player : MonoBehaviour
         {
             cellPrefab.ResetPulse();
         }
+    }
+
+    private void OnOutOfMoves()
+    {
+        ResetPulse();
+        pulseSequence?.Kill(true);
+        pulseSequence = DOTween.Sequence();
+        pulseSequence.Append(BoardPiecePrefab.CurrentCell.DoPulse(0.5f, false));
+        pulseSequence.SetLoops(-1);
+        pulseSequence.Play();
     }
 
     private void OnMove()
