@@ -17,6 +17,7 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     [SerializeField] private Color defaultColor;
     [SerializeField] private Color highlightColor;
     [SerializeField] private Color reachableColor;
+    [SerializeField] private Color invalidColor;
     
     private bool isReachable;
     
@@ -44,12 +45,12 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         this.starDefaultScale = this.star.transform.localScale.x;
     }
 
-    public Sequence DoPulse(float duration)
+    public Sequence DoPulse(float duration, bool isValid)
     {
         this.fill.color = this.defaultColor;
         
         pulseSequence = DOTween.Sequence();
-        pulseSequence.Append(this.fill.DOColor(this.reachableColor, duration / 2).SetEase(Ease.OutSine));
+        pulseSequence.Append(this.fill.DOColor(isValid ? reachableColor : invalidColor, duration / 2).SetEase(Ease.OutSine));
         pulseSequence.Append(this.fill.DOColor(this.defaultColor, duration / 2).SetEase(Ease.InSine));
         
         return pulseSequence;
@@ -57,8 +58,8 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     
     public void ResetPulse()
     {
-        pulseSequence?.Kill();
-        this.fill.color = this.defaultColor;
+        pulseSequence?.Kill(true);
+        fill.color = defaultColor;
     }
 
     public void OnPointerEnter(PointerEventData eventData)

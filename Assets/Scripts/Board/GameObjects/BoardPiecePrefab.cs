@@ -23,13 +23,17 @@ public class BoardPiecePrefab : MonoBehaviour
     this.Teleport(startCell);
   }
 
-  public List<CellPrefab> GetReachableCellPrefabs()
+  public List<(CellPrefab, bool)> GetMoveOptionCellPrefabs()
   {
-    List<Cell> reachableCells = this.BoardPiece.GetReachableCells();
-    List<CellPrefab> reachableCellPrefabs = this.boardPrefab.GetCellPrefabs(reachableCells);
+    List<(Cell, bool)> moveOptionCells = BoardPiece.GetMoveOptionCells();
+    List<(CellPrefab, bool)> moveOptionCellPrefabs = new();
+    foreach (var (cell, isValidMove) in moveOptionCells)
+    {
+        CellPrefab cellPrefab = boardPrefab.GetCellPrefab(cell);
+        moveOptionCellPrefabs.Add((cellPrefab, isValidMove));
+    }
     
-
-    return reachableCellPrefabs;
+    return moveOptionCellPrefabs;
   }
 
   public bool Move(CellPrefab targetCell, UnityAction onComplete = null, bool forceFailMovement = false)

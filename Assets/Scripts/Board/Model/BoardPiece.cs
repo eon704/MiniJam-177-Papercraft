@@ -39,22 +39,23 @@ public class BoardPiece
     return true;
   }
 
-  public List<Cell> GetReachableCells()
+  public List<(Cell, bool)> GetMoveOptionCells()
   {
     Vector2Int currentPosition = this.OccupiedCell.Value.Position;
-    List<Cell> reachableCells = new();
+    List<(Cell, bool)> moveOptionCells = new();
     
     foreach (Vector2Int motion in this.moveOptions)
     {
       Vector2Int targetPosition = currentPosition + motion;
       Cell targetCell = this.board.GetCell(targetPosition);
-      if (targetCell == null || !this.moveTerrain.Contains(targetCell.Terrain))
+      if (targetCell == null || targetCell.Terrain == Cell.TerrainType.None)
         continue;
-      
-      reachableCells.Add(targetCell);
+
+      bool isValidMove = moveTerrain.Contains(targetCell.Terrain); 
+      moveOptionCells.Add((targetCell, isValidMove));
     }
 
-    return reachableCells;
+    return moveOptionCells;
   }
   
   public void SetState(IState state)

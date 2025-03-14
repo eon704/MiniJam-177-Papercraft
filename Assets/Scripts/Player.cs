@@ -54,7 +54,7 @@ public class Player : MonoBehaviour
     }
 
     private Dictionary<StateType, int> movesPerForm;
-    private List<CellPrefab> reachableCells;
+    private List<(CellPrefab, bool)> moveOptionCells;
 
     public void Initialize(BoardPiece boardPiece, CellPrefab startCell, BoardPrefab boardPrefab)
     {
@@ -93,39 +93,39 @@ public class Player : MonoBehaviour
 
     private void OnPlayerMoved(Observable<Cell> cell, Cell oldCell, Cell newCell)
     {
-        this.PulseReachableCells();
+        ResetPulse();
+        moveOptionCells = BoardPiecePrefab.GetMoveOptionCellPrefabs();
+        PulseReachableCells();
     }
 
     private void PulseReachableCells()
     {
-        Cell startCell = this.BoardPiecePrefab.CurrentCell.Cell;
-        this.reachableCells?.ForEach(cellPrefab => cellPrefab.ResetPulse());
-        
-        Dictionary<int, List<CellPrefab>> reachableCellsByDistance = new();
-        this.reachableCells = this.BoardPiecePrefab.GetReachableCellPrefabs();
+        Cell startCell = BoardPiecePrefab.CurrentCell.Cell;
+        Dictionary<int, List<(CellPrefab, bool)>> reachableCellsByDistance = new();
+        moveOptionCells = BoardPiecePrefab.GetMoveOptionCellPrefabs();
 
-        foreach (CellPrefab cellPrefab in this.reachableCells)
+        foreach (var (cellPrefab, isValidMove) in moveOptionCells)
         {
             int distance = Cell.Distance(startCell, cellPrefab.Cell);
             if (!reachableCellsByDistance.ContainsKey(distance))
             {
-                reachableCellsByDistance[distance] = new List<CellPrefab>();
+                reachableCellsByDistance[distance] = new List<(CellPrefab, bool)>();
             }
 
-            reachableCellsByDistance[distance].Add(cellPrefab);
+            reachableCellsByDistance[distance].Add((cellPrefab, isValidMove));
         }
 
         float duration = 1f;
         float delay = duration / 4;
-        this.pulseSequence?.Kill(true);
-        this.pulseSequence = DOTween.Sequence();
-        this.pulseSequence.Insert(0, this.BoardPiecePrefab.CurrentCell.DoPulse(duration));
+        pulseSequence?.Kill();
+        pulseSequence = DOTween.Sequence();
+        pulseSequence.Insert(0, BoardPiecePrefab.CurrentCell.DoPulse(duration, true));
         
-        foreach (KeyValuePair<int, List<CellPrefab>> distanceToCellsPair in reachableCellsByDistance)
+        foreach (KeyValuePair<int, List<(CellPrefab, bool)>> distanceToCellsPair in reachableCellsByDistance)
         {
-            foreach (CellPrefab cellPrefab in distanceToCellsPair.Value)
+            foreach (var (cellPrefab, isValid) in distanceToCellsPair.Value)
             {
-                this.pulseSequence.Insert(distanceToCellsPair.Key * delay, cellPrefab.DoPulse(duration));
+                this.pulseSequence.Insert(distanceToCellsPair.Key * delay, cellPrefab.DoPulse(duration, isValid));
             }
         }
 
@@ -186,9 +186,22 @@ public class Player : MonoBehaviour
     private void SetState(IState state)
     {
         GlobalSoundManager.PlayRandomSoundByType(SoundType.ChangeState);
-        this.stateMachine.SetState(state);
-        this.BoardPiecePrefab.BoardPiece.SetState(state);
-        this.PulseReachableCells();
+        stateMachine.SetState(state);
+        BoardPiecePrefab.BoardPiece.SetState(state);
+        ResetPulse();
+        PulseReachableCells();
+    }
+
+    private void ResetPulse()
+    {
+        if (moveOptionCells == null || moveOptionCells.Count == 0)
+            return;
+        
+        pulseSequence?.Kill();
+        foreach(var (cellPrefab, isValidMove) in moveOptionCells!)
+        {
+            cellPrefab.ResetPulse();
+        }
     }
 
     private void OnMove()
