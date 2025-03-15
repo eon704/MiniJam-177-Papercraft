@@ -1186,6 +1186,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 161391978699222879, guid: a1469df6d19204a1eb27ac8f721565ba, type: 3}
+      propertyPath: player
+      value: 
+      objectReference: {fileID: 6273721070179436126}
     - target: {fileID: 213690000459311953, guid: a1469df6d19204a1eb27ac8f721565ba, type: 3}
       propertyPath: m_Camera
       value: 
@@ -1654,6 +1658,10 @@ PrefabInstance:
       propertyPath: m_Sprite
       value: 
       objectReference: {fileID: -2373119982711840711, guid: 38a8c0052d2387647bb692652dbca103, type: 3}
+    - target: {fileID: 5631851823417167125, guid: a1469df6d19204a1eb27ac8f721565ba, type: 3}
+      propertyPath: player
+      value: 
+      objectReference: {fileID: 6273721070179436126}
     - target: {fileID: 5660848125415796340, guid: a1469df6d19204a1eb27ac8f721565ba, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -1802,6 +1810,10 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 6273721070179436126}
+    - target: {fileID: 6874343724058521310, guid: a1469df6d19204a1eb27ac8f721565ba, type: 3}
+      propertyPath: player
+      value: 
+      objectReference: {fileID: 6273721070179436126}
     - target: {fileID: 7208919287903025779, guid: a1469df6d19204a1eb27ac8f721565ba, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -229.2
@@ -1855,6 +1867,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 244730296}
     - target: {fileID: 8328294539414206390, guid: a1469df6d19204a1eb27ac8f721565ba, type: 3}
+      propertyPath: player
+      value: 
+      objectReference: {fileID: 6273721070179436126}
+    - target: {fileID: 8381023092356099218, guid: a1469df6d19204a1eb27ac8f721565ba, type: 3}
       propertyPath: player
       value: 
       objectReference: {fileID: 6273721070179436126}
