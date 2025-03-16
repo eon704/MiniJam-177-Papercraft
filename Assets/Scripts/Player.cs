@@ -9,7 +9,6 @@ using UnityEngine.Events;
 public class Player : MonoBehaviour
 {
     public BoardPiecePrefab BoardPiecePrefab { get; private set; }
-
     public GameObject ChangeStateEffect;
 
     public readonly Observable<int> StarAmount = new(0);
@@ -20,7 +19,7 @@ public class Player : MonoBehaviour
     public readonly UnityEvent<StateType, int> OnMovesLeftChanged = new();
     
     private int MovesLeftForCurrentState => movesPerForm[(stateMachine.CurrentState as IState)!.StateType];
-
+    
     private StateMachine stateMachine;
     private SpriteRenderer spriteRenderer;
 
@@ -56,6 +55,7 @@ public class Player : MonoBehaviour
     }
 
     private Dictionary<StateType, int> movesPerForm;
+    private Dictionary<StateType, bool> unlockedForms;
     private List<(CellPrefab, bool)> moveOptionCells;
 
     public void Initialize(BoardPiece boardPiece, CellPrefab startCell, BoardPrefab boardPrefab)
@@ -67,6 +67,7 @@ public class Player : MonoBehaviour
     public void SetTransformationLimits(Dictionary<StateType, int> startingMoves)
     {
         this.movesPerForm = new Dictionary<StateType, int>(startingMoves);
+        
         this.OnMovesLeftChanged?.Invoke(StateType.Boat, this.movesPerForm[StateType.Boat]);
         this.OnMovesLeftChanged?.Invoke(StateType.Crane, this.movesPerForm[StateType.Crane]);
         this.OnMovesLeftChanged?.Invoke(StateType.Frog, this.movesPerForm[StateType.Frog]);
