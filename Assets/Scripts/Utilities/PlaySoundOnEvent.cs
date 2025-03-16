@@ -23,7 +23,7 @@ public class PlaySoundOnEvent : MonoBehaviour, IPointerEnterHandler, IPointerCli
             StartCoroutine(ResetSoundFlag());
         }
     }
-
+ 
     public void OnPointerClick(PointerEventData eventData)
     {
         GlobalSoundManager.PlayRandomSoundByType(SoundType.Move, 1f);

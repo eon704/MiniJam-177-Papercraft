@@ -1,10 +1,13 @@
 fileFormatVersion: 2
-guid: 97a23b714d51f6b45a7d3dea3617e5f0
+guid: 8a67aa8663af6f14c8cb75f7a1360c36
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -6775051381845729274
-    second: Group 995_0
+      213: 5261002548302016578
+    second: Group 1025_0
+  - first:
+      213: 3421779364693541057
+    second: Group 1025_1
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -51,7 +54,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 264
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -109,53 +112,49 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: Android
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: iOS
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Group 995_0
+      name: Group 1025_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 400
-        height: 124
+        width: 198
+        height: 264
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 600e01af9ae2af1a0800000000000000
-      internalID: -6775051381845729274
+      spriteID: 24077f591f5d20940800000000000000
+      internalID: 5261002548302016578
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Group 1025_1
+      rect:
+        serializedVersion: 2
+        x: 152
+        y: 0
+        width: 46
+        height: 32
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1c0025ce33a9c7f20800000000000000
+      internalID: 3421779364693541057
       vertices: []
       indices: 
       edges: []
@@ -164,7 +163,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: d9cbec2008f2d7540ae0d4f5f86b66a1
     internalID: 0
     vertices: []
     indices: 
@@ -174,7 +173,8 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Group 995_0: -6775051381845729274
+      Group 1025_0: 5261002548302016578
+      Group 1025_1: 3421779364693541057
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
