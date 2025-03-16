@@ -1,6 +1,8 @@
 using DG.Tweening;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 
 public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler
 {
@@ -16,10 +18,12 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     
     [SerializeField] private Color defaultColor;
     [SerializeField] private Color highlightColor;
-    [SerializeField] private Color reachableColor;
-    [SerializeField] private Color invalidColor;
+    [FormerlySerializedAs("reachableColor")] [SerializeField] private Color pulseColor;
+    [SerializeField] private Color validMoveColor;
+    [SerializeField] private Color invalidMoveColor;
     
-    private bool isReachable;
+    private bool? isValid;
+    private bool isPointerOver;
     
     public Cell Cell { get; private set; }
     private Player player;
@@ -44,14 +48,39 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         this.star.SetActive(this.Cell.Item == Cell.CellItem.Star);
         this.starDefaultScale = this.star.transform.localScale.x;
     }
-
-    public Sequence DoPulse(float duration, bool isValid)
+    
+    public void SetIsValidMoveOption(bool newIsValid)
     {
-        this.fill.color = this.defaultColor;
-        
+        isValid = newIsValid;
+    }
+    
+    public void ResetIsValidMoveOption()
+    {
+        isValid = null;
+    }
+
+    public Sequence DoOutOfMovesPulse()
+    {
+        return this.DoPulse(0.5f, invalidMoveColor);
+    }
+
+    public Sequence DoPulse(float duration)
+    {
+        return DoPulse(duration, pulseColor);
+    }
+
+    public Sequence DoPulse(float duration, Color color)
+    {
+        fill.color = defaultColor;
+            
         pulseSequence = DOTween.Sequence();
-        pulseSequence.Append(this.fill.DOColor(isValid ? reachableColor : invalidColor, duration / 2).SetEase(Ease.OutSine));
-        pulseSequence.Append(this.fill.DOColor(this.defaultColor, duration / 2).SetEase(Ease.InSine));
+        pulseSequence.Append(fill.DOColor(color, duration / 2).SetEase(Ease.OutSine));
+        pulseSequence.Append(fill.DOColor(defaultColor, duration / 2).SetEase(Ease.InSine));
+        pulseSequence.OnUpdate(() =>
+        {
+            if (isPointerOver)
+                fill.color = !isValid.HasValue ? highlightColor : (isValid.Value ? validMoveColor : invalidMoveColor);
+        });
         
         return pulseSequence;
     }
@@ -64,36 +93,45 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        this.fill.color = this.highlightColor;
+        pulseSequence?.Pause();
+        isPointerOver = true;
+        fill.color = !isValid.HasValue ? highlightColor : (isValid.Value ? validMoveColor : invalidMoveColor);
         GlobalSoundManager.PlayRandomSoundByType(SoundType.Click, 0.05f);
     }
     public void OnPointerExit(PointerEventData eventData)
     {
-        this.fill.color = this.defaultColor;
+        fill.color = defaultColor;
+        isPointerOver = false;
+        
+        if (pulseSequence == null)
+            return;
+        
+        pulseSequence.Goto(Time.time);
+        pulseSequence.Play();
     }
     public void OnPointerDown(PointerEventData eventData) {}
     
     public void OnPointerUp(PointerEventData eventData)
     {
-        this.player.Move(this);
+        player.Move(this);
     }
 
     private void OnCellItemChange(Observable<Cell.CellItem> item, Cell.CellItem oldValue, Cell.CellItem newValue)
     {
         if (oldValue == Cell.CellItem.Star && newValue == Cell.CellItem.None)
         {
-            this.star.transform
+            star.transform
                 .DOScale(Vector3.zero, 0.5f)
                 .OnComplete(() => this.star.SetActive(false));
         } else if (oldValue == Cell.CellItem.None && newValue == Cell.CellItem.Star)
         {
-            this.star.SetActive(true);
-            this.star.transform.DOScale(Vector3.one * this.starDefaultScale, 0.5f);
+            star.SetActive(true);
+            star.transform.DOScale(Vector3.one * this.starDefaultScale, 0.5f);
         }
     }
 
     private void OnDestroy()
     {
-        this.pulseSequence.Kill();
+        pulseSequence.Kill();
     }
 }

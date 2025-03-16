@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
@@ -23,14 +22,17 @@ public class BoardPiecePrefab : MonoBehaviour
     this.Teleport(startCell);
   }
 
-  public List<(CellPrefab, bool)> GetMoveOptionCellPrefabs()
+  public List<CellPrefab> GetMoveOptionCellPrefabs()
   {
     List<(Cell, bool)> moveOptionCells = BoardPiece.GetMoveOptionCells();
-    List<(CellPrefab, bool)> moveOptionCellPrefabs = new();
+    List<CellPrefab> moveOptionCellPrefabs = new();
     foreach (var (cell, isValidMove) in moveOptionCells)
     {
         CellPrefab cellPrefab = boardPrefab.GetCellPrefab(cell);
-        moveOptionCellPrefabs.Add((cellPrefab, isValidMove));
+        cellPrefab.SetIsValidMoveOption(isValidMove);
+        
+        if (isValidMove)
+          moveOptionCellPrefabs.Add(cellPrefab);
     }
     
     return moveOptionCellPrefabs;

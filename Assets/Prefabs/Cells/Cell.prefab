@@ -63,9 +63,10 @@ MonoBehaviour:
   end: {fileID: 7369992391863353425}
   star: {fileID: 702905128684636326}
   defaultColor: {r: 0.16470589, g: 0.13333334, b: 0.1254902, a: 0}
-  highlightColor: {r: 0, g: 1, b: 0.11449814, a: 1}
-  reachableColor: {r: 0, g: 1, b: 0.990005, a: 1}
-  invalidColor: {r: 1, g: 0, b: 0, a: 1}
+  highlightColor: {r: 0, g: 1, b: 0.54509807, a: 1}
+  pulseColor: {r: 0, g: 1, b: 0.990005, a: 1}
+  validMoveColor: {r: 0, g: 1, b: 0, a: 1}
+  invalidMoveColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!61 &4982970618470214028
 BoxCollider2D:
   m_ObjectHideFlags: 0
