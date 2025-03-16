@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 88dd6945c22c0644c94d03951e149c7c
+guid: d18069b8e9a07124190108273c528cfe
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -9,7 +9,7 @@ TrueTypeFontImporter:
   characterPadding: 1
   includeFontData: 1
   fontNames:
-  - Patrick Hand SC
+  - Ruthless Sketch
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0
