@@ -15,7 +15,7 @@ public class Player : MonoBehaviour
     
     public readonly UnityEvent<int> OnPlayerWon = new();
     public readonly UnityEvent OnPlayerDied = new();
-    public readonly UnityEvent OnTransformation = new();
+    public readonly UnityEvent<StateType> OnTransformation = new();
     public readonly UnityEvent<StateType, int> OnMovesLeftChanged = new();
     
     private int MovesLeftForCurrentState => movesPerForm[(stateMachine.CurrentState as IState)!.StateType];
@@ -139,30 +139,31 @@ public class Player : MonoBehaviour
 
     public void SetDefaultState()
     {
+        this.OnTransformation?.Invoke(StateType.Default);
         SetState(_defaultState);
     }
 
     public void SetCraneState()
     {
-        this.OnTransformation?.Invoke();
+        this.OnTransformation?.Invoke(StateType.Crane);
         SetState(_craneState);
     }
 
     public void SerFrogState()
     {
-        this.OnTransformation?.Invoke();
+        this.OnTransformation?.Invoke(StateType.Frog);
         SetState(_frogState);
     }
 
     public void SetPlaneState()
     {
-        this.OnTransformation?.Invoke();
+        this.OnTransformation?.Invoke(StateType.Plane);
         SetState(_planeState);
     }
 
     public void SetBoatState()
     {
-        this.OnTransformation?.Invoke();
+        this.OnTransformation?.Invoke(StateType.Boat);
         SetState(_boatState);
     }
 

@@ -93,7 +93,7 @@ public class GameController : MonoBehaviour
 
         this.PlayerPrefab.OnPlayerWon.AddListener(this.OnWin);
         this.PlayerPrefab.OnPlayerDied.AddListener(this.ResetMap);
-        this.PlayerPrefab.OnTransformation.AddListener(() =>
+        this.PlayerPrefab.OnTransformation.AddListener(_ =>
             nudgeImages.ForEach(image => image.gameObject.SetActive(false)));
 
         yield return null;

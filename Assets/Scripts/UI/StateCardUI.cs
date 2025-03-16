@@ -1,10 +1,9 @@
 using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 
-public class StateCardUI : MonoBehaviour, ISelectHandler, IDeselectHandler
+public class StateCardUI : MonoBehaviour
 {
     [SerializeField] private Player.StateType stateType;
     [SerializeField] private TMP_Text movesText;
@@ -12,6 +11,7 @@ public class StateCardUI : MonoBehaviour, ISelectHandler, IDeselectHandler
     [SerializeField] private GameObject cardGlow; 
     
     private Button _button;
+    private bool isSelected;
 
     private void Awake()
     {
@@ -21,20 +21,14 @@ public class StateCardUI : MonoBehaviour, ISelectHandler, IDeselectHandler
     private void Start()
     {
         cardGlow.SetActive(false);
-        player.OnMovesLeftChanged.AddListener(this.OnMove);
+        player.OnMovesLeftChanged.AddListener(OnMove);
+        player.OnTransformation.AddListener(OnTransformation);
     }
 
-    public void OnSelect(BaseEventData eventData)
+    private void OnTransformation(Player.StateType newType)
     {
-        if (!_button.interactable)
-            return;
-        
-        cardGlow.SetActive(true);
-    }
-
-    public void OnDeselect(BaseEventData eventData)
-    {
-        cardGlow.SetActive(false);
+        cardGlow.SetActive(newType == stateType);
+        isSelected = newType == stateType;
     }
     
     private void OnMove(Player.StateType moveStateType, int transformationsLeft)
@@ -44,5 +38,6 @@ public class StateCardUI : MonoBehaviour, ISelectHandler, IDeselectHandler
         
         movesText.text = transformationsLeft.ToString("D2");
         _button.interactable = transformationsLeft > 0;
+        cardGlow.SetActive(isSelected && transformationsLeft > 0);
     }
 }
