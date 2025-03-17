@@ -1,0 +1,76 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: Tutorials_en
+  m_EditorClassIdentifier: 
+  m_LocaleId:
+    m_Code: en
+  m_SharedData: {fileID: 11400000, guid: 7704eb882ea76fc4888ac82af53c7dad, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 134668861440
+    m_Localized: Choose the Crane to move.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 845456588800
+    m_Localized: 'Crane moves 1 tile per turn: up, down, left, or right.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 848031891456
+    m_Localized: Only the Crane can step on rocks.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 850640748544
+    m_Localized: To win, reach the finish and collect as many stars as possible.
+      Steps per form are limited.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3621146312704
+    m_Localized: Use the Frog to jump over gaps and obstacles.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3661449379840
+    m_Localized: 'Frog moves 1 or 2 tiles per turn: up, down, left, or right.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4631688364032
+    m_Localized: Use the Airplane form if you need to move diagonally.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4652735381504
+    m_Localized: Moves 1 tile per turn diagonally only
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5840398696448
+    m_Localized: Use the Boat to cross water tiles.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5860040622080
+    m_Localized: 'Boat moves 1 water tile per turn: up, down, left, or right.
+
+
+      Can
+      move on WATER only.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6900479672320
+    m_Localized: Now you know enough to start your journey.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6916774543360
+    m_Localized: But you can always refresh your knowledge.
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

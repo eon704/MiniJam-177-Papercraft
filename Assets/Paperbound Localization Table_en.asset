@@ -1,0 +1,75 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: Paperbound Localization Table_en
+  m_EditorClassIdentifier: 
+  m_LocaleId:
+    m_Code: en
+  m_SharedData: {fileID: 11400000, guid: b44589b72f59313418e752cf0d1cc2fa, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 326038175744
+    m_Localized: START
+    m_Metadata:
+      m_Items: []
+  - m_Id: 450567061504
+    m_Localized: SETTINGS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 589042008064
+    m_Localized: EXIT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 205729292337152
+    m_Localized: SOUND
+    m_Metadata:
+      m_Items: []
+  - m_Id: 205784380325888
+    m_Localized: MUSIC
+    m_Metadata:
+      m_Items: []
+  - m_Id: 208254821187584
+    m_Localized: Credits
+    m_Metadata:
+      m_Items: []
+  - m_Id: 208320587874304
+    m_Localized: 'Arman Akhmetov
+
+      Maks Platonenko'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 216121397723136
+    m_Localized: RESTART (R)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 217444792909824
+    m_Localized: TUTORIAL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 218325139570688
+    m_Localized: 'CHOSE
+
+      STATE'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 223502932361216
+    m_Localized: "\u0420\u0423\u0421\u0421\u041A\u0418\u0419 \u042F\u0417\u042B\u041A"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 305947086143488
+    m_Localized: CLOSE
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []
