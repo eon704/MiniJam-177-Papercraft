@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using DG.Tweening;
 using UnityEngine;
@@ -19,6 +20,11 @@ public class GameUI : MonoBehaviour
   {
     gameController.OnLoadingMainMenu();
     this.StartCoroutine(this.LoadMainMenu());
+  }
+
+  private void Awake()
+  {
+    _foreground.gameObject.SetActive(true);
   }
 
   private IEnumerator Start()
