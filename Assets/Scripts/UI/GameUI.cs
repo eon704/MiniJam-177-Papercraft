@@ -17,6 +17,7 @@ public class GameUI : MonoBehaviour
   
   public void FinishGame()
   {
+    gameController.OnLoadingMainMenu();
     this.StartCoroutine(this.LoadMainMenu());
   }
 
