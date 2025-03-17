@@ -64,6 +64,10 @@ MonoBehaviour:
     m_Localized: ENGLISH LANGUAGE
     m_Metadata:
       m_Items: []
+  - m_Id: 305947086143488
+    m_Localized: "\u0417\u0410\u041A\u0420\u042B\u0422\u042C"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

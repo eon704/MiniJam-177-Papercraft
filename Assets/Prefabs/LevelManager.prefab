@@ -323,7 +323,7 @@ MonoBehaviour:
     - State: 0
       Moves: 0
     - State: 1
-      Moves: 5
+      Moves: 4
     - State: 2
       Moves: 5
     - State: 3

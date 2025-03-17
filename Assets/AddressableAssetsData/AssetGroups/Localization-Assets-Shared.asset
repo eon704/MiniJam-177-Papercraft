@@ -20,6 +20,11 @@ MonoBehaviour:
     m_ReadOnly: 1
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7704eb882ea76fc4888ac82af53c7dad
+    m_Address: Assets/Tutorials Shared Data.asset
+    m_ReadOnly: 1
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 7a633e2a61ce8824aad92e440dc740ba
     m_Address: Kaph-Regular SDF
     m_ReadOnly: 1
@@ -38,6 +43,11 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-en
     - Locale-ru
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f5e9396476071fe43a73040cd6b6c59a
+    m_Address: Assets/Tutorial Shared Data.asset
+    m_ReadOnly: 1
+    m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 1
   m_Settings: {fileID: 11400000, guid: 93ba14c3a1292f44c9c67574a590a1e6, type: 2}
