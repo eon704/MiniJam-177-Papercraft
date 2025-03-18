@@ -23,13 +23,16 @@ public class GameController : MonoBehaviour
     public readonly UnityEvent OnMapReset = new();
 
     private BoardPiece playerPiece;
+    private bool wasLevelWon;
 
     private Dictionary<Player.StateType, int> startMovesPerForm;
-
+    private int attemptsCount = 1;
+    
     Sequence respawnSequence;
 
     public void ResetMap()
     {
+        UgsManager.Instance.RecordNewLevelAttemptEvent(LevelManager.Instance.CurrentLevelIndex, attemptsCount);
         GlobalSoundManager.PlayRandomSoundByType(SoundType.Lose);
         CellPrefab startCell = this.boardPrefab.GetStartCellPrefab();
         startCell.Cell.FreePiece();
@@ -63,6 +66,14 @@ public class GameController : MonoBehaviour
     {
         LevelManager.Instance.PrepareNextLevel();
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    public void OnLoadingMainMenu()
+    {
+        if (wasLevelWon)
+            return;
+        
+        UgsManager.Instance.RecordLevelQuitEvent(LevelManager.Instance.CurrentLevelIndex, attemptsCount);
     }
 
     private IEnumerator Start()
@@ -99,6 +110,9 @@ public class GameController : MonoBehaviour
         yield return null;
         this.PlayerPrefab.SetTransformationLimits(this.startMovesPerForm);
         this.nudgeImages.ForEach(image => image.gameObject.SetActive(true));
+
+        yield return new WaitUntil(() => UgsManager.Instance.IsInitialized);
+        UgsManager.Instance.RecordNewLevelAttemptEvent(LevelManager.Instance.CurrentLevelIndex, attemptsCount);
     }
 
     private void Update()
@@ -116,6 +130,8 @@ public class GameController : MonoBehaviour
             this.finalScreen.SetActive(true);
         }
 
+        wasLevelWon = true;
+        UgsManager.Instance.RecordLevelPassedEvent(LevelManager.Instance.CurrentLevelIndex, attemptsCount, stars);
         LevelManager.Instance.SetCurrentLevelComplete(stars);
         GlobalSoundManager.PlayRandomSoundByType(SoundType.Win);
     }
