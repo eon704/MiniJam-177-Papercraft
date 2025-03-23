@@ -34,7 +34,7 @@ public class SettingsMenuUI : MonoBehaviour
     }
     
    
-    public  static void OpenSettings()
+    public static void OpenSettings()
     {
         _settingsPanel.SetActive(true);
         
