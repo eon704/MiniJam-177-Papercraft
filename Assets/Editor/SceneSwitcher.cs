@@ -26,14 +26,17 @@ namespace Editor
             }
             else
             {
-                string scenePath = $"Assets/Scenes/{sceneName}.unity";
-                if (System.IO.File.Exists(scenePath))
+                if (UnityEditor.SceneManagement.EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
                 {
-                    UnityEditor.SceneManagement.EditorSceneManager.OpenScene(scenePath);
-                }
-                else
-                {
-                    Debug.LogError($"Сцена {sceneName} не найдена в {scenePath}!");
+                    string scenePath = $"Assets/Scenes/{sceneName}.unity";
+                    if (System.IO.File.Exists(scenePath))
+                    {
+                        UnityEditor.SceneManagement.EditorSceneManager.OpenScene(scenePath);
+                    }
+                    else
+                    {
+                        Debug.LogError($"Scene {sceneName} not found at {scenePath}!");
+                    }
                 }
             }
         }

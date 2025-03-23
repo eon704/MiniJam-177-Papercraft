@@ -3,7 +3,6 @@ using Unity.Services.Analytics;
 using Unity.Services.Core;
 using Unity.Services.Core.Environments;
 
-
 public class UgsManager : Singleton<UgsManager>
 {
     public bool IsInitialized { get; private set; }

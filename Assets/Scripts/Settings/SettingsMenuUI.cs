@@ -12,10 +12,15 @@ public class SettingsMenuUI : MonoBehaviour
         _settingsPanel = transform.GetChild(0).gameObject;
         _settingsPanel.SetActive(false);
     }
+
+    private void OnEnable()
+    {
+        Debug.Log($"SettingsMenuUI enabled" + GetInstanceID());
+        _settingsPanel = transform.GetChild(0).gameObject;  
+    }
+
     private void Start()
     {
-  
-        
         sfxVolumeSlider.value = SettingsManager.Instance.SFXVolume;
         soundtrackVolumeSlider.value = SettingsManager.Instance.SoundtrackVolume;
 
