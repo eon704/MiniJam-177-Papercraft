@@ -14,19 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_GroupName: Default Local Group
   m_GUID: 39a4074032442dc44b5ba507261c75a2
-  m_SerializeEntries:
-  - m_GUID: 2feef613cacb48c4d9d87a6203d43032
-    m_Address: Assets/Sprites/Tutorial/en_tutorial.png
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - Preload
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: ed9129f4683273547b2d2735eec1ab9a
-    m_Address: Assets/Sprites/Tutorial/ru_tutorial.png
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - Preload
-    FlaggedDuringContentUpdateRestriction: 0
+  m_SerializeEntries: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 93ba14c3a1292f44c9c67574a590a1e6, type: 2}
   m_SchemaSet:

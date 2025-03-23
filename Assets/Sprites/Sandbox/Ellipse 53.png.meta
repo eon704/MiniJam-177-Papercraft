@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: e41876594b429e64ca1efa08945a4a43
+guid: e405e549cd9d92240b89c7b40f748851
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 3248801446819117570
-    second: Group 1030_0
+      213: -8144037375126619597
+    second: Ellipse 53_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -51,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 173
+  spritePixelsToUnits: 172
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Group 1030_0
+      name: Ellipse 53_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 361
-        height: 173
+        width: 689
+        height: 172
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 20abd67f3bf061d20800000000000000
-      internalID: 3248801446819117570
+      spriteID: 33ab21208219afe80800000000000000
+      internalID: -8144037375126619597
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Group 1030_0: 3248801446819117570
+      Ellipse 53_0: -8144037375126619597
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

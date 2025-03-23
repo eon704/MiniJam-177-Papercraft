@@ -10,17 +10,20 @@ public class WinScreenStarsUI : MonoBehaviour
     [SerializeField] private Sprite fullStar;
 
     private TextPulsing[] texts;
+    private bool isWindowActive;
 
     public void AnimateStars(int totalStars)
     {
-        Sequence sequence = DOTween.Sequence();
+        isWindowActive = true;
+        var sequence = DOTween.Sequence();
         sequence.AppendInterval(1f);
 
-        for (int i = 0; i < totalStars; i++)
+        for (var i = 0; i < totalStars; i++)
         {
-            Image star = this.stars[i];
+            var star = this.stars[i];
             sequence.AppendCallback(() =>
             {
+                if (!isWindowActive) return;
                 GlobalSoundManager.PlayRandomSoundByType(SoundType.Ding);
                 star.sprite = this.fullStar;
                 star.transform.DOScale(Vector3.one * 1.5f, 0.5f).SetLoops(2, LoopType.Yoyo);
@@ -30,7 +33,8 @@ public class WinScreenStarsUI : MonoBehaviour
 
         sequence.OnComplete(() =>
         {
-            for (int i = 0; i < totalStars; i++)
+            if (!isWindowActive) return;
+            for (var i = 0; i < totalStars; i++)
             {
                 this.texts[i].enabled = true;
             }
@@ -39,9 +43,15 @@ public class WinScreenStarsUI : MonoBehaviour
         sequence.Play();
     }
 
+    public void CloseWindow()
+    {
+        isWindowActive = false;
+        // Additional logic to close the window
+    }
+
     private void Start()
     {
-        foreach (Image star in this.stars)
+        foreach (var star in this.stars)
         {
             star.sprite = this.emptyStar;
         }

@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: ed9129f4683273547b2d2735eec1ab9a
+guid: bbfc731cb572d96459fb6e9fb14343e4
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -2122672537907834694
-    second: Tutorial Rus_0
+      213: 4097891110311868374
+    second: Frame 511_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -51,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 800
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -113,23 +113,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ru_tutorial
+      name: Frame 511_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 1920
-        height: 1080
+        x: 24
+        y: 25
+        width: 638
+        height: 750
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: ab0d68bb290ca82e0800000000000000
-      internalID: -2122672537907834694
+      spriteID: 6d7be56d042aed830800000000000000
+      internalID: 4097891110311868374
       vertices: []
       indices: 
       edges: []
@@ -138,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: c7c39b4f7fb509442b02654b3cd99eeb
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      ru_tutorial: -2122672537907834694
+      Frame 511_0: 4097891110311868374
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
