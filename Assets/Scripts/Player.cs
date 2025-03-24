@@ -44,6 +44,7 @@ public class Player : MonoBehaviour
     private IState _frogState;
     
     private Sequence pulseSequence;
+    public bool isMovementLocked;
     
     public enum StateType
     {
@@ -169,9 +170,13 @@ public class Player : MonoBehaviour
 
     public void Move(CellPrefab targetCell)
     {
+        if (isMovementLocked)
+            return;
+        
         IState currentState = (this.stateMachine.CurrentState as IState)!; 
         StateType type = currentState.StateType;
         bool forceFailMovement = this.movesPerForm[type] <= 0;
+        isMovementLocked = targetCell.Cell.Terrain == Cell.TerrainType.Fire;
         bool success = this.BoardPiecePrefab.Move(targetCell, this.OnMove, forceFailMovement);
         
         if (success)

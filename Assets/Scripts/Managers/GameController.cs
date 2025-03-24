@@ -45,6 +45,8 @@ public class GameController : MonoBehaviour
         this.nudgeImages.ForEach(image => image.gameObject.SetActive(true));
         this.OnMapReset?.Invoke();
 
+        PlayerPrefab.isMovementLocked = true;
+        
         respawnSequence?.Kill();
         respawnSequence = DOTween.Sequence();
         respawnSequence.Append(this.PlayerPrefab.transform.DOScale(0, 0.5f));
@@ -52,6 +54,7 @@ public class GameController : MonoBehaviour
         respawnSequence.AppendCallback(() => this.PlayerPrefab.BoardPiecePrefab.Teleport(startCell));
         respawnSequence.AppendCallback(() => this.PlayerPrefab.SetTransformationLimits(this.startMovesPerForm));
         respawnSequence.Append(this.PlayerPrefab.transform.DOScale(1f, 0.5f));
+        respawnSequence.AppendCallback(() => PlayerPrefab.isMovementLocked = false);
 
         if (winScreen !=null)
         {
