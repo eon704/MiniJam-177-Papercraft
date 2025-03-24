@@ -869,18 +869,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 232612469957461929, guid: f9fe4958d8245412ba75e561e4126af7, type: 3}
-      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.size
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 232612469957461929, guid: f9fe4958d8245412ba75e561e4126af7, type: 3}
-      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 232612469957461929, guid: f9fe4958d8245412ba75e561e4126af7, type: 3}
-      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
-      value: 2
-      objectReference: {fileID: 0}
     - target: {fileID: 1058011384513077674, guid: f9fe4958d8245412ba75e561e4126af7, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -891,6 +879,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2310916812230868654, guid: f9fe4958d8245412ba75e561e4126af7, type: 3}
       propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2530545600260935071, guid: f9fe4958d8245412ba75e561e4126af7, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2530545600260935071, guid: f9fe4958d8245412ba75e561e4126af7, type: 3}
+      propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2540754833456786670, guid: f9fe4958d8245412ba75e561e4126af7, type: 3}
@@ -1055,6 +1051,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7326548391318804362, guid: f9fe4958d8245412ba75e561e4126af7, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8419866329637323345, guid: f9fe4958d8245412ba75e561e4126af7, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8419866329637323345, guid: f9fe4958d8245412ba75e561e4126af7, type: 3}
+      propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9083896825027540261, guid: f9fe4958d8245412ba75e561e4126af7, type: 3}
