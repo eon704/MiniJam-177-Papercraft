@@ -352,68 +352,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
-      propertyPath: levels.Array.size
-      value: 12
-      objectReference: {fileID: 0}
-    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
-      propertyPath: levels.Array.data[12].Map
-      value: '++++++++
-
-        ++++++++
-
-        ++++++++
-
-        ++++++++
-
-        ++++++++
-
-        ++++++++
-
-        ++++++++
-
-        ++++++++'
-      objectReference: {fileID: 0}
-    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
-      propertyPath: levels.Array.data[12].MapSize.x
-      value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
-      propertyPath: levels.Array.data[12].MapSize.y
-      value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
-      propertyPath: levels.Array.data[12].StartMovesPerForm.Array.size
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
-      propertyPath: levels.Array.data[12].StartMovesPerForm.Array.data[1].Moves
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
-      propertyPath: levels.Array.data[12].StartMovesPerForm.Array.data[1].State
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
-      propertyPath: levels.Array.data[12].StartMovesPerForm.Array.data[2].Moves
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
-      propertyPath: levels.Array.data[12].StartMovesPerForm.Array.data[2].State
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
-      propertyPath: levels.Array.data[12].StartMovesPerForm.Array.data[3].State
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
-      propertyPath: levels.Array.data[12].StartMovesPerForm.Array.data[4].Moves
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
-      propertyPath: levels.Array.data[12].StartMovesPerForm.Array.data[4].State
-      value: 4
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

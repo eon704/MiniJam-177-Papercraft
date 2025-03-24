@@ -13,7 +13,7 @@ public class Board
     this.Size = size; 
     this.CellArray = new Cell[size.x, size.y];
     
-    // Spawn board
+    // Parse the board map
     for (int x = 0; x < size.x; x++)
     {
       for (int y = 0; y < size.y; y++)
@@ -21,9 +21,16 @@ public class Board
         Cell.TerrainType type = map[x, y] switch
         {
           '0' => Cell.TerrainType.None,
+          
           '+' => Cell.TerrainType.Default,
+          '1' => Cell.TerrainType.Default,
+          
           'W' => Cell.TerrainType.Water,
+          '2' => Cell.TerrainType.Water,
+          
           'S' => Cell.TerrainType.Stone,
+          '3' => Cell.TerrainType.Stone,
+          
           'F' => Cell.TerrainType.Fire,
           'x' => Cell.TerrainType.Start,
           'y' => Cell.TerrainType.End,
@@ -33,6 +40,9 @@ public class Board
         Cell.CellItem item = map[x, y] switch
         {
           'G' => Cell.CellItem.Star,
+          '1' => Cell.CellItem.Star,
+          '2' => Cell.CellItem.Star,
+          '3' => Cell.CellItem.Star,
           _ => Cell.CellItem.None
         };
         
