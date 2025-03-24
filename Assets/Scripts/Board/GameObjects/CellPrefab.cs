@@ -17,12 +17,11 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     private float starDefaultScale;
     
     [SerializeField] private Color defaultColor;
-    [SerializeField] private Color highlightColor;
     [FormerlySerializedAs("reachableColor")] [SerializeField] private Color pulseColor;
     [SerializeField] private Color validMoveColor;
     [SerializeField] private Color invalidMoveColor;
     
-    private bool? isValid;
+    private bool isValid;
     private bool isPointerOver;
     
     public Cell Cell { get; private set; }
@@ -53,10 +52,10 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     {
         isValid = newIsValid;
     }
-    
+
     public void ResetIsValidMoveOption()
     {
-        isValid = null;
+        isValid = false;
     }
 
     public Sequence DoOutOfMovesPulse()
@@ -79,7 +78,7 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         pulseSequence.OnUpdate(() =>
         {
             if (isPointerOver)
-                fill.color = !isValid.HasValue ? highlightColor : (isValid.Value ? validMoveColor : invalidMoveColor);
+                fill.color = isValid ? validMoveColor : invalidMoveColor;
         });
         
         return pulseSequence;
@@ -95,7 +94,7 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     {
         pulseSequence?.Pause();
         isPointerOver = true;
-        fill.color = !isValid.HasValue ? highlightColor : (isValid.Value ? validMoveColor : invalidMoveColor);
+        fill.color = isValid ? validMoveColor : invalidMoveColor;
         GlobalSoundManager.PlayRandomSoundByType(SoundType.Click, 0.05f);
     }
     public void OnPointerExit(PointerEventData eventData)
