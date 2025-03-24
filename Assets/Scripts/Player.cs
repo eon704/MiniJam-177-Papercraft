@@ -97,7 +97,6 @@ public class Player : MonoBehaviour
     private void OnPlayerMoved(Observable<Cell> cell, Cell oldCell, Cell newCell)
     {
         ResetPulse();
-        moveOptionCells?.ForEach(cellPrefab => cellPrefab.ResetIsValidMoveOption());
         moveOptionCells = BoardPiecePrefab.GetMoveOptionCellPrefabs();
         PulseReachableCells();
     }
@@ -106,7 +105,6 @@ public class Player : MonoBehaviour
     {
         Cell startCell = BoardPiecePrefab.CurrentCell.Cell;
         Dictionary<int, List<CellPrefab>> reachableCellsByDistance = new();
-        moveOptionCells?.ForEach(cellPrefab => cellPrefab.ResetIsValidMoveOption());
         moveOptionCells = BoardPiecePrefab.GetMoveOptionCellPrefabs();
 
         foreach (var cellPrefab in moveOptionCells)
@@ -209,6 +207,7 @@ public class Player : MonoBehaviour
         if (moveOptionCells == null || moveOptionCells.Count == 0)
             return;
         
+        moveOptionCells?.ForEach(cellPrefab => cellPrefab.ResetIsValidMoveOption());
         pulseSequence?.Kill();
         foreach(var cellPrefab in moveOptionCells!)
         {
