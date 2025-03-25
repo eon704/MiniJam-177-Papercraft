@@ -58,4 +58,9 @@ public class WinScreenStarsUI : MonoBehaviour
 
         this.texts = this.stars.Select(star => star.GetComponent<TextPulsing>()).ToArray();
     }
+    
+    private void OnDestroy()
+    {
+        DOTween.Kill(this);
+    }
 }

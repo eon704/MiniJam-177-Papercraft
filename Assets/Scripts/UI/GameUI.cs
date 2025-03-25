@@ -86,4 +86,9 @@ public class GameUI : MonoBehaviour
     yield return tween.WaitForCompletion();
     this._foreground.gameObject.SetActive(false);
   }
+  
+  private void onDestroy()
+  {
+    DOTween.Kill(this);
+  }
 }

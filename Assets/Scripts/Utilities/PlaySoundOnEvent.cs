@@ -14,11 +14,11 @@ public class PlaySoundOnEvent : MonoBehaviour, IPointerEnterHandler, IPointerCli
             isPlayingSound = true;
             if (isCard)
             {
-                GlobalSoundManager.PlayRandomSoundByType(SoundType.Card, 0.8f);
+                GlobalSoundManager.PlayRandomSoundByType(SoundType.Card, 1f);
             }
             else
             {
-                GlobalSoundManager.PlayRandomSoundByType(SoundType.Click, 0.8f);
+                GlobalSoundManager.PlayRandomSoundByType(SoundType.Click, 1f);
             }
             StartCoroutine(ResetSoundFlag());
         }

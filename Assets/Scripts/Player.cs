@@ -181,6 +181,7 @@ public class Player : MonoBehaviour
         
         if (success)
         {
+            targetCell.ShakeCell();
             movesPerForm[type]--;
             OnMovesLeftChanged?.Invoke(type, this.movesPerForm[type]);
             
