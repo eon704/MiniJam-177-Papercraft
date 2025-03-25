@@ -529,6 +529,60 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
+      propertyPath: levels.Array.data[6].Map
+      value: '00000000
+
+        0xF00000
+
+        0+W00000
+
+        0S+F0G00
+
+        00+0WF00
+
+        0GF+0+Sy
+
+        0+W0G+F0
+
+        00000000'
+      objectReference: {fileID: 0}
+    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
+      propertyPath: levels.Array.data[7].Map
+      value: '00000000
+
+        0xF+0000
+
+        0+WS000y
+
+        0S+W0+G0
+
+        0F+0SW+0
+
+        00G+F0W0
+
+        0+W+0S+0
+
+        00F0G+F0'
+      objectReference: {fileID: 0}
+    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
+      propertyPath: levels.Array.data[9].Map
+      value: '00000000
+
+        0x000000
+
+        0+000G00
+
+        0F00S+00
+
+        0+0S0WF0
+
+        00G++W00
+
+        0++FS++0
+
+        000G00y0'
+      objectReference: {fileID: 0}
+    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
       propertyPath: levels.Array.data[11].Map
       value: '00000000
 
