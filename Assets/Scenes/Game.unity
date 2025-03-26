@@ -1087,6 +1087,22 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4873721444447664248, guid: dc34e17202d914640a68ef953534436d, type: 3}
+      propertyPath: boatStateSprite
+      value: 
+      objectReference: {fileID: -3558087351356187972, guid: 117a6ca5ae2ac1d41bba2827c719226d, type: 3}
+    - target: {fileID: 4873721444447664248, guid: dc34e17202d914640a68ef953534436d, type: 3}
+      propertyPath: frogStateSprite
+      value: 
+      objectReference: {fileID: 1619916869775581172, guid: 420ef4fea5a6e7d45b2b1893d3fd25fc, type: 3}
+    - target: {fileID: 4873721444447664248, guid: dc34e17202d914640a68ef953534436d, type: 3}
+      propertyPath: craneStateSprite
+      value: 
+      objectReference: {fileID: -539722724489351103, guid: 525338b18d8e8f24dbe629d6be815784, type: 3}
+    - target: {fileID: 4873721444447664248, guid: dc34e17202d914640a68ef953534436d, type: 3}
+      propertyPath: planeStateSprite
+      value: 
+      objectReference: {fileID: 1389281518635921290, guid: f0bb4a72ac5ae484d80dfc896c0f24ef, type: 3}
+    - target: {fileID: 4873721444447664248, guid: dc34e17202d914640a68ef953534436d, type: 3}
       propertyPath: boatStateSpritePreview
       value: 
       objectReference: {fileID: 1077069762}

@@ -99,10 +99,12 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         isPointerOver = true;
         fill.color = isValid ? validMoveColor : invalidMoveColor;
         GlobalSoundManager.PlayRandomSoundByType(SoundType.Click, 0.1f);
+        transform.DOScale(1.05f, 0.2f).SetEase(Ease.OutQuad);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
+        transform.DOScale(1f, 0.2f).SetEase(Ease.OutQuad);
         fill.color = defaultColor;
         isPointerOver = false;
 

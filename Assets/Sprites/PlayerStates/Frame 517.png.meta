@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 519140cfd6dba4741bc9f1fa11adcbb4
+guid: 420ef4fea5a6e7d45b2b1893d3fd25fc
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 8475130039064758194
-    second: Frame 363_0
+      213: 1619916869775581172
+    second: Frame 517_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,7 +113,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: FrogStateSprite
+      name: Frame 517_0
       rect:
         serializedVersion: 2
         x: 0
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 2b782bb0ed5bd9570800000000000000
-      internalID: 8475130039064758194
+      spriteID: 4ffd2a47fc91b7610800000000000000
+      internalID: 1619916869775581172
       vertices: []
       indices: 
       edges: []
@@ -138,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: a145164497c7fc743911991f328bf266
+    spriteID: e7b6caea44c58514b858f8c13cdf4d90
     internalID: 0
     vertices: []
     indices: 
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      FrogStateSprite: 8475130039064758194
+      Frame 517_0: 1619916869775581172
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
