@@ -6,7 +6,7 @@ namespace PlayerStateMachine
     public class FrogState : IState
 
     {
-        private readonly Sprite _stateSprite;
+        private readonly GameObject _stateGameObject;
         private readonly SpriteRenderer _spriteRenderer;
         private readonly Player _player;
         
@@ -32,10 +32,9 @@ namespace PlayerStateMachine
             Cell.TerrainType.End,
         };
         
-        public FrogState(Sprite sprite, SpriteRenderer spriteRenderer, Player player)
+        public FrogState(GameObject gameObject, Player player)
         {
-            _stateSprite = sprite;
-            _spriteRenderer = spriteRenderer;
+            _stateGameObject = gameObject;
             _player = player;
         }
 
@@ -45,14 +44,15 @@ namespace PlayerStateMachine
 
         public void OnEnter()
         {
-            _player.frogStateSpritePreview.SetActive(true);
-            _player.ChangeStateEffect.GetComponent<Animator>().SetTrigger("ChangeState");
-            _spriteRenderer.sprite = _stateSprite;
+           
+            _player.changeStateEffect.GetComponent<Animator>().SetTrigger("ChangeState");
+            _stateGameObject.SetActive(true);
         }
 
         public void OnExit()
         {
-            _player.frogStateSpritePreview.SetActive(false);
+            _stateGameObject.SetActive(false);
+            
         }
     }
 }

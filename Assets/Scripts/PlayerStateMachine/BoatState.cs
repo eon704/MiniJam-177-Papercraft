@@ -5,12 +5,11 @@ namespace PlayerStateMachine
 {
     public class BoatState : IState
     {
-        private readonly Sprite _stateSprite;
-        private readonly SpriteRenderer _spriteRenderer;
+        private readonly GameObject _stateGameObject;
         private readonly Player _player;
 
         public Player.StateType StateType => Player.StateType.Boat;
-        
+
         public List<Vector2Int> MoveOptions => new()
         {
             new Vector2Int(-1, 0),
@@ -21,18 +20,14 @@ namespace PlayerStateMachine
 
         public List<Cell.TerrainType> MoveTerrain => new()
         {
-            Cell.TerrainType.Water, 
+            Cell.TerrainType.Water,
             Cell.TerrainType.Fire,
-            //  Cell.TerrainType.Start,
-          //  Cell.TerrainType.End,
         };
 
-        public BoatState(Sprite sprite, SpriteRenderer spriteRenderer, Player player)
+        public BoatState(GameObject gameObject, Player player)
         {
-            _stateSprite = sprite;
-            _spriteRenderer = spriteRenderer;
-            _player = player;   
-  
+            _stateGameObject = gameObject;
+            _player = player;
         }
 
         public void Tick()
@@ -41,14 +36,13 @@ namespace PlayerStateMachine
 
         public void OnEnter()
         {
-            _player.boatStateSpritePreview.SetActive(true);
-            _player.ChangeStateEffect.GetComponent<Animator>().SetTrigger("ChangeState");
-            _spriteRenderer.sprite = _stateSprite;
+            _player.changeStateEffect.GetComponent<Animator>().SetTrigger("ChangeState");
+            _stateGameObject.SetActive(true);
         }
 
         public void OnExit()
         {
-            _player.boatStateSpritePreview.SetActive(false);
+            _stateGameObject.SetActive(false);
         }
     }
 }

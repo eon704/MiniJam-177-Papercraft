@@ -9,7 +9,7 @@ using UnityEngine.Events;
 public class Player : MonoBehaviour
 {
     public BoardPiecePrefab BoardPiecePrefab { get; private set; }
-    public GameObject ChangeStateEffect;
+    public GameObject changeStateEffect;
 
     public readonly Observable<int> StarAmount = new(0);
     
@@ -18,24 +18,18 @@ public class Player : MonoBehaviour
     public readonly UnityEvent<StateType> OnTransformation = new();
     public readonly UnityEvent<StateType, int> OnMovesLeftChanged = new();
     
-    private int MovesLeftForCurrentState => movesPerForm[(stateMachine.CurrentState as IState)!.StateType];
+    private int MovesLeftForCurrentState => _movesPerForm[(_stateMachine.CurrentState as IState)!.StateType];
     
-    private StateMachine stateMachine;
-    private SpriteRenderer spriteRenderer;
+    private StateMachine _stateMachine;
+    private SpriteRenderer _spriteRenderer;
 
-    [Header("State sprites")]
+    [Header("States Objects")]
     [SerializeField] private Sprite defaultStateSprite;
-    [SerializeField] private Sprite craneStateSprite;
-    [SerializeField] private Sprite planeStateSprite;
-    [SerializeField] private Sprite boatStateSprite;
-    [SerializeField] private Sprite frogStateSprite;
+    [SerializeField] private GameObject craneStateGameObject;
+    [SerializeField] private GameObject planeStateGameObject;
+    [SerializeField] private GameObject boatStateGameObject;
+    [SerializeField] private GameObject frogStateGameObject;
     
-    [Header("State sprites Preview")] 
-    public GameObject defaultStateSpritePreview;
-    public GameObject craneStateSpritePreview;
-    public GameObject planeStateSpritePreview;
-    public GameObject boatStateSpritePreview;
-    public GameObject frogStateSpritePreview;
 
     private IState _defaultState;
     private IState _craneState;
@@ -43,7 +37,7 @@ public class Player : MonoBehaviour
     private IState _boatState;
     private IState _frogState;
     
-    private Sequence pulseSequence;
+    private Sequence _pulseSequence;
     public bool isMovementLocked;
     
     public enum StateType
@@ -55,9 +49,9 @@ public class Player : MonoBehaviour
         Frog
     }
 
-    private Dictionary<StateType, int> movesPerForm;
-    private Dictionary<StateType, bool> unlockedForms;
-    private List<CellPrefab> moveOptionCells;
+    private Dictionary<StateType, int> _movesPerForm;
+    private Dictionary<StateType, bool> _unlockedForms;
+    private List<CellPrefab> _moveOptionCells;
 
     public void Initialize(BoardPiece boardPiece, CellPrefab startCell, BoardPrefab boardPrefab)
     {
@@ -67,26 +61,26 @@ public class Player : MonoBehaviour
 
     public void SetTransformationLimits(Dictionary<StateType, int> startingMoves)
     {
-        this.movesPerForm = new Dictionary<StateType, int>(startingMoves);
+        this._movesPerForm = new Dictionary<StateType, int>(startingMoves);
         
-        this.OnMovesLeftChanged?.Invoke(StateType.Boat, this.movesPerForm[StateType.Boat]);
-        this.OnMovesLeftChanged?.Invoke(StateType.Crane, this.movesPerForm[StateType.Crane]);
-        this.OnMovesLeftChanged?.Invoke(StateType.Frog, this.movesPerForm[StateType.Frog]);
-        this.OnMovesLeftChanged?.Invoke(StateType.Plane, this.movesPerForm[StateType.Plane]);
+        this.OnMovesLeftChanged?.Invoke(StateType.Boat, this._movesPerForm[StateType.Boat]);
+        this.OnMovesLeftChanged?.Invoke(StateType.Crane, this._movesPerForm[StateType.Crane]);
+        this.OnMovesLeftChanged?.Invoke(StateType.Frog, this._movesPerForm[StateType.Frog]);
+        this.OnMovesLeftChanged?.Invoke(StateType.Plane, this._movesPerForm[StateType.Plane]);
     } 
     
 
     private void Awake()
     {
-        this.spriteRenderer = GetComponent<SpriteRenderer>();
+        this._spriteRenderer = GetComponent<SpriteRenderer>();
         this.BoardPiecePrefab = GetComponent<BoardPiecePrefab>();
-        this.stateMachine = new StateMachine();
+        this._stateMachine = new StateMachine();
 
-        _defaultState = new DefaultState(defaultStateSprite, this.spriteRenderer, this);
-        _craneState = new CraneState(craneStateSprite, this.spriteRenderer, this);
-        _planeState = new PlaneState(planeStateSprite, this.spriteRenderer, this);
-        _boatState = new BoatState(boatStateSprite, this.spriteRenderer, this);
-        _frogState = new FrogState(frogStateSprite, this.spriteRenderer, this);
+        _defaultState = new DefaultState(defaultStateSprite, this._spriteRenderer);
+        _craneState = new CraneState(craneStateGameObject, this);
+        _planeState = new PlaneState(planeStateGameObject, this);
+        _boatState = new BoatState(boatStateGameObject,this);
+        _frogState = new FrogState(frogStateGameObject,this);
     }
 
     private IEnumerator Start()
@@ -98,7 +92,7 @@ public class Player : MonoBehaviour
     private void OnPlayerMoved(Observable<Cell> cell, Cell oldCell, Cell newCell)
     {
         ResetPulse();
-        moveOptionCells = BoardPiecePrefab.GetMoveOptionCellPrefabs();
+        _moveOptionCells = BoardPiecePrefab.GetMoveOptionCellPrefabs();
         PulseReachableCells();
     }
 
@@ -106,9 +100,9 @@ public class Player : MonoBehaviour
     {
         Cell startCell = BoardPiecePrefab.CurrentCell.Cell;
         Dictionary<int, List<CellPrefab>> reachableCellsByDistance = new();
-        moveOptionCells = BoardPiecePrefab.GetMoveOptionCellPrefabs();
+        _moveOptionCells = BoardPiecePrefab.GetMoveOptionCellPrefabs();
 
-        foreach (var cellPrefab in moveOptionCells)
+        foreach (var cellPrefab in _moveOptionCells)
         {
             int distance = Cell.Distance(startCell, cellPrefab.Cell);
             if (!reachableCellsByDistance.ContainsKey(distance))
@@ -119,25 +113,26 @@ public class Player : MonoBehaviour
             reachableCellsByDistance[distance].Add(cellPrefab);
         }
 
-        float duration = 1f;
-        float delay = duration / 4;
-        pulseSequence?.Kill();
-        pulseSequence = DOTween.Sequence();
+        var duration = 1f;
+        var delay = duration / 4;
+        _pulseSequence?.Kill();
+        _pulseSequence = DOTween.Sequence();
         
-        pulseSequence.Insert(0, BoardPiecePrefab.CurrentCell.DoPulse(duration));
+        _pulseSequence.Insert(0, BoardPiecePrefab.CurrentCell.DoPulse(duration));
 
         foreach (KeyValuePair<int, List<CellPrefab>> distanceToCellsPair in reachableCellsByDistance)
         {
             foreach (var cellPrefab in distanceToCellsPair.Value)
             {
-                this.pulseSequence.Insert(distanceToCellsPair.Key * delay, cellPrefab.DoPulse(duration));
+                this._pulseSequence.Insert(distanceToCellsPair.Key * delay, cellPrefab.DoPulse(duration));
             }
         }
 
-        this.pulseSequence.SetLoops(-1);
-        this.pulseSequence.Play();
+        this._pulseSequence.SetLoops(-1);
+        this._pulseSequence.Play();
     }
 
+    // ReSharper disable Unity.PerformanceAnalysis
     public void SetDefaultState()
     {
         this.OnTransformation?.Invoke(StateType.Default);
@@ -173,36 +168,36 @@ public class Player : MonoBehaviour
         if (isMovementLocked)
             return;
         
-        IState currentState = (this.stateMachine.CurrentState as IState)!; 
+        IState currentState = (this._stateMachine.CurrentState as IState)!; 
         StateType type = currentState.StateType;
-        bool forceFailMovement = this.movesPerForm[type] <= 0;
+        bool forceFailMovement = this._movesPerForm[type] <= 0;
         isMovementLocked = targetCell.Cell.Terrain == Cell.TerrainType.Fire;
         bool success = this.BoardPiecePrefab.Move(targetCell, this.OnMove, forceFailMovement);
         
         if (success)
         {
             targetCell.ShakeCell();
-            movesPerForm[type]--;
-            OnMovesLeftChanged?.Invoke(type, this.movesPerForm[type]);
+            _movesPerForm[type]--;
+            OnMovesLeftChanged?.Invoke(type, this._movesPerForm[type]);
             
-            if (movesPerForm[type] <= 0)
+            if (_movesPerForm[type] <= 0)
             {
                 OnOutOfMoves();
             }
         }
     }
 
-    private void Update() => this.stateMachine.Tick();
+    private void Update() => this._stateMachine.Tick();
 
     private void OnDisable()
     {
-        this.pulseSequence?.Kill();
+        this._pulseSequence?.Kill();
     }
 
     private void SetState(IState state)
     {
         GlobalSoundManager.PlayRandomSoundByType(SoundType.ChangeState);
-        stateMachine.SetState(state);
+        _stateMachine.SetState(state);
         BoardPiecePrefab.BoardPiece.SetState(state);
         ResetPulse();
         PulseReachableCells();
@@ -210,12 +205,12 @@ public class Player : MonoBehaviour
 
     private void ResetPulse()
     {
-        if (moveOptionCells == null || moveOptionCells.Count == 0)
+        if (_moveOptionCells == null || _moveOptionCells.Count == 0)
             return;
         
-        moveOptionCells?.ForEach(cellPrefab => cellPrefab.ResetIsValidMoveOption());
-        pulseSequence?.Kill();
-        foreach(var cellPrefab in moveOptionCells!)
+        _moveOptionCells?.ForEach(cellPrefab => cellPrefab.ResetIsValidMoveOption());
+        _pulseSequence?.Kill();
+        foreach(var cellPrefab in _moveOptionCells!)
         {
             cellPrefab.ResetPulse();
         }
@@ -224,11 +219,11 @@ public class Player : MonoBehaviour
     private void OnOutOfMoves()
     {
         ResetPulse();
-        pulseSequence?.Kill(true);
-        pulseSequence = DOTween.Sequence();
-        pulseSequence.Append(BoardPiecePrefab.CurrentCell.DoOutOfMovesPulse());
-        pulseSequence.SetLoops(-1);
-        pulseSequence.Play();
+        _pulseSequence?.Kill(true);
+        _pulseSequence = DOTween.Sequence();
+        _pulseSequence.Append(BoardPiecePrefab.CurrentCell.DoOutOfMovesPulse());
+        _pulseSequence.SetLoops(-1);
+        _pulseSequence.Play();
     }
 
     private void OnMove()
