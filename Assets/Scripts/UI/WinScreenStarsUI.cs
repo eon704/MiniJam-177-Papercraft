@@ -28,7 +28,7 @@ public class WinScreenStarsUI : MonoBehaviour
                 star.sprite = this.fullStar;
                 star.transform.DOScale(Vector3.one * 1.5f, 0.5f).SetLoops(2, LoopType.Yoyo);
             });
-            sequence.AppendInterval(1f);
+            sequence.AppendInterval(0.5f);
         }
 
         sequence.OnComplete(() =>
