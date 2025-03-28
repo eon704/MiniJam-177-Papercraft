@@ -19,67 +19,67 @@ public class BoardPrefab : MonoBehaviour
   
   public void Initialize(string newMap, Vector2Int newSize)
   {
-    this.map = newMap;
-    this.size = newSize;
-    this.Board = new Board(this.size, this.ParseMap());
-    this.cellPrefabs = new CellPrefab[this.size.x, this.size.y];
+    map = newMap;
+    size = newSize;
+    Board = new Board(size, ParseMap());
+    cellPrefabs = new CellPrefab[size.x, size.y];
     
-    this.InstantiateBoard();
-    this.UpdateBorder();
+    InstantiateBoard();
+    UpdateBorder();
   }
   
   public List<CellPrefab> GetCellPrefabs(List<Cell> cells)
   {
-    return cells.Select(cell => this.GetCellPrefab(cell.Position)).ToList();
+    return cells.Select(cell => GetCellPrefab(cell.Position)).ToList();
   }
   
   public List<CellPrefab> GetCellPrefabs(List<Vector2Int> coords)
   {
-    return coords.Select(this.GetCellPrefab).ToList();
+    return coords.Select(GetCellPrefab).ToList();
   }
 
   public CellPrefab GetCellPrefab(Cell cell)
   {
-    return this.GetCellPrefab(cell.Position);
+    return GetCellPrefab(cell.Position);
   }
   
   public CellPrefab GetCellPrefab(Vector2Int coord)
   {
-    return this.cellPrefabs[coord.x, coord.y];
+    return cellPrefabs[coord.x, coord.y];
   }
   
   public CellPrefab GetStartCellPrefab()
   {
-    return this.GetCellPrefab(this.Board.StartCell.Position);
+    return GetCellPrefab(Board.StartCell.Position);
   }
 
   public List<CellPrefab> GetStarCellPrefabs()
   {
-    return this.GetCellPrefabs(this.Board.StarCells);
+    return GetCellPrefabs(Board.StarCells);
   }
   
   public (BoardPiece, CellPrefab) CreateNewPlayerPrefab()
   {
-    BoardPiece playerPiece = this.Board.CreatePlayerPiece();
-    CellPrefab startCell = this.GetCellPrefab(playerPiece.OccupiedCell.Value.Position);
+    BoardPiece playerPiece = Board.CreatePlayerPiece();
+    CellPrefab startCell = GetCellPrefab(playerPiece.OccupiedCell.Value.Position);
     return (playerPiece, startCell);
   }
 
   private void Awake()
   {
-    this.worldGrid = this.GetComponent<Grid>();
+    worldGrid = GetComponent<Grid>();
   }
 
   private char[,] ParseMap()
   {
     // Normalize newlines to '\n'
-    this.map = this.map.Replace("\r\n", "\n");
+    map = map.Replace("\r\n", "\n");
     
-    char[,] parsedMap = new char[this.size.x, this.size.y];
-    int rowLength = this.size.x + 1;
-    for (int i = 0; i < this.map.Length; i++)
+    char[,] parsedMap = new char[size.x, size.y];
+    int rowLength = size.x + 1;
+    for (int i = 0; i < map.Length; i++)
     {
-      char key = this.map[i];
+      char key = map[i];
       if (key == '\n')
         continue;
       
@@ -89,11 +89,11 @@ public class BoardPrefab : MonoBehaviour
     }
     
     // Y-flip the map
-    for (int x = 0; x < this.size.x; x++)
+    for (int x = 0; x < size.x; x++)
     {
-      for (int y = 0; y < this.size.y / 2; y++)
+      for (int y = 0; y < size.y / 2; y++)
       {
-        (parsedMap[x, y], parsedMap[x, this.size.y - y - 1]) = (parsedMap[x, this.size.y - y - 1], parsedMap[x, y]);
+        (parsedMap[x, y], parsedMap[x, size.y - y - 1]) = (parsedMap[x, size.y - y - 1], parsedMap[x, y]);
       }
     }
 
@@ -102,14 +102,18 @@ public class BoardPrefab : MonoBehaviour
 
   private void InstantiateBoard()
   {
-    for (int x = 0; x < this.size.x; x++)
+    int centerX = size.x / 2;
+    int centerY = size.y / 2;
+    
+    for (int x = 0; x < size.x; x++)
     {
-      for (int y = 0; y < this.size.y; y++)
+      for (int y = 0; y < size.y; y++)
       {
-        Cell cell = this.Board.CellArray[x, y];
-        Vector3 cellPosition = this.worldGrid.GetCellCenterWorld(new Vector3Int(x, y, 0));
-        this.cellPrefabs[x, y] = Instantiate(this.cellPrefab, cellPosition, Quaternion.identity, this.transform);
-        this.cellPrefabs[x, y].Initialize(cell, this.player);
+        Cell cell = Board.CellArray[x, y];
+        Vector3 cellPosition = worldGrid.GetCellCenterWorld(new Vector3Int(x, y, 0));
+        int distanceFromCenter = Mathf.Abs(centerX - x) + Mathf.Abs(centerY - y);
+        cellPrefabs[x, y] = Instantiate(cellPrefab, cellPosition, Quaternion.identity, transform);
+        cellPrefabs[x, y].Initialize(cell, player, distanceFromCenter * 0.1f + 0.5f);
       }
     }
   }
@@ -117,17 +121,17 @@ public class BoardPrefab : MonoBehaviour
 
   private void UpdateBorder()
   {
-    this.boardBorder.gameObject.SetActive(true);
-    this.boardBorder.localScale = new Vector3(this.size.x + 0.1f, this.size.y + 0.1f, 1);
+    boardBorder.gameObject.SetActive(true);
+    boardBorder.localScale = new Vector3(size.x + 0.1f, size.y + 0.1f, 1);
     
-    Vector3 borderPosition = this.worldGrid.GetCellCenterWorld(new Vector3Int(this.size.x / 2, this.size.y / 2, 0));
+    Vector3 borderPosition = worldGrid.GetCellCenterWorld(new Vector3Int(size.x / 2, size.y / 2, 0));
     
-    if (this.size.x % 2 == 0)
-      borderPosition.x -= this.worldGrid.cellSize.x / 2;
+    if (size.x % 2 == 0)
+      borderPosition.x -= worldGrid.cellSize.x / 2;
     
-    if (this.size.y % 2 == 0)
-      borderPosition.y -= this.worldGrid.cellSize.y / 2;
+    if (size.y % 2 == 0)
+      borderPosition.y -= worldGrid.cellSize.y / 2;
 
-    this.boardBorder.position = borderPosition;
+    boardBorder.position = borderPosition;
   }
 }

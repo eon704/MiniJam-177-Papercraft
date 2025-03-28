@@ -1,3 +1,4 @@
+using System.Collections;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -31,24 +32,34 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     private Player player;
 
     private Sequence pulseSequence;
+    private Sequence rippleSequence;
 
-    public void Initialize(Cell cellData, Player newPlayer)
+    public void Initialize(Cell cellData, Player newPlayer, float delay)
     {
-        this.Cell = cellData;
-        this.Cell.Item.OnChanged += this.OnCellItemChange;
+        Cell = cellData;
+        gameObject.SetActive(Cell.Terrain != Cell.TerrainType.None);
+        if (Cell.Terrain == Cell.TerrainType.None)
+            return;
+        
+        Cell.Item.OnChanged += OnCellItemChange;
 
-        this.player = newPlayer;
+        player = newPlayer;
+        
+        start.SetActive(Cell.Terrain == Cell.TerrainType.Start);
+        end.SetActive(Cell.Terrain == Cell.TerrainType.End);
+        fire.SetActive(Cell.Terrain == Cell.TerrainType.Fire);
+        water.SetActive(Cell.Terrain == Cell.TerrainType.Water);
+        stone.SetActive(Cell.Terrain == Cell.TerrainType.Stone);
 
-        this.gameObject.SetActive(this.Cell.Terrain != Cell.TerrainType.None);
-
-        this.start.SetActive(this.Cell.Terrain == Cell.TerrainType.Start);
-        this.end.SetActive(this.Cell.Terrain == Cell.TerrainType.End);
-        this.fire.SetActive(this.Cell.Terrain == Cell.TerrainType.Fire);
-        this.water.SetActive(this.Cell.Terrain == Cell.TerrainType.Water);
-        this.stone.SetActive(this.Cell.Terrain == Cell.TerrainType.Stone);
-
-        this.star.SetActive(this.Cell.Item == Cell.CellItem.Star);
-        this.starDefaultScale = this.star.transform.localScale.x;
+        star.SetActive(Cell.Item == Cell.CellItem.Star);
+        starDefaultScale = star.transform.localScale.x;
+        
+        transform.localScale = Vector3.zero;
+        
+        rippleSequence = DOTween.Sequence();
+        rippleSequence.AppendInterval(delay);
+        rippleSequence.Append(transform.DOScale(1f, 0.5f).SetEase(Ease.OutQuad));
+        rippleSequence.Play();
     }
 
     public void SetIsValidMoveOption(bool newIsValid)
@@ -63,7 +74,7 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     public Sequence DoOutOfMovesPulse()
     {
-        return this.DoPulse(0.5f, invalidMoveColor);
+        return DoPulse(0.5f, invalidMoveColor);
     }
 
     public Sequence DoPulse(float duration)
@@ -130,18 +141,18 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         {
             star.transform
                 .DOScale(Vector3.zero, 0.5f)
-                .OnComplete(() => this.star.SetActive(false));
+                .OnComplete(() => star.SetActive(false));
         }
         else if (oldValue == Cell.CellItem.None && newValue == Cell.CellItem.Star)
         {
             star.SetActive(true);
-            star.transform.DOScale(Vector3.one * this.starDefaultScale, 0.5f);
+            star.transform.DOScale(Vector3.one * starDefaultScale, 0.5f);
         }
     }
 
     public void ShakeCell()
     {
-        var cell = this.gameObject;
+        var cell = gameObject;
         var shakeSequence = DOTween.Sequence();
         shakeSequence.AppendInterval(0.5f); // Add a delay of 0.5 seconds
         shakeSequence.Append(cell.transform.DOShakePosition(0.3f, strength: new Vector3(0.05f, 0.05f, 0), vibrato: 20, randomness: 90, snapping: false, fadeOut: true));
@@ -149,7 +160,8 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     private void OnDestroy()
     {
-        pulseSequence.Kill();
+        rippleSequence?.Kill();
+        pulseSequence?.Kill();
         DOTween.Kill(this);
     }
 }
