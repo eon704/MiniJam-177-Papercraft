@@ -1,7 +1,7 @@
 using UnityEngine;
 using DG.Tweening;
 
-public class PulsingFVX : MonoBehaviour
+public class PulsingVFX : MonoBehaviour
 {
     private void Start()
     {
@@ -9,5 +9,10 @@ public class PulsingFVX : MonoBehaviour
         transform.DOScale(new Vector3(0.8f, 0.8f, 0.8f), duration) // initiate scaling
             .SetLoops(-1, LoopType.Yoyo) // make it infinite
             .SetEase(Ease.Linear); // ensure the animation is linear
+    }
+    
+    private void OnDisable()
+    {
+        transform.DOKill();
     }
 }

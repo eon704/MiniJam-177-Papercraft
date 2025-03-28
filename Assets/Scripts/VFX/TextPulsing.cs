@@ -11,4 +11,9 @@ public class TextPulsing : MonoBehaviour
             .SetLoops(-1, LoopType.Yoyo) // make it infinite
             .SetEase(Ease.Linear); // ensure the animation is linear
     }
+
+    private void OnDisable()
+    {
+        transform.DOKill();
+    }
 }
