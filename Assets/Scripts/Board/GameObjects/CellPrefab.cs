@@ -143,7 +143,7 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     {
         var cell = this.gameObject;
         var shakeSequence = DOTween.Sequence();
-        shakeSequence.AppendInterval(0.3f); // Add a delay of 0.5 seconds
+        shakeSequence.AppendInterval(0.5f); // Add a delay of 0.5 seconds
         shakeSequence.Append(cell.transform.DOShakePosition(0.3f, strength: new Vector3(0.05f, 0.05f, 0), vibrato: 20, randomness: 90, snapping: false, fadeOut: true));
     }
 

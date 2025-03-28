@@ -42,18 +42,26 @@ public class BoardPiecePrefab : MonoBehaviour
   {
     this.transform.DOComplete(true);
     bool success = !forceFailMovement && this.BoardPiece.MoveTo(targetCell.Cell);
-    
+
     if (success)
     {
+      var path = new Vector3[]
+      {
+        this.transform.position,
+        (this.transform.position + targetCell.transform.position) / 2 + Vector3.up * 0.4f, // Midpoint with an upward offset
+        targetCell.transform.position
+      };
+
       this.transform
-          .DOMove(targetCell.transform.position, 0.5f)
-          .OnComplete(() => onComplete?.Invoke());
+        .DOPath(path, 0.5f, PathType.CatmullRom)
+        .SetEase(Ease.InOutQuad)
+        .OnComplete(() => onComplete?.Invoke());
     }
     else
     {
       this.transform
-          .DOShakePosition(0.5f, 0.3f)
-          .OnComplete(() => onComplete?.Invoke());
+        .DOShakePosition(0.5f, 0.3f)
+        .OnComplete(() => onComplete?.Invoke());
     }
 
     return success;
