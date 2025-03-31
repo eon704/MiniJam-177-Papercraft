@@ -872,9 +872,9 @@ MonoBehaviour:
   m_StartCorner: 0
   m_StartAxis: 0
   m_CellSize: {x: 150, y: 150}
-  m_Spacing: {x: 30, y: 60}
+  m_Spacing: {x: 50, y: 75}
   m_Constraint: 1
-  m_ConstraintCount: 7
+  m_ConstraintCount: 4
 --- !u!114 &1473986089005019556
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2354,7 +2354,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 321744822974394280, guid: d9dfcccf335eb624e93563121e0b71ab, type: 3}
       propertyPath: m_Pivot.y
-      value: 0.5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 321744822974394280, guid: d9dfcccf335eb624e93563121e0b71ab, type: 3}
       propertyPath: m_AnchorMax.x
@@ -2362,7 +2362,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 321744822974394280, guid: d9dfcccf335eb624e93563121e0b71ab, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0.5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 321744822974394280, guid: d9dfcccf335eb624e93563121e0b71ab, type: 3}
       propertyPath: m_AnchorMin.x
@@ -2370,7 +2370,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 321744822974394280, guid: d9dfcccf335eb624e93563121e0b71ab, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0.5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 321744822974394280, guid: d9dfcccf335eb624e93563121e0b71ab, type: 3}
       propertyPath: m_SizeDelta.x
@@ -2414,7 +2414,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 321744822974394280, guid: d9dfcccf335eb624e93563121e0b71ab, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 175
+      value: -650
       objectReference: {fileID: 0}
     - target: {fileID: 321744822974394280, guid: d9dfcccf335eb624e93563121e0b71ab, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
