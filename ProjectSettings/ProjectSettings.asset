@@ -40,9 +40,9 @@ PlayerSettings:
     width: 1
     height: 1
   m_SplashScreenLogos:
-  - logo: {fileID: 8899181333355205175, guid: 694ae30090310804886b92132d0367c9, type: 3}
+  - logo: {fileID: 21300000, guid: 7a9e3f7286a1642fbbeeb4a5bad11b93, type: 3}
     duration: 2
-  - logo: {fileID: 5063116516282759907, guid: 933bb731d04f9c843985628c341f2464, type: 3}
+  - logo: {fileID: 21300000, guid: d3329653e4849463ab545dd04136c57d, type: 3}
     duration: 2
   m_VirtualRealitySplashScreen: {fileID: 2800000, guid: 529e9999bb6610e46a9f5fe47d73aae2, type: 3}
   m_HolographicTrackingLossScreen: {fileID: 0}
@@ -173,7 +173,7 @@ PlayerSettings:
   buildNumber:
     Standalone: 0
     VisionOS: 0
-    iPhone: 0
+    iPhone: 1
     tvOS: 0
   overrideDefaultApplicationIdentifier: 1
   AndroidBundleVersionCode: 1
@@ -244,14 +244,14 @@ PlayerSettings:
   metalCompileShaderBinary: 0
   iOSRenderExtraFrameOnPause: 0
   iosCopyPluginsCodeInsteadOfSymlink: 0
-  appleDeveloperTeamID: 
+  appleDeveloperTeamID: G2NR2Q48R4
   iOSManualSigningProvisioningProfileID: 
   tvOSManualSigningProvisioningProfileID: 
   VisionOSManualSigningProvisioningProfileID: 
   iOSManualSigningProvisioningProfileType: 0
   tvOSManualSigningProvisioningProfileType: 0
   VisionOSManualSigningProvisioningProfileType: 0
-  appleEnableAutomaticSigning: 0
+  appleEnableAutomaticSigning: 1
   iOSRequireARKit: 0
   iOSAutomaticallyDetectAndAddCapabilities: 1
   appleEnableProMotion: 0
@@ -296,7 +296,7 @@ PlayerSettings:
   - m_BuildTarget: 
     m_Icons:
     - serializedVersion: 2
-      m_Icon: {fileID: 2800000, guid: 81f664552664fb947a9cc2ba4b53859d, type: 3}
+      m_Icon: {fileID: 2800000, guid: 117a6ca5ae2ac1d41bba2827c719226d, type: 3}
       m_Width: 128
       m_Height: 128
       m_Kind: 0

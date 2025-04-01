@@ -56,7 +56,6 @@ public class GameUI : MonoBehaviour
   private IEnumerator LoadMainMenu()
   {
     yield return this.ForegroundFadeIn();
-    yield return new WaitForSeconds(0.5f);
     AsyncOperation loadSceneAsync = SceneManager.LoadSceneAsync("MainMenu");
     yield return new WaitUntil(() => loadSceneAsync == null || loadSceneAsync.isDone);
   }
@@ -67,10 +66,10 @@ public class GameUI : MonoBehaviour
     this._foreground.gameObject.SetActive(true);
         
     Tween tween = this._foreground
-                      .DOFade(1, 2)
+                      .DOFade(1, 0.25f)
                       .SetEase(Ease.OutCubic);
 
-    yield return tween.WaitForCompletion();
+    yield return new WaitForSeconds(0.25f);
   }
     
   private IEnumerator ForegroundFadeOut()
@@ -79,11 +78,10 @@ public class GameUI : MonoBehaviour
     this._foreground.gameObject.SetActive(true);
         
     Tween tween = this._foreground
-                      .DOFade(0, 1)
+                      .DOFade(0, 0.25f)
                       .SetEase(Ease.InCubic);
 
-    yield return new WaitForSeconds(0.5f);
-    yield return tween.WaitForCompletion();
+    yield return new WaitForSeconds(0.25f);
     this._foreground.gameObject.SetActive(false);
   }
   
