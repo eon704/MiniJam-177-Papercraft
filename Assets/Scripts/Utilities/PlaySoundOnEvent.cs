@@ -31,7 +31,7 @@ public class PlaySoundOnEvent : MonoBehaviour, IPointerEnterHandler, IPointerCli
 
     private IEnumerator ResetSoundFlag()
     {
-        yield return new WaitForSeconds(0.5f); // Adjust the delay to match the sound duration
+        yield return new WaitForSeconds(0.05f); // Adjust the delay to match the sound duration
         isPlayingSound = false;
     }
 }

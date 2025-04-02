@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class LevelIndexUI : MonoBehaviour
 {
-  [SerializeField] private TMP_Text levelIndexText;
+  [SerializeField] private TextMeshProUGUI levelIndexText;
 
   private void Start()
   {
