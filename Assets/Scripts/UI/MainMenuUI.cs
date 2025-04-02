@@ -47,7 +47,7 @@ public class MainMenuUI : MonoBehaviour
             this.levelsPanel.alpha = 0;
         });
         sequence.AppendInterval(0.2f);
-        sequence.Append(this.levelsPanel.DOFade(1, 0.75f).SetEase(Ease.InOutCubic));
+        sequence.Append(this.levelsPanel.DOFade(1, 0.25f).SetEase(Ease.InOutCubic));
         sequence.AppendCallback(() => this.levelsPanel.interactable = true);
 
         sequence.Play();
@@ -88,8 +88,7 @@ public class MainMenuUI : MonoBehaviour
     private IEnumerator LoadGame()
     {
         yield return this.ForegroundFadeIn();
-
-        yield return new WaitForSeconds(0.5f);
+        
         AsyncOperation loadSceneAsync = SceneManager.LoadSceneAsync("Game");
         yield return new WaitUntil(() => loadSceneAsync!.isDone);
 
@@ -102,7 +101,7 @@ public class MainMenuUI : MonoBehaviour
         this.foreground.gameObject.SetActive(true);
 
         Tween tween = this.foreground
-            .DOFade(1, 1)
+            .DOFade(1, 0.5f)
             .SetEase(Ease.OutCubic);
 
         yield return tween.WaitForCompletion();
@@ -114,10 +113,9 @@ public class MainMenuUI : MonoBehaviour
         this.foreground.gameObject.SetActive(true);
 
         Tween tween = this.foreground
-            .DOFade(0, 1)
+            .DOFade(0,  0.5f)
             .SetEase(Ease.InCubic);
-
-        yield return new WaitForSeconds(0.5f);
+        
         yield return tween.WaitForCompletion();
         this.foreground.gameObject.SetActive(false);
     }
