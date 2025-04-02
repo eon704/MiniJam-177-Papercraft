@@ -104,16 +104,19 @@ public class GameController : MonoBehaviour
         (this.playerPiece, cellPrefab) = this.boardPrefab.CreateNewPlayerPrefab();
 
         this.PlayerPrefab.Initialize(this.playerPiece, cellPrefab, this.boardPrefab);
-
         this.PlayerPrefab.OnPlayerWon.AddListener(this.OnWin);
         this.PlayerPrefab.OnPlayerDied.AddListener(this.ResetMap);
         this.PlayerPrefab.OnTransformation.AddListener(_ =>
             nudgeImages.ForEach(image => image.gameObject.SetActive(false)));
-
+        this.PlayerPrefab.transform.localScale = Vector3.zero;
+        
         yield return null;
         this.PlayerPrefab.SetTransformationLimits(this.startMovesPerForm);
         this.nudgeImages.ForEach(image => image.gameObject.SetActive(true));
 
+        yield return new WaitUntil(() => this.boardPrefab.IsSpawnAnimationComplete);
+        this.PlayerPrefab.transform.DOScale(Vector3.one, 0.5f);
+        
         yield return new WaitUntil(() => UgsManager.Instance.IsInitialized);
         UgsManager.Instance.RecordNewLevelAttemptEvent(LevelManager.Instance.CurrentLevelIndex, attemptsCount);
     }
