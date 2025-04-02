@@ -171,11 +171,11 @@ public class Player : MonoBehaviour
         IState currentState = (this._stateMachine.CurrentState as IState)!; 
         StateType type = currentState.StateType;
         bool forceFailMovement = this._movesPerForm[type] <= 0;
-        isMovementLocked = targetCell.Cell.Terrain == Cell.TerrainType.Fire;
         bool success = this.BoardPiecePrefab.Move(targetCell, this.OnMove, forceFailMovement);
         
         if (success)
         {
+            isMovementLocked = targetCell.Cell.Terrain == Cell.TerrainType.Fire;
             targetCell.ShakeCell();
             _movesPerForm[type]--;
             OnMovesLeftChanged?.Invoke(type, this._movesPerForm[type]);

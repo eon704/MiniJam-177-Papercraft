@@ -14,6 +14,7 @@ public class BoardPrefab : MonoBehaviour
   private Vector2Int size;
   
   public Board Board { get; private set; }
+  public bool IsSpawnAnimationComplete { get; private set; }
   
   private CellPrefab[,] cellPrefabs;
   
@@ -104,6 +105,7 @@ public class BoardPrefab : MonoBehaviour
   {
     int centerX = size.x / 2;
     int centerY = size.y / 2;
+    float longestDelay = 0f;
     
     for (int x = 0; x < size.x; x++)
     {
@@ -112,10 +114,23 @@ public class BoardPrefab : MonoBehaviour
         Cell cell = Board.CellArray[x, y];
         Vector3 cellPosition = worldGrid.GetCellCenterWorld(new Vector3Int(x, y, 0));
         int distanceFromCenter = Mathf.Abs(centerX - x) + Mathf.Abs(centerY - y);
+        float delay = distanceFromCenter * 0.1f + 0.5f;
         cellPrefabs[x, y] = Instantiate(cellPrefab, cellPosition, Quaternion.identity, transform);
-        cellPrefabs[x, y].Initialize(cell, player, distanceFromCenter * 0.1f + 0.5f);
+        cellPrefabs[x, y].Initialize(cell, player, delay);
+        
+        if (cell.Terrain == Cell.TerrainType.None || delay < longestDelay)
+          continue;
+        
+        longestDelay = delay;
       }
     }
+    
+    Invoke(nameof(SetAnimationComplete), longestDelay + 0.5f);
+  }
+  
+  private void SetAnimationComplete()
+  {
+    IsSpawnAnimationComplete = true;
   }
 
 

@@ -92,7 +92,10 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         pulseSequence.OnUpdate(() =>
         {
             if (isPointerOver)
-                fill.color = isValid ? validMoveColor : invalidMoveColor;
+            {
+                bool isPlayerOnCell = !Cell.IsFree;
+                fill.color = isPlayerOnCell ? Color.white : isValid ? validMoveColor : invalidMoveColor;
+            }
         });
 
         return pulseSequence;
@@ -108,7 +111,10 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     {
         pulseSequence?.Pause();
         isPointerOver = true;
-        fill.color = isValid ? validMoveColor : invalidMoveColor;
+
+        bool isPlayerOnCell = !Cell.IsFree;
+        fill.color = isPlayerOnCell ? Color.white : isValid ? validMoveColor : invalidMoveColor;
+        
         GlobalSoundManager.PlayRandomSoundByType(SoundType.Click, 0.1f);
         transform.DOScale(1.05f, 0.2f).SetEase(Ease.OutQuad);
     }
