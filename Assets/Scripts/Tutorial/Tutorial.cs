@@ -11,34 +11,39 @@ public class Tutorial : MonoBehaviour
     private bool _tutorialStarted = false; // Flag to track if the tutorial has started
     private bool _tutorialEnabled = true; // Flag to track if the tutorial is enabled
 
-    public GameObject[] tutorialSteps;
+    public CanvasGroup[] tutorialSteps;
     public int[] clicksPerStep; // Array to store the number of clicks required for each step
     public float fadeDuration = 6f; // Duration of the fade animation
     public float delay = 2f; // Delay before starting the tutorial
 
     private void Awake()
     {
-        foreach (var t in tutorialSteps)
+        foreach (var canvasGroup in tutorialSteps)
         {
-            var canvasGroup = t.GetComponent<CanvasGroup>();
-            if (canvasGroup == null)
-            {
-                canvasGroup = t.AddComponent<CanvasGroup>();
-            }
             canvasGroup.alpha = 0;
         }
     }
 
     private void Start()
     {
-        StartCoroutine(StartTutorialWithDelay(delay)); // Start the tutorial with a delay
+        StartCoroutine(StartTutorialWithDelay(delay));
     }
 
     private void Update()
     {
-        if (_tutorialStarted && _tutorialEnabled && Input.GetMouseButtonDown(0)) // Detect left mouse button click
+        bool isClickedMouse = Input.GetMouseButtonDown(0);
+        bool isClickedTap = (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began);
+        if (_tutorialStarted && _tutorialEnabled && (isClickedMouse || isClickedTap))
         {
             CompleteStep();
+        }
+    }
+
+    private void OnDestroy()
+    {
+        foreach (var step in tutorialSteps)
+        {
+            step.gameObject.transform.DOKill();
         }
     }
 
@@ -50,7 +55,6 @@ public class Tutorial : MonoBehaviour
 
     public void StartTutorial()
     {
-        Debug.Log("Starting Level 1 Tutorial");
         _tutorialStarted = true; // Set the flag to true when the tutorial starts
         FadeIn(tutorialSteps[_currentStep]); // Activate the first step with fade-in
     }
@@ -63,24 +67,26 @@ public class Tutorial : MonoBehaviour
             if (_clickCount >= clicksPerStep[_currentStep])
             {
                 _clickCount = 0;
+                FadeOut(tutorialSteps[_currentStep]); // Fade-out the current step
                 _currentStep++;
                 if (_currentStep < tutorialSteps.Length)
                 {
                     FadeIn(tutorialSteps[_currentStep]); // Fade-in the next step
                 }
-                else
-                {
-                    Debug.Log("Tutorial Completed");
-                }
             }
         }
     }
 
-    private void FadeIn(GameObject step)
+    private void FadeIn(CanvasGroup step)
     {
-        step.SetActive(true);
-        CanvasGroup canvasGroup = step.GetComponent<CanvasGroup>();
-        canvasGroup.DOFade(1, fadeDuration);
+        step.DOFade(1, fadeDuration);
+    }
+    
+    private void FadeOut(CanvasGroup step)
+    {
+        step
+            .DOFade(0, fadeDuration)
+            .OnComplete(() => step.alpha = 0);
     }
 
     public void EnableTutorial()

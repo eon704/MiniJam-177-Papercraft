@@ -19,48 +19,54 @@ MonoBehaviour:
     m_Items: []
   m_TableData:
   - m_Id: 134668861440
-    m_Localized: Choose the Crane to move.
+    m_Localized: Choose the <color=#f22e17>Crane</color> to move.
     m_Metadata:
       m_Items: []
   - m_Id: 845456588800
-    m_Localized: 'Crane moves 1 tile per turn: up, down, left, or right.'
+    m_Localized: '<color=#f22e17>Crane</color> moves 1 tile per turn: up, down, left,
+      or right.'
     m_Metadata:
       m_Items: []
   - m_Id: 848031891456
-    m_Localized: Only the Crane can step on rocks.
+    m_Localized: Only the <color=#f22e17>Crane</color> can step on rocks.
     m_Metadata:
       m_Items: []
   - m_Id: 850640748544
-    m_Localized: To win, reach the finish and collect as many stars as possible.
-      Steps per form are limited.
+    m_Localized: 'Reach the finish to complete the level!
+
+
+      Be wary, moves
+      are limited!'
     m_Metadata:
       m_Items: []
   - m_Id: 3621146312704
-    m_Localized: Use the Frog to jump over gaps and obstacles.
+    m_Localized: Use the <color=#54df82>frog</color> form to jump over gaps and obstacles
     m_Metadata:
       m_Items: []
   - m_Id: 3661449379840
-    m_Localized: 'Frog moves 1 or 2 tiles per turn: up, down, left, or right.'
+    m_Localized: '<color=#54df82>Frog</color> moves 1 or 2 tiles per turn: up, down,
+      left, or right.'
     m_Metadata:
       m_Items: []
   - m_Id: 4631688364032
-    m_Localized: Use the Airplane form if you need to move diagonally.
+    m_Localized: Use the <color=#fed001>airplane</color> form if you need to move
+      diagonally.
     m_Metadata:
       m_Items: []
   - m_Id: 4652735381504
-    m_Localized: Moves 1 tile per turn diagonally only
+    m_Localized: <color=#fed001>airplane</color> Moves 1 tile per turn only diagonally
     m_Metadata:
       m_Items: []
   - m_Id: 5840398696448
-    m_Localized: Use the Boat to cross water tiles.
+    m_Localized: Use the <color=#157cf1>boat</color> form to cross water.
     m_Metadata:
       m_Items: []
   - m_Id: 5860040622080
-    m_Localized: 'Boat moves 1 water tile per turn: up, down, left, or right.
+    m_Localized: '<color=#157cf1>boat</color> moves 1 tile per turn - up, down, left,
+      or right
 
 
-      Can
-      move on WATER only.'
+      It can move only on WATER tiles'
     m_Metadata:
       m_Items: []
   - m_Id: 6900479672320
