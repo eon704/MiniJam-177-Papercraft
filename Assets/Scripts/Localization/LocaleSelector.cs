@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
@@ -7,24 +8,40 @@ namespace Localization
 {
     public class LocaleSelector : MonoBehaviour
     {
-        [SerializeField] private Button toggleLocaleButton;
+        private enum Locale
+        {
+            English,
+            Russian,
+            Kazakh,
+            Chinese
+        }
+
+        [SerializeField] private Locale locale;
+        private Button _button;
 
         private void Start()
         {
-            var savedLocaleIndex = PlayerPrefs.GetInt("localeIndex", 0);
-            SetLocale(savedLocaleIndex);
-
-            toggleLocaleButton.onClick.AddListener(ToggleLocale);
+            _button = GetComponent<Button>();
+            _button.onClick.AddListener(SetLocale);
         }
 
-        public void SetLocale(int localeIndex)
+        private void SetLocale()
         {
-            StartCoroutine(ChangeLocaleCoroutine(localeIndex));
+            StartCoroutine(ChangeLocaleCoroutine());
         }
 
-        private IEnumerator ChangeLocaleCoroutine(int localeIndex)
+        private IEnumerator ChangeLocaleCoroutine()
         {
-            toggleLocaleButton.interactable = false;
+            _button.interactable = false;
+
+            var localeIndex = locale switch
+            {
+                Locale.English => 0,
+                Locale.Russian => 1,
+                Locale.Kazakh => 2,
+                Locale.Chinese => 3,
+                _ => 0
+            };
 
             var selectedLocale = LocalizationSettings.AvailableLocales.Locales[localeIndex];
             var operation = LocalizationSettings.InitializationOperation;
@@ -40,14 +57,7 @@ namespace Localization
                 Debug.LogError("Failed to initialize localization.");
             }
 
-            toggleLocaleButton.interactable = true;
-        }
-
-        private void ToggleLocale()
-        {
-            var currentLocaleIndex = PlayerPrefs.GetInt("localeIndex", 0);
-            var newLocaleIndex = (currentLocaleIndex + 1) % 2; // Assuming there are only 2 locales
-            SetLocale(newLocaleIndex);
+            _button.interactable = true;
         }
     }
 }  
