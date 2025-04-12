@@ -32,11 +32,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 850640748544
-    m_Localized: '"Reach the portal to complete the level!
+    m_Localized: 'Reach the portal to complete the level!
 
 
       Be wary, the moves
-      are limited!"'
+      are limited!'
     m_Metadata:
       m_Items: []
   - m_Id: 3621146312704

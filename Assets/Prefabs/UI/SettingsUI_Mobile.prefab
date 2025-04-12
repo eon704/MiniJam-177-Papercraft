@@ -754,7 +754,7 @@ MonoBehaviour:
   m_enableAutoSizing: 1
   m_fontSizeMin: 18
   m_fontSizeMax: 100
-  m_fontStyle: 0
+  m_fontStyle: 16
   m_HorizontalAlignment: 4
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -1088,7 +1088,7 @@ MonoBehaviour:
   m_enableAutoSizing: 1
   m_fontSizeMin: 18
   m_fontSizeMax: 100
-  m_fontStyle: 0
+  m_fontStyle: 16
   m_HorizontalAlignment: 4
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -2354,7 +2354,7 @@ MonoBehaviour:
   m_enableAutoSizing: 1
   m_fontSizeMin: 18
   m_fontSizeMax: 150
-  m_fontStyle: 0
+  m_fontStyle: 16
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 8192
   m_textAlignment: 65535
@@ -2630,6 +2630,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7715382223915830365, guid: b9cc6e1993f994616a660b80b2e618d9, type: 3}
+      propertyPath: m_fontStyle
+      value: 16
+      objectReference: {fileID: 0}
+    - target: {fileID: 7715382223915830365, guid: b9cc6e1993f994616a660b80b2e618d9, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 8165555135256857276, guid: 7a633e2a61ce8824aad92e440dc740ba, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2890,6 +2898,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: KZ
       objectReference: {fileID: 0}
+    - target: {fileID: 5620719959039613364, guid: b9cc6e1993f994616a660b80b2e618d9, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5894418821759164475, guid: b9cc6e1993f994616a660b80b2e618d9, type: 3}
       propertyPath: locale
       value: 2
@@ -2976,20 +2988,20 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7715382223915830365, guid: b9cc6e1993f994616a660b80b2e618d9, type: 3}
       propertyPath: m_text
-      value: "\u049A\u0430\u0437\u0430\u049B\u0448\u0430"
+      value: "\u049B\u0430\u0437\u0430\u049B\u0448\u0430"
       objectReference: {fileID: 0}
     - target: {fileID: 7715382223915830365, guid: b9cc6e1993f994616a660b80b2e618d9, type: 3}
       propertyPath: m_fontSize
-      value: 78.5
+      value: 90
       objectReference: {fileID: 0}
     - target: {fileID: 7715382223915830365, guid: b9cc6e1993f994616a660b80b2e618d9, type: 3}
       propertyPath: m_fontAsset
       value: 
-      objectReference: {fileID: 11400000, guid: deba20d49c8f2e04192292811bfaefe9, type: 2}
+      objectReference: {fileID: 11400000, guid: 7a3858d21e6eb4581b94ca4762dbb1f1, type: 2}
     - target: {fileID: 7715382223915830365, guid: b9cc6e1993f994616a660b80b2e618d9, type: 3}
       propertyPath: m_sharedMaterial
       value: 
-      objectReference: {fileID: 5939520377553397503, guid: deba20d49c8f2e04192292811bfaefe9, type: 2}
+      objectReference: {fileID: -9178756114266879201, guid: 7a3858d21e6eb4581b94ca4762dbb1f1, type: 2}
     - target: {fileID: 7715382223915830365, guid: b9cc6e1993f994616a660b80b2e618d9, type: 3}
       propertyPath: m_hasFontAssetChanged
       value: 0

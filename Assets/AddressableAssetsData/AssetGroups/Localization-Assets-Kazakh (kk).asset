@@ -10,20 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
-  m_Name: Localization-Assets-Russian (ru)
+  m_Name: Localization-Assets-Kazakh (kk)
   m_EditorClassIdentifier: 
-  m_GroupName: Localization-Assets-Russian (ru)
-  m_GUID: d940de1b0289d3648bec886e8eccb32f
+  m_GroupName: Localization-Assets-Kazakh (kk)
+  m_GUID: 48c5ce884ff84401b92e30068441bdce
   m_SerializeEntries:
-  - m_GUID: deba20d49c8f2e04192292811bfaefe9
-    m_Address: RuthlessSketch
+  - m_GUID: 7a3858d21e6eb4581b94ca4762dbb1f1
+    m_Address: 'fantasquesansmono-regular SDF '
     m_ReadOnly: 1
     m_SerializedLabels:
-    - Locale-ru
+    - Locale-kk
     FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 1
   m_Settings: {fileID: 11400000, guid: 93ba14c3a1292f44c9c67574a590a1e6, type: 2}
   m_SchemaSet:
     m_Schemas:
-    - {fileID: 11400000, guid: 145fccb2677bf48488daacdeab97c2fc, type: 2}
-    - {fileID: 11400000, guid: d46c18bdd9d284c48b8569184fc18d0d, type: 2}
+    - {fileID: 11400000, guid: e6e74ecf6626c4aebb96b018d326a84c, type: 2}
+    - {fileID: 11400000, guid: bffad78dac5e84dbfb966a929b9f05bb, type: 2}

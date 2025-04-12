@@ -62,6 +62,10 @@ MonoBehaviour:
     m_Localized: CLOSE
     m_Metadata:
       m_Items: []
+  - m_Id: 9851345375846400
+    m_Localized: LEVEL
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
