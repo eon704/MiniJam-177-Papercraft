@@ -1,18 +1,42 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Localization.Components;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 
 public class LevelIndexUI : MonoBehaviour
 {
-  [SerializeField] private TMP_Text levelIndexText;
+  private TMP_Text _levelIndexText;
+  [SerializeField] private LocalizedString localizedString;
 
+  private string levelIndex;
+  
   private void Awake()
   {
-    GetComponent<LocalizeStringEvent>().OnUpdateString.AddListener(this.UpdateText);
+    LocalizationSettings.SelectedLocaleChanged += OnLocaleChanged;
+    
+    levelIndex = LevelManager.Instance.CurrentLevelIndex.ToString("D2");
+    _levelIndexText = GetComponent<TMP_Text>();
+    localizedString.Arguments = new object[]
+    { new Dictionary<string, string> { { "index", levelIndex } } };
+    localizedString.GetLocalizedStringAsync().Completed += handle =>
+    {
+      _levelIndexText.text = handle.Result;
+    };
   }
   
-  private void UpdateText(string localizedString)
+  private void OnDestroy()
   {
-    levelIndexText.text = localizedString + ": " + LevelManager.Instance.CurrentLevelIndex.ToString("D2");
+    LocalizationSettings.SelectedLocaleChanged -= OnLocaleChanged;
+  }
+  
+  private void OnLocaleChanged(Locale newLocale)
+  {
+    localizedString.Arguments = new object[]
+    { new Dictionary<string, string> { { "index", levelIndex } } };
+    localizedString.GetLocalizedStringAsync().Completed += handle =>
+    {
+      _levelIndexText.text = handle.Result;
+    };
   }
 }

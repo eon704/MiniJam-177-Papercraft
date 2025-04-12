@@ -10418,7 +10418,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba78f96425c84ba9a1d9cd0c1db54b05, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  levelIndexText: {fileID: 5728254361898321513}
+  localizedString:
+    m_TableReference:
+      m_TableCollectionName: GUID:b44589b72f59313418e752cf0d1cc2fa
+    m_TableEntryReference:
+      m_KeyId: 9851345375846400
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  references:
+    version: 2
+    RefIds: []
 --- !u!114 &8540220032384445773
 MonoBehaviour:
   m_ObjectHideFlags: 0
