@@ -1,12 +1,18 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.Localization.Components;
 
 public class LevelIndexUI : MonoBehaviour
 {
   [SerializeField] private TMP_Text levelIndexText;
 
-  private void Start()
+  private void Awake()
   {
-    this.levelIndexText.text = $"LEVEL: " + LevelManager.Instance.CurrentLevelIndex.ToString("D2");
+    GetComponent<LocalizeStringEvent>().OnUpdateString.AddListener(this.UpdateText);
+  }
+  
+  private void UpdateText(string localizedString)
+  {
+    levelIndexText.text = localizedString + ": " + LevelManager.Instance.CurrentLevelIndex.ToString("D2");
   }
 }

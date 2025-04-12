@@ -62,15 +62,16 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 5860040622080
-    m_Localized: '"<color=#157cf1>boat</color> moves 1 tile per turn - up, down,
-      left, or right
-
-
-      It can move only on WATER tiles"'
+    m_Localized: <color=#157cf1>boat</color> moves 1 tile per turn - up, down, left,
+      or right
     m_Metadata:
       m_Items: []
   - m_Id: 6900479672320
     m_Localized: Now you know enough to start your journey
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9618159127486464
+    m_Localized: It can move only on WATER tiles
     m_Metadata:
       m_Items: []
   references:
