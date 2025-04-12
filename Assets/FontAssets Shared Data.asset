@@ -19,8 +19,8 @@ MonoBehaviour:
     m_Key: Font
     m_Metadata:
       m_Items: []
-  - m_Id: 14996216201216
-    m_Key: FontInverted
+  - m_Id: 9644593430650880
+    m_Key: Credits
     m_Metadata:
       m_Items: []
   m_Metadata:
@@ -43,9 +43,13 @@ MonoBehaviour:
           m_TableCodes:
           - en
           - ru
-        - m_KeyId: 14996216201216
+          - kk
+          - zh-Hans
+        - m_KeyId: 9644593430650880
           m_TableCodes:
           - en
+          - zh-Hans
           - ru
+          - kk
         m_TypeString: TMPro.TMP_FontAsset, Unity.TextMeshPro, Version=0.0.0.0, Culture=neutral,
           PublicKeyToken=null

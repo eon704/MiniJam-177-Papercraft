@@ -30,7 +30,7 @@ MonoBehaviour:
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-en
-    - Locale-ru
+    - Locale-zh-Hans
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: b44589b72f59313418e752cf0d1cc2fa
     m_Address: Assets/Paperbound Localization Table Shared Data.asset
@@ -41,7 +41,7 @@ MonoBehaviour:
     m_Address: RuthlessSketch
     m_ReadOnly: 1
     m_SerializedLabels:
-    - Locale-en
+    - Locale-kk
     - Locale-ru
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: f5e9396476071fe43a73040cd6b6c59a

@@ -10,20 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 97269afb30aa84742ae3f3342603618a, type: 3}
-  m_Name: FontAssets_en
+  m_Name: FontAssets_kk
   m_EditorClassIdentifier: 
   m_LocaleId:
-    m_Code: en
+    m_Code: kk
   m_SharedData: {fileID: 11400000, guid: 44a7fe0c94b58f04a913eee78f3e0bdc, type: 2}
   m_Metadata:
     m_Items: []
   m_TableData:
   - m_Id: 52519223296
-    m_Localized: 7a633e2a61ce8824aad92e440dc740ba
+    m_Localized: deba20d49c8f2e04192292811bfaefe9
     m_Metadata:
       m_Items: []
   - m_Id: 9644593430650880
-    m_Localized: 7a633e2a61ce8824aad92e440dc740ba
+    m_Localized: deba20d49c8f2e04192292811bfaefe9
     m_Metadata:
       m_Items: []
   references:
