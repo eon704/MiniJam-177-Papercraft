@@ -529,6 +529,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
+      propertyPath: forceLevelIndex
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
       propertyPath: levels.Array.data[6].Map
       value: '00000000
 
@@ -1290,8 +1294,16 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2649721928219243379, guid: 7bd2cd402091b4fc6b9585bf2edc68a7, type: 3}
+      propertyPath: m_Spacing.x
+      value: 35
+      objectReference: {fileID: 0}
+    - target: {fileID: 2649721928219243379, guid: 7bd2cd402091b4fc6b9585bf2edc68a7, type: 3}
+      propertyPath: m_Spacing.y
+      value: 60
+      objectReference: {fileID: 0}
+    - target: {fileID: 2649721928219243379, guid: 7bd2cd402091b4fc6b9585bf2edc68a7, type: 3}
       propertyPath: m_ConstraintCount
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 2833541411372275289, guid: 7bd2cd402091b4fc6b9585bf2edc68a7, type: 3}
       propertyPath: m_AnchorMax.x

@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   persistent: 1
-  forceLevelIndex: 12
+  forceLevelIndex: 15
   levels:
   - MapSize: {x: 3, y: 1}
     Map: "SoE\r\r\r\r"
@@ -166,6 +166,69 @@ MonoBehaviour:
     - State: 4
       Moves: 1
   - MapSize: {x: 5, y: 5}
+    Map: 'xyW+0
+
+      0FS0G
+
+      GSG+0
+
+      00000
+
+      00000'
+    StartMovesPerForm:
+    - State: 0
+      Moves: 0
+    - State: 1
+      Moves: 1
+    - State: 2
+      Moves: 1
+    - State: 3
+      Moves: 0
+    - State: 4
+      Moves: 4
+  - MapSize: {x: 5, y: 5}
+    Map: 'x0+00
+
+      WGFG0
+
+      +0W0y
+
+      0+F00
+
+      G0+00'
+    StartMovesPerForm:
+    - State: 0
+      Moves: 0
+    - State: 1
+      Moves: 0
+    - State: 2
+      Moves: 2
+    - State: 3
+      Moves: 0
+    - State: 4
+      Moves: 4
+  - MapSize: {x: 5, y: 5}
+    Map: 'x+++y
+
+      F0F0F
+
+      +G+G+
+
+      F0+0F
+
+      ++FG+'
+    StartMovesPerForm:
+    - State: 0
+      Moves: 0
+    - State: 1
+      Moves: 2
+    - State: 2
+      Moves: 2
+    - State: 3
+      Moves: 0
+    - State: 4
+      Moves: 3
+  - MapSize: {x: 5, y: 5}
     Map: '0x000
 
       0W+00
@@ -207,27 +270,6 @@ MonoBehaviour:
       Moves: 1
     - State: 4
       Moves: 1
-  - MapSize: {x: 5, y: 5}
-    Map: 'x+++y
-
-      F0F0F
-
-      +G+G+
-
-      F0+0F
-
-      ++FG+'
-    StartMovesPerForm:
-    - State: 0
-      Moves: 0
-    - State: 1
-      Moves: 2
-    - State: 2
-      Moves: 2
-    - State: 3
-      Moves: 0
-    - State: 4
-      Moves: 3
   - MapSize: {x: 5, y: 5}
     Map: 'xF+0S
 
@@ -275,18 +317,18 @@ MonoBehaviour:
 
       +F0S0
 
-      0W+0G
+      00G0G
 
-      WG0F+
+      0G0F+
 
-      S+0+y'
+      0+0+y'
     StartMovesPerForm:
     - State: 0
       Moves: 0
     - State: 1
       Moves: 2
     - State: 2
-      Moves: 2
+      Moves: 1
     - State: 3
       Moves: 0
     - State: 4
@@ -307,8 +349,50 @@ MonoBehaviour:
     - State: 1
       Moves: 3
     - State: 2
-      Moves: 1
+      Moves: 0
     - State: 3
       Moves: 1
     - State: 4
       Moves: 3
+  - MapSize: {x: 5, y: 5}
+    Map: 'x0S0+
+
+      +F+0W
+
+      ySG+F
+
+      G0+G0
+
+      +0F0+'
+    StartMovesPerForm:
+    - State: 0
+      Moves: 0
+    - State: 1
+      Moves: 2
+    - State: 2
+      Moves: 1
+    - State: 3
+      Moves: 0
+    - State: 4
+      Moves: 3
+  - MapSize: {x: 5, y: 5}
+    Map: 'xF000
+
+      +0S00
+
+      WGF+0
+
+      S0WGS
+
+      G0+0y'
+    StartMovesPerForm:
+    - State: 0
+      Moves: 0
+    - State: 1
+      Moves: 2
+    - State: 2
+      Moves: 2
+    - State: 3
+      Moves: 2
+    - State: 4
+      Moves: 2
