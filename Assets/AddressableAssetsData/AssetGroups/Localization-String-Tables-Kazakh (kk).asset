@@ -15,6 +15,13 @@ MonoBehaviour:
   m_GroupName: Localization-String-Tables-Kazakh (kk)
   m_GUID: 577dc596a49e94f06ba573bec5518e60
   m_SerializeEntries:
+  - m_GUID: 1420b3c3dd94345d4a2c84997392d0ac
+    m_Address: Metadata-iOS_kk
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-kk
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 8595a99895bfc4f7691658976d8876b0
     m_Address: Tutorials_kk
     m_ReadOnly: 1
