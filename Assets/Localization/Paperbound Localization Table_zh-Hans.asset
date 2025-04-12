@@ -62,11 +62,12 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 9851345375846400
-    m_Localized: "\u5173\u5361"
+    m_Localized: "\u5173\u5361 {index}"
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 7044852755617284182
   - m_Id: 9909617327857664
-    m_Localized: "\u5173\u5361 {index} \u5B8C\u6210"
+    m_Localized: "\u5173\u5361 {index}\n\u5B8C\u6210"
     m_Metadata:
       m_Items:
       - rid: 7044852755617284182
@@ -79,3 +80,4 @@ MonoBehaviour:
         m_Entries: 
         m_SharedEntries:
         - id: 9909617327857664
+        - id: 9851345375846400

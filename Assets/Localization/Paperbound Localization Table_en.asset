@@ -64,11 +64,14 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 9851345375846400
-    m_Localized: LEVEL
+    m_Localized: 'LEVEL: {index}'
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 7044852755617284180
   - m_Id: 9909617327857664
-    m_Localized: LEVEL {index} COMPLETED
+    m_Localized: 'LEVEL {index}
+
+      COMPLETED'
     m_Metadata:
       m_Items:
       - rid: 7044852755617284180
@@ -81,3 +84,4 @@ MonoBehaviour:
         m_Entries: 
         m_SharedEntries:
         - id: 9909617327857664
+        - id: 9851345375846400
