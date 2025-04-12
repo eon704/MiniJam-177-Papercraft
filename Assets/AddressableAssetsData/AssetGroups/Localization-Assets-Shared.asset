@@ -30,19 +30,17 @@ MonoBehaviour:
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-en
-    - Locale-ru
+    - Locale-zh-Hans
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9ec9855a4265745bd90cb677377ebc56
+    m_Address: Assets/Metadata-iOS Shared Data.asset
+    m_ReadOnly: 1
+    m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: b44589b72f59313418e752cf0d1cc2fa
     m_Address: Assets/Paperbound Localization Table Shared Data.asset
     m_ReadOnly: 1
     m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: deba20d49c8f2e04192292811bfaefe9
-    m_Address: RuthlessSketch
-    m_ReadOnly: 1
-    m_SerializedLabels:
-    - Locale-en
-    - Locale-ru
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: f5e9396476071fe43a73040cd6b6c59a
     m_Address: Assets/Tutorial Shared Data.asset

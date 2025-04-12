@@ -15,8 +15,20 @@ MonoBehaviour:
   m_GroupName: Localization-Locales
   m_GUID: ccc112ba2821f3147838aab670e65ba3
   m_SerializeEntries:
+  - m_GUID: 8265d7fd5282a4ae0a328a8b869856f6
+    m_Address: Chinese (Simplified) (zh-Hans)
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 98e4b63f073d1d34288dddd5a1291225
     m_Address: Russian (ru)
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b208e0a4c5ca54b50b73362aa83186ff
+    m_Address: Kazakh (kk)
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale

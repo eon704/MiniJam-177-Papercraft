@@ -11,7 +11,6 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private CanvasGroup levelsPanel;
     [SerializeField] private Image foreground;
 
-
     private void Update()
     {
         if (levelsPanel.gameObject.activeSelf != true)
@@ -81,6 +80,7 @@ public class MainMenuUI : MonoBehaviour
 
     private IEnumerator Start()
     {
+        Application.targetFrameRate = 60;
         yield return this.ForegroundFadeOut();
     }
 

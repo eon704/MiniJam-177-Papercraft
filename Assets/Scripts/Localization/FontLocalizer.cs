@@ -1,7 +1,7 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
-using UnityEngine.Localization.Tables;
 using TMPro;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
@@ -9,10 +9,11 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 public class FontLocalizer : MonoBehaviour
 {
     public TMP_Text textElement; // Reference to the TextMeshPro text element
-    public string fontKey = "Font"; // Font key in the Asset Table
+    [SerializeField] private string fontKey = "Font"; // Font key in the Asset Table
 
-    void Start()
+    private IEnumerator Start()
     {
+        yield return LocalizationSettings.InitializationOperation;
         ApplyLocalizedFont();
         LocalizationSettings.SelectedLocaleChanged += OnLocaleChanged;
     }
@@ -27,7 +28,7 @@ public class FontLocalizer : MonoBehaviour
         ApplyLocalizedFont();
     }
 
-    public void ApplyLocalizedFont()
+    private void ApplyLocalizedFont()
     {
         // Get the current locale
         Locale currentLocale = LocalizationSettings.SelectedLocale;
