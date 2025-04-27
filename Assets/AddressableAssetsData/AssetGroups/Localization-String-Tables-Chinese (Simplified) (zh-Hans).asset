@@ -20,6 +20,7 @@ MonoBehaviour:
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-zh-Hans
+    - Preload
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 925e73c20c64249ec85200b86b9ba848
     m_Address: Paperbound Localization Table_zh-Hans

@@ -105,9 +105,9 @@ MonoBehaviour:
   - MapSize: {x: 5, y: 5}
     Map: '00000
 
-      x+G+y
+      x0G0y
 
-      +G+G+
+      0G0G0
 
       00000
 
@@ -328,7 +328,7 @@ MonoBehaviour:
     - State: 1
       Moves: 2
     - State: 2
-      Moves: 1
+      Moves: 2
     - State: 3
       Moves: 0
     - State: 4

@@ -11,7 +11,7 @@ public class LevelIndexUI : MonoBehaviour
 
   private string levelIndex;
   
-  private void Awake()
+  private void Start()
   {
     LocalizationSettings.SelectedLocaleChanged += OnLocaleChanged;
     

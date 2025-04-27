@@ -257,9 +257,9 @@ MonoBehaviour:
           m_LocalVariables: []
         m_UserTrackingUsageDescription:
           m_TableReference:
-            m_TableCollectionName: GUID:9ec9855a4265745bd90cb677377ebc56
+            m_TableCollectionName: 
           m_TableEntryReference:
-            m_KeyId: 91401216000
+            m_KeyId: 0
             m_Key: 
           m_FallbackState: 0
           m_WaitForCompletion: 0

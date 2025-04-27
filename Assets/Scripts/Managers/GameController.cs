@@ -121,14 +121,6 @@ public class GameController : MonoBehaviour
         UgsManager.Instance.RecordNewLevelAttemptEvent(LevelManager.Instance.CurrentLevelIndex, attemptsCount);
     }
 
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            this.ResetMap();
-        }
-    }
-
     private void OnWin(int stars)
     {
         if (LevelManager.Instance.IsLastLevel())

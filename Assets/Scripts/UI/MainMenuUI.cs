@@ -11,24 +11,6 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private CanvasGroup levelsPanel;
     [SerializeField] private Image foreground;
 
-    private void Update()
-    {
-        if (levelsPanel.gameObject.activeSelf != true)
-        {
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                Application.Quit();
-            }
-        }
-        else
-        {
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                HideLevels();
-            }
-        }
-    }
-
     public void ShowLevels()
     {
         this.startPanel.interactable = false;

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using DG.Tweening;
 using System.Collections;
 
@@ -31,8 +32,8 @@ public class Tutorial : MonoBehaviour
 
     private void Update()
     {
-        bool isClickedMouse = Input.GetMouseButtonDown(0);
-        bool isClickedTap = (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began);
+        bool isClickedMouse = Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame;
+        bool isClickedTap = Touchscreen.current != null && Touchscreen.current.primaryTouch.press.wasPressedThisFrame;
         if (_tutorialStarted && _tutorialEnabled && (isClickedMouse || isClickedTap))
         {
             CompleteStep();

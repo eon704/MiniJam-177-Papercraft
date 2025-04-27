@@ -16,7 +16,7 @@ public class LocalizationManager : Singleton<LocalizationManager>
   {
     yield return LocalizationSettings.InitializationOperation;
 
-    var localeIndex = PlayerPrefs.GetInt("localeIndex", -1);
+    var localeIndex = PlayerPrefs.GetInt("localeIndex", 0);
     ChangeLocale(localeIndex);
   }
 
@@ -35,6 +35,7 @@ public class LocalizationManager : Singleton<LocalizationManager>
 
   private void ChangeLocale(int localeIndex)
   {
+    print("Selected locale index: " + localeIndex);
     var selectedLocale = LocalizationSettings.AvailableLocales.Locales[localeIndex];
     LocalizationSettings.SelectedLocale = selectedLocale;
     PlayerPrefs.SetInt("localeIndex", localeIndex);
