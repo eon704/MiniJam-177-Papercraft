@@ -26,7 +26,7 @@ namespace BgTools.Dialogs
 
         public static void OpenDialog(string title, string description, List<TextValidator> validatorList, Action<string> callback, EditorWindow targetWin = null)
         {
-            TextFieldDialog window = ScriptableObject.CreateInstance<TextFieldDialog>();
+            TextFieldDialog window = CreateInstance<TextFieldDialog>();
 
             window.name = "TextFieldDialog '" + title + "'";
             window.titleContent =  new GUIContent (title);
@@ -39,7 +39,7 @@ namespace BgTools.Dialogs
 
             window.CenterOnWindow(targetWin);
             window.Focus();
-            EditorWindow.FocusWindowIfItsOpen<TextFieldDialog>();
+            FocusWindowIfItsOpen<TextFieldDialog>();
         }
 
         void OnGUI()
@@ -93,7 +93,7 @@ namespace BgTools.Dialogs
             GUILayout.FlexibleSpace();
 
             if (GUILayout.Button("Cancel", GUILayout.Width(75.0f)))
-                this.Close();
+                Close();
 
             GUI.enabled = lockOkButton;
 

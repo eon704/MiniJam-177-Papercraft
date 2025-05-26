@@ -17,9 +17,13 @@ public class GameController : MonoBehaviour
     [SerializeField] private GameObject finalScreen;
     [SerializeField] private GameObject winScreen;
 
-    [Header("Testing Tools")] [Tooltip("Only works in the editor")] [SerializeField]
-    private bool enableInfiniteMoves;
-
+#if UNITY_EDITOR    
+    [Header("Testing Tools")] 
+    
+    [Tooltip("Only works in the editor")] 
+    [SerializeField] private bool enableInfiniteMoves;
+#endif
+    
     public readonly UnityEvent OnMapReset = new();
 
     private BoardPiece playerPiece;
@@ -34,26 +38,26 @@ public class GameController : MonoBehaviour
     {
         UgsManager.Instance.RecordNewLevelAttemptEvent(LevelManager.Instance.CurrentLevelIndex, attemptsCount);
         GlobalSoundManager.PlayRandomSoundByType(SoundType.Lose);
-        CellPrefab startCell = this.boardPrefab.GetStartCellPrefab();
+        CellPrefab startCell = boardPrefab.GetStartCellPrefab();
         startCell.Cell.FreePiece();
 
-        List<CellPrefab> starCells = this.boardPrefab.GetStarCellPrefabs();
+        List<CellPrefab> starCells = boardPrefab.GetStarCellPrefabs();
         starCells.ForEach(cell => cell.Cell.ReassignStar());
 
-        this.PlayerPrefab.StarAmount.Value = 0;
+        PlayerPrefab.StarAmount.Value = 0;
 
-        this.nudgeImages.ForEach(image => image.gameObject.SetActive(true));
-        this.OnMapReset?.Invoke();
+        nudgeImages.ForEach(image => image.gameObject.SetActive(true));
+        OnMapReset?.Invoke();
 
         PlayerPrefab.isMovementLocked = true;
         
         respawnSequence?.Kill();
         respawnSequence = DOTween.Sequence();
-        respawnSequence.Append(this.PlayerPrefab.transform.DOScale(0, 0.5f));
-        respawnSequence.AppendCallback(() => this.PlayerPrefab.SetDefaultState());
-        respawnSequence.AppendCallback(() => this.PlayerPrefab.BoardPiecePrefab.Teleport(startCell));
-        respawnSequence.AppendCallback(() => this.PlayerPrefab.SetTransformationLimits(this.startMovesPerForm));
-        respawnSequence.Append(this.PlayerPrefab.transform.DOScale(1f, 0.5f));
+        respawnSequence.Append(PlayerPrefab.transform.DOScale(0, 0.5f));
+        respawnSequence.AppendCallback(() => PlayerPrefab.SetDefaultState());
+        respawnSequence.AppendCallback(() => PlayerPrefab.BoardPiecePrefab.Teleport(startCell));
+        respawnSequence.AppendCallback(() => PlayerPrefab.SetTransformationLimits(startMovesPerForm));
+        respawnSequence.Append(PlayerPrefab.transform.DOScale(1f, 0.5f));
         respawnSequence.AppendCallback(() => PlayerPrefab.isMovementLocked = false);
 
         if (winScreen !=null)
@@ -81,41 +85,39 @@ public class GameController : MonoBehaviour
 
     private IEnumerator Start()
     {
-        this.startMovesPerForm = new Dictionary<Player.StateType, int>();
+        startMovesPerForm = new Dictionary<Player.StateType, int>();
         foreach (MovePerFormEntry movesPerForm in LevelManager.Instance.CurrentLevel.StartMovesPerForm)
         {
-            this.startMovesPerForm[movesPerForm.State] = movesPerForm.Moves;
+            startMovesPerForm[movesPerForm.State] = movesPerForm.Moves;
         }
 
 #if UNITY_EDITOR
-
-        if (this.enableInfiniteMoves)
+        if (enableInfiniteMoves)
         {
             foreach (Player.StateType state in Enum.GetValues(typeof(Player.StateType)))
             {
-                this.startMovesPerForm[state] = 99;
+                startMovesPerForm[state] = 99;
             }
         }
-
 #endif
 
-        this.boardPrefab.Initialize(LevelManager.Instance.CurrentLevel.Map, LevelManager.Instance.CurrentLevel.MapSize);
+        boardPrefab.Initialize(LevelManager.Instance.CurrentLevel.Map, LevelManager.Instance.CurrentLevel.MapSize);
         CellPrefab cellPrefab;
-        (this.playerPiece, cellPrefab) = this.boardPrefab.CreateNewPlayerPrefab();
+        (playerPiece, cellPrefab) = boardPrefab.CreateNewPlayerPrefab();
 
-        this.PlayerPrefab.Initialize(this.playerPiece, cellPrefab, this.boardPrefab);
-        this.PlayerPrefab.OnPlayerWon.AddListener(this.OnWin);
-        this.PlayerPrefab.OnPlayerDied.AddListener(this.ResetMap);
-        this.PlayerPrefab.OnTransformation.AddListener(_ =>
+        PlayerPrefab.Initialize(playerPiece, cellPrefab, boardPrefab);
+        PlayerPrefab.OnPlayerWon.AddListener(OnWin);
+        PlayerPrefab.OnPlayerDied.AddListener(ResetMap);
+        PlayerPrefab.OnTransformation.AddListener(_ =>
             nudgeImages.ForEach(image => image.gameObject.SetActive(false)));
-        this.PlayerPrefab.transform.localScale = Vector3.zero;
+        PlayerPrefab.transform.localScale = Vector3.zero;
         
         yield return null;
-        this.PlayerPrefab.SetTransformationLimits(this.startMovesPerForm);
-        this.nudgeImages.ForEach(image => image.gameObject.SetActive(true));
+        PlayerPrefab.SetTransformationLimits(startMovesPerForm);
+        nudgeImages.ForEach(image => image.gameObject.SetActive(true));
 
-        yield return new WaitUntil(() => this.boardPrefab.IsSpawnAnimationComplete);
-        this.PlayerPrefab.transform.DOScale(Vector3.one, 0.5f);
+        yield return new WaitUntil(() => boardPrefab.IsSpawnAnimationComplete);
+        PlayerPrefab.transform.DOScale(Vector3.one, 0.5f);
         
         yield return new WaitUntil(() => UgsManager.Instance.IsInitialized);
         UgsManager.Instance.RecordNewLevelAttemptEvent(LevelManager.Instance.CurrentLevelIndex, attemptsCount);
@@ -125,7 +127,7 @@ public class GameController : MonoBehaviour
     {
         if (LevelManager.Instance.IsLastLevel())
         {
-            this.finalScreen.SetActive(true);
+            finalScreen.SetActive(true);
         }
 
         wasLevelWon = true;

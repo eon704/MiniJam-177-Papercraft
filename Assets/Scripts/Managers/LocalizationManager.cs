@@ -35,7 +35,6 @@ public class LocalizationManager : Singleton<LocalizationManager>
 
   private void ChangeLocale(int localeIndex)
   {
-    print("Selected locale index: " + localeIndex);
     var selectedLocale = LocalizationSettings.AvailableLocales.Locales[localeIndex];
     LocalizationSettings.SelectedLocale = selectedLocale;
     PlayerPrefs.SetInt("localeIndex", localeIndex);

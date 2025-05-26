@@ -21,12 +21,12 @@ public class Observable<T> : IEquatable<Observable<T>>
 
   public T Value
   {
-    get => this.value;
+    get => value;
     set
     {
       T oldValue = this.value;
       this.value = value;
-      this.OnChanged?.Invoke(this, oldValue, value);
+      OnChanged?.Invoke(this, oldValue, value);
     }
   }
 
@@ -34,21 +34,21 @@ public class Observable<T> : IEquatable<Observable<T>>
 
   public override string ToString()
   {
-    return this.value.ToString();
+    return value.ToString();
   }
 
   public bool Equals(Observable<T> other)
   {
-    return other != null && other.value.Equals(this.value);
+    return other != null && other.value.Equals(value);
   }
 
   public override bool Equals(object other)
   {
-    return other is Observable<T> observable && observable.value.Equals(this.value);
+    return other is Observable<T> observable && observable.value.Equals(value);
   }
 
   public override int GetHashCode()
   {
-    return this.hashCode;
+    return hashCode;
   }
 }

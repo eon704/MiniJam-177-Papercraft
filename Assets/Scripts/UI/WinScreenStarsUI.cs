@@ -20,12 +20,12 @@ public class WinScreenStarsUI : MonoBehaviour
 
         for (var i = 0; i < totalStars; i++)
         {
-            var star = this.stars[i];
+            var star = stars[i];
             sequence.AppendCallback(() =>
             {
                 if (!isWindowActive) return;
                 GlobalSoundManager.PlayRandomSoundByType(SoundType.Ding);
-                star.sprite = this.fullStar;
+                star.sprite = fullStar;
                 star.transform.DOScale(Vector3.one * 1.5f, 0.5f).SetLoops(2, LoopType.Yoyo);
             });
             sequence.AppendInterval(0.5f);
@@ -36,7 +36,7 @@ public class WinScreenStarsUI : MonoBehaviour
             if (!isWindowActive) return;
             for (var i = 0; i < totalStars; i++)
             {
-                this.texts[i].enabled = true;
+                texts[i].enabled = true;
             }
         });
 
@@ -51,12 +51,12 @@ public class WinScreenStarsUI : MonoBehaviour
 
     private void Start()
     {
-        foreach (var star in this.stars)
+        foreach (var star in stars)
         {
-            star.sprite = this.emptyStar;
+            star.sprite = emptyStar;
         }
 
-        this.texts = this.stars.Select(star => star.GetComponent<TextPulsing>()).ToArray();
+        texts = stars.Select(star => star.GetComponent<TextPulsing>()).ToArray();
     }
     
     private void OnDestroy()

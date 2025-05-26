@@ -14,6 +14,6 @@ public class RotateSprite : MonoBehaviour
 
     private void OnDestroy()
     {
-        this.transform.DOKill(); // kill the tween once this object is destroyed on scene change
+        transform.DOKill(); // kill the tween once this object is destroyed on scene change
     }
 }

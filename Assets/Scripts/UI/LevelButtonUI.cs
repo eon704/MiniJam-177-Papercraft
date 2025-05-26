@@ -19,31 +19,31 @@ public class LevelButtonUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
 
     public void Initialize(int index, MainMenuUI mainMenuUI)
     {
-        this._levelNumber = index;
-        this.button.onClick.AddListener(mainMenuUI.StartGame);
+        _levelNumber = index;
+        button.onClick.AddListener(mainMenuUI.StartGame);
     }
 
     private void Start()
     {
-        this.button.onClick.AddListener(this.SetLevelIndex);
-        this.levelText.text = this._levelNumber.ToString("D2");
+        button.onClick.AddListener(SetLevelIndex);
+        levelText.text = _levelNumber.ToString("D2");
 
-        if (this._levelNumber > LevelManager.Instance.NextLevelIndex)
+        if (_levelNumber > LevelManager.Instance.NextLevelIndex)
         {
-            this.button.interactable = false;
+            button.interactable = false;
         }
 
-        var stars = LevelManager.Instance.GetLevelStars(this._levelNumber);
+        var stars = LevelManager.Instance.GetLevelStars(_levelNumber);
 
-        for (int i = 0; i < this.starImages.Count; i++)
+        for (int i = 0; i < starImages.Count; i++)
         {
-            this.starImages[i].sprite = i + 1 <= stars ? this.fullStar : this.emptyStar;
+            starImages[i].sprite = i + 1 <= stars ? fullStar : emptyStar;
         }
     }
 
     private void SetLevelIndex()
     {
-        LevelManager.Instance.SetCurrentLevel(this._levelNumber);
+        LevelManager.Instance.SetCurrentLevel(_levelNumber);
     }
 
     public void OnPointerEnter(PointerEventData eventData)

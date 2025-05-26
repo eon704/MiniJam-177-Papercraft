@@ -51,7 +51,7 @@ public class StateCardUI : MonoBehaviour
     
     private void OnMove(Player.StateType moveStateType, int transformationsLeft)
     {
-        if (moveStateType != this.stateType) 
+        if (moveStateType != stateType) 
             return;
         
         movesText.text = transformationsLeft.ToString("D2");

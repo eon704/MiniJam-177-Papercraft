@@ -52,7 +52,7 @@ namespace Crystal
         ///  LandscapeR x=132, y=63, w=2172, h=1062 on full extents w=2436, h=1125.
         ///  Aspect Ratio: ~19.5:9.
         /// </summary>
-        Rect[] NSA_iPhoneX = new Rect[]
+        Rect[] NSA_iPhoneX = new[]
         {
             new Rect (0f, 102f / 2436f, 1f, 2202f / 2436f),  // Portrait
             new Rect (132f / 2436f, 63f / 1125f, 2172f / 2436f, 1062f / 1125f)  // Landscape
@@ -66,7 +66,7 @@ namespace Crystal
         ///  LandscapeR x=132, y=63, w=2424, h=1179 on full extents w=2688, h=1242.
         ///  Aspect Ratio: ~19.5:9.
         /// </summary>
-        Rect[] NSA_iPhoneXsMax = new Rect[]
+        Rect[] NSA_iPhoneXsMax = new[]
         {
             new Rect (0f, 102f / 2688f, 1f, 2454f / 2688f),  // Portrait
             new Rect (132f / 2688f, 63f / 1242f, 2424f / 2688f, 1179f / 1242f)  // Landscape
@@ -80,7 +80,7 @@ namespace Crystal
         ///  LandscapeR x=0, y=0, w=2789, h=1440 on full extents w=2960, h=1440.
         ///  Aspect Ratio: 18.5:9.
         /// </summary>
-        Rect[] NSA_Pixel3XL_LSL = new Rect[]
+        Rect[] NSA_Pixel3XL_LSL = new[]
         {
             new Rect (0f, 0f, 1f, 2789f / 2960f),  // Portrait
             new Rect (0f, 0f, 2789f / 2960f, 1f)  // Landscape
@@ -89,7 +89,7 @@ namespace Crystal
         /// <summary>
         /// Normalised safe areas for Pixel 3 XL using landscape right. Absolute values and aspect ratio same as above.
         /// </summary>
-        Rect[] NSA_Pixel3XL_LSR = new Rect[]
+        Rect[] NSA_Pixel3XL_LSR = new[]
         {
             new Rect (0f, 0f, 1f, 2789f / 2960f),  // Portrait
             new Rect (171f / 2960f, 0f, 2789f / 2960f, 1f)  // Landscape

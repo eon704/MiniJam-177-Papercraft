@@ -10,8 +10,8 @@ public class LevelButtonsGridUI : MonoBehaviour
     // Level 0 is the debug level, skip
     for (int i = 1; i < LevelManager.Instance.LevelsCount; i++)
     {
-      LevelButtonUI levelButton = Instantiate(this.levelButtonPrefab, this.transform);
-      levelButton.Initialize(i, this.mainMenuUI);
+      LevelButtonUI levelButton = Instantiate(levelButtonPrefab, transform);
+      levelButton.Initialize(i, mainMenuUI);
     }
   }
 }

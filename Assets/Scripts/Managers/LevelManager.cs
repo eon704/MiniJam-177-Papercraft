@@ -11,7 +11,7 @@ public class LevelManager : Singleton<LevelManager>
   [SerializeField] private List<LevelData> levels;
   public int NextLevelIndex { get; private set; }
 
-  public int LevelsCount => this.levels.Count;
+  public int LevelsCount => levels.Count;
   
   /// <summary>
   /// Playables indexes range: [1, LevelsCount - 1].<br/>
@@ -23,10 +23,10 @@ public class LevelManager : Singleton<LevelManager>
   {
     get
     {
-      if (this.CurrentLevelIndex >= this.levels.Count)
-        return this.levels[this.levels.Count - 1];
+      if (CurrentLevelIndex >= levels.Count)
+        return levels[levels.Count - 1];
       
-      return this.CurrentLevelIndex > 0 ? this.levels[this.CurrentLevelIndex] : LevelData.DefaultLevel;
+      return CurrentLevelIndex > 0 ? levels[CurrentLevelIndex] : LevelData.DefaultLevel;
     }
   }
 
@@ -36,37 +36,37 @@ public class LevelManager : Singleton<LevelManager>
     
     if (Instance == this)
     {
-      this.NextLevelIndex = PlayerPrefs.GetInt("NextLevelIndex", 1);
-      this.CurrentLevelIndex = this.NextLevelIndex;
+      NextLevelIndex = PlayerPrefs.GetInt("NextLevelIndex", 1);
+      CurrentLevelIndex = NextLevelIndex;
       
       #if UNITY_EDITOR
-      if (this.forceLevelIndex >= 0)
+      if (forceLevelIndex >= 0)
       {
-        this.CurrentLevelIndex = this.forceLevelIndex;
+        CurrentLevelIndex = forceLevelIndex;
       }
       #endif
         
-      DontDestroyOnLoad(this.gameObject);
+      DontDestroyOnLoad(gameObject);
     }
     else
     {
-      Destroy(this.gameObject); 
+      Destroy(gameObject); 
     }
   }
 
   public bool IsLastLevel()
   {
-    return this.CurrentLevelIndex == this.levels.Count - 1;
+    return CurrentLevelIndex == levels.Count - 1;
   }
 
   public void SetCurrentLevel(int index)
   {
-    this.CurrentLevelIndex = Mathf.Clamp(index, 1, this.levels.Count - 1);
+    CurrentLevelIndex = Mathf.Clamp(index, 1, levels.Count - 1);
   }
 
   public void PrepareNextLevel()
   {
-    this.SetCurrentLevel(this.CurrentLevelIndex + 1);
+    SetCurrentLevel(CurrentLevelIndex + 1);
   }
 
   public int GetLevelStars(int levelIndex)
@@ -77,17 +77,17 @@ public class LevelManager : Singleton<LevelManager>
 
   public void SetCurrentLevelComplete(int stars)
   {
-    string key = "level" + LevelManager.Instance.CurrentLevelIndex + "_stars";
+    string key = "level" + Instance.CurrentLevelIndex + "_stars";
     int bestStars = PlayerPrefs.GetInt(key, 0);
     if (stars > bestStars)
     {
       PlayerPrefs.SetInt(key, stars);
     }
     
-    if (this.CurrentLevelIndex + 1 <= this.NextLevelIndex)
+    if (CurrentLevelIndex + 1 <= NextLevelIndex)
       return;
     
-    this.NextLevelIndex = this.CurrentLevelIndex + 1;
-    PlayerPrefs.SetInt("NextLevelIndex", this.NextLevelIndex);
+    NextLevelIndex = CurrentLevelIndex + 1;
+    PlayerPrefs.SetInt("NextLevelIndex", NextLevelIndex);
   }
 }
