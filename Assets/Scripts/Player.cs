@@ -201,6 +201,8 @@ public class Player : MonoBehaviour
         if (isMovementLocked)
             return;
         
+        BoardPiecePrefab.CancelMove();
+        
         IState currentState = (_stateMachine.CurrentState as IState)!; 
         StateType type = currentState.StateType;
         bool forceFailMovement = _movesPerForm[type] <= 0;
@@ -211,7 +213,6 @@ public class Player : MonoBehaviour
             isMovementLocked = targetCell.Cell.Terrain == Cell.TerrainType.Fire;
             targetCell.ShakeCell();
             _movesPerForm[type]--;
-            AddHistoryRecord();
             OnMovesLeftChanged?.Invoke(type, _movesPerForm[type]);
             
             if (_movesPerForm[type] <= 0)
@@ -230,6 +231,9 @@ public class Player : MonoBehaviour
         if (!lastRecord.HasValue)
             return;
 
+        BoardPiecePrefab.CancelMove();
+        BoardPiecePrefab.BoardPiece.OccupiedCell.Value.FreePiece();
+        
         Vector2Int playerPosition = lastRecord.Value.PlayerPosition;
         StateType playerState = lastRecord.Value.PlayerState;
         List<Vector2Int> starsRemaining = lastRecord.Value.StarsRemaining;
@@ -337,5 +341,7 @@ public class Player : MonoBehaviour
         {
             OnPlayerDied?.Invoke();
         }
+        
+        AddHistoryRecord();
     }
 }

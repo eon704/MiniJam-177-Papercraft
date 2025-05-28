@@ -9,8 +9,6 @@ public class BoardPiecePrefab : MonoBehaviour
   public CellPrefab CurrentCell { get; private set; }
   
   private BoardPrefab boardPrefab;
-
-  private Tween _moveTween; 
     
   public void Initialize(BoardPiece boardPieceData, CellPrefab startCell, BoardPrefab initBoardPrefab)
   {
@@ -39,6 +37,11 @@ public class BoardPiecePrefab : MonoBehaviour
     
     return moveOptionCellPrefabs;
   }
+  
+  public void CancelMove()
+  {
+    transform.DOKill();
+  }
 
   public bool Move(CellPrefab targetCell, UnityAction onComplete = null, bool forceFailMovement = false)
   {
@@ -55,14 +58,14 @@ public class BoardPiecePrefab : MonoBehaviour
         targetCell.transform.position
       };
 
-      _moveTween = transform
+      transform
         .DOPath(path, 0.5f, PathType.CatmullRom)
         .SetEase(Ease.InOutQuad)
         .OnKill(() => onComplete?.Invoke());
     }
     else
     {
-      _moveTween = transform
+      transform
         .DOShakePosition(0.5f, 0.3f)
         .OnKill(() => onComplete?.Invoke());
     }
