@@ -47,6 +47,7 @@ public class GameController : MonoBehaviour
         PlayerPrefab.StarAmount.Value = 0;
 
         nudgeImages.ForEach(image => image.gameObject.SetActive(true));
+        boardPrefab.Board.BoardHistory.Reset();
         OnMapReset?.Invoke();
 
         PlayerPrefab.isMovementLocked = true;

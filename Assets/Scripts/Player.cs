@@ -114,6 +114,25 @@ public class Player : MonoBehaviour
             _ => throw new ArgumentOutOfRangeException(nameof(stateType), stateType, null)
         };
     }
+    
+    private StateType GetStateType(IState state)
+    {
+        switch (state)
+        {
+            case DefaultState:
+                return StateType.Default;
+            case CraneState:
+                return StateType.Crane;
+            case PlaneState:
+                return StateType.Plane;
+            case BoatState:
+                return StateType.Boat;
+            case FrogState:
+                return StateType.Frog;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(state), state, null);
+        }
+    }
 
     private void PulseReachableCells()
     {
@@ -154,31 +173,26 @@ public class Player : MonoBehaviour
     // ReSharper disable Unity.PerformanceAnalysis
     public void SetDefaultState()
     {
-        OnTransformation?.Invoke(StateType.Default);
         SetState(_defaultState);
     }
 
     public void SetCraneState()
     {
-        OnTransformation?.Invoke(StateType.Crane);
         SetState(_craneState);
     }
 
     public void SerFrogState()
     {
-        OnTransformation?.Invoke(StateType.Frog);
         SetState(_frogState);
     }
 
     public void SetPlaneState()
     {
-        OnTransformation?.Invoke(StateType.Plane);
         SetState(_planeState);
     }
 
     public void SetBoatState()
     {
-        OnTransformation?.Invoke(StateType.Boat);
         SetState(_boatState);
     }
 
@@ -219,6 +233,12 @@ public class Player : MonoBehaviour
         Vector2Int playerPosition = lastRecord.Value.PlayerPosition;
         StateType playerState = lastRecord.Value.PlayerState;
         List<Vector2Int> starsRemaining = lastRecord.Value.StarsRemaining;
+        
+        _movesPerForm = new Dictionary<StateType, int>(lastRecord.Value.MovesPerForm);
+        foreach (var kvp in _movesPerForm)
+        {
+            OnMovesLeftChanged?.Invoke(kvp.Key, kvp.Value);
+        }
 
         BoardPiecePrefab.Teleport(_boardPrefab.GetCellPrefab(playerPosition), tweenMovement: true);
         SetState(GetState(playerState));
@@ -242,8 +262,13 @@ public class Player : MonoBehaviour
                 starsRemaining.Add(cell.Position);
             }
         }
-        
-        _boardPrefab.Board.BoardHistory.AddRecord(playerPosition, playerState, starsRemaining);
+
+        _boardPrefab.Board.BoardHistory.AddRecord(
+            playerPosition,
+            playerState,
+            starsRemaining,
+            new Dictionary<StateType, int>(_movesPerForm)
+        );
     }
 
     private void Update()
@@ -265,6 +290,8 @@ public class Player : MonoBehaviour
         GlobalSoundManager.PlayRandomSoundByType(SoundType.ChangeState);
         _stateMachine.SetState(state);
         BoardPiecePrefab.BoardPiece.SetState(state);
+        OnTransformation?.Invoke(GetStateType(state));
+        
         ResetPulse();
         PulseReachableCells();
     }
