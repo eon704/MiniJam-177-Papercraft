@@ -16,6 +16,7 @@ public class GameController : MonoBehaviour
     [SerializeField] private List<PulseImage> nudgeImages;
     [SerializeField] private GameObject finalScreen;
     [SerializeField] private GameObject winScreen;
+    [SerializeField] private GameObject cameraObject;
 
 #if UNITY_EDITOR    
     [Header("Testing Tools")] 
@@ -112,6 +113,8 @@ public class GameController : MonoBehaviour
         PlayerPrefab.OnTransformation.AddListener(_ =>
             nudgeImages.ForEach(image => image.gameObject.SetActive(false)));
         PlayerPrefab.transform.localScale = Vector3.zero;
+
+        cameraObject.transform.position = boardPrefab.WorldCenter;
         
         yield return null;
         PlayerPrefab.SetTransformationLimits(startMovesPerForm);

@@ -12,6 +12,8 @@ public class BoardPrefab : MonoBehaviour
   private Grid worldGrid;
   private string map;
   private Vector2Int size;
+
+  public Vector3 WorldCenter { get; private set; }
   
   public Board Board { get; private set; }
   public bool IsSpawnAnimationComplete { get; private set; }
@@ -27,6 +29,7 @@ public class BoardPrefab : MonoBehaviour
     
     InstantiateBoard();
     UpdateBorder();
+    ComputeBoardCenterPosition();
   }
   
   public List<CellPrefab> GetCellPrefabs(List<Cell> cells)
@@ -148,5 +151,37 @@ public class BoardPrefab : MonoBehaviour
       borderPosition.y -= worldGrid.cellSize.y / 2;
 
     boardBorder.position = borderPosition;
+  }
+
+  private void ComputeBoardCenterPosition()
+  {
+    bool isOddX = size.x % 2 != 0;
+    bool isOddY = size.y % 2 != 0;
+
+    float xPos;
+    if (isOddX)
+    {
+      xPos = worldGrid.GetCellCenterWorld(new Vector3Int(size.x / 2, 0, 0)).x;  
+    }
+    else
+    {
+      float x1 = worldGrid.GetCellCenterWorld(new Vector3Int(size.x / 2 - 1, 0, 0)).x;
+      float x2 = worldGrid.GetCellCenterWorld(new Vector3Int(size.x / 2, 0, 0)).x;
+      xPos = (x1 + x2) / 2;
+    }
+    
+    float yPos;
+    if (isOddY)
+    {
+      yPos = worldGrid.GetCellCenterWorld(new Vector3Int(0, size.y / 2, 0)).y;  
+    }
+    else
+    {
+      float y1 = worldGrid.GetCellCenterWorld(new Vector3Int(0, size.y / 2 - 1, 0)).y;
+      float y2 = worldGrid.GetCellCenterWorld(new Vector3Int(0, size.y / 2, 0)).y;
+      yPos = (y1 + y2) / 2;
+    }
+    
+    WorldCenter = new Vector3(xPos, yPos, -10);
   }
 }
