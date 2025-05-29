@@ -45,7 +45,6 @@ public class BoardPiecePrefab : MonoBehaviour
 
   public bool Move(CellPrefab targetCell, UnityAction onComplete = null, bool forceFailMovement = false)
   {
-    //transform.DOComplete(true);
     transform.DOKill();
     bool success = !forceFailMovement && BoardPiece.MoveTo(targetCell.Cell);
 

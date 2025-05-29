@@ -38,6 +38,8 @@ public class Player : MonoBehaviour
     private IState _planeState;
     private IState _boatState;
     private IState _frogState;
+
+    private const int TotalStars = 3;
     
     private Sequence _pulseSequence;
     public bool isMovementLocked;
@@ -62,6 +64,7 @@ public class Player : MonoBehaviour
         _boardPrefab = boardPrefab;
         BoardPiecePrefab.Initialize(boardPiece, startCell, boardPrefab);
         BoardPiecePrefab.BoardPiece.OccupiedCell.OnChanged += OnPlayerMoved;
+        BoardPiecePrefab.BoardPiece.OnCollectedStar += OnCollectStar;
     }
 
     public void SetTransformationLimits(Dictionary<StateType, int> startingMoves)
@@ -219,6 +222,8 @@ public class Player : MonoBehaviour
             {
                 OnOutOfMoves();
             }
+            
+            AddHistoryRecord();
         }
     }
     
@@ -251,6 +256,8 @@ public class Player : MonoBehaviour
         {
             _boardPrefab.GetCellPrefab(cell).Cell.ReassignStar();
         }
+        
+        StarAmount.Value = TotalStars - starsRemaining.Count;
     }
     
     private void AddHistoryRecord()
@@ -323,17 +330,14 @@ public class Player : MonoBehaviour
         _pulseSequence.Play();
     }
 
+    private void OnCollectStar()
+    {
+        StarAmount.Value += 1;
+    }
+
     private void OnMove()
     {
         Cell targetCell = BoardPiecePrefab.CurrentCell.Cell;
-
-        if (targetCell.Item == Cell.CellItem.Star)
-        {
-            targetCell.CollectStar();
-            GlobalSoundManager.PlayRandomSoundByType(SoundType.Ding,1f);
-            StarAmount.Value += 1;
-        }
-        
         if (targetCell.Terrain == Cell.TerrainType.End)
         {
             OnPlayerWon?.Invoke(StarAmount);
@@ -341,7 +345,5 @@ public class Player : MonoBehaviour
         {
             OnPlayerDied?.Invoke();
         }
-        
-        AddHistoryRecord();
     }
 }

@@ -54,15 +54,19 @@ public class Cell
 
     public void CollectStar()
     {
-        if (Item.Value == CellItem.Star)
-        {
-            Item.Value = CellItem.None;
-        }
+        Item.Value = CellItem.None;
+        GlobalSoundManager.PlayRandomSoundByType(SoundType.Ding,1f);
+        Piece?.OnCollectedStar?.Invoke();
     }
     
     public void AssignPiece(BoardPiece piece)
     {
         Piece = piece;
+
+        if (Item.Value == CellItem.Star)
+        {
+            CollectStar();
+        }
     }
 
     public static int Distance(Cell cell1, Cell cell2)

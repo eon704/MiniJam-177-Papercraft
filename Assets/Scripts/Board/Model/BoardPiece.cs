@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,6 +10,8 @@ public class BoardPiece
   private List<Vector2Int> moveOptions = new();
 
   private List<Cell.TerrainType> moveTerrain = new();
+  
+  public Action OnCollectedStar;
   
   public BoardPiece(Board board, Cell startCell)
   {

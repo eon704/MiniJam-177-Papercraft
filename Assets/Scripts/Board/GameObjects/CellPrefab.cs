@@ -33,6 +33,9 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     private Sequence pulseSequence;
     private Sequence rippleSequence;
+    
+    private Tween starGrowTween;
+    private Tween starShrinkTween;
 
     public void Initialize(Cell cellData, Player newPlayer, float delay)
     {
@@ -145,14 +148,15 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     {
         if (oldValue == Cell.CellItem.Star && newValue == Cell.CellItem.None)
         {
-            star.transform
-                .DOScale(Vector3.zero, 0.5f)
+            starGrowTween?.Kill();
+            starShrinkTween = star.transform.DOScale(Vector3.zero, 0.5f)
                 .OnComplete(() => star.SetActive(false));
         }
         else if (oldValue == Cell.CellItem.None && newValue == Cell.CellItem.Star)
         {
             star.SetActive(true);
-            star.transform.DOScale(Vector3.one * starDefaultScale, 0.5f);
+            starShrinkTween?.Kill();
+            starGrowTween = star.transform.DOScale(Vector3.one * starDefaultScale, 0.5f);
         }
     }
 
