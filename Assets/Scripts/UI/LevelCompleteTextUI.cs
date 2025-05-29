@@ -8,7 +8,7 @@ public class LevelCompleteTextUI : MonoBehaviour
   private TMP_Text _levelIndexText;
   [SerializeField] private LocalizedString localizedString;
 
-  private void Awake()
+  private void OnEnable()
   {
     _levelIndexText = GetComponent<TMP_Text>();
     localizedString.Arguments = new object[]
