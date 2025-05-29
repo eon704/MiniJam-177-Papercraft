@@ -1422,7 +1422,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sfxVolumeSlider: {fileID: 8600130001319529240}
   soundtrackVolumeSlider: {fileID: 8379997599623435464}
-  settingsPanel: {fileID: 0}
 --- !u!1 &7421203879873243176
 GameObject:
   m_ObjectHideFlags: 0

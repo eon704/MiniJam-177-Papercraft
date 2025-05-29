@@ -95,6 +95,7 @@ public class Player : MonoBehaviour
     {
         yield return null;
         SetDefaultState();
+        yield return null;
         AddHistoryRecord();
     }
 
@@ -285,10 +286,6 @@ public class Player : MonoBehaviour
     private void Update()
     {
         _stateMachine.Tick();
-        if (Keyboard.current.uKey.wasPressedThisFrame)
-        {
-            UndoMove();
-        }
     }
 
     private void OnDisable()

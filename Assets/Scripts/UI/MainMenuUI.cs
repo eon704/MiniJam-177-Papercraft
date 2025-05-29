@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -11,12 +13,13 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private CanvasGroup levelsPanel;
     [SerializeField] private Image foreground;
 
+    private float startPosY;
+    
     public void ShowLevels()
     {
         startPanel.interactable = false;
 
         var sequence = DOTween.Sequence();
-        //sequence.Append(title.DOScale(0.2f, 0.5f).SetEase(Ease.InOutCubic));
         sequence.Append(title.DOAnchorPosY(-250, 0.5f).SetEase(Ease.InOutCubic));
         sequence.Join(startPanel.DOFade(0, 0.2f).SetEase(Ease.InOutCubic));
 
@@ -38,9 +41,9 @@ public class MainMenuUI : MonoBehaviour
         levelsPanel.interactable = false;
 
         var sequence = DOTween.Sequence();
-        sequence.Append(levelsPanel.DOFade(-250, 0.3f).SetEase(Ease.InOutCubic));
+        sequence.Append(levelsPanel.DOFade(0, 0.3f).SetEase(Ease.InOutCubic));
         sequence.Append(title.DOScale(0.4f, 0.3f).SetEase(Ease.InOutCubic));
-        sequence.Join(title.DOAnchorPosY(100, 0.3f).SetEase(Ease.InOutCubic));
+        sequence.Join(title.DOAnchorPosY(startPosY, 0.3f).SetEase(Ease.InOutCubic));
       
         sequence.AppendCallback(() =>
         {
@@ -62,6 +65,7 @@ public class MainMenuUI : MonoBehaviour
 
     private IEnumerator Start()
     {
+        startPosY = title.anchoredPosition.y;
         Application.targetFrameRate = 60;
         yield return ForegroundFadeOut();
     }
