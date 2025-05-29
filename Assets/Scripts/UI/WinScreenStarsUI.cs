@@ -11,27 +11,29 @@ public class WinScreenStarsUI : MonoBehaviour
 
     private TextPulsing[] texts;
     private bool isWindowActive;
+    
+    Sequence initialStarSequence;
 
     public void AnimateStars(int totalStars)
     {
         isWindowActive = true;
-        var sequence = DOTween.Sequence();
-        sequence.AppendInterval(1f);
+        initialStarSequence = DOTween.Sequence();
+        initialStarSequence.AppendInterval(1f);
 
         for (var i = 0; i < totalStars; i++)
         {
             var star = stars[i];
-            sequence.AppendCallback(() =>
+            initialStarSequence.AppendCallback(() =>
             {
                 if (!isWindowActive) return;
                 GlobalSoundManager.PlayRandomSoundByType(SoundType.Ding);
                 star.sprite = fullStar;
-                star.transform.DOScale(Vector3.one * 1.5f, 0.5f).SetLoops(2, LoopType.Yoyo);
+                star.transform.DOScale(Vector3.one * 1.25f, 0.25f).SetLoops(2, LoopType.Yoyo);
             });
-            sequence.AppendInterval(0.5f);
+            initialStarSequence.AppendInterval(0.25f);
         }
 
-        sequence.OnComplete(() =>
+        initialStarSequence.OnComplete(() =>
         {
             if (!isWindowActive) return;
             for (var i = 0; i < totalStars; i++)
@@ -40,13 +42,12 @@ public class WinScreenStarsUI : MonoBehaviour
             }
         });
 
-        sequence.Play();
+        initialStarSequence.Play();
     }
 
     public void CloseWindow()
     {
         isWindowActive = false;
-        // Additional logic to close the window
     }
 
     private void Start()
@@ -61,6 +62,11 @@ public class WinScreenStarsUI : MonoBehaviour
     
     private void OnDestroy()
     {
-        DOTween.Kill(this);
+        initialStarSequence?.Kill();
+        
+        foreach (var star in stars)
+        {
+            star.DOKill();
+        }
     }
 }
