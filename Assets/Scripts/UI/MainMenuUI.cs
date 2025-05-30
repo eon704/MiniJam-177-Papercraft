@@ -18,7 +18,7 @@ public class MainMenuUI : MonoBehaviour
         startPanel.interactable = false;
 
         var sequence = DOTween.Sequence();
-        sequence.Append(title.DOAnchorPosY(-250, 0.5f).SetEase(Ease.InOutCubic));
+        sequence.Append(title.DOAnchorPosY(-165, 0.5f).SetEase(Ease.InOutCubic));
         sequence.Join(startPanel.DOFade(0, 0.2f).SetEase(Ease.InOutCubic));
 
         sequence.AppendCallback(() =>
