@@ -16,7 +16,7 @@ public class GameController : MonoBehaviour
     [SerializeField] private List<PulseImage> nudgeImages;
     [SerializeField] private GameObject finalScreen;
     [SerializeField] private GameObject winScreen;
-    [SerializeField] private GameObject cameraObject;
+    [SerializeField] private Camera cameraObject;
 
 #if UNITY_EDITOR    
     [Header("Testing Tools")] 
@@ -115,6 +115,13 @@ public class GameController : MonoBehaviour
         PlayerPrefab.transform.localScale = Vector3.zero;
 
         cameraObject.transform.position = boardPrefab.WorldCenter;
+        cameraObject.orthographicSize = boardPrefab.Size.x switch
+        {
+            <= 6 => 10f,
+            7 => 12f,
+            8 => 13.5f,
+            _ => throw new ArgumentOutOfRangeException()
+        };
         
         yield return null;
         PlayerPrefab.SetTransformationLimits(startMovesPerForm);

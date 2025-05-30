@@ -11,8 +11,7 @@ public class BoardPrefab : MonoBehaviour
   
   private Grid worldGrid;
   private string map;
-  private Vector2Int size;
-
+  public Vector2Int Size { get; private set; }
   public Vector3 WorldCenter { get; private set; }
   
   public Board Board { get; private set; }
@@ -23,9 +22,9 @@ public class BoardPrefab : MonoBehaviour
   public void Initialize(string newMap, Vector2Int newSize)
   {
     map = newMap;
-    size = newSize;
-    Board = new Board(size, ParseMap());
-    cellPrefabs = new CellPrefab[size.x, size.y];
+    Size = newSize;
+    Board = new Board(Size, ParseMap());
+    cellPrefabs = new CellPrefab[Size.x, Size.y];
     
     InstantiateBoard();
     UpdateBorder();
@@ -79,8 +78,8 @@ public class BoardPrefab : MonoBehaviour
     // Normalize newlines to '\n'
     map = map.Replace("\r\n", "\n");
     
-    char[,] parsedMap = new char[size.x, size.y];
-    int rowLength = size.x + 1;
+    char[,] parsedMap = new char[Size.x, Size.y];
+    int rowLength = Size.x + 1;
     for (int i = 0; i < map.Length; i++)
     {
       char key = map[i];
@@ -93,11 +92,11 @@ public class BoardPrefab : MonoBehaviour
     }
     
     // Y-flip the map
-    for (int x = 0; x < size.x; x++)
+    for (int x = 0; x < Size.x; x++)
     {
-      for (int y = 0; y < size.y / 2; y++)
+      for (int y = 0; y < Size.y / 2; y++)
       {
-        (parsedMap[x, y], parsedMap[x, size.y - y - 1]) = (parsedMap[x, size.y - y - 1], parsedMap[x, y]);
+        (parsedMap[x, y], parsedMap[x, Size.y - y - 1]) = (parsedMap[x, Size.y - y - 1], parsedMap[x, y]);
       }
     }
 
@@ -106,13 +105,13 @@ public class BoardPrefab : MonoBehaviour
 
   private void InstantiateBoard()
   {
-    int centerX = size.x / 2;
-    int centerY = size.y / 2;
+    int centerX = Size.x / 2;
+    int centerY = Size.y / 2;
     float longestDelay = 0f;
     
-    for (int x = 0; x < size.x; x++)
+    for (int x = 0; x < Size.x; x++)
     {
-      for (int y = 0; y < size.y; y++)
+      for (int y = 0; y < Size.y; y++)
       {
         Cell cell = Board.CellArray[x, y];
         Vector3 cellPosition = worldGrid.GetCellCenterWorld(new Vector3Int(x, y, 0));
@@ -140,14 +139,14 @@ public class BoardPrefab : MonoBehaviour
   private void UpdateBorder()
   {
     boardBorder.gameObject.SetActive(true);
-    boardBorder.localScale = new Vector3(size.x + 0.1f, size.y + 0.1f, 1);
+    boardBorder.localScale = new Vector3(Size.x + 0.1f, Size.y + 0.1f, 1);
     
-    Vector3 borderPosition = worldGrid.GetCellCenterWorld(new Vector3Int(size.x / 2, size.y / 2, 0));
+    Vector3 borderPosition = worldGrid.GetCellCenterWorld(new Vector3Int(Size.x / 2, Size.y / 2, 0));
     
-    if (size.x % 2 == 0)
+    if (Size.x % 2 == 0)
       borderPosition.x -= worldGrid.cellSize.x / 2;
     
-    if (size.y % 2 == 0)
+    if (Size.y % 2 == 0)
       borderPosition.y -= worldGrid.cellSize.y / 2;
 
     boardBorder.position = borderPosition;
@@ -155,30 +154,30 @@ public class BoardPrefab : MonoBehaviour
 
   private void ComputeBoardCenterPosition()
   {
-    bool isOddX = size.x % 2 != 0;
-    bool isOddY = size.y % 2 != 0;
+    bool isOddX = Size.x % 2 != 0;
+    bool isOddY = Size.y % 2 != 0;
 
     float xPos;
     if (isOddX)
     {
-      xPos = worldGrid.GetCellCenterWorld(new Vector3Int(size.x / 2, 0, 0)).x;  
+      xPos = worldGrid.GetCellCenterWorld(new Vector3Int(Size.x / 2, 0, 0)).x;  
     }
     else
     {
-      float x1 = worldGrid.GetCellCenterWorld(new Vector3Int(size.x / 2 - 1, 0, 0)).x;
-      float x2 = worldGrid.GetCellCenterWorld(new Vector3Int(size.x / 2, 0, 0)).x;
+      float x1 = worldGrid.GetCellCenterWorld(new Vector3Int(Size.x / 2 - 1, 0, 0)).x;
+      float x2 = worldGrid.GetCellCenterWorld(new Vector3Int(Size.x / 2, 0, 0)).x;
       xPos = (x1 + x2) / 2;
     }
     
     float yPos;
     if (isOddY)
     {
-      yPos = worldGrid.GetCellCenterWorld(new Vector3Int(0, size.y / 2, 0)).y;  
+      yPos = worldGrid.GetCellCenterWorld(new Vector3Int(0, Size.y / 2, 0)).y;  
     }
     else
     {
-      float y1 = worldGrid.GetCellCenterWorld(new Vector3Int(0, size.y / 2 - 1, 0)).y;
-      float y2 = worldGrid.GetCellCenterWorld(new Vector3Int(0, size.y / 2, 0)).y;
+      float y1 = worldGrid.GetCellCenterWorld(new Vector3Int(0, Size.y / 2 - 1, 0)).y;
+      float y2 = worldGrid.GetCellCenterWorld(new Vector3Int(0, Size.y / 2, 0)).y;
       yPos = (y1 + y2) / 2;
     }
     

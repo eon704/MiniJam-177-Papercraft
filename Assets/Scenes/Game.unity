@@ -1087,6 +1087,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: GameUI_Mobile
       objectReference: {fileID: 0}
+    - target: {fileID: 4042972900917452608, guid: e6a05bcc319f249cc9c8a4b9299d92e9, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 2.2000122
+      objectReference: {fileID: 0}
+    - target: {fileID: 4856549481334287450, guid: e6a05bcc319f249cc9c8a4b9299d92e9, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 2.2000122
+      objectReference: {fileID: 0}
     - target: {fileID: 5015294657785136066, guid: e6a05bcc319f249cc9c8a4b9299d92e9, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -1251,6 +1259,10 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
+    - target: {fileID: 7886230849522409248, guid: e6a05bcc319f249cc9c8a4b9299d92e9, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -10.700012
+      objectReference: {fileID: 0}
     - target: {fileID: 8214702908848365524, guid: e6a05bcc319f249cc9c8a4b9299d92e9, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
@@ -1379,7 +1391,7 @@ PrefabInstance:
     - target: {fileID: 5853703254329433214, guid: 9b91cb75ffea040578771d321da2431e, type: 3}
       propertyPath: cameraObject
       value: 
-      objectReference: {fileID: 519420028}
+      objectReference: {fileID: 519420031}
     - target: {fileID: 5853703254329433214, guid: 9b91cb75ffea040578771d321da2431e, type: 3}
       propertyPath: playerPrefab
       value: 
