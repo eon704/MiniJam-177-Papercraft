@@ -4039,7 +4039,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gameController: {fileID: 0}
   _foreground: {fileID: 5909077104886908440}
-  winScreen: {fileID: 4967558254387036338}
+  winScreen: {fileID: 5939597298059370743}
   starsUI: {fileID: 4225503326977844162}
   WinScreenStarsUI: {fileID: 1067644154996635236}
 --- !u!1 &4094008459783966474
@@ -5157,6 +5157,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3470919970084532888}
+  - component: {fileID: 5939597298059370743}
   m_Layer: 5
   m_Name: WinScreen
   m_TagString: Untagged
@@ -5184,6 +5185,18 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!225 &5939597298059370743
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4967558254387036338}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &5036555689136206535
 GameObject:
   m_ObjectHideFlags: 0

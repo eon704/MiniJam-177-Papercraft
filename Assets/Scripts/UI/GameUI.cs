@@ -12,7 +12,7 @@ public class GameUI : MonoBehaviour
   
   [Header("Internal UI References")]
   [SerializeField] private Image _foreground;
-  [SerializeField] private GameObject winScreen;
+  [SerializeField] private CanvasGroup winScreen;
   [SerializeField] private StarsUI starsUI;
   [SerializeField] private WinScreenStarsUI WinScreenStarsUI;
   
@@ -43,8 +43,14 @@ public class GameUI : MonoBehaviour
 
   private void OnWin(int stars)
   {
-    winScreen.SetActive(true);
-    WinScreenStarsUI.AnimateStars(stars);
+    winScreen.gameObject.SetActive(true);
+    winScreen.alpha = 0;
+    
+    winScreen
+      .DOFade(1, 0.25f)
+      .SetEase(Ease.OutCubic)
+      .SetDelay(0.25f)
+      .OnComplete(() => WinScreenStarsUI.AnimateStars(stars));
   }
 
   private void OnStarChange(Observable<int> stars, int oldVal, int newVal)
