@@ -5,6 +5,8 @@ public class BoardHistory
 {
     private readonly Stack<BoardRecord> _history = new();
 
+    public int Count => _history.Count;
+    
     public void AddRecord(Vector2Int playerPosition, Player.StateType playerState, List<Vector2Int> starsRemaining, Dictionary<Player.StateType, int> movesPerForm)
     {
         _history.Push(new BoardRecord(playerPosition, playerState, starsRemaining, movesPerForm));

@@ -44,6 +44,8 @@ public class Player : MonoBehaviour
     public bool isMovementLocked;
     
     private BoardPrefab _boardPrefab;
+
+    public Action<int> OnUndoHistoryChange;
     
     public enum StateType
     {
@@ -235,7 +237,8 @@ public class Player : MonoBehaviour
         BoardRecord? lastRecord = _boardPrefab.Board.BoardHistory.Undo();
         if (!lastRecord.HasValue)
             return;
-
+        
+        OnUndoHistoryChange?.Invoke(_boardPrefab.Board.BoardHistory.Count);
         BoardPiecePrefab.CancelMove();
         BoardPiecePrefab.BoardPiece.OccupiedCell.Value.FreePiece();
         
@@ -280,6 +283,8 @@ public class Player : MonoBehaviour
             starsRemaining,
             new Dictionary<StateType, int>(_movesPerForm)
         );
+        
+        OnUndoHistoryChange?.Invoke(_boardPrefab.Board.BoardHistory.Count);
     }
 
     private void Update()
