@@ -25,8 +25,9 @@ public class LevelManager : Singleton<LevelManager>
     {
       if (CurrentLevelIndex >= levels.Count)
         return levels[levels.Count - 1];
-      
-      return CurrentLevelIndex > 0 ? levels[CurrentLevelIndex] : LevelData.DefaultLevel;
+
+      LevelData source = CurrentLevelIndex > 0 ? levels[CurrentLevelIndex] : LevelData.DefaultLevel;
+      return Instantiate(source);
     }
   }
 
