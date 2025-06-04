@@ -15,7 +15,7 @@ MonoBehaviour:
   MapSize: {x: 7, y: 7}
   Map: 'x0S0WW0
 
-    ++F+0G0
+    ++F++G0
 
     +S0SF+0
 
@@ -30,7 +30,7 @@ MonoBehaviour:
   - State: 0
     Moves: 0
   - State: 1
-    Moves: 4
+    Moves: 5
   - State: 2
     Moves: 3
   - State: 3

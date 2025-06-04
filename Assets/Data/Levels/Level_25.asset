@@ -12,22 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5465c63d54240f59ad0d61f1853172b, type: 3}
   m_Name: Level_25
   m_EditorClassIdentifier: 
-  MapSize: {x: 8, y: 8}
-  Map: '000F0000
+  MapSize: {x: 7, y: 8}
+  Map: '00F0000
 
-    0xS+WFG0
+    xS+WFG0
 
-    0F0S0+W0
+    F0S0+W0
 
-    0+WFW0S0
+    +WFW0S0
 
-    0S+0+F0y
+    S+0+F0y
 
-    0WFS+WG0
+    WFS+WG0
 
-    0+0W0S+0
+    +0W0S+0
 
-    0G0F0000'
+    G0F0000'
   StartMovesPerForm:
   - State: 0
     Moves: 0
