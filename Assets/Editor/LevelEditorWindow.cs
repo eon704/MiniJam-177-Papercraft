@@ -14,6 +14,15 @@ public class LevelEditorWindow : EditorWindow
     private Dictionary<Cell.TerrainType, Texture2D> cellTextures;
     private Dictionary<Cell.CellItem, Texture2D> itemTextures;
 
+    private enum EditorMode
+    {
+        Tiles,
+        Moves,
+        Analysis
+    }
+
+    private EditorMode currentMode = EditorMode.Tiles;
+
     private Dictionary<Cell.TerrainType, string> tileTexturePaths = new() {
         { Cell.TerrainType.None, "Assets/Sprites/Cell/NewCell/Border.png" },
         { Cell.TerrainType.Default, "Assets/Sprites/Cell/NewCell/Default Layer 2.png" },
@@ -130,7 +139,43 @@ public class LevelEditorWindow : EditorWindow
         
         EditorGUILayout.Space();
 
-        // Buttons
+        // Tool Selection
+        EditorGUILayout.LabelField("Tools", EditorStyles.boldLabel);
+        EditorGUI.BeginChangeCheck();
+        
+        // Create a button group for the tools
+        EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+        currentMode = (EditorMode)GUILayout.SelectionGrid((int)currentMode, 
+            new[] { "Tiles", "Moves", "Analysis" }, 
+            1, 
+            EditorStyles.miniButton);
+        EditorGUILayout.EndVertical();
+
+        if (EditorGUI.EndChangeCheck())
+        {
+            // Reset any tool-specific state when switching modes
+            hasUnsavedChanges = false;
+        }
+
+        EditorGUILayout.Space();
+
+        // Mode-specific content
+        switch (currentMode)
+        {
+            case EditorMode.Tiles:
+                DrawTilesTool();
+                break;
+            case EditorMode.Moves:
+                DrawMovesTool();
+                break;
+            case EditorMode.Analysis:
+                DrawAnalysisTool();
+                break;
+        }
+
+        EditorGUILayout.Space();
+
+        // Common buttons
         if (GUILayout.Button("New Level"))
         {
             CreateNewLevel();
@@ -147,6 +192,52 @@ public class LevelEditorWindow : EditorWindow
         }
 
         EditorGUILayout.EndVertical();
+    }
+
+    private void DrawTilesTool()
+    {
+        EditorGUILayout.LabelField("Tile Editor", EditorStyles.boldLabel);
+        EditorGUILayout.HelpBox("Click on tiles in the preview to edit them.", MessageType.Info);
+        // TODO: Add tile selection tools
+    }
+
+    private void DrawMovesTool()
+    {
+        EditorGUILayout.LabelField("Moves Editor", EditorStyles.boldLabel);
+        if (currentLevel != null)
+        {
+            EditorGUI.BeginChangeCheck();
+            for (int i = 0; i < currentLevel.StartMovesPerForm.Count; i++)
+            {
+                var moveEntry = currentLevel.StartMovesPerForm[i];
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.LabelField(moveEntry.State.ToString(), GUILayout.Width(80));
+                moveEntry.Moves = EditorGUILayout.IntField(moveEntry.Moves);
+                EditorGUILayout.EndHorizontal();
+            }
+            if (EditorGUI.EndChangeCheck())
+            {
+                hasUnsavedChanges = true;
+            }
+        }
+        else
+        {
+            EditorGUILayout.HelpBox("No level selected.", MessageType.Info);
+        }
+    }
+
+    private void DrawAnalysisTool()
+    {
+        EditorGUILayout.LabelField("Level Analysis", EditorStyles.boldLabel);
+        if (currentLevel != null)
+        {
+            // TODO: Add analysis tools
+            EditorGUILayout.HelpBox("Analysis tools coming soon.", MessageType.Info);
+        }
+        else
+        {
+            EditorGUILayout.HelpBox("No level selected.", MessageType.Info);
+        }
     }
 
     private string SanitizeMapString(string map)
