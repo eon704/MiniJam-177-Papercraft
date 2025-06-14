@@ -11,7 +11,8 @@ public class LevelEditorWindow : EditorWindow
     private bool hasUnsavedChanges;
     private float tileSize = 64f; // Size of each tile in pixels
     private float tilePadding = 4f; // Padding between tiles
-    private Dictionary<Cell.TerrainType, Texture2D> tileTextures;
+    private Dictionary<Cell.TerrainType, Texture2D> cellTextures;
+    private Dictionary<Cell.CellItem, Texture2D> itemTextures;
 
     private Dictionary<Cell.TerrainType, string> tileTexturePaths = new() {
         { Cell.TerrainType.None, "Assets/Sprites/Cell/NewCell/Border.png" },
@@ -23,7 +24,11 @@ public class LevelEditorWindow : EditorWindow
         { Cell.TerrainType.Fire, "Assets/Obstacles/fire/1.jpeg" }
     };
 
-    private Dictionary<char, Cell.TerrainType> tileTypes = new() {
+    private Dictionary<Cell.CellItem, string> itemTexturePaths = new() {
+        { Cell.CellItem.Star, "Assets/Sprites/Stars/Group 988.png" },
+    };
+
+    private Dictionary<char, Cell.TerrainType> cellTypes = new() {
         { '0', Cell.TerrainType.None },
 
         { '+', Cell.TerrainType.Default },
@@ -42,6 +47,13 @@ public class LevelEditorWindow : EditorWindow
         { 'y', Cell.TerrainType.End }
     };
 
+    private Dictionary<char, Cell.CellItem> itemTypes = new() {
+        { 'G', Cell.CellItem.Star },
+        { '1', Cell.CellItem.Star },
+        { '2', Cell.CellItem.Star },
+        { '3', Cell.CellItem.Star }
+    };
+
     [MenuItem("Tools/Level Editor")]
     public static void ShowWindow()
     {
@@ -55,11 +67,17 @@ public class LevelEditorWindow : EditorWindow
 
     private void LoadTileTextures()
     {
-        tileTextures = new();
+        cellTextures = new();
+        itemTextures = new();
         
         foreach (var tileType in tileTexturePaths)
         {
-            tileTextures[tileType.Key] = AssetDatabase.LoadAssetAtPath<Texture2D>(tileType.Value);
+            cellTextures[tileType.Key] = AssetDatabase.LoadAssetAtPath<Texture2D>(tileType.Value);
+        }
+
+        foreach (var itemType in itemTexturePaths)
+        {
+            itemTextures[itemType.Key] = AssetDatabase.LoadAssetAtPath<Texture2D>(itemType.Value);
         }
     }
 
@@ -141,14 +159,30 @@ public class LevelEditorWindow : EditorWindow
                     if (index < sanitizedMap.Length)
                     {
                         char tileChar = sanitizedMap[index];
-                        Cell.TerrainType tileType = tileTypes[tileChar];
-                        Texture2D tileTexture = tileTextures[tileType];
                         
                         // Calculate position with padding
                         float posX = x * (tileSize + tilePadding);
                         float posY = y * (tileSize + tilePadding);
                         Rect tileRect = new Rect(posX, posY, tileSize, tileSize);
-                        GUI.DrawTexture(tileRect, tileTexture);
+
+                        // Draw cell texture
+                        Cell.TerrainType cellType = cellTypes[tileChar];
+                        Texture2D cellTexture = cellTextures[cellType];
+                        GUI.DrawTexture(tileRect, cellTexture);
+
+                        // Draw item texture if present
+                        if (itemTypes.TryGetValue(tileChar, out Cell.CellItem itemType))
+                        {
+                            if (itemTextures.TryGetValue(itemType, out Texture2D itemTexture))
+                            {
+                                // Calculate star rect to be half the size and centered
+                                float starSize = tileSize * 0.5f;
+                                float starX = posX + (tileSize - starSize) * 0.5f;
+                                float starY = posY + (tileSize - starSize) * 0.5f;
+                                Rect starRect = new Rect(starX, starY, starSize, starSize);
+                                GUI.DrawTexture(starRect, itemTexture);
+                            }
+                        }
                     }
                 }
             }
