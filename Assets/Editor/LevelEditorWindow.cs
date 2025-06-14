@@ -3,6 +3,7 @@ using UnityEditor;
 using System.IO;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Linq;
 
 public class LevelEditorWindow : EditorWindow
 {
@@ -56,12 +57,27 @@ public class LevelEditorWindow : EditorWindow
         { 'y', Cell.TerrainType.End }
     };
 
+    private List<Cell.TerrainType> toolTerrainTypes = new() {
+        Cell.TerrainType.None,
+        Cell.TerrainType.Default,
+        Cell.TerrainType.Start,
+        Cell.TerrainType.End,
+        Cell.TerrainType.Water,
+    };
+
+    private List<Cell.CellItem> toolItemTypes = new() {
+        Cell.CellItem.Star,
+    };
+
     private Dictionary<char, Cell.CellItem> itemTypes = new() {
         { 'G', Cell.CellItem.Star },
         { '1', Cell.CellItem.Star },
         { '2', Cell.CellItem.Star },
         { '3', Cell.CellItem.Star }
     };
+
+    private Cell.TerrainType selectedTerrainType = Cell.TerrainType.Default;
+    private Cell.CellItem? selectedItemType = null;
 
     [MenuItem("Tools/Level Editor")]
     public static void ShowWindow()
@@ -197,8 +213,65 @@ public class LevelEditorWindow : EditorWindow
     private void DrawTilesTool()
     {
         EditorGUILayout.LabelField("Tile Editor", EditorStyles.boldLabel);
+        EditorGUILayout.Space();
+
+        // Terrain Type Selection
+        EditorGUILayout.LabelField("Terrain Type", EditorStyles.boldLabel);
+        EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+        foreach (var terrainType in toolTerrainTypes)
+        {
+            EditorGUILayout.BeginHorizontal();
+            if (cellTextures.TryGetValue(terrainType, out Texture2D texture))
+            {
+                bool isSelected = selectedTerrainType == terrainType;
+                if (GUILayout.Toggle(isSelected, texture, EditorStyles.miniButton, GUILayout.Width(32), GUILayout.Height(32)))
+                {
+                    selectedTerrainType = terrainType;
+                }
+            }
+            // Find the character that represents this terrain type
+            char? terrainChar = cellTypes.FirstOrDefault(x => x.Value == terrainType).Key;
+            EditorGUILayout.LabelField($"{terrainChar} - {terrainType}");
+            EditorGUILayout.EndHorizontal();
+        }
+        EditorGUILayout.EndVertical();
+
+        EditorGUILayout.Space();
+
+        // Item Type Selection
+        EditorGUILayout.LabelField("Item Type", EditorStyles.boldLabel);
+        EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+        
+        // None option
+        EditorGUILayout.BeginHorizontal();
+        bool isNoneSelected = selectedItemType == null;
+        if (GUILayout.Toggle(isNoneSelected, "None", EditorStyles.miniButton))
+        {
+            selectedItemType = null;
+        }
+        EditorGUILayout.EndHorizontal();
+
+        // Item options
+        foreach (var itemType in toolItemTypes)
+        {
+            EditorGUILayout.BeginHorizontal();
+            if (itemTextures.TryGetValue(itemType, out Texture2D texture))
+            {
+                bool isSelected = selectedItemType == itemType;
+                if (GUILayout.Toggle(isSelected, texture, EditorStyles.miniButton, GUILayout.Width(32), GUILayout.Height(32)))
+                {
+                    selectedItemType = itemType;
+                }
+            }
+            // Find the character that represents this item type
+            char? itemChar = itemTypes.FirstOrDefault(x => x.Value == itemType).Key;
+            EditorGUILayout.LabelField($"{itemChar} - {itemType}");
+            EditorGUILayout.EndHorizontal();
+        }
+        EditorGUILayout.EndVertical();
+
+        EditorGUILayout.Space();
         EditorGUILayout.HelpBox("Click on tiles in the preview to edit them.", MessageType.Info);
-        // TODO: Add tile selection tools
     }
 
     private void DrawMovesTool()
