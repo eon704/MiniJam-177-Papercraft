@@ -220,15 +220,21 @@ public class LevelEditorWindow : EditorWindow
         EditorGUILayout.BeginVertical(EditorStyles.helpBox);
         foreach (var terrainType in toolTerrainTypes)
         {
-            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
+            bool isSelected = selectedTerrainType == terrainType;
+            
+            // Make the entire row clickable
+            if (GUILayout.Toggle(isSelected, GUIContent.none, EditorStyles.radioButton, GUILayout.ExpandWidth(true)))
+            {
+                selectedTerrainType = terrainType;
+            }
+
+            // Show the texture
             if (cellTextures.TryGetValue(terrainType, out Texture2D texture))
             {
-                bool isSelected = selectedTerrainType == terrainType;
-                if (GUILayout.Toggle(isSelected, texture, EditorStyles.miniButton, GUILayout.Width(32), GUILayout.Height(32)))
-                {
-                    selectedTerrainType = terrainType;
-                }
+                GUILayout.Label(texture, GUILayout.Width(48), GUILayout.Height(48));
             }
+
             // Find the character that represents this terrain type
             char? terrainChar = cellTypes.FirstOrDefault(x => x.Value == terrainType).Key;
             EditorGUILayout.LabelField($"{terrainChar} - {terrainType}");
@@ -243,26 +249,33 @@ public class LevelEditorWindow : EditorWindow
         EditorGUILayout.BeginVertical(EditorStyles.helpBox);
         
         // None option
-        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
         bool isNoneSelected = selectedItemType == null;
-        if (GUILayout.Toggle(isNoneSelected, "None", EditorStyles.miniButton))
+        if (GUILayout.Toggle(isNoneSelected, GUIContent.none, EditorStyles.radioButton, GUILayout.ExpandWidth(true)))
         {
             selectedItemType = null;
         }
+        EditorGUILayout.LabelField("None");
         EditorGUILayout.EndHorizontal();
 
         // Item options
         foreach (var itemType in toolItemTypes)
         {
-            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
+            bool isSelected = selectedItemType == itemType;
+            
+            // Make the entire row clickable
+            if (GUILayout.Toggle(isSelected, GUIContent.none, EditorStyles.radioButton, GUILayout.ExpandWidth(true)))
+            {
+                selectedItemType = itemType;
+            }
+
+            // Show the texture
             if (itemTextures.TryGetValue(itemType, out Texture2D texture))
             {
-                bool isSelected = selectedItemType == itemType;
-                if (GUILayout.Toggle(isSelected, texture, EditorStyles.miniButton, GUILayout.Width(32), GUILayout.Height(32)))
-                {
-                    selectedItemType = itemType;
-                }
+                GUILayout.Label(texture, GUILayout.Width(48), GUILayout.Height(48));
             }
+
             // Find the character that represents this item type
             char? itemChar = itemTypes.FirstOrDefault(x => x.Value == itemType).Key;
             EditorGUILayout.LabelField($"{itemChar} - {itemType}");
