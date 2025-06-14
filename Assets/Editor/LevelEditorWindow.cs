@@ -8,7 +8,7 @@ public class LevelEditorWindow : EditorWindow
 {
     private LevelData currentLevel;
     private Vector2 scrollPosition;
-    private bool hasUnsavedChanges;
+    private new bool hasUnsavedChanges;
     private float tileSize = 64f; // Size of each tile in pixels
     private float tilePadding = 4f; // Padding between tiles
     private Dictionary<Cell.TerrainType, Texture2D> cellTextures;
@@ -81,6 +81,20 @@ public class LevelEditorWindow : EditorWindow
         }
     }
 
+    private void UpdateWindowTitle()
+    {
+        string title = "Level Editor";
+        if (currentLevel != null)
+        {
+            title += $" - {currentLevel.name}";
+            if (hasUnsavedChanges)
+            {
+                title += " *";
+            }
+        }
+        this.titleContent = new GUIContent(title);
+    }
+
     private void OnGUI()
     {
         EditorGUILayout.BeginHorizontal();
@@ -92,6 +106,9 @@ public class LevelEditorWindow : EditorWindow
         DrawPreviewPanel();
         
         EditorGUILayout.EndHorizontal();
+
+        // Update window title to reflect current state
+        UpdateWindowTitle();
     }
 
     private void DrawLeftPanel()
@@ -103,7 +120,13 @@ public class LevelEditorWindow : EditorWindow
 
         // Level Selection
         EditorGUILayout.LabelField("Current Level", EditorStyles.boldLabel);
-        currentLevel = (LevelData)EditorGUILayout.ObjectField(currentLevel, typeof(LevelData), false);
+        var newLevel = (LevelData)EditorGUILayout.ObjectField(currentLevel, typeof(LevelData), false);
+        if (newLevel != currentLevel)
+        {
+            currentLevel = newLevel;
+            hasUnsavedChanges = false;
+            UpdateWindowTitle();
+        }
         
         EditorGUILayout.Space();
 
@@ -215,9 +238,10 @@ public class LevelEditorWindow : EditorWindow
         
         currentLevel = newLevel;
         hasUnsavedChanges = false;
+        UpdateWindowTitle();
     }
 
-    private void SaveChanges()
+    public override void SaveChanges()
     {
         if (currentLevel == null)
             return;
@@ -225,9 +249,10 @@ public class LevelEditorWindow : EditorWindow
         EditorUtility.SetDirty(currentLevel);
         AssetDatabase.SaveAssets();
         hasUnsavedChanges = false;
+        UpdateWindowTitle();
     }
 
-    private void DiscardChanges()
+    public override void DiscardChanges()
     {
         if (currentLevel == null)
             return;
@@ -236,5 +261,6 @@ public class LevelEditorWindow : EditorWindow
         string path = AssetDatabase.GetAssetPath(currentLevel);
         currentLevel = AssetDatabase.LoadAssetAtPath<LevelData>(path);
         hasUnsavedChanges = false;
+        UpdateWindowTitle();
     }
 } 
