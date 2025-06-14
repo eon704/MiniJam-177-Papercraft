@@ -220,25 +220,45 @@ public class LevelEditorWindow : EditorWindow
         EditorGUILayout.BeginVertical(EditorStyles.helpBox);
         foreach (var terrainType in toolTerrainTypes)
         {
-            EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
             bool isSelected = selectedTerrainType == terrainType;
-            
+            Rect rowRect = GUILayoutUtility.GetRect(0, 48, GUILayout.ExpandWidth(true), GUILayout.Height(48));
+
+            // Detect hover
+            bool isHover = rowRect.Contains(Event.current.mousePosition);
+
+            // Draw background highlight
+            if (Event.current.type == EventType.Repaint)
+            {
+                if (isSelected)
+                    EditorGUI.DrawRect(rowRect, new Color(0.24f, 0.48f, 0.90f, 0.25f)); // Subtle blue
+                else if (isHover)
+                    EditorGUI.DrawRect(rowRect, new Color(1f, 1f, 1f, 0.08f)); // Subtle white
+            }
+
+            EditorGUI.BeginChangeCheck();
+            GUI.BeginGroup(rowRect);
+            EditorGUILayout.BeginHorizontal();
+
             // Make the entire row clickable
-            if (GUILayout.Toggle(isSelected, GUIContent.none, EditorStyles.radioButton, GUILayout.ExpandWidth(true)))
+            if (GUI.Button(new Rect(0, 0, rowRect.width, rowRect.height), GUIContent.none, GUIStyle.none))
             {
                 selectedTerrainType = terrainType;
+                GUI.FocusControl(null);
             }
 
             // Show the texture
             if (cellTextures.TryGetValue(terrainType, out Texture2D texture))
             {
-                GUILayout.Label(texture, GUILayout.Width(48), GUILayout.Height(48));
+                GUI.Label(new Rect(8, 8, 48, 48), texture);
             }
 
             // Find the character that represents this terrain type
             char? terrainChar = cellTypes.FirstOrDefault(x => x.Value == terrainType).Key;
-            EditorGUILayout.LabelField($"{terrainChar} - {terrainType}");
+            GUI.Label(new Rect(64, 16, rowRect.width - 64, 24), $"{terrainChar} - {terrainType}");
+
             EditorGUILayout.EndHorizontal();
+            GUI.EndGroup();
+            GUILayout.Space(2);
         }
         EditorGUILayout.EndVertical();
 
@@ -247,39 +267,55 @@ public class LevelEditorWindow : EditorWindow
         // Item Type Selection
         EditorGUILayout.LabelField("Item Type", EditorStyles.boldLabel);
         EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-        
+
         // None option
-        EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
         bool isNoneSelected = selectedItemType == null;
-        if (GUILayout.Toggle(isNoneSelected, GUIContent.none, EditorStyles.radioButton, GUILayout.ExpandWidth(true)))
+        Rect noneRowRect = GUILayoutUtility.GetRect(0, 48, GUILayout.ExpandWidth(true), GUILayout.Height(48));
+        bool isNoneHover = noneRowRect.Contains(Event.current.mousePosition);
+        if (Event.current.type == EventType.Repaint)
+        {
+            if (isNoneSelected)
+                EditorGUI.DrawRect(noneRowRect, new Color(0.24f, 0.48f, 0.90f, 0.25f));
+            else if (isNoneHover)
+                EditorGUI.DrawRect(noneRowRect, new Color(1f, 1f, 1f, 0.08f));
+        }
+        GUI.BeginGroup(noneRowRect);
+        if (GUI.Button(new Rect(0, 0, noneRowRect.width, noneRowRect.height), GUIContent.none, GUIStyle.none))
         {
             selectedItemType = null;
+            GUI.FocusControl(null);
         }
-        EditorGUILayout.LabelField("None");
-        EditorGUILayout.EndHorizontal();
+        GUI.Label(new Rect(8, 16, noneRowRect.width - 8, 24), "None");
+        GUI.EndGroup();
+        GUILayout.Space(2);
 
         // Item options
         foreach (var itemType in toolItemTypes)
         {
-            EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
             bool isSelected = selectedItemType == itemType;
-            
-            // Make the entire row clickable
-            if (GUILayout.Toggle(isSelected, GUIContent.none, EditorStyles.radioButton, GUILayout.ExpandWidth(true)))
+            Rect itemRowRect = GUILayoutUtility.GetRect(0, 48, GUILayout.ExpandWidth(true), GUILayout.Height(48));
+            bool isItemHover = itemRowRect.Contains(Event.current.mousePosition);
+            if (Event.current.type == EventType.Repaint)
+            {
+                if (isSelected)
+                    EditorGUI.DrawRect(itemRowRect, new Color(0.24f, 0.48f, 0.90f, 0.25f));
+                else if (isItemHover)
+                    EditorGUI.DrawRect(itemRowRect, new Color(1f, 1f, 1f, 0.08f));
+            }
+            GUI.BeginGroup(itemRowRect);
+            if (GUI.Button(new Rect(0, 0, itemRowRect.width, itemRowRect.height), GUIContent.none, GUIStyle.none))
             {
                 selectedItemType = itemType;
+                GUI.FocusControl(null);
             }
-
-            // Show the texture
             if (itemTextures.TryGetValue(itemType, out Texture2D texture))
             {
-                GUILayout.Label(texture, GUILayout.Width(48), GUILayout.Height(48));
+                GUI.Label(new Rect(8, 8, 48, 48), texture);
             }
-
-            // Find the character that represents this item type
             char? itemChar = itemTypes.FirstOrDefault(x => x.Value == itemType).Key;
-            EditorGUILayout.LabelField($"{itemChar} - {itemType}");
-            EditorGUILayout.EndHorizontal();
+            GUI.Label(new Rect(64, 16, itemRowRect.width - 64, 24), $"{itemChar} - {itemType}");
+            GUI.EndGroup();
+            GUILayout.Space(2);
         }
         EditorGUILayout.EndVertical();
 
