@@ -145,12 +145,6 @@ public class LevelEditorWindow : EditorWindow
                         
                         Rect tileRect = new Rect(x * tileSize, y * tileSize, tileSize, tileSize);
                         GUI.DrawTexture(tileRect, tileTexture);
-                        
-                        // Draw the character on top of the tile
-                        GUIStyle style = new GUIStyle(EditorStyles.boldLabel);
-                        style.alignment = TextAnchor.MiddleCenter;
-                        style.normal.textColor = Color.black;
-                        EditorGUI.LabelField(tileRect, tileChar.ToString(), style);
                     }
                 }
             }
