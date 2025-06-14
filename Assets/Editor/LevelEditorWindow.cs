@@ -10,6 +10,7 @@ public class LevelEditorWindow : EditorWindow
     private Vector2 scrollPosition;
     private bool hasUnsavedChanges;
     private float tileSize = 64f; // Size of each tile in pixels
+    private float tilePadding = 4f; // Padding between tiles
     private Dictionary<Cell.TerrainType, Texture2D> tileTextures;
 
     private Dictionary<Cell.TerrainType, string> tileTexturePaths = new() {
@@ -124,9 +125,9 @@ public class LevelEditorWindow : EditorWindow
             // Sanitize the map string
             string sanitizedMap = SanitizeMapString(currentLevel.Map);
             
-            // Calculate the total size of the grid
-            float totalWidth = currentLevel.MapSize.x * tileSize;
-            float totalHeight = currentLevel.MapSize.y * tileSize;
+            // Calculate the total size of the grid with padding
+            float totalWidth = currentLevel.MapSize.x * (tileSize + tilePadding);
+            float totalHeight = currentLevel.MapSize.y * (tileSize + tilePadding);
             
             // Create a scroll view for the grid
             scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition, GUILayout.Width(totalWidth + 20), GUILayout.Height(totalHeight + 20));
@@ -143,7 +144,10 @@ public class LevelEditorWindow : EditorWindow
                         Cell.TerrainType tileType = tileTypes[tileChar];
                         Texture2D tileTexture = tileTextures[tileType];
                         
-                        Rect tileRect = new Rect(x * tileSize, y * tileSize, tileSize, tileSize);
+                        // Calculate position with padding
+                        float posX = x * (tileSize + tilePadding);
+                        float posY = y * (tileSize + tilePadding);
+                        Rect tileRect = new Rect(posX, posY, tileSize, tileSize);
                         GUI.DrawTexture(tileRect, tileTexture);
                     }
                 }
