@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Level_Test
   m_EditorClassIdentifier: 
   MapSize: {x: 5, y: 7}
-  Map: +++WW+WW+W++0+W++++W++++W++++W+SFWy
+  Map: +++WW+WW+W++0+W++++WGG+GW++GGW+SFWy
   StartMovesPerForm:
   - State: 0
     Moves: -1

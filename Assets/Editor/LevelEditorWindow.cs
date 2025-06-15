@@ -68,6 +68,7 @@ public class LevelEditorWindow : EditorWindow
     };
 
     private List<CellItem> toolItemTypes = new() {
+        CellItem.None,
         CellItem.Star,
     };
 
@@ -329,12 +330,19 @@ public class LevelEditorWindow : EditorWindow
                 selectedTerrainType = TerrainType.Empty; // Clear terrain type when item is selected
                 GUI.FocusControl(null);
             }
-            if (itemTextures.TryGetValue(itemType, out Texture2D texture))
+            if (itemType == CellItem.None)
             {
-                GUI.Label(new Rect(8, 8, 48, 48), texture);
+                GUI.Label(new Rect(8, 16, itemRowRect.width - 8, 24), "None");
             }
-            char? itemChar = itemTypes.FirstOrDefault(x => x.Value == itemType).Key;
-            GUI.Label(new Rect(64, 16, itemRowRect.width - 64, 24), $"{itemChar} - {itemType}");
+            else
+            {
+                if (itemTextures.TryGetValue(itemType, out Texture2D texture))
+                {
+                    GUI.Label(new Rect(8, 8, 48, 48), texture);
+                }
+                char? itemChar = itemTypes.FirstOrDefault(x => x.Value == itemType).Key;
+                GUI.Label(new Rect(64, 16, itemRowRect.width - 64, 24), $"{itemChar} - {itemType}");
+            }
             GUI.EndGroup();
             GUILayout.Space(2);
         }
@@ -436,16 +444,70 @@ public class LevelEditorWindow : EditorWindow
                         Event e = Event.current;
                         if (e.type == EventType.MouseDown && e.button == 0 && tileRect.Contains(e.mousePosition))
                         {
-                            // Find the character that represents the selected terrain type
-                            char? terrainChar = cellTypes.FirstOrDefault(x => x.Value == selectedTerrainType).Key;
-                            if (terrainChar.HasValue)
+                            if (selectedItemType.HasValue)
                             {
-                                // Update the map string
-                                char[] mapChars = sanitizedMap.ToCharArray();
-                                mapChars[index] = terrainChar.Value;
-                                currentLevel.Map = new string(mapChars);
-                                hasUnsavedChanges = true;
-                                e.Use();
+                                // Get the current terrain type for this cell
+                                TerrainType currentTerrain = cellTypes[tileChar];
+                                
+                                // Check if the current terrain type is valid for items
+                                bool isValidTerrain = currentTerrain == TerrainType.Default || 
+                                                    currentTerrain == TerrainType.Stone || 
+                                                    currentTerrain == TerrainType.Water;
+
+                                if (isValidTerrain)
+                                {
+                                    if (selectedItemType.Value == CellItem.None)
+                                    {
+                                        // Find a character that represents just the current terrain without any item
+                                        char? terrainChar = cellTypes.FirstOrDefault(x => x.Value == currentTerrain).Key;
+                                        if (terrainChar.HasValue)
+                                        {
+                                            // Update the map string to remove the item
+                                            char[] mapChars = sanitizedMap.ToCharArray();
+                                            mapChars[index] = terrainChar.Value;
+                                            currentLevel.Map = new string(mapChars);
+                                            hasUnsavedChanges = true;
+                                            e.Use();
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // Find the character that represents the selected item type
+                                        char? itemChar = itemTypes.FirstOrDefault(x => x.Value == selectedItemType.Value).Key;
+                                        if (itemChar.HasValue)
+                                        {
+                                            // Find a character that represents both the current terrain and the selected item
+                                            char? combinedChar = itemTypes
+                                                .Where(x => x.Value == selectedItemType.Value)
+                                                .Select(x => x.Key)
+                                                .FirstOrDefault(c => cellTypes[c] == currentTerrain);
+
+                                            if (combinedChar.HasValue)
+                                            {
+                                                // Update the map string
+                                                char[] mapChars = sanitizedMap.ToCharArray();
+                                                mapChars[index] = combinedChar.Value;
+                                                currentLevel.Map = new string(mapChars);
+                                                hasUnsavedChanges = true;
+                                                e.Use();
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                // Find the character that represents the selected terrain type
+                                char? terrainChar = cellTypes.FirstOrDefault(x => x.Value == selectedTerrainType).Key;
+                                if (terrainChar.HasValue)
+                                {
+                                    // Update the map string
+                                    char[] mapChars = sanitizedMap.ToCharArray();
+                                    mapChars[index] = terrainChar.Value;
+                                    currentLevel.Map = new string(mapChars);
+                                    hasUnsavedChanges = true;
+                                    e.Use();
+                                }
                             }
                         }
 
