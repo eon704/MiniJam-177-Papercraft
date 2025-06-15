@@ -160,6 +160,24 @@ public class LevelEditorWindow : EditorWindow
 
         EditorGUILayout.Space();
 
+        // Common buttons
+        if (GUILayout.Button("New Level"))
+        {
+            CreateNewLevel();
+        }
+
+        if (GUILayout.Button("Save Changes") && currentLevel != null)
+        {
+            SaveChanges();
+        }
+
+        if (GUILayout.Button("Discard Changes") && currentLevel != null)
+        {
+            DiscardChanges();
+        }
+
+        EditorGUILayout.Space();
+
         // Tool Selection
         EditorGUILayout.LabelField("Tools", EditorStyles.boldLabel);
         DrawToolSelection();
@@ -178,24 +196,6 @@ public class LevelEditorWindow : EditorWindow
             case EditorMode.Analysis:
                 DrawAnalysisTool();
                 break;
-        }
-
-        EditorGUILayout.Space();
-
-        // Common buttons
-        if (GUILayout.Button("New Level"))
-        {
-            CreateNewLevel();
-        }
-
-        if (GUILayout.Button("Save Changes") && currentLevel != null)
-        {
-            SaveChanges();
-        }
-
-        if (GUILayout.Button("Discard Changes") && currentLevel != null)
-        {
-            DiscardChanges();
         }
 
         EditorGUILayout.EndVertical(); // End padding container
@@ -231,9 +231,10 @@ public class LevelEditorWindow : EditorWindow
         // Terrain Type Selection
         EditorGUILayout.LabelField("Terrain Type", EditorStyles.boldLabel);
         EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+
         foreach (var terrainType in toolTerrainTypes)
         {
-            bool isSelected = selectedTerrainType == terrainType;
+            bool isSelected = selectedTerrainType == terrainType && selectedItemType == null;
             Rect rowRect = GUILayoutUtility.GetRect(0, 60, GUILayout.ExpandWidth(true), GUILayout.Height(60));
 
             // Detect hover
@@ -256,6 +257,7 @@ public class LevelEditorWindow : EditorWindow
             if (GUI.Button(new Rect(0, 0, rowRect.width, rowRect.height), GUIContent.none, GUIStyle.none))
             {
                 selectedTerrainType = terrainType;
+                selectedItemType = null; // Clear item selection when terrain is selected
                 GUI.FocusControl(null);
             }
 
@@ -281,27 +283,6 @@ public class LevelEditorWindow : EditorWindow
         EditorGUILayout.LabelField("Item Type", EditorStyles.boldLabel);
         EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
-        // None option
-        bool isNoneSelected = selectedItemType == null;
-        Rect noneRowRect = GUILayoutUtility.GetRect(0, 48, GUILayout.ExpandWidth(true), GUILayout.Height(48));
-        bool isNoneHover = noneRowRect.Contains(Event.current.mousePosition);
-        if (Event.current.type == EventType.Repaint)
-        {
-            if (isNoneSelected)
-                EditorGUI.DrawRect(noneRowRect, new Color(0.24f, 0.48f, 0.90f, 0.25f));
-            else if (isNoneHover)
-                EditorGUI.DrawRect(noneRowRect, new Color(1f, 1f, 1f, 0.08f));
-        }
-        GUI.BeginGroup(noneRowRect);
-        if (GUI.Button(new Rect(0, 0, noneRowRect.width, noneRowRect.height), GUIContent.none, GUIStyle.none))
-        {
-            selectedItemType = null;
-            GUI.FocusControl(null);
-        }
-        GUI.Label(new Rect(8, 16, noneRowRect.width - 8, 24), "None");
-        GUI.EndGroup();
-        GUILayout.Space(2);
-
         // Item options
         foreach (var itemType in toolItemTypes)
         {
@@ -319,6 +300,7 @@ public class LevelEditorWindow : EditorWindow
             if (GUI.Button(new Rect(0, 0, itemRowRect.width, itemRowRect.height), GUIContent.none, GUIStyle.none))
             {
                 selectedItemType = itemType;
+                selectedTerrainType = TerrainType.Empty; // Clear terrain type when item is selected
                 GUI.FocusControl(null);
             }
             if (itemTextures.TryGetValue(itemType, out Texture2D texture))
