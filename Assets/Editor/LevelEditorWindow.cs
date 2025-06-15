@@ -432,6 +432,26 @@ public class LevelEditorWindow : EditorWindow
                         float posY = y * (tileSize + tilePadding);
                         Rect tileRect = new Rect(posX, posY, tileSize, tileSize);
 
+                        // Handle click on tile
+                        Event e = Event.current;
+                        if (e.type == EventType.MouseDown && e.button == 0 && tileRect.Contains(e.mousePosition))
+                        {
+                            if (selectedTerrainType != TerrainType.Empty)
+                            {
+                                // Find the character that represents the selected terrain type
+                                char? terrainChar = cellTypes.FirstOrDefault(x => x.Value == selectedTerrainType).Key;
+                                if (terrainChar.HasValue)
+                                {
+                                    // Update the map string
+                                    char[] mapChars = sanitizedMap.ToCharArray();
+                                    mapChars[index] = terrainChar.Value;
+                                    currentLevel.Map = new string(mapChars);
+                                    hasUnsavedChanges = true;
+                                    e.Use();
+                                }
+                            }
+                        }
+
                         // Draw cell texture
                         TerrainType cellType = cellTypes[tileChar];
                         Texture2D cellTexture = cellTextures[cellType];
