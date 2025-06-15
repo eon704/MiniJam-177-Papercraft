@@ -82,6 +82,9 @@ public class LevelEditorWindow : EditorWindow
     private CellItem? selectedItemType = null;
 
     private Vector2 leftPanelScroll;
+    private float leftPanelWidth = 300f; // Default width for the left panel
+    private bool isDraggingSplitter = false;
+    private float splitterWidth = 5f; // Width of the draggable splitter
 
     [MenuItem("Tools/Level Editor")]
     public static void ShowWindow()
@@ -127,13 +130,36 @@ public class LevelEditorWindow : EditorWindow
     private void OnGUI()
     {
         EditorGUILayout.BeginHorizontal();
-        
+
         // Left Panel
         DrawLeftPanel();
-        
-        // Right Panel (Preview)
+
+        // Splitter
+        Rect splitterRect = GUILayoutUtility.GetRect(splitterWidth, 0, GUILayout.ExpandHeight(true));
+        EditorGUIUtility.AddCursorRect(splitterRect, MouseCursor.ResizeHorizontal);
+
+        // Handle splitter drag
+        Event e = Event.current;
+        if (e.type == EventType.MouseDown && splitterRect.Contains(e.mousePosition))
+        {
+            isDraggingSplitter = true;
+            e.Use();
+        }
+        else if (e.type == EventType.MouseUp)
+        {
+            isDraggingSplitter = false;
+        }
+        else if (e.type == EventType.MouseDrag && isDraggingSplitter)
+        {
+            leftPanelWidth += e.delta.x;
+            leftPanelWidth = Mathf.Clamp(leftPanelWidth, 200f, 500f); // Min and max width
+            e.Use();
+            Repaint();
+        }
+
+        // Preview Panel
         DrawPreviewPanel();
-        
+
         EditorGUILayout.EndHorizontal();
 
         // Update window title to reflect current state
@@ -142,7 +168,7 @@ public class LevelEditorWindow : EditorWindow
 
     private void DrawLeftPanel()
     {
-        EditorGUILayout.BeginVertical(GUILayout.Width(300));
+        EditorGUILayout.BeginVertical(GUILayout.Width(leftPanelWidth));
         leftPanelScroll = EditorGUILayout.BeginScrollView(leftPanelScroll);
         
         // Add padding container
