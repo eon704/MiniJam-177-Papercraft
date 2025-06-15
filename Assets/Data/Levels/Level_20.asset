@@ -13,17 +13,7 @@ MonoBehaviour:
   m_Name: Level_20
   m_EditorClassIdentifier: 
   MapSize: {x: 7, y: 6}
-  Map: 'xF00000
-
-    +S+F000
-
-    F+W+G00
-
-    0+F0+F0
-
-    00S+W+y
-
-    000G+G0'
+  Map: xF00000+S+F000F+W+G000+F0+F000S+W+y000G+G0
   StartMovesPerForm:
   - State: 0
     Moves: 0

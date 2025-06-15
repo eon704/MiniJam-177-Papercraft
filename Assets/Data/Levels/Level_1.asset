@@ -13,13 +13,7 @@ MonoBehaviour:
   m_Name: Level_1
   m_EditorClassIdentifier: 
   MapSize: {x: 3, y: 4}
-  Map: 'x00
-
-    G00
-
-    GGS
-
-    00y'
+  Map: x00G00GGS00y
   StartMovesPerForm:
   - State: 0
     Moves: 0

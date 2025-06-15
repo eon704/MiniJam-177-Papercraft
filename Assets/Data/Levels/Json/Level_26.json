@@ -1,0 +1,29 @@
+{
+    "MapSize": {
+        "x": 7,
+        "y": 7
+    },
+    "Map": "y+SFS+00F+W+G00+S0F0W0G0+0S+0WFW++F0+0S0WG0000x00",
+    "StartMovesPerForm": [
+        {
+            "State": 0,
+            "Moves": 0
+        },
+        {
+            "State": 1,
+            "Moves": 7
+        },
+        {
+            "State": 2,
+            "Moves": 3
+        },
+        {
+            "State": 3,
+            "Moves": 1
+        },
+        {
+            "State": 4,
+            "Moves": 3
+        }
+    ]
+}
