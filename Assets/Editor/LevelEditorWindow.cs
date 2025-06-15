@@ -436,19 +436,16 @@ public class LevelEditorWindow : EditorWindow
                         Event e = Event.current;
                         if (e.type == EventType.MouseDown && e.button == 0 && tileRect.Contains(e.mousePosition))
                         {
-                            if (selectedTerrainType != TerrainType.Empty)
+                            // Find the character that represents the selected terrain type
+                            char? terrainChar = cellTypes.FirstOrDefault(x => x.Value == selectedTerrainType).Key;
+                            if (terrainChar.HasValue)
                             {
-                                // Find the character that represents the selected terrain type
-                                char? terrainChar = cellTypes.FirstOrDefault(x => x.Value == selectedTerrainType).Key;
-                                if (terrainChar.HasValue)
-                                {
-                                    // Update the map string
-                                    char[] mapChars = sanitizedMap.ToCharArray();
-                                    mapChars[index] = terrainChar.Value;
-                                    currentLevel.Map = new string(mapChars);
-                                    hasUnsavedChanges = true;
-                                    e.Use();
-                                }
+                                // Update the map string
+                                char[] mapChars = sanitizedMap.ToCharArray();
+                                mapChars[index] = terrainChar.Value;
+                                currentLevel.Map = new string(mapChars);
+                                hasUnsavedChanges = true;
+                                e.Use();
                             }
                         }
 
