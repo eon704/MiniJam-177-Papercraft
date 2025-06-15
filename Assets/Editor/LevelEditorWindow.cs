@@ -25,7 +25,7 @@ public class LevelEditorWindow : EditorWindow
     private EditorMode currentMode = EditorMode.Tiles;
 
     private Dictionary<TerrainType, string> tileTexturePaths = new() {
-        { TerrainType.None, "Assets/Sprites/Cell/NewCell/Border.png" },
+        { TerrainType.Empty, "Assets/Sprites/Cell/NewCell/Border.png" },
         { TerrainType.Default, "Assets/Sprites/Cell/NewCell/Default Layer 2.png" },
         { TerrainType.Start, "Assets/Sprites/Cell/NewCell/Start.png" },
         { TerrainType.End, "Assets/Sprites/Cell/NewCell/Finish cell/StaticEnd.png" },
@@ -39,7 +39,7 @@ public class LevelEditorWindow : EditorWindow
     };
 
     private Dictionary<char, TerrainType> cellTypes = new() {
-        { '0', TerrainType.None },
+        { '0', TerrainType.Empty },
 
         { '+', TerrainType.Default },
         { 'G', TerrainType.Default },
@@ -58,11 +58,13 @@ public class LevelEditorWindow : EditorWindow
     };
 
     private List<TerrainType> toolTerrainTypes = new() {
-        TerrainType.None,
+        TerrainType.Empty,
         TerrainType.Default,
         TerrainType.Start,
         TerrainType.End,
         TerrainType.Water,
+        TerrainType.Stone,
+        TerrainType.Fire
     };
 
     private List<CellItem> toolItemTypes = new() {
@@ -143,9 +145,9 @@ public class LevelEditorWindow : EditorWindow
         EditorGUILayout.BeginVertical(GUILayout.Width(300));
         leftPanelScroll = EditorGUILayout.BeginScrollView(leftPanelScroll);
         
-        EditorGUILayout.LabelField("Level Editor", EditorStyles.boldLabel);
-        EditorGUILayout.Space();
-
+        // Add padding container
+        EditorGUILayout.BeginVertical(new GUIStyle { padding = new RectOffset(10, 10, 10, 10) });
+        
         // Level Selection
         EditorGUILayout.LabelField("Current Level", EditorStyles.boldLabel);
         var newLevel = (LevelData)EditorGUILayout.ObjectField(currentLevel, typeof(LevelData), false);
@@ -155,30 +157,16 @@ public class LevelEditorWindow : EditorWindow
             hasUnsavedChanges = false;
             UpdateWindowTitle();
         }
-        
+
         EditorGUILayout.Space();
 
         // Tool Selection
         EditorGUILayout.LabelField("Tools", EditorStyles.boldLabel);
-        EditorGUI.BeginChangeCheck();
-        
-        // Create a button group for the tools
-        EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-        currentMode = (EditorMode)GUILayout.SelectionGrid((int)currentMode, 
-            new[] { "Tiles", "Moves", "Analysis" }, 
-            1, 
-            EditorStyles.miniButton);
-        EditorGUILayout.EndVertical();
-
-        if (EditorGUI.EndChangeCheck())
-        {
-            // Reset any tool-specific state when switching modes
-            hasUnsavedChanges = false;
-        }
+        DrawToolSelection();
 
         EditorGUILayout.Space();
 
-        // Mode-specific content
+        // Draw the appropriate tool panel
         switch (currentMode)
         {
             case EditorMode.Tiles:
@@ -210,8 +198,29 @@ public class LevelEditorWindow : EditorWindow
             DiscardChanges();
         }
 
+        EditorGUILayout.EndVertical(); // End padding container
         EditorGUILayout.EndScrollView();
         EditorGUILayout.EndVertical();
+    }
+
+    private void DrawToolSelection()
+    {
+        EditorGUILayout.BeginHorizontal();
+        
+        if (GUILayout.Toggle(currentMode == EditorMode.Tiles, "Tiles", EditorStyles.toolbarButton))
+        {
+            currentMode = EditorMode.Tiles;
+        }
+        if (GUILayout.Toggle(currentMode == EditorMode.Moves, "Moves", EditorStyles.toolbarButton))
+        {
+            currentMode = EditorMode.Moves;
+        }
+        if (GUILayout.Toggle(currentMode == EditorMode.Analysis, "Analysis", EditorStyles.toolbarButton))
+        {
+            currentMode = EditorMode.Analysis;
+        }
+        
+        EditorGUILayout.EndHorizontal();
     }
 
     private void DrawTilesTool()
@@ -376,10 +385,20 @@ public class LevelEditorWindow : EditorWindow
     {
         EditorGUILayout.BeginVertical();
         
+        // Add padding container
+        EditorGUILayout.BeginVertical(new GUIStyle { padding = new RectOffset(10, 10, 10, 10) });
+        
+        // Preview Header
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.LabelField("Level Preview", EditorStyles.boldLabel);
+        EditorGUILayout.Space();
+        EditorGUILayout.EndHorizontal();
+
+        EditorGUILayout.Space();
+
+        // Preview Area
         if (currentLevel != null)
         {
-            EditorGUILayout.LabelField("Level Preview", EditorStyles.boldLabel);
-            
             // Sanitize the map string
             string sanitizedMap = SanitizeMapString(currentLevel.Map);
             
@@ -434,6 +453,7 @@ public class LevelEditorWindow : EditorWindow
             EditorGUILayout.HelpBox("No level selected. Create a new level or select an existing one.", MessageType.Info);
         }
         
+        EditorGUILayout.EndVertical(); // End padding container
         EditorGUILayout.EndVertical();
     }
 

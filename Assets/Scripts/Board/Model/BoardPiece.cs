@@ -51,7 +51,7 @@ public class BoardPiece
     {
       Vector2Int targetPosition = currentPosition + motion;
       Cell targetCell = board.GetCell(targetPosition);
-      if (targetCell == null || targetCell.Terrain == TerrainType.None)
+      if (targetCell == null || targetCell.Terrain == TerrainType.Empty)
         continue;
 
       bool isValidMove = moveTerrain.Contains(targetCell.Terrain); 

@@ -40,8 +40,8 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     public void Initialize(Cell cellData, Player newPlayer, float delay)
     {
         Cell = cellData;
-        gameObject.SetActive(Cell.Terrain != TerrainType.None);
-        if (Cell.Terrain == TerrainType.None)
+        gameObject.SetActive(Cell.Terrain != TerrainType.Empty);
+        if (Cell.Terrain == TerrainType.Empty)
             return;
         
         Cell.Item.OnChanged += OnCellItemChange;

@@ -1,6 +1,6 @@
 public enum TerrainType
 {
-    None,
+    Empty,
     Default,
     Start,
     End,

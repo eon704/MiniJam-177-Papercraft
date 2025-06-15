@@ -22,7 +22,7 @@ public class Board
       {
         TerrainType type = map[x, y] switch
         {
-          '0' => TerrainType.None,
+          '0' => TerrainType.Empty,
           
           '+' => TerrainType.Default,
           '1' => TerrainType.Default,
