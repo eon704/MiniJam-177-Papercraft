@@ -12,7 +12,7 @@ namespace PlayerStateMachine
         
         public List<Vector2Int> MoveOptions => new();
 
-        public List<Cell.TerrainType> MoveTerrain => new();
+        public List<TerrainType> MoveTerrain => new();
         
         public DefaultState(Sprite sprite, SpriteRenderer spriteRenderer)
         {

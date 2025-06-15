@@ -120,7 +120,7 @@ public class BoardPrefab : MonoBehaviour
         cellPrefabs[x, y] = Instantiate(cellPrefab, cellPosition, Quaternion.identity, transform);
         cellPrefabs[x, y].Initialize(cell, player, delay);
         
-        if (cell.Terrain == Cell.TerrainType.None || delay < longestDelay)
+        if (cell.Terrain == TerrainType.None || delay < longestDelay)
           continue;
         
         longestDelay = delay;

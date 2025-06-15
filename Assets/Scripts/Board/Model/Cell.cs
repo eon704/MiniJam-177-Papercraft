@@ -6,24 +6,6 @@ public class Cell
     public bool IsFree => Piece == null;
     public BoardPiece Piece { get; private set; }
     public Vector2Int Position { get; private set; }
-
-    public enum TerrainType
-    {
-        None,
-        Default,
-        Start,
-        End,
-        Water,
-        Stone,
-        Fire
-    }
-    
-    public enum CellItem
-    {
-        None,
-        Star,
-        RandomPowerup
-    }
     
     public TerrainType Terrain { get; private set; }
     public Observable<CellItem> Item { get; private set; }

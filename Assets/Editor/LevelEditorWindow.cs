@@ -12,8 +12,8 @@ public class LevelEditorWindow : EditorWindow
     private new bool hasUnsavedChanges;
     private float tileSize = 64f; // Size of each tile in pixels
     private float tilePadding = 4f; // Padding between tiles
-    private Dictionary<Cell.TerrainType, Texture2D> cellTextures;
-    private Dictionary<Cell.CellItem, Texture2D> itemTextures;
+    private Dictionary<TerrainType, Texture2D> cellTextures;
+    private Dictionary<CellItem, Texture2D> itemTextures;
 
     private enum EditorMode
     {
@@ -24,60 +24,62 @@ public class LevelEditorWindow : EditorWindow
 
     private EditorMode currentMode = EditorMode.Tiles;
 
-    private Dictionary<Cell.TerrainType, string> tileTexturePaths = new() {
-        { Cell.TerrainType.None, "Assets/Sprites/Cell/NewCell/Border.png" },
-        { Cell.TerrainType.Default, "Assets/Sprites/Cell/NewCell/Default Layer 2.png" },
-        { Cell.TerrainType.Start, "Assets/Sprites/Cell/NewCell/Start.png" },
-        { Cell.TerrainType.End, "Assets/Sprites/Cell/NewCell/Finish cell/StaticEnd.png" },
-        { Cell.TerrainType.Water, "Assets/Obstacles/water/0.gif" },
-        { Cell.TerrainType.Stone, "Assets/Sprites/Cell/NewCell/Group 869.png" },
-        { Cell.TerrainType.Fire, "Assets/Obstacles/fire/1.jpeg" }
+    private Dictionary<TerrainType, string> tileTexturePaths = new() {
+        { TerrainType.None, "Assets/Sprites/Cell/NewCell/Border.png" },
+        { TerrainType.Default, "Assets/Sprites/Cell/NewCell/Default Layer 2.png" },
+        { TerrainType.Start, "Assets/Sprites/Cell/NewCell/Start.png" },
+        { TerrainType.End, "Assets/Sprites/Cell/NewCell/Finish cell/StaticEnd.png" },
+        { TerrainType.Water, "Assets/Obstacles/water/0.gif" },
+        { TerrainType.Stone, "Assets/Sprites/Cell/NewCell/Group 869.png" },
+        { TerrainType.Fire, "Assets/Obstacles/fire/1.jpeg" }
     };
 
-    private Dictionary<Cell.CellItem, string> itemTexturePaths = new() {
-        { Cell.CellItem.Star, "Assets/Sprites/Stars/Group 988.png" },
+    private Dictionary<CellItem, string> itemTexturePaths = new() {
+        { CellItem.Star, "Assets/Sprites/Stars/Group 988.png" },
     };
 
-    private Dictionary<char, Cell.TerrainType> cellTypes = new() {
-        { '0', Cell.TerrainType.None },
+    private Dictionary<char, TerrainType> cellTypes = new() {
+        { '0', TerrainType.None },
 
-        { '+', Cell.TerrainType.Default },
-        { 'G', Cell.TerrainType.Default },
-        { '1', Cell.TerrainType.Default },
+        { '+', TerrainType.Default },
+        { 'G', TerrainType.Default },
+        { '1', TerrainType.Default },
 
-        { 'W', Cell.TerrainType.Water },
-        { '2', Cell.TerrainType.Water },
+        { 'W', TerrainType.Water },
+        { '2', TerrainType.Water },
 
-        { 'S', Cell.TerrainType.Stone },
-        { '3', Cell.TerrainType.Stone },
+        { 'S', TerrainType.Stone },
+        { '3', TerrainType.Stone },
 
-        { 'F', Cell.TerrainType.Fire },
+        { 'F', TerrainType.Fire },
 
-        { 'x', Cell.TerrainType.Start },
-        { 'y', Cell.TerrainType.End }
+        { 'x', TerrainType.Start },
+        { 'y', TerrainType.End }
     };
 
-    private List<Cell.TerrainType> toolTerrainTypes = new() {
-        Cell.TerrainType.None,
-        Cell.TerrainType.Default,
-        Cell.TerrainType.Start,
-        Cell.TerrainType.End,
-        Cell.TerrainType.Water,
+    private List<TerrainType> toolTerrainTypes = new() {
+        TerrainType.None,
+        TerrainType.Default,
+        TerrainType.Start,
+        TerrainType.End,
+        TerrainType.Water,
     };
 
-    private List<Cell.CellItem> toolItemTypes = new() {
-        Cell.CellItem.Star,
+    private List<CellItem> toolItemTypes = new() {
+        CellItem.Star,
     };
 
-    private Dictionary<char, Cell.CellItem> itemTypes = new() {
-        { 'G', Cell.CellItem.Star },
-        { '1', Cell.CellItem.Star },
-        { '2', Cell.CellItem.Star },
-        { '3', Cell.CellItem.Star }
+    private Dictionary<char, CellItem> itemTypes = new() {
+        { 'G', CellItem.Star },
+        { '1', CellItem.Star },
+        { '2', CellItem.Star },
+        { '3', CellItem.Star }
     };
 
-    private Cell.TerrainType selectedTerrainType = Cell.TerrainType.Default;
-    private Cell.CellItem? selectedItemType = null;
+    private TerrainType selectedTerrainType = TerrainType.Default;
+    private CellItem? selectedItemType = null;
+
+    private Vector2 leftPanelScroll;
 
     [MenuItem("Tools/Level Editor")]
     public static void ShowWindow()
@@ -138,7 +140,8 @@ public class LevelEditorWindow : EditorWindow
 
     private void DrawLeftPanel()
     {
-        EditorGUILayout.BeginVertical(GUILayout.Width(200));
+        EditorGUILayout.BeginVertical(GUILayout.Width(300));
+        leftPanelScroll = EditorGUILayout.BeginScrollView(leftPanelScroll);
         
         EditorGUILayout.LabelField("Level Editor", EditorStyles.boldLabel);
         EditorGUILayout.Space();
@@ -207,6 +210,7 @@ public class LevelEditorWindow : EditorWindow
             DiscardChanges();
         }
 
+        EditorGUILayout.EndScrollView();
         EditorGUILayout.EndVertical();
     }
 
@@ -221,7 +225,7 @@ public class LevelEditorWindow : EditorWindow
         foreach (var terrainType in toolTerrainTypes)
         {
             bool isSelected = selectedTerrainType == terrainType;
-            Rect rowRect = GUILayoutUtility.GetRect(0, 48, GUILayout.ExpandWidth(true), GUILayout.Height(48));
+            Rect rowRect = GUILayoutUtility.GetRect(0, 60, GUILayout.ExpandWidth(true), GUILayout.Height(60));
 
             // Detect hover
             bool isHover = rowRect.Contains(Event.current.mousePosition);
@@ -254,7 +258,7 @@ public class LevelEditorWindow : EditorWindow
 
             // Find the character that represents this terrain type
             char? terrainChar = cellTypes.FirstOrDefault(x => x.Value == terrainType).Key;
-            GUI.Label(new Rect(64, 16, rowRect.width - 64, 24), $"{terrainChar} - {terrainType}");
+            GUI.Label(new Rect(64, 16, rowRect.width - 64, 24), $"{terrainType}");
 
             EditorGUILayout.EndHorizontal();
             GUI.EndGroup();
@@ -402,12 +406,12 @@ public class LevelEditorWindow : EditorWindow
                         Rect tileRect = new Rect(posX, posY, tileSize, tileSize);
 
                         // Draw cell texture
-                        Cell.TerrainType cellType = cellTypes[tileChar];
+                        TerrainType cellType = cellTypes[tileChar];
                         Texture2D cellTexture = cellTextures[cellType];
                         GUI.DrawTexture(tileRect, cellTexture);
 
                         // Draw item texture if present
-                        if (itemTypes.TryGetValue(tileChar, out Cell.CellItem itemType))
+                        if (itemTypes.TryGetValue(tileChar, out CellItem itemType))
                         {
                             if (itemTextures.TryGetValue(itemType, out Texture2D itemTexture))
                             {

@@ -20,42 +20,42 @@ public class Board
     {
       for (int y = 0; y < size.y; y++)
       {
-        Cell.TerrainType type = map[x, y] switch
+        TerrainType type = map[x, y] switch
         {
-          '0' => Cell.TerrainType.None,
+          '0' => TerrainType.None,
           
-          '+' => Cell.TerrainType.Default,
-          '1' => Cell.TerrainType.Default,
+          '+' => TerrainType.Default,
+          '1' => TerrainType.Default,
           
-          'W' => Cell.TerrainType.Water,
-          '2' => Cell.TerrainType.Water,
+          'W' => TerrainType.Water,
+          '2' => TerrainType.Water,
           
-          'S' => Cell.TerrainType.Stone,
-          '3' => Cell.TerrainType.Stone,
+          'S' => TerrainType.Stone,
+          '3' => TerrainType.Stone,
           
-          'F' => Cell.TerrainType.Fire,
-          'x' => Cell.TerrainType.Start,
-          'y' => Cell.TerrainType.End,
-          _ => Cell.TerrainType.Default
+          'F' => TerrainType.Fire,
+          'x' => TerrainType.Start,
+          'y' => TerrainType.End,
+          _ => TerrainType.Default
         };
 
-        Cell.CellItem item = map[x, y] switch
+        CellItem item = map[x, y] switch
         {
-          'G' => Cell.CellItem.Star,
-          '1' => Cell.CellItem.Star,
-          '2' => Cell.CellItem.Star,
-          '3' => Cell.CellItem.Star,
-          _ => Cell.CellItem.None
+          'G' => CellItem.Star,
+          '1' => CellItem.Star,
+          '2' => CellItem.Star,
+          '3' => CellItem.Star,
+          _ => CellItem.None
         };
         
         CellArray[x, y] = new Cell(new Vector2Int(x, y), type, item);
 
-        if (type == Cell.TerrainType.Start)
+        if (type == TerrainType.Start)
         {
           StartCell = CellArray[x, y];
         }
         
-        if (item == Cell.CellItem.Star)
+        if (item == CellItem.Star)
         {
           StarCells.Add(CellArray[x, y]);
         }

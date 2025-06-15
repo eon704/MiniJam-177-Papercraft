@@ -18,10 +18,10 @@ namespace PlayerStateMachine
             new Vector2Int(0, 1)
         };
 
-        public List<Cell.TerrainType> MoveTerrain => new()
+        public List<TerrainType> MoveTerrain => new()
         {
-            Cell.TerrainType.Water,
-            Cell.TerrainType.Fire,
+            TerrainType.Water,
+            TerrainType.Fire,
         };
 
         public BoatState(GameObject gameObject, Player player)

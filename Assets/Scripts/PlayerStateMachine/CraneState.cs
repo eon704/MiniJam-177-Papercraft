@@ -20,13 +20,13 @@ namespace PlayerStateMachine
             new Vector2Int(-1, 0)
         };
 
-        public List<Cell.TerrainType> MoveTerrain => new()
+        public List<TerrainType> MoveTerrain => new()
         {
-            Cell.TerrainType.Default, 
-            Cell.TerrainType.Stone, 
-            Cell.TerrainType.Fire, 
-            Cell.TerrainType.Start,
-            Cell.TerrainType.End,
+            TerrainType.Default, 
+            TerrainType.Stone, 
+            TerrainType.Fire, 
+            TerrainType.Start,
+            TerrainType.End,
         };
         
         public CraneState(GameObject gameObject, Player player)

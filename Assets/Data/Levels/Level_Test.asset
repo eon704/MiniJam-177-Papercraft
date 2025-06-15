@@ -13,7 +13,19 @@ MonoBehaviour:
   m_Name: Level_Test
   m_EditorClassIdentifier: 
   MapSize: {x: 5, y: 7}
-  Map: ooooooooooooooooooooooooooooooooooo
+  Map: '00000
+
+    00000
+
+    00000
+
+    00000
+
+    00000
+
+    00000
+
+    00000'
   StartMovesPerForm:
   - State: 0
     Moves: -1

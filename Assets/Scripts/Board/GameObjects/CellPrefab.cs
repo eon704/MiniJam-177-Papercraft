@@ -40,21 +40,21 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     public void Initialize(Cell cellData, Player newPlayer, float delay)
     {
         Cell = cellData;
-        gameObject.SetActive(Cell.Terrain != Cell.TerrainType.None);
-        if (Cell.Terrain == Cell.TerrainType.None)
+        gameObject.SetActive(Cell.Terrain != TerrainType.None);
+        if (Cell.Terrain == TerrainType.None)
             return;
         
         Cell.Item.OnChanged += OnCellItemChange;
 
         player = newPlayer;
         
-        start.SetActive(Cell.Terrain == Cell.TerrainType.Start);
-        end.SetActive(Cell.Terrain == Cell.TerrainType.End);
-        fire.SetActive(Cell.Terrain == Cell.TerrainType.Fire);
-        water.SetActive(Cell.Terrain == Cell.TerrainType.Water);
-        stone.SetActive(Cell.Terrain == Cell.TerrainType.Stone);
+        start.SetActive(Cell.Terrain == TerrainType.Start);
+        end.SetActive(Cell.Terrain == TerrainType.End);
+        fire.SetActive(Cell.Terrain == TerrainType.Fire);
+        water.SetActive(Cell.Terrain == TerrainType.Water);
+        stone.SetActive(Cell.Terrain == TerrainType.Stone);
 
-        star.SetActive(Cell.Item == Cell.CellItem.Star);
+        star.SetActive(Cell.Item == CellItem.Star);
         starDefaultScale = star.transform.localScale.x;
         
         transform.localScale = Vector3.zero;
@@ -144,15 +144,15 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         player.Move(this);
     }
 
-    private void OnCellItemChange(Observable<Cell.CellItem> item, Cell.CellItem oldValue, Cell.CellItem newValue)
+    private void OnCellItemChange(Observable<CellItem> item, CellItem oldValue, CellItem newValue)
     {
-        if (oldValue == Cell.CellItem.Star && newValue == Cell.CellItem.None)
+        if (oldValue == CellItem.Star && newValue == CellItem.None)
         {
             starGrowTween?.Kill();
             starShrinkTween = star.transform.DOScale(Vector3.zero, 0.5f)
                 .OnComplete(() => star.SetActive(false));
         }
-        else if (oldValue == Cell.CellItem.None && newValue == Cell.CellItem.Star)
+        else if (oldValue == CellItem.None && newValue == CellItem.Star)
         {
             star.SetActive(true);
             starShrinkTween?.Kill();

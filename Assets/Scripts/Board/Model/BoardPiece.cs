@@ -9,7 +9,7 @@ public class BoardPiece
 
   private List<Vector2Int> moveOptions = new();
 
-  private List<Cell.TerrainType> moveTerrain = new();
+  private List<TerrainType> moveTerrain = new();
   
   public Action OnCollectedStar;
   
@@ -51,7 +51,7 @@ public class BoardPiece
     {
       Vector2Int targetPosition = currentPosition + motion;
       Cell targetCell = board.GetCell(targetPosition);
-      if (targetCell == null || targetCell.Terrain == Cell.TerrainType.None)
+      if (targetCell == null || targetCell.Terrain == TerrainType.None)
         continue;
 
       bool isValidMove = moveTerrain.Contains(targetCell.Terrain); 

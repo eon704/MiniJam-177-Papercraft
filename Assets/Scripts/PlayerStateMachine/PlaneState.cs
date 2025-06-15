@@ -18,12 +18,12 @@ namespace PlayerStateMachine
             new Vector2Int(1, -1)
         };
 
-        public List<Cell.TerrainType> MoveTerrain => new()
+        public List<TerrainType> MoveTerrain => new()
         {
-            Cell.TerrainType.Default, 
-            Cell.TerrainType.Fire,
-            Cell.TerrainType.Start,
-            Cell.TerrainType.End,
+            TerrainType.Default, 
+            TerrainType.Fire,
+            TerrainType.Start,
+            TerrainType.End,
         };
         
         public PlaneState(GameObject gameObject, Player player)

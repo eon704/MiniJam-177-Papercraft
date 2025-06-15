@@ -215,7 +215,7 @@ public class Player : MonoBehaviour
         
         if (success)
         {
-            isMovementLocked = targetCell.Cell.Terrain == Cell.TerrainType.Fire;
+            isMovementLocked = targetCell.Cell.Terrain == TerrainType.Fire;
             targetCell.ShakeCell();
             _movesPerForm[type]--;
             OnMovesLeftChanged?.Invoke(type, _movesPerForm[type]);
@@ -271,7 +271,7 @@ public class Player : MonoBehaviour
         
         foreach (var cell in _boardPrefab.Board.StarCells)
         {
-            if (cell.Item == Cell.CellItem.Star)
+            if (cell.Item == CellItem.Star)
             {
                 starsRemaining.Add(cell.Position);
             }
@@ -339,10 +339,10 @@ public class Player : MonoBehaviour
     private void OnMove()
     {
         Cell targetCell = BoardPiecePrefab.CurrentCell.Cell;
-        if (targetCell.Terrain == Cell.TerrainType.End)
+        if (targetCell.Terrain == TerrainType.End)
         {
             OnPlayerWon?.Invoke(StarAmount);
-        } else if (targetCell.Terrain == Cell.TerrainType.Fire)
+        } else if (targetCell.Terrain == TerrainType.Fire)
         {
             OnPlayerDied?.Invoke();
         }
