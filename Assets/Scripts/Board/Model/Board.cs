@@ -10,7 +10,7 @@ public class Board
   
   public readonly BoardHistory BoardHistory = new();
   
-  public Board(Vector2Int size, char[,] map)
+  public Board(Vector2Int size, CellData[,] map)
   {
     Size = size; 
     CellArray = new Cell[size.x, size.y];
@@ -20,42 +20,15 @@ public class Board
     {
       for (int y = 0; y < size.y; y++)
       {
-        TerrainType type = map[x, y] switch
-        {
-          '0' => TerrainType.Empty,
-          
-          '+' => TerrainType.Default,
-          '1' => TerrainType.Default,
-          
-          'W' => TerrainType.Water,
-          '2' => TerrainType.Water,
-          
-          'S' => TerrainType.Stone,
-          '3' => TerrainType.Stone,
-          
-          'F' => TerrainType.Fire,
-          'x' => TerrainType.Start,
-          'y' => TerrainType.End,
-          _ => TerrainType.Default
-        };
+        CellData cellData = map[x, y];
+        CellArray[x, y] = new Cell(new Vector2Int(x, y), cellData.Terrain, cellData.Item);
 
-        CellItem item = map[x, y] switch
-        {
-          'G' => CellItem.Star,
-          '1' => CellItem.Star,
-          '2' => CellItem.Star,
-          '3' => CellItem.Star,
-          _ => CellItem.None
-        };
-        
-        CellArray[x, y] = new Cell(new Vector2Int(x, y), type, item);
-
-        if (type == TerrainType.Start)
+        if (cellData.Terrain == TerrainType.Start)
         {
           StartCell = CellArray[x, y];
         }
         
-        if (item == CellItem.Star)
+        if (cellData.Item == CellItem.Star)
         {
           StarCells.Add(CellArray[x, y]);
         }

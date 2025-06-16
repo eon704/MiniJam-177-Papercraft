@@ -415,9 +415,22 @@ public class LevelEditorWindow : EditorWindow
         // Preview Area
         if (currentLevel != null)
         {
-            // Sanitize the map string
-            string sanitizedMap = SanitizeMapString(currentLevel.Map);
-            
+            // Initialize map if it doesn't exist or has wrong size
+            if (currentLevel.Map == null || 
+                currentLevel.Map.GetLength(0) != currentLevel.MapSize.x || 
+                currentLevel.Map.GetLength(1) != currentLevel.MapSize.y)
+            {
+                currentLevel.Map = new CellData[currentLevel.MapSize.x, currentLevel.MapSize.y];
+                for (int x = 0; x < currentLevel.MapSize.x; x++)
+                {
+                    for (int y = 0; y < currentLevel.MapSize.y; y++)
+                    {
+                        currentLevel.Map[x, y] = new CellData(TerrainType.Default, CellItem.None);
+                    }
+                }
+                hasUnsavedChanges = true;
+            }
+
             // Calculate the total size of the grid with padding
             float totalWidth = currentLevel.MapSize.x * (tileSize + tilePadding);
             float totalHeight = currentLevel.MapSize.y * (tileSize + tilePadding);
@@ -430,104 +443,72 @@ public class LevelEditorWindow : EditorWindow
             {
                 for (int x = 0; x < currentLevel.MapSize.x; x++)
                 {
-                    int index = y * currentLevel.MapSize.x + x;
-                    if (index < sanitizedMap.Length)
+                    // Ensure cell data exists
+                    if (currentLevel.Map[x, y] == null)
                     {
-                        char tileChar = sanitizedMap[index];
-                        
-                        // Calculate position with padding
-                        float posX = x * (tileSize + tilePadding);
-                        float posY = y * (tileSize + tilePadding);
-                        Rect tileRect = new Rect(posX, posY, tileSize, tileSize);
+                        currentLevel.Map[x, y] = new CellData(TerrainType.Default, CellItem.None);
+                        hasUnsavedChanges = true;
+                    }
 
-                        // Handle click on tile
-                        Event e = Event.current;
-                        if (e.type == EventType.MouseDown && e.button == 0 && tileRect.Contains(e.mousePosition))
+                    CellData cellData = currentLevel.Map[x, y];
+
+                    // Calculate position with padding
+                    float posX = x * (tileSize + tilePadding);
+                    float posY = y * (tileSize + tilePadding);
+                    Rect tileRect = new Rect(posX, posY, tileSize, tileSize);
+
+                    // Handle click on tile
+                    Event e = Event.current;
+                    if (e.type == EventType.MouseDown && e.button == 0 && tileRect.Contains(e.mousePosition))
+                    {
+                        if (selectedItemType.HasValue)
                         {
-                            if (selectedItemType.HasValue)
-                            {
-                                // Get the current terrain type for this cell
-                                TerrainType currentTerrain = cellTypes[tileChar];
-                                
-                                // Check if the current terrain type is valid for items
-                                bool isValidTerrain = currentTerrain == TerrainType.Default || 
-                                                    currentTerrain == TerrainType.Stone || 
-                                                    currentTerrain == TerrainType.Water;
+                            // Get the current terrain type for this cell
+                            TerrainType currentTerrain = cellData.Terrain;
+                            
+                            // Check if the current terrain type is valid for items
+                            bool isValidTerrain = currentTerrain == TerrainType.Default || 
+                                                currentTerrain == TerrainType.Stone || 
+                                                currentTerrain == TerrainType.Water;
 
-                                if (isValidTerrain)
-                                {
-                                    if (selectedItemType.Value == CellItem.None)
-                                    {
-                                        // Find a character that represents just the current terrain without any item
-                                        char? terrainChar = cellTypes.FirstOrDefault(x => x.Value == currentTerrain).Key;
-                                        if (terrainChar.HasValue)
-                                        {
-                                            // Update the map string to remove the item
-                                            char[] mapChars = sanitizedMap.ToCharArray();
-                                            mapChars[index] = terrainChar.Value;
-                                            currentLevel.Map = new string(mapChars);
-                                            hasUnsavedChanges = true;
-                                            e.Use();
-                                        }
-                                    }
-                                    else
-                                    {
-                                        // Find the character that represents the selected item type
-                                        char? itemChar = itemTypes.FirstOrDefault(x => x.Value == selectedItemType.Value).Key;
-                                        if (itemChar.HasValue)
-                                        {
-                                            // Find a character that represents both the current terrain and the selected item
-                                            char? combinedChar = itemTypes
-                                                .Where(x => x.Value == selectedItemType.Value)
-                                                .Select(x => x.Key)
-                                                .FirstOrDefault(c => cellTypes[c] == currentTerrain);
-
-                                            if (combinedChar.HasValue)
-                                            {
-                                                // Update the map string
-                                                char[] mapChars = sanitizedMap.ToCharArray();
-                                                mapChars[index] = combinedChar.Value;
-                                                currentLevel.Map = new string(mapChars);
-                                                hasUnsavedChanges = true;
-                                                e.Use();
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            else
+                            if (isValidTerrain)
                             {
-                                // Find the character that represents the selected terrain type
-                                char? terrainChar = cellTypes.FirstOrDefault(x => x.Value == selectedTerrainType).Key;
-                                if (terrainChar.HasValue)
+                                if (cellData.Item != selectedItemType.Value)
                                 {
-                                    // Update the map string
-                                    char[] mapChars = sanitizedMap.ToCharArray();
-                                    mapChars[index] = terrainChar.Value;
-                                    currentLevel.Map = new string(mapChars);
+                                    cellData.Item = selectedItemType.Value;
+                                    currentLevel.Map[x, y] = cellData;
                                     hasUnsavedChanges = true;
                                     e.Use();
                                 }
                             }
                         }
-
-                        // Draw cell texture
-                        TerrainType cellType = cellTypes[tileChar];
-                        Texture2D cellTexture = cellTextures[cellType];
-                        GUI.DrawTexture(tileRect, cellTexture);
-
-                        // Draw item texture if present
-                        if (itemTypes.TryGetValue(tileChar, out CellItem itemType))
+                        else
                         {
-                            if (itemTextures.TryGetValue(itemType, out Texture2D itemTexture))
+                            if (cellData.Terrain != selectedTerrainType)
                             {
-                                // Calculate star rect to be half the size and centered
-                                float starSize = tileSize * 0.5f;
-                                float starX = posX + (tileSize - starSize) * 0.5f;
-                                float starY = posY + (tileSize - starSize) * 0.5f;
-                                Rect starRect = new Rect(starX, starY, starSize, starSize);
-                                GUI.DrawTexture(starRect, itemTexture);
+                                cellData.Terrain = selectedTerrainType;
+                                currentLevel.Map[x, y] = cellData;
+                                hasUnsavedChanges = true;
+                                e.Use();
                             }
+                        }
+                    }
+
+                    // Draw cell texture
+                    Texture2D cellTexture = cellTextures[cellData.Terrain];
+                    GUI.DrawTexture(tileRect, cellTexture);
+
+                    // Draw item texture if present
+                    if (cellData.Item != CellItem.None)
+                    {
+                        if (itemTextures.TryGetValue(cellData.Item, out Texture2D itemTexture))
+                        {
+                            // Calculate star rect to be half the size and centered
+                            float starSize = tileSize * 0.5f;
+                            float starX = posX + (tileSize - starSize) * 0.5f;
+                            float starY = posY + (tileSize - starSize) * 0.5f;
+                            Rect starRect = new Rect(starX, starY, starSize, starSize);
+                            GUI.DrawTexture(starRect, itemTexture);
                         }
                     }
                 }

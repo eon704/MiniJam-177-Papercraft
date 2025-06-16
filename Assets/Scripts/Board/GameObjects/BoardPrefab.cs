@@ -10,7 +10,7 @@ public class BoardPrefab : MonoBehaviour
   [SerializeField] private CellPrefab cellPrefab;
   
   private Grid worldGrid;
-  private string map;
+  private CellData[,] map;
   public Vector2Int Size { get; private set; }
   public Vector3 WorldCenter { get; private set; }
   
@@ -19,11 +19,11 @@ public class BoardPrefab : MonoBehaviour
   
   private CellPrefab[,] cellPrefabs;
   
-  public void Initialize(string newMap, Vector2Int newSize)
+  public void Initialize(CellData[,] newMap, Vector2Int newSize)
   {
     map = newMap;
     Size = newSize;
-    Board = new Board(Size, ParseMap());
+    Board = new Board(Size, map);
     cellPrefabs = new CellPrefab[Size.x, Size.y];
     
     InstantiateBoard();
@@ -73,36 +73,6 @@ public class BoardPrefab : MonoBehaviour
     worldGrid = GetComponent<Grid>();
   }
 
-  private char[,] ParseMap()
-  {
-    // Normalize newlines to '\n'
-    map = map.Replace("\r\n", "\n");
-    
-    char[,] parsedMap = new char[Size.x, Size.y];
-    int rowLength = Size.x + 1;
-    for (int i = 0; i < map.Length; i++)
-    {
-      char key = map[i];
-      if (key == '\n')
-        continue;
-      
-      int x = i % rowLength;
-      int y = i / rowLength;
-      parsedMap[x, y] = key;
-    }
-    
-    // Y-flip the map
-    for (int x = 0; x < Size.x; x++)
-    {
-      for (int y = 0; y < Size.y / 2; y++)
-      {
-        (parsedMap[x, y], parsedMap[x, Size.y - y - 1]) = (parsedMap[x, Size.y - y - 1], parsedMap[x, y]);
-      }
-    }
-
-    return parsedMap;
-  }
-
   private void InstantiateBoard()
   {
     int centerX = Size.x / 2;
@@ -134,7 +104,6 @@ public class BoardPrefab : MonoBehaviour
   {
     IsSpawnAnimationComplete = true;
   }
-
 
   private void UpdateBorder()
   {
