@@ -10,7 +10,7 @@ public class BoardPrefab : MonoBehaviour
   [SerializeField] private CellPrefab cellPrefab;
   
   private Grid worldGrid;
-  private CellData[,] map;
+  private CellData[] map;
   public Vector2Int Size { get; private set; }
   public Vector3 WorldCenter { get; private set; }
   
@@ -19,7 +19,7 @@ public class BoardPrefab : MonoBehaviour
   
   private CellPrefab[,] cellPrefabs;
   
-  public void Initialize(CellData[,] newMap, Vector2Int newSize)
+  public void Initialize(CellData[] newMap, Vector2Int newSize)
   {
     map = newMap;
     Size = newSize;

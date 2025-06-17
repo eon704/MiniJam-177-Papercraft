@@ -10,17 +10,18 @@ public class Board
   
   public readonly BoardHistory BoardHistory = new();
   
-  public Board(Vector2Int size, CellData[,] map)
+  public Board(Vector2Int size, CellData[] map)
   {
-    Size = size; 
+    Size = size;
     CellArray = new Cell[size.x, size.y];
     
-    // Parse the board map
-    for (int x = 0; x < size.x; x++)
+    // Populate the board with cells
+    for (int y = 0; y < size.y; y++)
     {
-      for (int y = 0; y < size.y; y++)
+      for (int x = 0; x < size.x; x++)
       {
-        CellData cellData = map[x, y];
+        int index = y * size.x + x;
+        CellData cellData = map[index];
         CellArray[x, y] = new Cell(new Vector2Int(x, y), cellData.Terrain, cellData.Item);
 
         if (cellData.Terrain == TerrainType.Start)

@@ -12,8 +12,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5465c63d54240f59ad0d61f1853172b, type: 3}
   m_Name: Level_4
   m_EditorClassIdentifier: 
-  MapSize: {x: 5, y: 1}
-  Map: x222y
+  MapSize: {x: 5, y: 3}
+  Map:
+  - Terrain: 4
+    Item: 0
+  - Terrain: 4
+    Item: 0
+  - Terrain: 4
+    Item: 0
+  - Terrain: 4
+    Item: 0
+  - Terrain: 4
+    Item: 0
+  - Terrain: 2
+    Item: 0
+  - Terrain: 4
+    Item: 1
+  - Terrain: 4
+    Item: 1
+  - Terrain: 4
+    Item: 1
+  - Terrain: 3
+    Item: 0
+  - Terrain: 4
+    Item: 0
+  - Terrain: 4
+    Item: 0
+  - Terrain: 4
+    Item: 0
+  - Terrain: 4
+    Item: 0
+  - Terrain: 4
+    Item: 0
   StartMovesPerForm:
   - State: 0
     Moves: 0

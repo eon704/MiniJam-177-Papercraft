@@ -13,7 +13,27 @@ MonoBehaviour:
   m_Name: Level_3
   m_EditorClassIdentifier: 
   MapSize: {x: 5, y: 2}
-  Map: x0G0y0G0G0
+  Map:
+  - Terrain: 2
+    Item: 0
+  - Terrain: 0
+    Item: 0
+  - Terrain: 1
+    Item: 1
+  - Terrain: 0
+    Item: 0
+  - Terrain: 3
+    Item: 0
+  - Terrain: 0
+    Item: 0
+  - Terrain: 1
+    Item: 1
+  - Terrain: 0
+    Item: 0
+  - Terrain: 1
+    Item: 1
+  - Terrain: 0
+    Item: 0
   StartMovesPerForm:
   - State: 0
     Moves: 0

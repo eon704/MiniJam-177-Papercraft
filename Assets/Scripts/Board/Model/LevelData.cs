@@ -6,7 +6,7 @@ public class LevelData : ScriptableObject
 {
     [Header("Map Data")]
     public Vector2Int MapSize;
-    public CellData[,] Map;
+    public CellData[] Map;
 
     [Header("Player data")]
     public List<MovePerFormEntry> StartMovesPerForm;
@@ -17,10 +17,10 @@ public class LevelData : ScriptableObject
         {
             LevelData defaultLevel = CreateInstance<LevelData>();
             defaultLevel.MapSize = new Vector2Int(5, 1);
-            defaultLevel.Map = new CellData[5, 1];
+            defaultLevel.Map = new CellData[5 * 1];
             for (int x = 0; x < 5; x++)
             {
-                defaultLevel.Map[x, 0] = new CellData(TerrainType.Default, CellItem.None);
+                defaultLevel.Map[x] = new CellData(TerrainType.Default, CellItem.None);
             }
             defaultLevel.StartMovesPerForm = new List<MovePerFormEntry>()
             {

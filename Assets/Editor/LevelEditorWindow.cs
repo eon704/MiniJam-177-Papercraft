@@ -382,8 +382,57 @@ public class LevelEditorWindow : EditorWindow
         EditorGUILayout.LabelField("Level Analysis", EditorStyles.boldLabel);
         if (currentLevel != null)
         {
-            // TODO: Add analysis tools
-            EditorGUILayout.HelpBox("Analysis tools coming soon.", MessageType.Info);
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+
+            // Count different terrain types
+            Dictionary<TerrainType, int> terrainCounts = new();
+            Dictionary<CellItem, int> itemCounts = new();
+
+            for (int i = 0; i < currentLevel.Map.Length; i++)
+            {
+                CellData cell = currentLevel.Map[i];
+                terrainCounts[cell.Terrain] = terrainCounts.GetValueOrDefault(cell.Terrain) + 1;
+                itemCounts[cell.Item] = itemCounts.GetValueOrDefault(cell.Item) + 1;
+            }
+
+            EditorGUILayout.LabelField("Terrain Distribution", EditorStyles.boldLabel);
+            foreach (var count in terrainCounts)
+            {
+                EditorGUILayout.LabelField($"{count.Key}: {count.Value}");
+            }
+
+            EditorGUILayout.Space();
+
+            EditorGUILayout.LabelField("Item Distribution", EditorStyles.boldLabel);
+            foreach (var count in itemCounts)
+            {
+                EditorGUILayout.LabelField($"{count.Key}: {count.Value}");
+            }
+
+            EditorGUILayout.Space();
+
+            // Debug Preview
+            EditorGUILayout.LabelField("Debug Preview", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField($"Map Size: {currentLevel.MapSize}");
+            EditorGUILayout.LabelField($"Total Cells: {currentLevel.Map.Length}");
+
+            if (GUILayout.Button("Print Map Data"))
+            {
+                string mapData = "";
+                for (int y = 0; y < currentLevel.MapSize.y; y++)
+                {
+                    for (int x = 0; x < currentLevel.MapSize.x; x++)
+                    {
+                        int index = y * currentLevel.MapSize.x + x;
+                        CellData cell = currentLevel.Map[index];
+                        mapData += $"({cell.Terrain}, {cell.Item}) ";
+                    }
+                    mapData += "\n";
+                }
+                Debug.Log($"Map Data:\n{mapData}");
+            }
+
+            EditorGUILayout.EndVertical();
         }
         else
         {
@@ -416,17 +465,12 @@ public class LevelEditorWindow : EditorWindow
         if (currentLevel != null)
         {
             // Initialize map if it doesn't exist or has wrong size
-            if (currentLevel.Map == null || 
-                currentLevel.Map.GetLength(0) != currentLevel.MapSize.x || 
-                currentLevel.Map.GetLength(1) != currentLevel.MapSize.y)
+            if (currentLevel.Map == null || currentLevel.Map.Length != currentLevel.MapSize.x * currentLevel.MapSize.y)
             {
-                currentLevel.Map = new CellData[currentLevel.MapSize.x, currentLevel.MapSize.y];
-                for (int x = 0; x < currentLevel.MapSize.x; x++)
+                currentLevel.Map = new CellData[currentLevel.MapSize.x * currentLevel.MapSize.y];
+                for (int i = 0; i < currentLevel.Map.Length; i++)
                 {
-                    for (int y = 0; y < currentLevel.MapSize.y; y++)
-                    {
-                        currentLevel.Map[x, y] = new CellData(TerrainType.Default, CellItem.None);
-                    }
+                    currentLevel.Map[i] = new CellData(TerrainType.Default, CellItem.None);
                 }
                 hasUnsavedChanges = true;
             }
@@ -443,14 +487,16 @@ public class LevelEditorWindow : EditorWindow
             {
                 for (int x = 0; x < currentLevel.MapSize.x; x++)
                 {
+                    int index = y * currentLevel.MapSize.x + x;
+                    
                     // Ensure cell data exists
-                    if (currentLevel.Map[x, y] == null)
+                    if (currentLevel.Map[index] == null)
                     {
-                        currentLevel.Map[x, y] = new CellData(TerrainType.Default, CellItem.None);
+                        currentLevel.Map[index] = new CellData(TerrainType.Default, CellItem.None);
                         hasUnsavedChanges = true;
                     }
 
-                    CellData cellData = currentLevel.Map[x, y];
+                    CellData cellData = currentLevel.Map[index];
 
                     // Calculate position with padding
                     float posX = x * (tileSize + tilePadding);
@@ -476,7 +522,7 @@ public class LevelEditorWindow : EditorWindow
                                 if (cellData.Item != selectedItemType.Value)
                                 {
                                     cellData.Item = selectedItemType.Value;
-                                    currentLevel.Map[x, y] = cellData;
+                                    currentLevel.Map[index] = cellData;
                                     hasUnsavedChanges = true;
                                     e.Use();
                                 }
@@ -487,7 +533,7 @@ public class LevelEditorWindow : EditorWindow
                             if (cellData.Terrain != selectedTerrainType)
                             {
                                 cellData.Terrain = selectedTerrainType;
-                                currentLevel.Map[x, y] = cellData;
+                                currentLevel.Map[index] = cellData;
                                 hasUnsavedChanges = true;
                                 e.Use();
                             }
