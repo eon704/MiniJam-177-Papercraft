@@ -102,7 +102,7 @@ public class LevelEditorWindow : EditorWindow
     {
         cellTextures = new();
         itemTextures = new();
-        
+
         foreach (var tileType in tileTexturePaths)
         {
             cellTextures[tileType.Key] = AssetDatabase.LoadAssetAtPath<Texture2D>(tileType.Value);
@@ -178,10 +178,10 @@ public class LevelEditorWindow : EditorWindow
     {
         EditorGUILayout.BeginVertical(GUILayout.Width(leftPanelWidth));
         leftPanelScroll = EditorGUILayout.BeginScrollView(leftPanelScroll);
-        
+
         // Add padding container
         EditorGUILayout.BeginVertical(new GUIStyle { padding = new RectOffset(10, 10, 10, 10) });
-        
+
         // Level Selection
         EditorGUILayout.LabelField("Current Level", EditorStyles.boldLabel);
         var newLevel = (LevelData)EditorGUILayout.ObjectField(currentLevel, typeof(LevelData), false);
@@ -240,7 +240,7 @@ public class LevelEditorWindow : EditorWindow
     private void DrawToolSelection()
     {
         EditorGUILayout.BeginHorizontal();
-        
+
         if (GUILayout.Toggle(currentMode == EditorMode.Tiles, "Tiles", EditorStyles.toolbarButton))
         {
             currentMode = EditorMode.Tiles;
@@ -253,7 +253,7 @@ public class LevelEditorWindow : EditorWindow
         {
             currentMode = EditorMode.Analysis;
         }
-        
+
         EditorGUILayout.EndHorizontal();
     }
 
@@ -399,7 +399,10 @@ public class LevelEditorWindow : EditorWindow
 
             // Solvability Status
             EditorGUILayout.LabelField("Level Solvability", EditorStyles.boldLabel);
-            EditorGUILayout.HelpBox("Solvability status will be displayed here.", MessageType.Info);
+            bool isSolvable = IsLevelSolvable(currentLevel);
+            string solvabilityMessage = isSolvable ? "This level is solvable." : "This level is NOT solvable.";
+            MessageType messageType = isSolvable ? MessageType.Info : MessageType.Error;
+            EditorGUILayout.HelpBox(solvabilityMessage, messageType);
 
             EditorGUILayout.Space();
 
@@ -417,19 +420,13 @@ public class LevelEditorWindow : EditorWindow
         }
     }
 
-    private string SanitizeMapString(string map)
-    {
-        // Remove all newline characters and carriage returns
-        return Regex.Replace(map, @"[\r\n]+", "");
-    }
-
     private void DrawPreviewPanel()
     {
         EditorGUILayout.BeginVertical();
-        
+
         // Add padding container
         EditorGUILayout.BeginVertical(new GUIStyle { padding = new RectOffset(10, 10, 10, 10) });
-        
+
         // Preview Header
         EditorGUILayout.BeginHorizontal();
         EditorGUILayout.LabelField("Level Preview", EditorStyles.boldLabel);
@@ -455,17 +452,17 @@ public class LevelEditorWindow : EditorWindow
             // Calculate the total size of the grid with padding
             float totalWidth = currentLevel.MapSize.x * (tileSize + tilePadding);
             float totalHeight = currentLevel.MapSize.y * (tileSize + tilePadding);
-            
+
             // Create a scroll view for the grid
             scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition, GUILayout.Width(totalWidth + 20), GUILayout.Height(totalHeight + 20));
-            
+
             // Draw the grid
             for (int y = 0; y < currentLevel.MapSize.y; y++)
             {
                 for (int x = 0; x < currentLevel.MapSize.x; x++)
                 {
                     int index = y * currentLevel.MapSize.x + x;
-                    
+
                     // Ensure cell data exists
                     if (currentLevel.Map[index] == null)
                     {
@@ -488,10 +485,10 @@ public class LevelEditorWindow : EditorWindow
                         {
                             // Get the current terrain type for this cell
                             TerrainType currentTerrain = cellData.Terrain;
-                            
+
                             // Check if the current terrain type is valid for items
-                            bool isValidTerrain = currentTerrain == TerrainType.Default || 
-                                                currentTerrain == TerrainType.Stone || 
+                            bool isValidTerrain = currentTerrain == TerrainType.Default ||
+                                                currentTerrain == TerrainType.Stone ||
                                                 currentTerrain == TerrainType.Water;
 
                             if (isValidTerrain)
@@ -536,14 +533,14 @@ public class LevelEditorWindow : EditorWindow
                     }
                 }
             }
-            
+
             EditorGUILayout.EndScrollView();
         }
         else
         {
             EditorGUILayout.HelpBox("No level selected. Create a new level or select an existing one.", MessageType.Info);
         }
-        
+
         EditorGUILayout.EndVertical(); // End padding container
         EditorGUILayout.EndVertical();
     }
@@ -563,7 +560,7 @@ public class LevelEditorWindow : EditorWindow
         LevelData newLevel = LevelData.DefaultLevel;
         AssetDatabase.CreateAsset(newLevel, path);
         AssetDatabase.SaveAssets();
-        
+
         currentLevel = newLevel;
         hasUnsavedChanges = false;
         UpdateWindowTitle();
@@ -597,5 +594,42 @@ public class LevelEditorWindow : EditorWindow
         currentLevel = AssetDatabase.LoadAssetAtPath<LevelData>(path);
         hasUnsavedChanges = false;
         UpdateWindowTitle();
+    }
+    
+    private bool IsLevelSolvable(LevelData level)
+    {
+        if (level == null || level.Map == null || level.Map.Length == 0)
+        {
+            Debug.LogError("Invalid level data or it's components are NULL or empty.");
+            return false;
+        }
+
+        // Check if level is valid
+        if (!level.IsValid())
+        {
+            Debug.LogError("LevelData is not valid.");
+            return false;
+        }
+
+        // Find the start and end Cells
+        CellData startCell;
+        CellData endCell;
+        foreach (var cell in level.Map)
+        {
+            if (cell.Terrain == TerrainType.Start)
+            {
+                startCell = cell;
+            }
+            else if (cell.Terrain == TerrainType.End)
+            {
+                endCell = cell;
+            }
+        }
+
+        // Solve using BFS
+        
+        
+
+        return true;
     }
 } 
