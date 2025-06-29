@@ -37,7 +37,7 @@ MonoBehaviour:
   - Terrain: 1
     Item: 0
   - Terrain: 1
-    Item: 1
+    Item: 0
   - Terrain: 5
     Item: 0
   - Terrain: 0
@@ -47,28 +47,28 @@ MonoBehaviour:
   - Terrain: 4
     Item: 0
   - Terrain: 5
-    Item: 0
-  - Terrain: 1
     Item: 1
-  - Terrain: 5
+  - Terrain: 1
     Item: 0
+  - Terrain: 5
+    Item: 1
   - Terrain: 4
     Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 6
+    Item: 0
+  - Terrain: 5
+    Item: 1
   - Terrain: 1
     Item: 0
   - Terrain: 0
     Item: 0
+  - Terrain: 4
+    Item: 0
   - Terrain: 5
     Item: 0
   - Terrain: 1
-    Item: 1
-  - Terrain: 1
-    Item: 0
-  - Terrain: 4
-    Item: 0
-  - Terrain: 6
-    Item: 0
-  - Terrain: 6
     Item: 0
   - Terrain: 6
     Item: 0
@@ -76,7 +76,7 @@ MonoBehaviour:
     Item: 0
   - Terrain: 1
     Item: 0
-  - Terrain: 1
+  - Terrain: 6
     Item: 0
   - Terrain: 3
     Item: 0
@@ -90,8 +90,8 @@ MonoBehaviour:
   - State: 1
     Moves: 3
   - State: 2
-    Moves: 3
+    Moves: 2
   - State: 3
-    Moves: 3
+    Moves: 1
   - State: 4
-    Moves: 3
+    Moves: 2

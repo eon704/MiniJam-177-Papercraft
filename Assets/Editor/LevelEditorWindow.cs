@@ -87,6 +87,7 @@ public class LevelEditorWindow : EditorWindow
     private bool isDraggingSplitter = false;
     private float splitterWidth = 5f; // Width of the draggable splitter
     private bool? lastSolvabilityResult = null; // Cache the result
+    private bool isCheckingSolvability = false; // Track if solvability check is in progress
 
     [MenuItem("Tools/Level Editor")]
     public static void ShowWindow()
@@ -190,7 +191,10 @@ public class LevelEditorWindow : EditorWindow
         {
             currentLevel = newLevel;
             hasUnsavedChanges = false;
-            lastSolvabilityResult = null; // Clear cached result when level changes
+            
+            // Clear solvability check state when level changes
+            ResetSolvabilityCheck();
+            
             UpdateWindowTitle();
         }
 
@@ -263,6 +267,12 @@ public class LevelEditorWindow : EditorWindow
     {
         EditorGUILayout.LabelField("Tile Editor", EditorStyles.boldLabel);
         EditorGUILayout.Space();
+
+        if (currentLevel == null)
+        {
+            EditorGUILayout.HelpBox("No level selected.", MessageType.Info);
+            return;
+        }
 
         // Terrain Type Selection
         EditorGUILayout.LabelField("Terrain Type", EditorStyles.boldLabel);
@@ -356,9 +366,6 @@ public class LevelEditorWindow : EditorWindow
             GUILayout.Space(2);
         }
         EditorGUILayout.EndVertical();
-
-        EditorGUILayout.Space();
-        EditorGUILayout.HelpBox("Click on tiles in the preview to edit them.", MessageType.Info);
     }
 
     private void DrawMovesTool()
@@ -370,6 +377,8 @@ public class LevelEditorWindow : EditorWindow
             for (int i = 0; i < currentLevel.StartMovesPerForm.Count; i++)
             {
                 var moveEntry = currentLevel.StartMovesPerForm[i];
+                if (moveEntry.State == Player.StateType.Default)
+                    continue; // Hide Default moves from the editor
                 EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.LabelField(moveEntry.State.ToString(), GUILayout.Width(80));
 
@@ -380,6 +389,7 @@ public class LevelEditorWindow : EditorWindow
                     currentLevel.StartMovesPerForm[i] = moveEntry;
                     EditorUtility.SetDirty(currentLevel);
                     hasUnsavedChanges = true;
+                    ResetSolvabilityCheck(); // Reset when level changes
                 }
 
                 EditorGUILayout.EndHorizontal();
@@ -400,13 +410,20 @@ public class LevelEditorWindow : EditorWindow
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
             // Check Solvability Button
-            if (GUILayout.Button("Check if Level is Solvable"))
+            EditorGUI.BeginDisabledGroup(isCheckingSolvability);
+            if (GUILayout.Button(isCheckingSolvability ? "Checking..." : "Check if Level is Solvable"))
             {
-                lastSolvabilityResult = IsLevelSolvable(currentLevel);
+                StartSolvabilityCheck();
             }
+            EditorGUI.EndDisabledGroup();
 
+            // Show loading message while checking
+            if (isCheckingSolvability)
+            {
+                EditorGUILayout.HelpBox("Checking solvability... Please wait.", MessageType.Info);
+            }
             // Show solvability result if available
-            if (lastSolvabilityResult.HasValue)
+            else if (lastSolvabilityResult.HasValue)
             {
                 string message = lastSolvabilityResult.Value ? "✓ This level is solvable!" : "✗ This level is NOT solvable.";
                 MessageType messageType = lastSolvabilityResult.Value ? MessageType.Info : MessageType.Error;
@@ -472,6 +489,7 @@ public class LevelEditorWindow : EditorWindow
                     currentLevel.Map[i] = new CellData(TerrainType.Default, CellItem.None);
                 }
                 hasUnsavedChanges = true;
+                ResetSolvabilityCheck(); // Reset when level changes
             }
 
             // Calculate the total size of the grid with padding
@@ -493,6 +511,7 @@ public class LevelEditorWindow : EditorWindow
                     {
                         currentLevel.Map[index] = new CellData(TerrainType.Default, CellItem.None);
                         hasUnsavedChanges = true;
+                        ResetSolvabilityCheck(); // Reset when level changes
                     }
 
                     CellData cellData = currentLevel.Map[index];
@@ -523,6 +542,7 @@ public class LevelEditorWindow : EditorWindow
                                     cellData.Item = selectedItemType.Value;
                                     currentLevel.Map[index] = cellData;
                                     hasUnsavedChanges = true;
+                                    ResetSolvabilityCheck(); // Reset when level changes
                                     e.Use();
                                 }
                             }
@@ -534,6 +554,7 @@ public class LevelEditorWindow : EditorWindow
                                 cellData.Terrain = selectedTerrainType;
                                 currentLevel.Map[index] = cellData;
                                 hasUnsavedChanges = true;
+                                ResetSolvabilityCheck(); // Reset when level changes
                                 e.Use();
                             }
                         }
@@ -808,5 +829,54 @@ public class LevelEditorWindow : EditorWindow
             return false;
 
         return stateModel.MoveTerrain.Contains(cell.Terrain);
+    }
+
+    private void StartSolvabilityCheck()
+    {
+        if (isCheckingSolvability) return; // Prevent multiple simultaneous checks
+        
+        isCheckingSolvability = true;
+        lastSolvabilityResult = null; // Clear previous result
+        
+        // Use EditorApplication.update to perform the check on the next frame
+        // This allows the UI to refresh and show the loading message
+        EditorApplication.update += PerformSolvabilityCheck;
+        Repaint(); // Force UI refresh to show loading message
+    }
+
+    private void ResetSolvabilityCheck()
+    {
+        // Clean up any pending solvability check
+        EditorApplication.update -= PerformSolvabilityCheck;
+        isCheckingSolvability = false;
+        lastSolvabilityResult = null;
+    }
+
+    private void OnDestroy()
+    {
+        // Clean up callback when window is destroyed
+        EditorApplication.update -= PerformSolvabilityCheck;
+    }
+
+    private void PerformSolvabilityCheck()
+    {
+        // Remove the update callback first
+        EditorApplication.update -= PerformSolvabilityCheck;
+        
+        try
+        {
+            // Perform the actual solvability check
+            lastSolvabilityResult = IsLevelSolvable(currentLevel);
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"Error during solvability check: {ex.Message}");
+            lastSolvabilityResult = false;
+        }
+        finally
+        {
+            isCheckingSolvability = false;
+            Repaint(); // Force UI refresh to show result
+        }
     }
 }
