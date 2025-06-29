@@ -130,6 +130,14 @@ public class LevelEditorWindow : EditorWindow
 
     private void OnGUI()
     {
+        Event e = Event.current;
+        // Handle keyboard shortcuts
+        if (e.type == EventType.KeyDown && (e.control || e.command) && e.keyCode == KeyCode.S)
+        {
+            SaveChanges();
+            e.Use();
+        }
+
         EditorGUILayout.BeginHorizontal();
 
         // Left Panel
@@ -140,7 +148,6 @@ public class LevelEditorWindow : EditorWindow
         EditorGUIUtility.AddCursorRect(splitterRect, MouseCursor.ResizeHorizontal);
 
         // Handle splitter drag
-        Event e = Event.current;
         if (e.type == EventType.MouseDown && splitterRect.Contains(e.mousePosition))
         {
             isDraggingSplitter = true;
@@ -363,13 +370,19 @@ public class LevelEditorWindow : EditorWindow
                 var moveEntry = currentLevel.StartMovesPerForm[i];
                 EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.LabelField(moveEntry.State.ToString(), GUILayout.Width(80));
-                moveEntry.Moves = EditorGUILayout.IntField(moveEntry.Moves);
+
+                int newMoves = EditorGUILayout.IntField(moveEntry.Moves);
+                if (newMoves != moveEntry.Moves)
+                {
+                    moveEntry.Moves = newMoves;
+                    currentLevel.StartMovesPerForm[i] = moveEntry;
+                    EditorUtility.SetDirty(currentLevel);
+                    hasUnsavedChanges = true;
+                }
+
                 EditorGUILayout.EndHorizontal();
             }
-            if (EditorGUI.EndChangeCheck())
-            {
-                hasUnsavedChanges = true;
-            }
+            EditorGUI.EndChangeCheck();
         }
         else
         {
@@ -384,52 +397,16 @@ public class LevelEditorWindow : EditorWindow
         {
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
-            // Count different terrain types
-            Dictionary<TerrainType, int> terrainCounts = new();
-            Dictionary<CellItem, int> itemCounts = new();
-
-            for (int i = 0; i < currentLevel.Map.Length; i++)
-            {
-                CellData cell = currentLevel.Map[i];
-                terrainCounts[cell.Terrain] = terrainCounts.GetValueOrDefault(cell.Terrain) + 1;
-                itemCounts[cell.Item] = itemCounts.GetValueOrDefault(cell.Item) + 1;
-            }
-
-            EditorGUILayout.LabelField("Terrain Distribution", EditorStyles.boldLabel);
-            foreach (var count in terrainCounts)
-            {
-                EditorGUILayout.LabelField($"{count.Key}: {count.Value}");
-            }
+            // Solvability Status
+            EditorGUILayout.LabelField("Level Solvability", EditorStyles.boldLabel);
+            EditorGUILayout.HelpBox("Solvability status will be displayed here.", MessageType.Info);
 
             EditorGUILayout.Space();
 
-            EditorGUILayout.LabelField("Item Distribution", EditorStyles.boldLabel);
-            foreach (var count in itemCounts)
+            // Show Solution Button
+            if (GUILayout.Button("Show Solution"))
             {
-                EditorGUILayout.LabelField($"{count.Key}: {count.Value}");
-            }
-
-            EditorGUILayout.Space();
-
-            // Debug Preview
-            EditorGUILayout.LabelField("Debug Preview", EditorStyles.boldLabel);
-            EditorGUILayout.LabelField($"Map Size: {currentLevel.MapSize}");
-            EditorGUILayout.LabelField($"Total Cells: {currentLevel.Map.Length}");
-
-            if (GUILayout.Button("Print Map Data"))
-            {
-                string mapData = "";
-                for (int y = 0; y < currentLevel.MapSize.y; y++)
-                {
-                    for (int x = 0; x < currentLevel.MapSize.x; x++)
-                    {
-                        int index = y * currentLevel.MapSize.x + x;
-                        CellData cell = currentLevel.Map[index];
-                        mapData += $"({cell.Terrain}, {cell.Item}) ";
-                    }
-                    mapData += "\n";
-                }
-                Debug.Log($"Map Data:\n{mapData}");
+                Debug.Log("Show Solution button clicked. Functionality to be implemented.");
             }
 
             EditorGUILayout.EndVertical();
@@ -596,6 +573,13 @@ public class LevelEditorWindow : EditorWindow
     {
         if (currentLevel == null)
             return;
+
+        // Validate the level before saving
+        if (!currentLevel.IsValid())
+        {
+            EditorUtility.DisplayDialog("Level validation failed", "The current level is invalid and cannot be saved. Check the console for more details.", "OK");
+            return;
+        }
 
         EditorUtility.SetDirty(currentLevel);
         AssetDatabase.SaveAssets();

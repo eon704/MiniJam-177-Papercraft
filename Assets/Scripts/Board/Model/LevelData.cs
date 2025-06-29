@@ -11,7 +11,7 @@ public class LevelData : ScriptableObject
     [Header("Player data")]
     public List<MovePerFormEntry> StartMovesPerForm;
 
-    public static LevelData DefaultLevel 
+    public static LevelData DefaultLevel
     {
         get
         {
@@ -32,6 +32,73 @@ public class LevelData : ScriptableObject
             };
             return defaultLevel;
         }
+    }
+
+    public bool IsValid()
+    {
+        if (Map == null || Map.Length != MapSize.x * MapSize.y)
+        {
+            Debug.LogError("Invalid map size or map data.");
+            return false;
+        }
+
+        int startCellCount = 0;
+        int endCellCount = 0;
+        foreach (var cell in Map)
+        {
+            if (cell.Terrain == TerrainType.Start)
+            {
+                startCellCount++;
+            }
+            else if (cell.Terrain == TerrainType.End)
+            {
+                endCellCount++;
+            }
+        }
+
+        if (startCellCount != 1)
+        {
+            Debug.LogError($"Invalid number of start cells: {startCellCount}. There should be exactly one start cell.");
+            return false;
+        }
+
+        if (endCellCount != 1)
+        {
+            Debug.LogError($"Invalid number of end cells: {endCellCount}. There should be exactly one end cell.");
+            return false;
+        }
+
+        int starCount = 0;
+        foreach (var cell in Map)
+        {
+            if (cell.Item == CellItem.Star)
+            {
+                starCount++;
+            }
+        }
+        
+        if (starCount != 3)
+        {
+            Debug.LogError($"Invalid number of stars: {starCount}. There should be exactly 3 stars in the level.");
+            return false;
+        }
+
+        if (StartMovesPerForm == null || StartMovesPerForm.Count == 0)
+        {
+            Debug.LogError("No starting moves defined for player forms.");
+            return false;
+        }
+
+        foreach (var entry in StartMovesPerForm)
+        {
+            if (entry.Moves < -1)
+            {
+                Debug.LogError($"Invalid moves count for state {entry.State}: {entry.Moves}. Must be either -1 or a non-negative integer.");
+                return false;
+            }
+        }
+
+        return true;
     }
 }
 
