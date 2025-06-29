@@ -83,11 +83,23 @@ public class LevelEditorWindow : EditorWindow
     private CellItem? selectedItemType = null;
 
     private Vector2 leftPanelScroll;
-    private float leftPanelWidth = 300f; // Default width for the left panel
+    private float leftPanelWidth = 350f; // Default width for the left panel
     private bool isDraggingSplitter = false;
     private float splitterWidth = 5f; // Width of the draggable splitter
     private bool? lastSolvabilityResult = null; // Cache the result
     private bool isCheckingSolvability = false; // Track if solvability check is in progress
+
+    // Helper method to create colored textures for button backgrounds
+    private Texture2D MakeTexture(int width, int height, Color color)
+    {
+        Color[] pix = new Color[width * height];
+        for (int i = 0; i < pix.Length; i++)
+            pix[i] = color;
+        Texture2D result = new Texture2D(width, height);
+        result.SetPixels(pix);
+        result.Apply();
+        return result;
+    }
 
     [MenuItem("Tools/Level Editor")]
     public static void ShowWindow()
@@ -247,15 +259,15 @@ public class LevelEditorWindow : EditorWindow
     {
         EditorGUILayout.BeginHorizontal();
 
-        if (GUILayout.Toggle(currentMode == EditorMode.Tiles, "Tiles", EditorStyles.toolbarButton))
+        if (GUILayout.Toggle(currentMode == EditorMode.Tiles, "Tiles", EditorStyles.toolbarButton, GUILayout.MinWidth(60)))
         {
             currentMode = EditorMode.Tiles;
         }
-        if (GUILayout.Toggle(currentMode == EditorMode.Moves, "Moves", EditorStyles.toolbarButton))
+        if (GUILayout.Toggle(currentMode == EditorMode.Moves, "Moves", EditorStyles.toolbarButton, GUILayout.MinWidth(60)))
         {
             currentMode = EditorMode.Moves;
         }
-        if (GUILayout.Toggle(currentMode == EditorMode.Analysis, "Analysis", EditorStyles.toolbarButton))
+        if (GUILayout.Toggle(currentMode == EditorMode.Analysis, "Analysis", EditorStyles.toolbarButton, GUILayout.MinWidth(70)))
         {
             currentMode = EditorMode.Analysis;
         }
@@ -281,44 +293,36 @@ public class LevelEditorWindow : EditorWindow
         foreach (var terrainType in toolTerrainTypes)
         {
             bool isSelected = selectedTerrainType == terrainType && selectedItemType == null;
-            Rect rowRect = GUILayoutUtility.GetRect(0, 60, GUILayout.ExpandWidth(true), GUILayout.Height(60));
-
-            // Detect hover
-            bool isHover = rowRect.Contains(Event.current.mousePosition);
-
-            // Draw background highlight
-            if (Event.current.type == EventType.Repaint)
+            
+            // Create a custom button style for better hover feedback
+            GUIStyle buttonStyle = new GUIStyle(GUI.skin.button)
             {
-                if (isSelected)
-                    EditorGUI.DrawRect(rowRect, new Color(0.24f, 0.48f, 0.90f, 0.25f)); // Subtle blue
-                else if (isHover)
-                    EditorGUI.DrawRect(rowRect, new Color(1f, 1f, 1f, 0.08f)); // Subtle white
+                fixedHeight = 60,
+                alignment = TextAnchor.MiddleLeft,
+                padding = new RectOffset(8, 8, 8, 8)
+            };
+            
+            // Set colors for selected state
+            if (isSelected)
+            {
+                buttonStyle.normal.background = MakeTexture(2, 2, new Color(0.24f, 0.48f, 0.90f, 0.25f));
+                buttonStyle.hover.background = MakeTexture(2, 2, new Color(0.24f, 0.48f, 0.90f, 0.35f));
             }
-
-            EditorGUI.BeginChangeCheck();
-            GUI.BeginGroup(rowRect);
-            EditorGUILayout.BeginHorizontal();
-
-            // Make the entire row clickable
-            if (GUI.Button(new Rect(0, 0, rowRect.width, rowRect.height), GUIContent.none, GUIStyle.none))
+            
+            // Create button content
+            GUIContent buttonContent = new GUIContent($"  {terrainType}");
+            if (cellTextures.TryGetValue(terrainType, out Texture2D texture))
+            {
+                buttonContent.image = texture;
+            }
+            
+            if (GUILayout.Button(buttonContent, buttonStyle, GUILayout.MaxWidth(280)))
             {
                 selectedTerrainType = terrainType;
                 selectedItemType = null; // Clear item selection when terrain is selected
                 GUI.FocusControl(null);
             }
-
-            // Show the texture
-            if (cellTextures.TryGetValue(terrainType, out Texture2D texture))
-            {
-                GUI.Label(new Rect(8, 8, 48, 48), texture);
-            }
-
-            // Find the character that represents this terrain type
-            char? terrainChar = cellTypes.FirstOrDefault(x => x.Value == terrainType).Key;
-            GUI.Label(new Rect(64, 16, rowRect.width - 64, 24), $"{terrainType}");
-
-            EditorGUILayout.EndHorizontal();
-            GUI.EndGroup();
+            
             GUILayout.Space(2);
         }
         EditorGUILayout.EndVertical();
@@ -333,36 +337,45 @@ public class LevelEditorWindow : EditorWindow
         foreach (var itemType in toolItemTypes)
         {
             bool isSelected = selectedItemType == itemType;
-            Rect itemRowRect = GUILayoutUtility.GetRect(0, 48, GUILayout.ExpandWidth(true), GUILayout.Height(48));
-            bool isItemHover = itemRowRect.Contains(Event.current.mousePosition);
-            if (Event.current.type == EventType.Repaint)
+            
+            // Create a custom button style for better hover feedback
+            GUIStyle buttonStyle = new GUIStyle(GUI.skin.button)
             {
-                if (isSelected)
-                    EditorGUI.DrawRect(itemRowRect, new Color(0.24f, 0.48f, 0.90f, 0.25f));
-                else if (isItemHover)
-                    EditorGUI.DrawRect(itemRowRect, new Color(1f, 1f, 1f, 0.08f));
+                fixedHeight = 48,
+                alignment = TextAnchor.MiddleLeft,
+                padding = new RectOffset(8, 8, 8, 8)
+            };
+            
+            // Set colors for selected state
+            if (isSelected)
+            {
+                buttonStyle.normal.background = MakeTexture(2, 2, new Color(0.24f, 0.48f, 0.90f, 0.25f));
+                buttonStyle.hover.background = MakeTexture(2, 2, new Color(0.24f, 0.48f, 0.90f, 0.35f));
             }
-            GUI.BeginGroup(itemRowRect);
-            if (GUI.Button(new Rect(0, 0, itemRowRect.width, itemRowRect.height), GUIContent.none, GUIStyle.none))
+            
+            // Create button content
+            GUIContent buttonContent;
+            if (itemType == CellItem.None)
+            {
+                buttonContent = new GUIContent("  None");
+            }
+            else
+            {
+                char? itemChar = itemTypes.FirstOrDefault(x => x.Value == itemType).Key;
+                buttonContent = new GUIContent($"  {itemChar} - {itemType}");
+                if (itemTextures.TryGetValue(itemType, out Texture2D texture))
+                {
+                    buttonContent.image = texture;
+                }
+            }
+            
+            if (GUILayout.Button(buttonContent, buttonStyle, GUILayout.MaxWidth(280)))
             {
                 selectedItemType = itemType;
                 selectedTerrainType = TerrainType.Empty; // Clear terrain type when item is selected
                 GUI.FocusControl(null);
             }
-            if (itemType == CellItem.None)
-            {
-                GUI.Label(new Rect(8, 16, itemRowRect.width - 8, 24), "None");
-            }
-            else
-            {
-                if (itemTextures.TryGetValue(itemType, out Texture2D texture))
-                {
-                    GUI.Label(new Rect(8, 8, 48, 48), texture);
-                }
-                char? itemChar = itemTypes.FirstOrDefault(x => x.Value == itemType).Key;
-                GUI.Label(new Rect(64, 16, itemRowRect.width - 64, 24), $"{itemChar} - {itemType}");
-            }
-            GUI.EndGroup();
+            
             GUILayout.Space(2);
         }
         EditorGUILayout.EndVertical();
