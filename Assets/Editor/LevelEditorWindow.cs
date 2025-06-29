@@ -409,7 +409,50 @@ public class LevelEditorWindow : EditorWindow
             // Show Solution Button
             if (GUILayout.Button("Show Solution"))
             {
-                Debug.Log("Show Solution button clicked. Functionality to be implemented.");
+                var solution = SolveLevel(currentLevel);
+                if (solution != null)
+                {
+                    string solutionText = "Solution found!\n\nSteps:\n";
+                    for (int i = 0; i < solution.Count; i++)
+                    {
+                        TurnInfo turn = solution[i];
+                        solutionText += $"{i + 1}. Move to ({turn.Position.x}, {turn.Position.y}) as {turn.State} (Stars: {turn.Stars})\n";
+                    }
+                    EditorUtility.DisplayDialog("Level Solution", solutionText, "OK");
+                    Debug.Log("Level Solution:\n" + solutionText);
+                }
+                else
+                {
+                    EditorUtility.DisplayDialog("Level Solution", "No solution found for this level.", "OK");
+                    Debug.LogWarning("No solution found for the current level.");
+                }
+            }
+
+            EditorGUILayout.Space();
+
+            // Additional analysis info
+            EditorGUILayout.LabelField("Level Statistics", EditorStyles.boldLabel);
+            
+            int starCount = 0;
+            int startCells = 0;
+            int endCells = 0;
+            
+            foreach (var cell in currentLevel.Map)
+            {
+                if (cell.Item == CellItem.Star) starCount++;
+                if (cell.Terrain == TerrainType.Start) startCells++;
+                if (cell.Terrain == TerrainType.End) endCells++;
+            }
+            
+            EditorGUILayout.LabelField($"Stars: {starCount}");
+            EditorGUILayout.LabelField($"Start cells: {startCells}");
+            EditorGUILayout.LabelField($"End cells: {endCells}");
+            
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Available Moves per Form:");
+            foreach (var moveEntry in currentLevel.StartMovesPerForm)
+            {
+                EditorGUILayout.LabelField($"{moveEntry.State}: {moveEntry.Moves} moves");
             }
 
             EditorGUILayout.EndVertical();
@@ -595,41 +638,187 @@ public class LevelEditorWindow : EditorWindow
         hasUnsavedChanges = false;
         UpdateWindowTitle();
     }
-    
+
     private bool IsLevelSolvable(LevelData level)
+    {
+        var solution = SolveLevel(level);
+        return solution != null;
+    }
+
+    private List<TurnInfo> SolveLevel(LevelData level)
     {
         if (level == null || level.Map == null || level.Map.Length == 0)
         {
-            Debug.LogError("Invalid level data or it's components are NULL or empty.");
-            return false;
+            Debug.LogError("Invalid level data or its components are NULL or empty.");
+            return null;
         }
 
         // Check if level is valid
         if (!level.IsValid())
         {
             Debug.LogError("LevelData is not valid.");
-            return false;
+            return null;
         }
 
-        // Find the start and end Cells
-        CellData startCell;
-        CellData endCell;
-        foreach (var cell in level.Map)
+        // Find the start and end positions
+        Vector2Int startPos = Vector2Int.zero;
+        Vector2Int endPos = Vector2Int.zero;
+        int totalStars = 0;
+
+        for (int y = 0; y < level.MapSize.y; y++)
         {
-            if (cell.Terrain == TerrainType.Start)
+            for (int x = 0; x < level.MapSize.x; x++)
             {
-                startCell = cell;
-            }
-            else if (cell.Terrain == TerrainType.End)
-            {
-                endCell = cell;
+                int index = y * level.MapSize.x + x;
+                CellData cell = level.Map[index];
+                
+                if (cell.Terrain == TerrainType.Start)
+                    startPos = new Vector2Int(x, y);
+                if (cell.Terrain == TerrainType.End)
+                    endPos = new Vector2Int(x, y);
+                if (cell.Item == CellItem.Star)
+                    totalStars++;
             }
         }
 
-        // Solve using BFS
-        
-        
+        // BFS to find solution
+        Queue<(TurnInfo, int)> queue = new(); // Include depth to prevent infinite search
+        HashSet<string> visited = new();
+        Dictionary<string, TurnInfo> parent = new();
+        const int maxDepth = 100; // Prevent infinite search
 
-        return true;
+        // Initial state
+        TurnInfo initialTurn = new TurnInfo
+        {
+            Position = startPos,
+            Stars = 0,
+            MovesPerForm = level.StartMovesPerForm.ToDictionary(m => m.State, m => m.Moves),
+            State = Player.StateType.Default
+        };
+
+        queue.Enqueue((initialTurn, 0));
+        string initialKey = GetStateKey(initialTurn);
+        visited.Add(initialKey);
+
+        while (queue.Count > 0)
+        {
+            var (current, depth) = queue.Dequeue();
+            string currentKey = GetStateKey(current);
+
+            // Prevent too deep search
+            if (depth > maxDepth) continue;
+
+            // Check if we reached the goal (end position with 3 stars)
+            if (current.Position == endPos && current.Stars >= 3)
+            {
+                // Reconstruct path
+                List<TurnInfo> solution = new();
+                string key = currentKey;
+                while (parent.ContainsKey(key))
+                {
+                    solution.Insert(0, parent[key]);
+                    key = GetStateKey(parent[key]);
+                }
+                solution.Add(current);
+                return solution;
+            }
+
+            // Try all possible states from current position (including staying in default state if on the first move)
+            foreach (Player.StateType stateType in System.Enum.GetValues(typeof(Player.StateType)))
+            {
+                // For non-default states, check if we have moves left
+                if (stateType != Player.StateType.Default && current.MovesPerForm[stateType] <= 0) continue;
+
+                // Get the state model for movement options
+                if (!StateModelInfo.StateModels.TryGetValue(stateType, out StateModel stateModel)) continue;
+
+                // Skip default state if it has no movement options
+                if (stateType == Player.StateType.Default && stateModel.MoveOptions.Count == 0) continue;
+
+                // Try all possible moves for this state
+                foreach (Vector2Int moveOffset in stateModel.MoveOptions)
+                {
+                    Vector2Int newPos = current.Position + moveOffset;
+                    
+                    // Check bounds
+                    if (newPos.x < 0 || newPos.x >= level.MapSize.x || 
+                        newPos.y < 0 || newPos.y >= level.MapSize.y) continue;
+
+                    int cellIndex = newPos.y * level.MapSize.x + newPos.x;
+                    CellData targetCell = level.Map[cellIndex];
+                    
+                    // Check if this state can move to this terrain
+                    if (!stateModel.MoveTerrain.Contains(targetCell.Terrain)) continue;
+
+                    // Calculate new star count
+                    int newStars = current.Stars;
+                    if (targetCell.Item == CellItem.Star)
+                        newStars++;
+
+                    // Create new moves dictionary
+                    Dictionary<Player.StateType, int> newMovesPerForm = new(current.MovesPerForm);
+                    if (stateType != Player.StateType.Default)
+                        newMovesPerForm[stateType]--;
+
+                    TurnInfo nextTurn = new TurnInfo
+                    {
+                        Position = newPos,
+                        Stars = newStars,
+                        MovesPerForm = newMovesPerForm,
+                        State = stateType
+                    };
+
+                    string nextKey = GetStateKey(nextTurn);
+                    
+                    // Check if we've visited this state before
+                    if (!visited.Contains(nextKey))
+                    {
+                        visited.Add(nextKey);
+                        parent[nextKey] = current;
+                        queue.Enqueue((nextTurn, depth + 1));
+                    }
+                }
+            }
+        }
+
+        return null; // No solution found
     }
-} 
+
+    private struct TurnInfo
+    {
+        public Vector2Int Position;
+        public int Stars;
+        public Dictionary<Player.StateType, int> MovesPerForm;
+        public Player.StateType State;
+    }
+
+    private string GetStateKey(TurnInfo state)
+    {
+        // Create a more comprehensive key that includes move counts to avoid redundant states
+        string movesKey = string.Join(",", state.MovesPerForm.OrderBy(kvp => kvp.Key).Select(kvp => $"{kvp.Key}:{kvp.Value}"));
+        return $"{state.Position.x},{state.Position.y},{state.State},{state.Stars},{movesKey}";
+    }
+
+    private IEnumerable<CellData> GetNeighbors(LevelData level, Vector2Int position)
+    {
+        Vector2Int[] directions = { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
+        foreach (var dir in directions)
+        {
+            Vector2Int neighborPos = position + dir;
+            if (neighborPos.x >= 0 && neighborPos.x < level.MapSize.x &&
+                neighborPos.y >= 0 && neighborPos.y < level.MapSize.y)
+            {
+                yield return level.Map[neighborPos.y * level.MapSize.x + neighborPos.x];
+            }
+        }
+    }
+
+    private bool CanMoveTo(CellData cell, Player.StateType state)
+    {
+        // Use the state models to determine valid terrain for each state
+        if (!StateModelInfo.StateModels.TryGetValue(state, out StateModel stateModel))
+            return false;
+
+        return stateModel.MoveTerrain.Contains(cell.Terrain);
+    }
+}
