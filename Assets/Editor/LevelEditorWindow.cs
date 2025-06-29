@@ -86,6 +86,7 @@ public class LevelEditorWindow : EditorWindow
     private float leftPanelWidth = 300f; // Default width for the left panel
     private bool isDraggingSplitter = false;
     private float splitterWidth = 5f; // Width of the draggable splitter
+    private bool? lastSolvabilityResult = null; // Cache the result
 
     [MenuItem("Tools/Level Editor")]
     public static void ShowWindow()
@@ -189,6 +190,7 @@ public class LevelEditorWindow : EditorWindow
         {
             currentLevel = newLevel;
             hasUnsavedChanges = false;
+            lastSolvabilityResult = null; // Clear cached result when level changes
             UpdateWindowTitle();
         }
 
@@ -397,12 +399,19 @@ public class LevelEditorWindow : EditorWindow
         {
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
-            // Solvability Status
-            EditorGUILayout.LabelField("Level Solvability", EditorStyles.boldLabel);
-            bool isSolvable = IsLevelSolvable(currentLevel);
-            string solvabilityMessage = isSolvable ? "This level is solvable." : "This level is NOT solvable.";
-            MessageType messageType = isSolvable ? MessageType.Info : MessageType.Error;
-            EditorGUILayout.HelpBox(solvabilityMessage, messageType);
+            // Check Solvability Button
+            if (GUILayout.Button("Check if Level is Solvable"))
+            {
+                lastSolvabilityResult = IsLevelSolvable(currentLevel);
+            }
+
+            // Show solvability result if available
+            if (lastSolvabilityResult.HasValue)
+            {
+                string message = lastSolvabilityResult.Value ? "✓ This level is solvable!" : "✗ This level is NOT solvable.";
+                MessageType messageType = lastSolvabilityResult.Value ? MessageType.Info : MessageType.Error;
+                EditorGUILayout.HelpBox(message, messageType);
+            }
 
             EditorGUILayout.Space();
 
@@ -426,33 +435,6 @@ public class LevelEditorWindow : EditorWindow
                     EditorUtility.DisplayDialog("Level Solution", "No solution found for this level.", "OK");
                     Debug.LogWarning("No solution found for the current level.");
                 }
-            }
-
-            EditorGUILayout.Space();
-
-            // Additional analysis info
-            EditorGUILayout.LabelField("Level Statistics", EditorStyles.boldLabel);
-            
-            int starCount = 0;
-            int startCells = 0;
-            int endCells = 0;
-            
-            foreach (var cell in currentLevel.Map)
-            {
-                if (cell.Item == CellItem.Star) starCount++;
-                if (cell.Terrain == TerrainType.Start) startCells++;
-                if (cell.Terrain == TerrainType.End) endCells++;
-            }
-            
-            EditorGUILayout.LabelField($"Stars: {starCount}");
-            EditorGUILayout.LabelField($"Start cells: {startCells}");
-            EditorGUILayout.LabelField($"End cells: {endCells}");
-            
-            EditorGUILayout.Space();
-            EditorGUILayout.LabelField("Available Moves per Form:");
-            foreach (var moveEntry in currentLevel.StartMovesPerForm)
-            {
-                EditorGUILayout.LabelField($"{moveEntry.State}: {moveEntry.Moves} moves");
             }
 
             EditorGUILayout.EndVertical();
@@ -708,8 +690,8 @@ public class LevelEditorWindow : EditorWindow
             // Prevent too deep search
             if (depth > maxDepth) continue;
 
-            // Check if we reached the goal (end position with 3 stars)
-            if (current.Position == endPos && current.Stars >= 3)
+            // Check if we reached the goal (end position with exactly 3 stars)
+            if (current.Position == endPos && current.Stars == 3)
             {
                 // Reconstruct path
                 List<TurnInfo> solution = new();
@@ -723,9 +705,12 @@ public class LevelEditorWindow : EditorWindow
                 return solution;
             }
 
-            // Try all possible states from current position (including staying in default state if on the first move)
+            // Try all possible states from current position
             foreach (Player.StateType stateType in System.Enum.GetValues(typeof(Player.StateType)))
             {
+                // Default state can only be used on the initial turn (when depth == 0)
+                if (stateType == Player.StateType.Default && depth > 0) continue;
+                
                 // For non-default states, check if we have moves left
                 if (stateType != Player.StateType.Default && current.MovesPerForm[stateType] <= 0) continue;
 
@@ -754,6 +739,9 @@ public class LevelEditorWindow : EditorWindow
                     int newStars = current.Stars;
                     if (targetCell.Item == CellItem.Star)
                         newStars++;
+
+                    // Don't pursue paths with more than 3 stars (optimization)
+                    if (newStars > 3) continue;
 
                     // Create new moves dictionary
                     Dictionary<Player.StateType, int> newMovesPerForm = new(current.MovesPerForm);
