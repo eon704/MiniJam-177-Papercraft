@@ -768,6 +768,9 @@ public class LevelEditorWindow : EditorWindow
                     
                     // Check if this state can move to this terrain
                     if (!stateModel.MoveTerrain.Contains(targetCell.Terrain)) continue;
+                    
+                    // Invalidate any moves that go on Fire terrain
+                    if (targetCell.Terrain == TerrainType.Fire) continue;
 
                     // Calculate new star count
                     int newStars = current.Stars;
