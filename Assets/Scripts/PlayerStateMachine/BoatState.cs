@@ -9,20 +9,11 @@ namespace PlayerStateMachine
         private readonly Player _player;
 
         public Player.StateType StateType => Player.StateType.Boat;
+        private StateModel stateModel => StateModelInfo.StateModels[StateType];
 
-        public List<Vector2Int> MoveOptions => new()
-        {
-            new Vector2Int(-1, 0),
-            new Vector2Int(1, 0),
-            new Vector2Int(0, -1),
-            new Vector2Int(0, 1)
-        };
+        public List<Vector2Int> MoveOptions => stateModel.MoveOptions;
 
-        public List<TerrainType> MoveTerrain => new()
-        {
-            TerrainType.Water,
-            TerrainType.Fire,
-        };
+        public List<TerrainType> MoveTerrain => stateModel.MoveTerrain;
 
         public BoatState(GameObject gameObject, Player player)
         {

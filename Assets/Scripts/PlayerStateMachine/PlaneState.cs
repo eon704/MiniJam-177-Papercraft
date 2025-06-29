@@ -7,24 +7,13 @@ namespace PlayerStateMachine
     {
         private readonly GameObject _stateGameObject;
         private readonly Player _player;
+        private StateModel stateModel => StateModelInfo.StateModels[StateType];
         
         public Player.StateType StateType => Player.StateType.Plane;
         
-        public List<Vector2Int> MoveOptions => new()
-        {
-            new Vector2Int(-1, 1),
-            new Vector2Int(-1, -1),
-            new Vector2Int(1, 1),
-            new Vector2Int(1, -1)
-        };
+        public List<Vector2Int> MoveOptions => stateModel.MoveOptions;
 
-        public List<TerrainType> MoveTerrain => new()
-        {
-            TerrainType.Default, 
-            TerrainType.Fire,
-            TerrainType.Start,
-            TerrainType.End,
-        };
+        public List<TerrainType> MoveTerrain => stateModel.MoveTerrain;
         
         public PlaneState(GameObject gameObject, Player player)
         {

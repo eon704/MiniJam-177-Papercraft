@@ -9,28 +9,13 @@ namespace PlayerStateMachine
         private readonly GameObject _stateGameObject;
         private readonly SpriteRenderer _spriteRenderer;
         private readonly Player _player;
+        private StateModel stateModel => StateModelInfo.StateModels[StateType];
         
         public Player.StateType StateType => Player.StateType.Frog;
-        
-        public List<Vector2Int> MoveOptions => new()
-        {
-            new Vector2Int(0, 2),
-            new Vector2Int(0, -2),
-            new Vector2Int(2, 0),
-            new Vector2Int(-2, 0),
-            new Vector2Int(-1, 0),
-            new Vector2Int(1, 0),
-            new Vector2Int(0, -1),
-            new Vector2Int(0, 1)
-        };
 
-        public List<TerrainType> MoveTerrain => new()
-        {
-            TerrainType.Default, 
-            TerrainType.Fire,
-            TerrainType.Start,
-            TerrainType.End,
-        };
+        public List<Vector2Int> MoveOptions => stateModel.MoveOptions;
+
+        public List<TerrainType> MoveTerrain => stateModel.MoveTerrain;
         
         public FrogState(GameObject gameObject, Player player)
         {
