@@ -458,53 +458,6 @@ public class LevelEditorWindow : EditorWindow
 
             EditorGUILayout.Space();
 
-            // Show Solution Button
-            if (GUILayout.Button("Show Solution"))
-            {
-                if (workingLevel != null)
-                {
-                    var solution = SolveLevel(workingLevel.ToLevelData());
-                    if (solution != null)
-                    {
-                        // Additional validation: Double-check the solution before displaying
-                        TurnInfo finalStep = solution[solution.Count - 1];
-                        if (finalStep.Stars != 3)
-                        {
-                            Debug.LogError($"CRITICAL ERROR: Solver returned invalid solution with {finalStep.Stars} stars instead of 3!");
-                            EditorUtility.DisplayDialog("Level Solution Error", 
-                                $"Error: Solver returned invalid solution with {finalStep.Stars} stars instead of 3. This is a bug in the solver.", "OK");
-                            return;
-                        }
-                        
-                        currentSolutionPath = solution;
-                        showSolutionPath = true;
-                        
-                        // Get final step info for validation display
-                        string solutionText = $"✓ Valid solution found!\n\nFinal result: Position ({finalStep.Position.x}, {finalStep.Position.y}) with {finalStep.Stars} stars\n\nSteps:\n";
-                        
-                        for (int i = 0; i < solution.Count; i++)
-                        {
-                            TurnInfo turn = solution[i];
-                            solutionText += $"{i + 1}. Move to ({turn.Position.x}, {turn.Position.y}) as {turn.State} (Stars: {turn.Stars})\n";
-                        }
-                        EditorUtility.DisplayDialog("Level Solution", solutionText, "OK");
-                        Debug.Log("Level Solution:\n" + solutionText);
-                        Repaint(); // Force repaint to show the solution path
-                    }
-                    else
-                    {
-                        currentSolutionPath = null;
-                        showSolutionPath = false;
-                        EditorUtility.DisplayDialog("Level Solution", "No solution found for this level.", "OK");
-                        Debug.LogWarning("No solution found for the current level.");
-                    }
-                }
-                else
-                {
-                    EditorUtility.DisplayDialog("Level Solution", "No working level available.", "OK");
-                }
-            }
-
             // Solution Path Visualization Controls
             if (currentSolutionPath != null)
             {
@@ -523,6 +476,91 @@ public class LevelEditorWindow : EditorWindow
                     currentSolutionPath = null;
                     showSolutionPath = false;
                     Repaint();
+                }
+                
+                EditorGUILayout.Space();
+                
+                // Solution Steps Display - integrated directly into the analysis tab
+                EditorGUILayout.LabelField("Solution Steps", EditorStyles.boldLabel);
+                
+                // Get final step info for display
+                TurnInfo finalStep = currentSolutionPath[currentSolutionPath.Count - 1];
+                EditorGUILayout.LabelField($"✓ Valid Solution: {currentSolutionPath.Count} steps to reach ({finalStep.Position.x}, {finalStep.Position.y}) with {finalStep.Stars} stars", EditorStyles.boldLabel);
+                
+                // Show collected star positions
+                HashSet<Vector2Int> collectedStars = finalStep.CollectedStarPositions ?? new HashSet<Vector2Int>();
+                if (collectedStars.Count > 0)
+                {
+                    string starPositions = string.Join(", ", collectedStars.Select(pos => $"({pos.x},{pos.y})"));
+                    EditorGUILayout.LabelField($"★ Stars collected at: {starPositions}", EditorStyles.miniLabel);
+                }
+                
+                EditorGUILayout.Space();
+                
+                // Header row
+                EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
+                EditorGUILayout.LabelField("Step", EditorStyles.toolbarButton, GUILayout.Width(40));
+                EditorGUILayout.LabelField("Position", EditorStyles.toolbarButton, GUILayout.Width(70));
+                EditorGUILayout.LabelField("Form", EditorStyles.toolbarButton, GUILayout.Width(70));
+                EditorGUILayout.LabelField("Stars", EditorStyles.toolbarButton, GUILayout.Width(50));
+                EditorGUILayout.LabelField("Action", EditorStyles.toolbarButton, GUILayout.ExpandWidth(true));
+                EditorGUILayout.EndHorizontal();
+                
+                // Display solution steps directly without separate scroll view
+                for (int i = 0; i < currentSolutionPath.Count; i++)
+                {
+                    TurnInfo turn = currentSolutionPath[i];
+                    
+                    // Get the color for the current state
+                    Color stepColor = stateColors.TryGetValue(turn.State, out Color color) ? color : Color.white;
+                    
+                    // Create a colored background style for the step
+                    GUIStyle stepStyle = new GUIStyle(GUI.skin.box);
+                    stepStyle.normal.background = MakeTexture(2, 2, new Color(stepColor.r, stepColor.g, stepColor.b, 0.15f));
+                    stepStyle.margin = new RectOffset(2, 2, 1, 1);
+                    
+                    EditorGUILayout.BeginHorizontal(stepStyle);
+                    
+                    // Step number
+                    EditorGUILayout.LabelField($"{i + 1}", GUILayout.Width(40));
+                    
+                    // Position
+                    EditorGUILayout.LabelField($"({turn.Position.x}, {turn.Position.y})", GUILayout.Width(70));
+                    
+                    // State with color indicator
+                    GUIStyle stateStyle = new GUIStyle(EditorStyles.label);
+                    stateStyle.normal.textColor = stepColor;
+                    EditorGUILayout.LabelField($"{turn.State}", stateStyle, GUILayout.Width(70));
+                    
+                    // Stars collected
+                    EditorGUILayout.LabelField($"★ {turn.Stars}", GUILayout.Width(50));
+                    
+                    // Action description
+                    string actionDescription = "";
+                    if (i == 0)
+                    {
+                        actionDescription = "Start position";
+                    }
+                    else
+                    {
+                        TurnInfo prevTurn = currentSolutionPath[i - 1];
+                        if (turn.Stars > prevTurn.Stars)
+                        {
+                            actionDescription = "Collected star";
+                        }
+                        else if (turn.Position == finalStep.Position && i == currentSolutionPath.Count - 1)
+                        {
+                            actionDescription = "Reached end";
+                        }
+                        else
+                        {
+                            actionDescription = "Move";
+                        }
+                    }
+                    
+                    EditorGUILayout.LabelField(actionDescription, GUILayout.ExpandWidth(true));
+                    
+                    EditorGUILayout.EndHorizontal();
                 }
             }
 
@@ -737,6 +775,15 @@ public class LevelEditorWindow : EditorWindow
     private bool IsLevelSolvable(LevelData level)
     {
         var solution = SolveLevel(level);
+        // Cache the solution if one is found
+        if (solution != null)
+        {
+            currentSolutionPath = solution;
+        }
+        else
+        {
+            currentSolutionPath = null;
+        }
         return solution != null;
     }
 
@@ -994,20 +1041,35 @@ public class LevelEditorWindow : EditorWindow
         
         try
         {
-            // Perform the actual solvability check
+            // Perform the actual solvability check and cache the solution
             if (workingLevel != null)
             {
-                lastSolvabilityResult = IsLevelSolvable(workingLevel.ToLevelData());
+                var solution = SolveLevel(workingLevel.ToLevelData());
+                lastSolvabilityResult = solution != null;
+                
+                // Cache the solution for later use
+                if (solution != null)
+                {
+                    currentSolutionPath = solution;
+                    Debug.Log($"Solvability check completed: Level is solvable with {solution.Count} steps. Solution cached.");
+                }
+                else
+                {
+                    currentSolutionPath = null;
+                    Debug.Log("Solvability check completed: Level is not solvable.");
+                }
             }
             else
             {
                 lastSolvabilityResult = false;
+                currentSolutionPath = null;
             }
         }
         catch (System.Exception ex)
         {
             Debug.LogError($"Error during solvability check: {ex.Message}");
             lastSolvabilityResult = false;
+            currentSolutionPath = null;
         }
         finally
         {
