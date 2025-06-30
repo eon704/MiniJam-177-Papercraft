@@ -64,15 +64,15 @@ MonoBehaviour:
     Item: 0
   - Terrain: 0
     Item: 0
-  - Terrain: 4
-    Item: 0
-  - Terrain: 0
+  - Terrain: 1
     Item: 0
   - Terrain: 1
     Item: 0
-  - Terrain: 6
+  - Terrain: 1
     Item: 0
-  - Terrain: 4
+  - Terrain: 1
+    Item: 0
+  - Terrain: 1
     Item: 0
   - Terrain: 1
     Item: 0

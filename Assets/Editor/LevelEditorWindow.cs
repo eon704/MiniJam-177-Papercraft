@@ -8,6 +8,7 @@ using System.Linq;
 public class LevelEditorWindow : EditorWindow
 {
     private LevelData currentLevel;
+    private WorkingLevelData workingLevel; // Working copy for editing
     private Vector2 scrollPosition;
     private new bool hasUnsavedChanges;
     private float tileSize = 64f; // Size of each tile in pixels
@@ -202,6 +203,7 @@ public class LevelEditorWindow : EditorWindow
         if (newLevel != currentLevel)
         {
             currentLevel = newLevel;
+            workingLevel = new WorkingLevelData(currentLevel);
             hasUnsavedChanges = false;
             
             // Clear solvability check state when level changes
@@ -280,7 +282,7 @@ public class LevelEditorWindow : EditorWindow
         EditorGUILayout.LabelField("Tile Editor", EditorStyles.boldLabel);
         EditorGUILayout.Space();
 
-        if (currentLevel == null)
+        if (workingLevel == null)
         {
             EditorGUILayout.HelpBox("No level selected.", MessageType.Info);
             return;
@@ -384,12 +386,12 @@ public class LevelEditorWindow : EditorWindow
     private void DrawMovesTool()
     {
         EditorGUILayout.LabelField("Moves Editor", EditorStyles.boldLabel);
-        if (currentLevel != null)
+        if (workingLevel != null)
         {
             EditorGUI.BeginChangeCheck();
-            for (int i = 0; i < currentLevel.StartMovesPerForm.Count; i++)
+            for (int i = 0; i < workingLevel.StartMovesPerForm.Count; i++)
             {
-                var moveEntry = currentLevel.StartMovesPerForm[i];
+                var moveEntry = workingLevel.StartMovesPerForm[i];
                 if (moveEntry.State == Player.StateType.Default)
                     continue; // Hide Default moves from the editor
                 EditorGUILayout.BeginHorizontal();
@@ -399,8 +401,7 @@ public class LevelEditorWindow : EditorWindow
                 if (newMoves != moveEntry.Moves)
                 {
                     moveEntry.Moves = newMoves;
-                    currentLevel.StartMovesPerForm[i] = moveEntry;
-                    EditorUtility.SetDirty(currentLevel);
+                    workingLevel.StartMovesPerForm[i] = moveEntry;
                     hasUnsavedChanges = true;
                     ResetSolvabilityCheck(); // Reset when level changes
                 }
@@ -418,7 +419,7 @@ public class LevelEditorWindow : EditorWindow
     private void DrawAnalysisTool()
     {
         EditorGUILayout.LabelField("Level Analysis", EditorStyles.boldLabel);
-        if (currentLevel != null)
+        if (workingLevel != null)
         {
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
@@ -448,8 +449,10 @@ public class LevelEditorWindow : EditorWindow
             // Show Solution Button
             if (GUILayout.Button("Show Solution"))
             {
-                var solution = SolveLevel(currentLevel);
-                if (solution != null)
+                if (workingLevel != null)
+                {
+                    var solution = SolveLevel(workingLevel.ToLevelData());
+                    if (solution != null)
                 {
                     string solutionText = "Solution found!\n\nSteps:\n";
                     for (int i = 0; i < solution.Count; i++)
@@ -464,6 +467,11 @@ public class LevelEditorWindow : EditorWindow
                 {
                     EditorUtility.DisplayDialog("Level Solution", "No solution found for this level.", "OK");
                     Debug.LogWarning("No solution found for the current level.");
+                }
+                }
+                else
+                {
+                    EditorUtility.DisplayDialog("Level Solution", "No working level available.", "OK");
                 }
             }
 
@@ -491,43 +499,43 @@ public class LevelEditorWindow : EditorWindow
         EditorGUILayout.Space();
 
         // Preview Area
-        if (currentLevel != null)
+        if (workingLevel != null)
         {
             // Initialize map if it doesn't exist or has wrong size
-            if (currentLevel.Map == null || currentLevel.Map.Length != currentLevel.MapSize.x * currentLevel.MapSize.y)
+            if (workingLevel.Map == null || workingLevel.Map.Length != workingLevel.MapSize.x * workingLevel.MapSize.y)
             {
-                currentLevel.Map = new CellData[currentLevel.MapSize.x * currentLevel.MapSize.y];
-                for (int i = 0; i < currentLevel.Map.Length; i++)
+                workingLevel.Map = new CellData[workingLevel.MapSize.x * workingLevel.MapSize.y];
+                for (int i = 0; i < workingLevel.Map.Length; i++)
                 {
-                    currentLevel.Map[i] = new CellData(TerrainType.Default, CellItem.None);
+                    workingLevel.Map[i] = new CellData(TerrainType.Default, CellItem.None);
                 }
                 hasUnsavedChanges = true;
                 ResetSolvabilityCheck(); // Reset when level changes
             }
 
             // Calculate the total size of the grid with padding
-            float totalWidth = currentLevel.MapSize.x * (tileSize + tilePadding);
-            float totalHeight = currentLevel.MapSize.y * (tileSize + tilePadding);
+            float totalWidth = workingLevel.MapSize.x * (tileSize + tilePadding);
+            float totalHeight = workingLevel.MapSize.y * (tileSize + tilePadding);
 
             // Create a scroll view for the grid
             scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition, GUILayout.Width(totalWidth + 20), GUILayout.Height(totalHeight + 20));
 
             // Draw the grid
-            for (int y = 0; y < currentLevel.MapSize.y; y++)
+            for (int y = 0; y < workingLevel.MapSize.y; y++)
             {
-                for (int x = 0; x < currentLevel.MapSize.x; x++)
+                for (int x = 0; x < workingLevel.MapSize.x; x++)
                 {
-                    int index = y * currentLevel.MapSize.x + x;
+                    int index = y * workingLevel.MapSize.x + x;
 
                     // Ensure cell data exists
-                    if (currentLevel.Map[index] == null)
+                    if (workingLevel.Map[index] == null)
                     {
-                        currentLevel.Map[index] = new CellData(TerrainType.Default, CellItem.None);
+                        workingLevel.Map[index] = new CellData(TerrainType.Default, CellItem.None);
                         hasUnsavedChanges = true;
                         ResetSolvabilityCheck(); // Reset when level changes
                     }
 
-                    CellData cellData = currentLevel.Map[index];
+                    CellData cellData = workingLevel.Map[index];
 
                     // Calculate position with padding
                     float posX = x * (tileSize + tilePadding);
@@ -553,7 +561,7 @@ public class LevelEditorWindow : EditorWindow
                                 if (cellData.Item != selectedItemType.Value)
                                 {
                                     cellData.Item = selectedItemType.Value;
-                                    currentLevel.Map[index] = cellData;
+                                    workingLevel.Map[index] = cellData;
                                     hasUnsavedChanges = true;
                                     ResetSolvabilityCheck(); // Reset when level changes
                                     e.Use();
@@ -565,7 +573,7 @@ public class LevelEditorWindow : EditorWindow
                             if (cellData.Terrain != selectedTerrainType)
                             {
                                 cellData.Terrain = selectedTerrainType;
-                                currentLevel.Map[index] = cellData;
+                                workingLevel.Map[index] = cellData;
                                 hasUnsavedChanges = true;
                                 ResetSolvabilityCheck(); // Reset when level changes
                                 e.Use();
@@ -621,22 +629,26 @@ public class LevelEditorWindow : EditorWindow
         AssetDatabase.SaveAssets();
 
         currentLevel = newLevel;
+        workingLevel = new WorkingLevelData(currentLevel);
         hasUnsavedChanges = false;
         UpdateWindowTitle();
     }
 
     public override void SaveChanges()
     {
-        if (currentLevel == null)
+        if (currentLevel == null || workingLevel == null)
             return;
 
         // Validate the level before saving
-        if (!currentLevel.IsValid())
+        if (!workingLevel.IsValid())
         {
             EditorUtility.DisplayDialog("Level validation failed", "The current level is invalid and cannot be saved. Check the console for more details.", "OK");
             return;
         }
 
+        // Copy changes from working level to the original asset
+        CopyWorkingDataToLevel(workingLevel, currentLevel);
+        
         EditorUtility.SetDirty(currentLevel);
         AssetDatabase.SaveAssets();
         hasUnsavedChanges = false;
@@ -651,8 +663,18 @@ public class LevelEditorWindow : EditorWindow
         // Reload the asset from disk
         string path = AssetDatabase.GetAssetPath(currentLevel);
         currentLevel = AssetDatabase.LoadAssetAtPath<LevelData>(path);
+        
+        // Recreate working copy from the fresh asset
+        workingLevel = new WorkingLevelData(currentLevel);
         hasUnsavedChanges = false;
+        
+        // Reset solvability check state since we've reverted to saved state
+        ResetSolvabilityCheck();
+        
         UpdateWindowTitle();
+        
+        // Force UI repaint to show reverted state
+        Repaint();
     }
 
     private bool IsLevelSolvable(LevelData level)
@@ -882,7 +904,14 @@ public class LevelEditorWindow : EditorWindow
         try
         {
             // Perform the actual solvability check
-            lastSolvabilityResult = IsLevelSolvable(currentLevel);
+            if (workingLevel != null)
+            {
+                lastSolvabilityResult = IsLevelSolvable(workingLevel.ToLevelData());
+            }
+            else
+            {
+                lastSolvabilityResult = false;
+            }
         }
         catch (System.Exception ex)
         {
@@ -893,6 +922,170 @@ public class LevelEditorWindow : EditorWindow
         {
             isCheckingSolvability = false;
             Repaint(); // Force UI refresh to show result
+        }
+    }
+
+    private void CopyLevelData(LevelData source, LevelData destination)
+    {
+        if (source == null || destination == null) return;
+        
+        // Copy basic properties
+        destination.MapSize = source.MapSize;
+        
+        // Deep copy the map
+        if (source.Map != null)
+        {
+            destination.Map = new CellData[source.Map.Length];
+            for (int i = 0; i < source.Map.Length; i++)
+            {
+                destination.Map[i] = source.Map[i];
+            }
+        }
+        
+        // Deep copy StartMovesPerForm
+        if (source.StartMovesPerForm != null)
+        {
+            destination.StartMovesPerForm = new List<MovePerFormEntry>();
+            foreach (var move in source.StartMovesPerForm)
+            {
+                destination.StartMovesPerForm.Add(new MovePerFormEntry
+                { 
+                    State = move.State, 
+                    Moves = move.Moves 
+                });
+            }
+        }
+    }
+
+    private void CopyWorkingDataToLevel(WorkingLevelData source, LevelData destination)
+    {
+        if (source == null || destination == null) return;
+        
+        // Copy basic properties
+        destination.MapSize = source.MapSize;
+        
+        // Deep copy the map
+        if (source.Map != null)
+        {
+            destination.Map = new CellData[source.Map.Length];
+            for (int i = 0; i < source.Map.Length; i++)
+            {
+                destination.Map[i] = new CellData(source.Map[i].Terrain, source.Map[i].Item);
+            }
+        }
+        
+        // Deep copy StartMovesPerForm
+        if (source.StartMovesPerForm != null)
+        {
+            destination.StartMovesPerForm = new List<MovePerFormEntry>();
+            foreach (var move in source.StartMovesPerForm)
+            {
+                destination.StartMovesPerForm.Add(new MovePerFormEntry
+                { 
+                    State = move.State, 
+                    Moves = move.Moves 
+                });
+            }
+        }
+    }
+
+    // Plain data structure for editing - not a ScriptableObject
+    [System.Serializable]
+    public class WorkingLevelData
+    {
+        public Vector2Int MapSize;
+        public CellData[] Map;
+        public List<MovePerFormEntry> StartMovesPerForm;
+        
+        public WorkingLevelData() { }
+        
+        public WorkingLevelData(LevelData original)
+        {
+            if (original == null) return;
+            
+            // Copy basic properties
+            MapSize = original.MapSize;
+            
+            // Deep copy the map array
+            if (original.Map != null)
+            {
+                Map = new CellData[original.Map.Length];
+                for (int i = 0; i < original.Map.Length; i++)
+                {
+                    // CellData is a struct, so this creates a true copy
+                    Map[i] = new CellData(original.Map[i].Terrain, original.Map[i].Item);
+                }
+            }
+            
+            // Deep copy StartMovesPerForm list
+            if (original.StartMovesPerForm != null)
+            {
+                StartMovesPerForm = new List<MovePerFormEntry>();
+                foreach (var move in original.StartMovesPerForm)
+                {
+                    // Create new instances to avoid reference sharing
+                    StartMovesPerForm.Add(new MovePerFormEntry
+                    { 
+                        State = move.State, 
+                        Moves = move.Moves 
+                    });
+                }
+            }
+        }
+        
+        public bool IsValid()
+        {
+            if (Map == null || Map.Length == 0)
+                return false;
+                
+            if (MapSize.x <= 0 || MapSize.y <= 0)
+                return false;
+                
+            if (Map.Length != MapSize.x * MapSize.y)
+                return false;
+                
+            // Check for exactly one start and one end
+            int startCount = 0;
+            int endCount = 0;
+            
+            foreach (var cell in Map)
+            {
+                if (cell.Terrain == TerrainType.Start) startCount++;
+                if (cell.Terrain == TerrainType.End) endCount++;
+            }
+            
+            return startCount == 1 && endCount == 1;
+        }
+        
+        // Convert back to LevelData for solving/validation
+        public LevelData ToLevelData()
+        {
+            LevelData levelData = ScriptableObject.CreateInstance<LevelData>();
+            levelData.MapSize = MapSize;
+            
+            if (Map != null)
+            {
+                levelData.Map = new CellData[Map.Length];
+                for (int i = 0; i < Map.Length; i++)
+                {
+                    levelData.Map[i] = new CellData(Map[i].Terrain, Map[i].Item);
+                }
+            }
+            
+            if (StartMovesPerForm != null)
+            {
+                levelData.StartMovesPerForm = new List<MovePerFormEntry>();
+                foreach (var move in StartMovesPerForm)
+                {
+                    levelData.StartMovesPerForm.Add(new MovePerFormEntry
+                    { 
+                        State = move.State, 
+                        Moves = move.Moves 
+                    });
+                }
+            }
+            
+            return levelData;
         }
     }
 }
