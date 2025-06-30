@@ -16,11 +16,11 @@ MonoBehaviour:
   Map:
   - Terrain: 1
     Item: 0
-  - Terrain: 1
+  - Terrain: 5
     Item: 0
   - Terrain: 2
     Item: 0
-  - Terrain: 1
+  - Terrain: 5
     Item: 0
   - Terrain: 1
     Item: 0
@@ -28,45 +28,45 @@ MonoBehaviour:
     Item: 0
   - Terrain: 6
     Item: 0
-  - Terrain: 6
+  - Terrain: 4
     Item: 0
   - Terrain: 6
     Item: 0
   - Terrain: 4
-    Item: 0
-  - Terrain: 1
-    Item: 0
-  - Terrain: 1
-    Item: 0
-  - Terrain: 5
-    Item: 0
-  - Terrain: 0
-    Item: 0
-  - Terrain: 1
-    Item: 0
-  - Terrain: 4
-    Item: 0
-  - Terrain: 5
-    Item: 1
-  - Terrain: 1
-    Item: 0
-  - Terrain: 5
-    Item: 1
-  - Terrain: 4
-    Item: 0
-  - Terrain: 1
-    Item: 0
-  - Terrain: 6
-    Item: 0
-  - Terrain: 5
-    Item: 1
-  - Terrain: 1
     Item: 0
   - Terrain: 0
     Item: 0
   - Terrain: 4
     Item: 0
   - Terrain: 5
+    Item: 1
+  - Terrain: 4
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 4
+    Item: 0
+  - Terrain: 5
+    Item: 1
+  - Terrain: 4
+    Item: 0
+  - Terrain: 5
+    Item: 1
+  - Terrain: 4
+    Item: 0
+  - Terrain: 0
+    Item: 0
+  - Terrain: 6
+    Item: 0
+  - Terrain: 5
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 0
+    Item: 0
+  - Terrain: 4
+    Item: 0
+  - Terrain: 0
     Item: 0
   - Terrain: 1
     Item: 0
@@ -94,4 +94,4 @@ MonoBehaviour:
   - State: 3
     Moves: 1
   - State: 4
-    Moves: 2
+    Moves: 5
