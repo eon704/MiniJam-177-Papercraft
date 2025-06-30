@@ -89,6 +89,18 @@ public class LevelEditorWindow : EditorWindow
     private float splitterWidth = 5f; // Width of the draggable splitter
     private bool? lastSolvabilityResult = null; // Cache the result
     private bool isCheckingSolvability = false; // Track if solvability check is in progress
+    private List<TurnInfo> currentSolutionPath = null; // Store the current solution for visualization
+    private bool showSolutionPath = false; // Toggle for showing/hiding the solution path
+
+    // Colors for different player states
+    private readonly Dictionary<Player.StateType, Color> stateColors = new()
+    {
+        { Player.StateType.Default, Color.white },
+        { Player.StateType.Crane, Color.red },
+        { Player.StateType.Plane, Color.yellow },
+        { Player.StateType.Boat, Color.blue },
+        { Player.StateType.Frog, Color.green }
+    };
 
     // Helper method to create colored textures for button backgrounds
     private Texture2D MakeTexture(int width, int height, Color color)
@@ -453,25 +465,64 @@ public class LevelEditorWindow : EditorWindow
                 {
                     var solution = SolveLevel(workingLevel.ToLevelData());
                     if (solution != null)
-                {
-                    string solutionText = "Solution found!\n\nSteps:\n";
-                    for (int i = 0; i < solution.Count; i++)
                     {
-                        TurnInfo turn = solution[i];
-                        solutionText += $"{i + 1}. Move to ({turn.Position.x}, {turn.Position.y}) as {turn.State} (Stars: {turn.Stars})\n";
+                        // Additional validation: Double-check the solution before displaying
+                        TurnInfo finalStep = solution[solution.Count - 1];
+                        if (finalStep.Stars != 3)
+                        {
+                            Debug.LogError($"CRITICAL ERROR: Solver returned invalid solution with {finalStep.Stars} stars instead of 3!");
+                            EditorUtility.DisplayDialog("Level Solution Error", 
+                                $"Error: Solver returned invalid solution with {finalStep.Stars} stars instead of 3. This is a bug in the solver.", "OK");
+                            return;
+                        }
+                        
+                        currentSolutionPath = solution;
+                        showSolutionPath = true;
+                        
+                        // Get final step info for validation display
+                        string solutionText = $"✓ Valid solution found!\n\nFinal result: Position ({finalStep.Position.x}, {finalStep.Position.y}) with {finalStep.Stars} stars\n\nSteps:\n";
+                        
+                        for (int i = 0; i < solution.Count; i++)
+                        {
+                            TurnInfo turn = solution[i];
+                            solutionText += $"{i + 1}. Move to ({turn.Position.x}, {turn.Position.y}) as {turn.State} (Stars: {turn.Stars})\n";
+                        }
+                        EditorUtility.DisplayDialog("Level Solution", solutionText, "OK");
+                        Debug.Log("Level Solution:\n" + solutionText);
+                        Repaint(); // Force repaint to show the solution path
                     }
-                    EditorUtility.DisplayDialog("Level Solution", solutionText, "OK");
-                    Debug.Log("Level Solution:\n" + solutionText);
-                }
-                else
-                {
-                    EditorUtility.DisplayDialog("Level Solution", "No solution found for this level.", "OK");
-                    Debug.LogWarning("No solution found for the current level.");
-                }
+                    else
+                    {
+                        currentSolutionPath = null;
+                        showSolutionPath = false;
+                        EditorUtility.DisplayDialog("Level Solution", "No solution found for this level.", "OK");
+                        Debug.LogWarning("No solution found for the current level.");
+                    }
                 }
                 else
                 {
                     EditorUtility.DisplayDialog("Level Solution", "No working level available.", "OK");
+                }
+            }
+
+            // Solution Path Visualization Controls
+            if (currentSolutionPath != null)
+            {
+                EditorGUILayout.Space();
+                EditorGUILayout.LabelField("Solution Visualization", EditorStyles.boldLabel);
+                
+                bool newShowPath = EditorGUILayout.Toggle("Show Solution Path", showSolutionPath);
+                if (newShowPath != showSolutionPath)
+                {
+                    showSolutionPath = newShowPath;
+                    Repaint();
+                }
+                
+                if (GUILayout.Button("Clear Solution"))
+                {
+                    currentSolutionPath = null;
+                    showSolutionPath = false;
+                    Repaint();
                 }
             }
 
@@ -599,6 +650,12 @@ public class LevelEditorWindow : EditorWindow
                         }
                     }
                 }
+            }
+
+            // Draw solution path visualization
+            if (showSolutionPath && currentSolutionPath != null && currentSolutionPath.Count > 1)
+            {
+                DrawSolutionPath();
             }
 
             EditorGUILayout.EndScrollView();
@@ -731,7 +788,8 @@ public class LevelEditorWindow : EditorWindow
             Position = startPos,
             Stars = 0,
             MovesPerForm = level.StartMovesPerForm.ToDictionary(m => m.State, m => m.Moves),
-            State = Player.StateType.Default
+            State = Player.StateType.Default,
+            CollectedStarPositions = new HashSet<Vector2Int>()
         };
 
         queue.Enqueue((initialTurn, 0));
@@ -746,9 +804,17 @@ public class LevelEditorWindow : EditorWindow
             // Prevent too deep search
             if (depth > maxDepth) continue;
 
+            // Debug: Log when we reach the end position
+            if (current.Position == endPos)
+            {
+                Debug.Log($"Reached end position {endPos} with {current.Stars} stars (need exactly 3)");
+            }
+
             // Check if we reached the goal (end position with exactly 3 stars)
             if (current.Position == endPos && current.Stars == 3)
             {
+                Debug.Log($"BFS Goal condition met: Position={current.Position}, Stars={current.Stars}");
+                
                 // Reconstruct path
                 List<TurnInfo> solution = new();
                 string key = currentKey;
@@ -758,7 +824,20 @@ public class LevelEditorWindow : EditorWindow
                     key = GetStateKey(parent[key]);
                 }
                 solution.Add(current);
-                return solution;
+                
+                // Debug: Log the solution for verification
+                Debug.Log($"Found potential solution with {solution.Count} steps, final state: Position={current.Position}, Stars={current.Stars}");
+                
+                // Final validation: ensure the solution path ends at the goal with exactly 3 stars
+                if (ValidateSolution(solution, endPos))
+                {
+                    return solution;
+                }
+                else
+                {
+                    Debug.LogError("Solution failed validation despite meeting BFS goal condition - this should not happen!");
+                    return null; // This should not happen, but return null instead of continue
+                }
             }
 
             // Try all possible states from current position
@@ -794,10 +873,15 @@ public class LevelEditorWindow : EditorWindow
                     // Invalidate any moves that go on Fire terrain
                     if (targetCell.Terrain == TerrainType.Fire) continue;
 
-                    // Calculate new star count
+                    // Calculate new star count - only count if this star position hasn't been collected yet
                     int newStars = current.Stars;
-                    if (targetCell.Item == CellItem.Star)
+                    HashSet<Vector2Int> newCollectedStars = new(current.CollectedStarPositions ?? new HashSet<Vector2Int>());
+                    
+                    if (targetCell.Item == CellItem.Star && !newCollectedStars.Contains(newPos))
+                    {
                         newStars++;
+                        newCollectedStars.Add(newPos);
+                    }
 
                     // Don't pursue paths with more than 3 stars (optimization)
                     if (newStars > 3) continue;
@@ -812,7 +896,8 @@ public class LevelEditorWindow : EditorWindow
                         Position = newPos,
                         Stars = newStars,
                         MovesPerForm = newMovesPerForm,
-                        State = stateType
+                        State = stateType,
+                        CollectedStarPositions = newCollectedStars
                     };
 
                     string nextKey = GetStateKey(nextTurn);
@@ -837,13 +922,15 @@ public class LevelEditorWindow : EditorWindow
         public int Stars;
         public Dictionary<Player.StateType, int> MovesPerForm;
         public Player.StateType State;
+        public HashSet<Vector2Int> CollectedStarPositions; // Track which star positions have been collected
     }
 
     private string GetStateKey(TurnInfo state)
     {
-        // Create a more comprehensive key that includes move counts to avoid redundant states
+        // Create a more comprehensive key that includes move counts and collected star positions to avoid redundant states
         string movesKey = string.Join(",", state.MovesPerForm.OrderBy(kvp => kvp.Key).Select(kvp => $"{kvp.Key}:{kvp.Value}"));
-        return $"{state.Position.x},{state.Position.y},{state.State},{state.Stars},{movesKey}";
+        string starsKey = string.Join(";", (state.CollectedStarPositions ?? new HashSet<Vector2Int>()).OrderBy(pos => pos.x).ThenBy(pos => pos.y).Select(pos => $"{pos.x},{pos.y}"));
+        return $"{state.Position.x},{state.Position.y},{state.State},{state.Stars},{movesKey},{starsKey}";
     }
 
     private IEnumerable<CellData> GetNeighbors(LevelData level, Vector2Int position)
@@ -888,6 +975,10 @@ public class LevelEditorWindow : EditorWindow
         EditorApplication.update -= PerformSolvabilityCheck;
         isCheckingSolvability = false;
         lastSolvabilityResult = null;
+        
+        // Clear solution path visualization when level changes
+        currentSolutionPath = null;
+        showSolutionPath = false;
     }
 
     private void OnDestroy()
@@ -1087,5 +1178,245 @@ public class LevelEditorWindow : EditorWindow
             
             return levelData;
         }
+    }
+    
+    private void DrawSolutionPath()
+    {
+        if (currentSolutionPath == null || currentSolutionPath.Count < 2) return;
+
+        // Create arrow texture for path direction
+        var arrowTexture = MakeArrowTexture();
+        
+        for (int i = 0; i < currentSolutionPath.Count - 1; i++)
+        {
+            TurnInfo currentStep = currentSolutionPath[i];
+            TurnInfo nextStep = currentSolutionPath[i + 1];
+            
+            // Get positions in screen coordinates
+            Vector2 currentPos = GetTileCenterPosition(currentStep.Position);
+            Vector2 nextPos = GetTileCenterPosition(nextStep.Position);
+            
+            // Get color for current state
+            Color pathColor = stateColors.TryGetValue(nextStep.State, out Color color) ? color : Color.white;
+            
+            // Draw line between positions
+            DrawLine(currentPos, nextPos, pathColor, 4f);
+            
+            // Draw step number
+            DrawStepNumber(nextPos, i + 1, pathColor);
+            
+            // Draw directional arrow
+            DrawArrow(currentPos, nextPos, pathColor);
+        }
+        
+        // Draw start and end markers
+        if (currentSolutionPath.Count > 0)
+        {
+            Vector2 startPos = GetTileCenterPosition(currentSolutionPath[0].Position);
+            Vector2 endPos = GetTileCenterPosition(currentSolutionPath[currentSolutionPath.Count - 1].Position);
+            
+            DrawMarker(startPos, "START", Color.green);
+            DrawMarker(endPos, "END", Color.red);
+        }
+    }
+    
+    private Vector2 GetTileCenterPosition(Vector2Int tileCoord)
+    {
+        float posX = tileCoord.x * (tileSize + tilePadding) + tileSize * 0.5f;
+        float posY = tileCoord.y * (tileSize + tilePadding) + tileSize * 0.5f;
+        return new Vector2(posX, posY);
+    }
+    
+    private void DrawLine(Vector2 start, Vector2 end, Color color, float width)
+    {
+        // Calculate line direction and perpendicular
+        Vector2 direction = (end - start).normalized;
+        Vector2 perpendicular = new Vector2(-direction.y, direction.x) * (width * 0.5f);
+        
+        // Create line quad vertices
+        Vector3[] lineVerts = new Vector3[4]
+        {
+            new Vector3(start.x - perpendicular.x, start.y - perpendicular.y, 0),
+            new Vector3(start.x + perpendicular.x, start.y + perpendicular.y, 0),
+            new Vector3(end.x + perpendicular.x, end.y + perpendicular.y, 0),
+            new Vector3(end.x - perpendicular.x, end.y - perpendicular.y, 0)
+        };
+        
+        // Draw the line using GUI
+        GUI.color = color;
+        for (int i = 0; i < 4; i++)
+        {
+            Vector2 pixelPos = lineVerts[i];
+            GUI.DrawTexture(new Rect(pixelPos.x - 1, pixelPos.y - 1, 2, 2), EditorGUIUtility.whiteTexture);
+        }
+        
+        // Draw main line
+        float distance = Vector2.Distance(start, end);
+        float angle = Mathf.Atan2(end.y - start.y, end.x - start.x) * Mathf.Rad2Deg;
+        
+        GUIUtility.RotateAroundPivot(angle, start);
+        GUI.DrawTexture(new Rect(start.x, start.y - width * 0.5f, distance, width), EditorGUIUtility.whiteTexture);
+        GUIUtility.RotateAroundPivot(-angle, start);
+        
+        GUI.color = Color.white;
+    }
+    
+    private void DrawStepNumber(Vector2 position, int stepNumber, Color backgroundColor)
+    {
+        // Create background circle
+        float circleSize = 20f;
+        Rect circleRect = new Rect(position.x - circleSize * 0.5f, position.y - circleSize * 0.5f, circleSize, circleSize);
+        
+        GUI.color = backgroundColor;
+        GUI.DrawTexture(circleRect, MakeCircleTexture());
+        
+        // Draw number text
+        GUI.color = Color.white;
+        GUIStyle numberStyle = new GUIStyle(GUI.skin.label)
+        {
+            alignment = TextAnchor.MiddleCenter,
+            fontStyle = FontStyle.Bold,
+            fontSize = 12
+        };
+        GUI.Label(circleRect, stepNumber.ToString(), numberStyle);
+        GUI.color = Color.white;
+    }
+    
+    private void DrawArrow(Vector2 start, Vector2 end, Color color)
+    {
+        Vector2 direction = (end - start).normalized;
+        Vector2 arrowPos = Vector2.Lerp(start, end, 0.7f); // Position arrow 70% along the line
+        
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        float arrowSize = 12f;
+        
+        GUI.color = color;
+        Rect arrowRect = new Rect(arrowPos.x - arrowSize * 0.5f, arrowPos.y - arrowSize * 0.5f, arrowSize, arrowSize);
+        
+        GUIUtility.RotateAroundPivot(angle, arrowPos);
+        GUI.DrawTexture(arrowRect, MakeArrowTexture());
+        GUIUtility.RotateAroundPivot(-angle, arrowPos);
+        
+        GUI.color = Color.white;
+    }
+    
+    private void DrawMarker(Vector2 position, string text, Color color)
+    {
+        float markerSize = 30f;
+        Rect markerRect = new Rect(position.x - markerSize * 0.5f, position.y - markerSize * 0.5f, markerSize, markerSize);
+        
+        GUI.color = color;
+        GUI.DrawTexture(markerRect, MakeCircleTexture());
+        
+        GUI.color = Color.white;
+        GUIStyle markerStyle = new GUIStyle(GUI.skin.label)
+        {
+            alignment = TextAnchor.MiddleCenter,
+            fontStyle = FontStyle.Bold,
+            fontSize = 8
+        };
+        GUI.Label(markerRect, text, markerStyle);
+        GUI.color = Color.white;
+    }
+    
+    private Texture2D MakeCircleTexture()
+    {
+        int size = 32;
+        Texture2D texture = new Texture2D(size, size);
+        Color[] pixels = new Color[size * size];
+        
+        Vector2 center = new Vector2(size * 0.5f, size * 0.5f);
+        float radius = size * 0.4f;
+        
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                float distance = Vector2.Distance(new Vector2(x, y), center);
+                pixels[y * size + x] = distance <= radius ? Color.white : Color.clear;
+            }
+        }
+        
+        texture.SetPixels(pixels);
+        texture.Apply();
+        return texture;
+    }
+    
+    private Texture2D MakeArrowTexture()
+    {
+        int size = 16;
+        Texture2D texture = new Texture2D(size, size);
+        Color[] pixels = new Color[size * size];
+        
+        // Create simple arrow shape
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                // Arrow pointing right
+                bool isArrow = false;
+                
+                // Arrow head
+                if (x >= size * 0.6f)
+                {
+                    float centerY = size * 0.5f;
+                    float distFromCenter = Mathf.Abs(y - centerY);
+                    float maxDist = (size - x) * 0.8f;
+                    isArrow = distFromCenter <= maxDist;
+                }
+                // Arrow shaft
+                else if (y >= size * 0.4f && y <= size * 0.6f)
+                {
+                    isArrow = true;
+                }
+                
+                pixels[y * size + x] = isArrow ? Color.white : Color.clear;
+            }
+        }
+        
+        texture.SetPixels(pixels);
+        texture.Apply();
+        return texture;
+    }
+
+    private bool ValidateSolution(List<TurnInfo> solution, Vector2Int expectedEndPos)
+    {
+        if (solution == null || solution.Count == 0)
+        {
+            Debug.LogError("Solution validation failed: Solution is null or empty");
+            return false;
+        }
+            
+        // Check that the final step reaches the expected end position with exactly 3 stars
+        TurnInfo finalStep = solution[solution.Count - 1];
+        bool reachesEnd = finalStep.Position == expectedEndPos;
+        bool hasExactly3Stars = finalStep.Stars == 3;
+        
+        Debug.Log($"Validating solution: Final step at {finalStep.Position} with {finalStep.Stars} stars, Expected end: {expectedEndPos}");
+        
+        // Validate that exactly 3 unique star positions were collected
+        HashSet<Vector2Int> collectedStars = finalStep.CollectedStarPositions ?? new HashSet<Vector2Int>();
+        Debug.Log($"Unique star positions collected: {collectedStars.Count}, Stars: {string.Join(", ", collectedStars)}");
+        
+        // Also validate the entire path for debugging
+        int starsCollected = 0;
+        for (int i = 0; i < solution.Count; i++)
+        {
+            TurnInfo step = solution[i];
+            Debug.Log($"Step {i + 1}: Position {step.Position}, State {step.State}, Stars {step.Stars}");
+            starsCollected = step.Stars; // Track final star count
+        }
+        
+        if (!reachesEnd)
+        {
+            Debug.LogError($"Solution validation failed: Final position {finalStep.Position} does not match expected end position {expectedEndPos}");
+        }
+        
+        if (!hasExactly3Stars)
+        {
+            Debug.LogError($"Solution validation failed: Final star count {finalStep.Stars} is not exactly 3");
+        }
+        
+        return reachesEnd && hasExactly3Stars;
     }
 }
