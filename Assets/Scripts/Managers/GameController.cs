@@ -103,7 +103,7 @@ public class GameController : MonoBehaviour
         }
 #endif
 
-        boardPrefab.Initialize(LevelManager.Instance.CurrentLevel.Map, LevelManager.Instance.CurrentLevel.MapSize);
+        boardPrefab.Initialize(LevelManager.Instance.CurrentLevel);
         CellPrefab cellPrefab;
         (playerPiece, cellPrefab) = boardPrefab.CreateNewPlayerPrefab();
 

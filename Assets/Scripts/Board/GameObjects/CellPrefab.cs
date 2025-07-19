@@ -24,15 +24,18 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     [SerializeField] private Color validMoveColor;
     [SerializeField] private Color invalidMoveColor;
+    [SerializeField] private Color hintColor = Color.yellow;
 
     private bool isValid;
     private bool isPointerOver;
+    private bool isHintRevealed;
 
     public Cell Cell { get; private set; }
     private Player player;
 
     private Sequence pulseSequence;
     private Sequence rippleSequence;
+    private Sequence hintPulseSequence;
     
     private Tween starGrowTween;
     private Tween starShrinkTween;
@@ -75,6 +78,45 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         isValid = false;
     }
 
+    public void SetHintRevealed(bool revealed)
+    {
+        isHintRevealed = revealed;
+        
+        if (revealed)
+        {
+            StartHintPulse();
+        }
+        else
+        {
+            StopHintPulse();
+        }
+    }
+
+    public bool IsHintRevealed => isHintRevealed;
+
+    private void StartHintPulse()
+    {
+        StopHintPulse(); // Stop any existing hint pulse
+        
+        hintPulseSequence = DOTween.Sequence();
+        hintPulseSequence.Append(fill.DOColor(hintColor, 0.5f).SetEase(Ease.InOutSine));
+        hintPulseSequence.Append(fill.DOColor(defaultColor, 0.5f).SetEase(Ease.InOutSine));
+        hintPulseSequence.SetLoops(-1); // Loop infinitely
+        hintPulseSequence.Play();
+    }
+
+    private void StopHintPulse()
+    {
+        hintPulseSequence?.Kill();
+        hintPulseSequence = null;
+        
+        // Reset color to default if not being overridden by pointer hover
+        if (!isPointerOver)
+        {
+            fill.color = defaultColor;
+        }
+    }
+
     public Sequence DoOutOfMovesPulse()
     {
         return DoPulse(0.5f, invalidMoveColor);
@@ -107,12 +149,18 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     public void ResetPulse()
     {
         pulseSequence?.Kill(true);
-        fill.color = defaultColor;
+        
+        // Don't reset color if hint is active
+        if (!isHintRevealed)
+        {
+            fill.color = defaultColor;
+        }
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
         pulseSequence?.Pause();
+        hintPulseSequence?.Pause(); // Pause hint pulse on hover
         isPointerOver = true;
 
         bool isPlayerOnCell = !Cell.IsFree;
@@ -125,8 +173,17 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     public void OnPointerExit(PointerEventData eventData)
     {
         transform.DOScale(1f, 0.2f).SetEase(Ease.OutQuad);
-        fill.color = defaultColor;
         isPointerOver = false;
+
+        // Resume hint pulse if it was active
+        if (isHintRevealed)
+        {
+            hintPulseSequence?.Play();
+        }
+        else
+        {
+            fill.color = defaultColor;
+        }
 
         if (pulseSequence == null)
             return;
@@ -172,6 +229,7 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     {
         rippleSequence?.Kill();
         pulseSequence?.Kill();
+        hintPulseSequence?.Kill();
         DOTween.Kill(this);
     }
 }

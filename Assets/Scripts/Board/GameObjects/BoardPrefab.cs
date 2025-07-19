@@ -10,20 +10,20 @@ public class BoardPrefab : MonoBehaviour
   [SerializeField] private CellPrefab cellPrefab;
   
   private Grid worldGrid;
-  private CellData[] map;
   public Vector2Int Size { get; private set; }
   public Vector3 WorldCenter { get; private set; }
   
   public Board Board { get; private set; }
+  public LevelData LevelData { get; private set; }
   public bool IsSpawnAnimationComplete { get; private set; }
   
   private CellPrefab[,] cellPrefabs;
   
-  public void Initialize(CellData[] newMap, Vector2Int newSize)
+  public void Initialize(LevelData levelData)
   {
-    map = newMap;
-    Size = newSize;
-    Board = new Board(Size, map);
+    LevelData = levelData;
+    Size = levelData.MapSize;
+    Board = new Board(Size, levelData.Map);
     cellPrefabs = new CellPrefab[Size.x, Size.y];
     
     InstantiateBoard();
