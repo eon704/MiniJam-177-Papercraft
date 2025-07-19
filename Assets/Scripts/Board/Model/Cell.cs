@@ -9,6 +9,7 @@ public class Cell
     
     public TerrainType Terrain { get; private set; }
     public Observable<CellItem> Item { get; private set; }
+    public Observable<bool> IsHintRevealed { get; private set; }
     
     public List<Cell> Neighbors { get; private set; }
     
@@ -17,6 +18,7 @@ public class Cell
         Position = position;
         Terrain = type;
         Item = new Observable<CellItem>(item);
+        IsHintRevealed = new Observable<bool>(false);
     }
     
     public void SetNeighbors(List<Cell> neighbors)
@@ -49,6 +51,11 @@ public class Cell
         {
             CollectStar();
         }
+    }
+
+    public void SetHintRevealed(bool revealed)
+    {
+        IsHintRevealed.Value = revealed;
     }
 
     public static int Distance(Cell cell1, Cell cell2)

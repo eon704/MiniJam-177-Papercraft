@@ -7,13 +7,17 @@ public class Board
   public readonly Cell[,] CellArray;
   public readonly Cell StartCell;
   public readonly List<Cell> StarCells = new();
+  public readonly LevelData LevelData;
   
   public readonly BoardHistory BoardHistory = new();
   
-  public Board(Vector2Int size, CellData[] map)
+  private int currentHintStep = 0;
+  
+  public Board(Vector2Int size, CellData[] map, LevelData levelData)
   {
     Size = size;
     CellArray = new Cell[size.x, size.y];
+    LevelData = levelData;
     
     // Populate the board with cells
     for (int y = 0; y < size.y; y++)
@@ -109,4 +113,74 @@ public class Board
   {
     return new BoardPiece(this, StartCell);
   }
+
+  /// <summary>
+  /// Reveals the next cell in the cached solution as a hint.
+  /// Returns true if a hint was revealed, false if no more hints available.
+  /// </summary>
+  public void RevealNextHint()
+  {
+    // Check if we have a cached solution
+    if (LevelData.CachedSolution == null || LevelData.CachedSolution.Count == 0)
+    {
+      Debug.LogWarning("No cached solution available for hints.");
+      return;
+    }
+
+    // Check if we've already revealed all steps
+    if (currentHintStep >= LevelData.CachedSolution.Count)
+    {
+      Debug.Log("All solution steps have been revealed.");
+      return;
+    }
+
+    // Get the next step in the solution
+    SolutionStep nextStep = LevelData.CachedSolution[currentHintStep];
+    Cell cellToReveal = GetCell(nextStep.Position);
+    
+    if (cellToReveal != null)
+    {
+      cellToReveal.SetHintRevealed(true);
+      currentHintStep++;
+      Debug.Log($"Revealed hint step {currentHintStep}/{LevelData.CachedSolution.Count} at position {nextStep.Position}");
+    }
+    else
+    {
+      Debug.LogError($"Invalid position in solution step: {nextStep.Position}");
+    }
+  }
+
+  /// <summary>
+  /// Clears all revealed hints and resets the hint step counter.
+  /// </summary>
+  public void ClearAllHints()
+  {
+    // Clear all cell hints
+    for (int x = 0; x < Size.x; x++)
+    {
+      for (int y = 0; y < Size.y; y++)
+      {
+        CellArray[x, y].SetHintRevealed(false);
+      }
+    }
+    
+    // Reset hint step counter
+    currentHintStep = 0;
+    Debug.Log("All hints cleared.");
+  }
+
+  /// <summary>
+  /// Gets the current hint step (0-based index).
+  /// </summary>
+  public int CurrentHintStep => currentHintStep;
+
+  /// <summary>
+  /// Gets the total number of steps in the cached solution.
+  /// </summary>
+  public int TotalSolutionSteps => LevelData.CachedSolution?.Count ?? 0;
+
+  /// <summary>
+  /// Checks if there are more hints available to reveal.
+  /// </summary>
+  public bool HasMoreHints => currentHintStep < TotalSolutionSteps;
 }

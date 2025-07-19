@@ -23,7 +23,7 @@ public class BoardPrefab : MonoBehaviour
   {
     LevelData = levelData;
     Size = levelData.MapSize;
-    Board = new Board(Size, levelData.Map);
+    Board = new Board(Size, levelData.Map, levelData);
     cellPrefabs = new CellPrefab[Size.x, Size.y];
     
     InstantiateBoard();
@@ -152,4 +152,25 @@ public class BoardPrefab : MonoBehaviour
     
     WorldCenter = new Vector3(xPos, yPos, -10);
   }
+
+  // Hint System Methods
+  
+  /// <summary>
+  /// Reveals the next cell in the solution as a hint.
+  /// Returns true if a hint was revealed, false if no more hints available.
+  /// </summary>
+  public void RevealNextHint()
+  {
+    Board.RevealNextHint();
+  }
+
+  /// <summary>
+  /// Gets the current hint step (0-based index).
+  /// </summary>
+  public int CurrentHintStep => Board.CurrentHintStep;
+
+  /// <summary>
+  /// Checks if there are more hints available to reveal.
+  /// </summary>
+  public bool HasMoreHints => Board.HasMoreHints;
 }

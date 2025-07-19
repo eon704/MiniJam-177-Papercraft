@@ -28,7 +28,6 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     private bool isValid;
     private bool isPointerOver;
-    private bool isHintRevealed;
 
     public Cell Cell { get; private set; }
     private Player player;
@@ -48,6 +47,7 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
             return;
         
         Cell.Item.OnChanged += OnCellItemChange;
+        Cell.IsHintRevealed.OnChanged += OnHintRevealedChange;
 
         player = newPlayer;
         
@@ -78,11 +78,9 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         isValid = false;
     }
 
-    public void SetHintRevealed(bool revealed)
+    private void OnHintRevealedChange(Observable<bool> observable, bool oldValue, bool newValue)
     {
-        isHintRevealed = revealed;
-        
-        if (revealed)
+        if (newValue)
         {
             StartHintPulse();
         }
@@ -91,8 +89,6 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
             StopHintPulse();
         }
     }
-
-    public bool IsHintRevealed => isHintRevealed;
 
     private void StartHintPulse()
     {
@@ -151,7 +147,7 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         pulseSequence?.Kill(true);
         
         // Don't reset color if hint is active
-        if (!isHintRevealed)
+        if (!Cell.IsHintRevealed.Value)
         {
             fill.color = defaultColor;
         }
@@ -176,7 +172,7 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         isPointerOver = false;
 
         // Resume hint pulse if it was active
-        if (isHintRevealed)
+        if (Cell.IsHintRevealed.Value)
         {
             hintPulseSequence?.Play();
         }
