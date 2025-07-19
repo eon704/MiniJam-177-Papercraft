@@ -11,6 +11,19 @@ public class LevelData : ScriptableObject
     [Header("Player data")]
     public List<MovePerFormEntry> StartMovesPerForm;
 
+    [Header("Solution Data")]
+    [SerializeField] private List<SolutionStep> cachedSolution;
+
+    // Property to access the cached solution
+    public List<SolutionStep> CachedSolution
+    {
+        get => cachedSolution ?? new List<SolutionStep>();
+        set => cachedSolution = value;
+    }
+
+    // Check if a cached solution exists
+    public bool HasCachedSolution => cachedSolution != null && cachedSolution.Count > 0;
+
     public static LevelData DefaultLevel
     {
         get
@@ -30,6 +43,7 @@ public class LevelData : ScriptableObject
                 new() {State = Player.StateType.Boat, Moves = -1 },
                 new() {State = Player.StateType.Frog, Moves = -1 }
             };
+            defaultLevel.cachedSolution = new List<SolutionStep>();
             return defaultLevel;
         }
     }
@@ -107,4 +121,19 @@ public struct MovePerFormEntry
 {
     public Player.StateType State;
     public int Moves;
+}
+
+[Serializable]
+public struct SolutionStep
+{
+    public Vector2Int Position;
+    public Player.StateType State;
+    public int StarsCollected;
+    
+    public SolutionStep(Vector2Int position, Player.StateType state, int starsCollected)
+    {
+        Position = position;
+        State = state;
+        StarsCollected = starsCollected;
+    }
 }

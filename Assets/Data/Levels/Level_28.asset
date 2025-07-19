@@ -153,3 +153,40 @@ MonoBehaviour:
     Moves: 2
   - State: 4
     Moves: 4
+  cachedSolution:
+  - Position: {x: 0, y: 1}
+    State: 0
+    StarsCollected: 0
+  - Position: {x: 1, y: 2}
+    State: 2
+    StarsCollected: 0
+  - Position: {x: 1, y: 4}
+    State: 4
+    StarsCollected: 0
+  - Position: {x: 1, y: 6}
+    State: 4
+    StarsCollected: 1
+  - Position: {x: 1, y: 4}
+    State: 4
+    StarsCollected: 1
+  - Position: {x: 2, y: 4}
+    State: 3
+    StarsCollected: 1
+  - Position: {x: 3, y: 3}
+    State: 2
+    StarsCollected: 2
+  - Position: {x: 3, y: 4}
+    State: 1
+    StarsCollected: 2
+  - Position: {x: 5, y: 4}
+    State: 4
+    StarsCollected: 3
+  - Position: {x: 6, y: 5}
+    State: 2
+    StarsCollected: 3
+  - Position: {x: 6, y: 6}
+    State: 1
+    StarsCollected: 3
+  - Position: {x: 7, y: 7}
+    State: 2
+    StarsCollected: 3

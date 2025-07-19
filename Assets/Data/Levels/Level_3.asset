@@ -45,3 +45,19 @@ MonoBehaviour:
     Moves: 0
   - State: 4
     Moves: 0
+  cachedSolution:
+  - Position: {x: 0, y: 0}
+    State: 0
+    StarsCollected: 0
+  - Position: {x: 1, y: 1}
+    State: 2
+    StarsCollected: 1
+  - Position: {x: 2, y: 0}
+    State: 2
+    StarsCollected: 2
+  - Position: {x: 3, y: 1}
+    State: 2
+    StarsCollected: 3
+  - Position: {x: 4, y: 0}
+    State: 2
+    StarsCollected: 3

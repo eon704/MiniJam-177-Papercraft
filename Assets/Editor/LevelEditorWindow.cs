@@ -221,6 +221,12 @@ public class LevelEditorWindow : EditorWindow
             // Clear solvability check state when level changes
             ResetSolvabilityCheck();
             
+            // Load cached solution if available
+            if (workingLevel?.CachedSolution != null && workingLevel.CachedSolution.Count > 0)
+            {
+                LoadCachedSolution();
+            }
+            
             UpdateWindowTitle();
         }
 
@@ -434,6 +440,25 @@ public class LevelEditorWindow : EditorWindow
         if (workingLevel != null)
         {
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+
+            // Show cached solution status
+            if (workingLevel.CachedSolution != null && workingLevel.CachedSolution.Count > 0)
+            {
+                EditorGUILayout.HelpBox($"✓ Level has a cached solution with {workingLevel.CachedSolution.Count} steps.", MessageType.Info);
+                
+                EditorGUILayout.BeginHorizontal();
+                if (GUILayout.Button("Load Cached Solution"))
+                {
+                    LoadCachedSolution();
+                }
+                if (GUILayout.Button("Clear Cached Solution"))
+                {
+                    ClearCachedSolution();
+                }
+                EditorGUILayout.EndHorizontal();
+                
+                EditorGUILayout.Space();
+            }
 
             // Check Solvability Button
             EditorGUI.BeginDisabledGroup(isCheckingSolvability);
@@ -1051,11 +1076,22 @@ public class LevelEditorWindow : EditorWindow
                 if (solution != null)
                 {
                     currentSolutionPath = solution;
+                    
+                    // Store solution in the working level data
+                    StoreSolutionInWorkingLevel(solution);
+                    
                     Debug.Log($"Solvability check completed: Level is solvable with {solution.Count} steps. Solution cached.");
                 }
                 else
                 {
                     currentSolutionPath = null;
+                    
+                    // Clear solution from working level data
+                    if (workingLevel != null)
+                    {
+                        workingLevel.CachedSolution = new List<SolutionStep>();
+                    }
+                    
                     Debug.Log("Solvability check completed: Level is not solvable.");
                 }
             }
@@ -1140,6 +1176,12 @@ public class LevelEditorWindow : EditorWindow
                 });
             }
         }
+        
+        // Copy cached solution
+        if (source.CachedSolution != null)
+        {
+            destination.CachedSolution = new List<SolutionStep>(source.CachedSolution);
+        }
     }
 
     // Plain data structure for editing - not a ScriptableObject
@@ -1149,6 +1191,7 @@ public class LevelEditorWindow : EditorWindow
         public Vector2Int MapSize;
         public CellData[] Map;
         public List<MovePerFormEntry> StartMovesPerForm;
+        public List<SolutionStep> CachedSolution; // Store the cached solution
         
         public WorkingLevelData() { }
         
@@ -1183,6 +1226,16 @@ public class LevelEditorWindow : EditorWindow
                         Moves = move.Moves 
                     });
                 }
+            }
+            
+            // Copy cached solution
+            if (original.CachedSolution != null)
+            {
+                CachedSolution = new List<SolutionStep>(original.CachedSolution);
+            }
+            else
+            {
+                CachedSolution = new List<SolutionStep>();
             }
         }
         
@@ -1238,8 +1291,86 @@ public class LevelEditorWindow : EditorWindow
                 }
             }
             
+            // Copy cached solution
+            if (CachedSolution != null)
+            {
+                levelData.CachedSolution = new List<SolutionStep>(CachedSolution);
+            }
+            
             return levelData;
         }
+    }
+    
+    private void StoreSolutionInWorkingLevel(List<TurnInfo> solution)
+    {
+        if (workingLevel == null || solution == null) return;
+        
+        // Convert TurnInfo list to SolutionStep list
+        workingLevel.CachedSolution = new List<SolutionStep>();
+        
+        foreach (var turn in solution)
+        {
+            workingLevel.CachedSolution.Add(new SolutionStep(
+                turn.Position,
+                turn.State,
+                turn.Stars
+            ));
+        }
+        
+        // Mark as having unsaved changes since we've updated the solution
+        hasUnsavedChanges = true;
+    }
+    
+    private void LoadCachedSolution()
+    {
+        if (workingLevel?.CachedSolution == null || workingLevel.CachedSolution.Count == 0)
+        {
+            Debug.LogWarning("No cached solution available to load.");
+            return;
+        }
+        
+        // Convert SolutionStep list back to TurnInfo list for display
+        currentSolutionPath = new List<TurnInfo>();
+        
+        foreach (var step in workingLevel.CachedSolution)
+        {
+            // Create a simplified TurnInfo for display purposes
+            // Note: Some fields like MovesPerForm and CollectedStarPositions are not stored in the cached solution
+            // so we'll create minimal TurnInfo objects just for visualization
+            var turnInfo = new TurnInfo
+            {
+                Position = step.Position,
+                State = step.State,
+                Stars = step.StarsCollected,
+                MovesPerForm = new Dictionary<Player.StateType, int>(), // Empty for cached solutions
+                CollectedStarPositions = new HashSet<Vector2Int>() // Empty for cached solutions
+            };
+            
+            currentSolutionPath.Add(turnInfo);
+        }
+        
+        // Update UI state
+        showSolutionPath = true;
+        lastSolvabilityResult = true; // Indicate that the level is solvable
+        
+        Debug.Log($"Loaded cached solution with {currentSolutionPath.Count} steps.");
+        Repaint();
+    }
+    
+    private void ClearCachedSolution()
+    {
+        if (workingLevel != null)
+        {
+            workingLevel.CachedSolution = new List<SolutionStep>();
+            hasUnsavedChanges = true;
+        }
+        
+        // Also clear the current visualization
+        currentSolutionPath = null;
+        showSolutionPath = false;
+        
+        Debug.Log("Cached solution cleared.");
+        Repaint();
     }
     
     private void DrawSolutionPath()
