@@ -62,7 +62,6 @@ public class LevelDataTools
         foreach (LevelData level in selectedLevels)
         {
             string levelName = level.name;
-            Debug.Log($"Processing level: {levelName}");
 
             // Check if level is valid before attempting to solve
             if (!level.IsValid())
@@ -82,8 +81,6 @@ public class LevelDataTools
                 
                 // Mark asset as dirty and save
                 EditorUtility.SetDirty(level);
-                
-                Debug.Log($"✓ Solution found and cached for level {levelName} ({solution.Count} steps)");
                 successCount++;
             }
             else
