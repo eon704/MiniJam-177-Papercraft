@@ -12,6 +12,10 @@ public class Cell
     public Observable<int> IsHintRevealed { get; private set; }
     
     public List<Cell> Neighbors { get; private set; }
+
+    public int HintOrder1 { get; private set; } = -1;
+    public int HintOrder2 { get; private set; } = -1;
+    public int HintOrder3 { get; private set; } = -1;
     
     public Cell(Vector2Int position, TerrainType type, CellItem item)
     {
@@ -53,9 +57,24 @@ public class Cell
         }
     }
 
-    public void RevealHint()
+    public void RevealHint(int order)
     {
-        IsHintRevealed.Value = IsHintRevealed.Value + 1;
+        int newHintOrder = IsHintRevealed.Value + 1;
+
+        switch (IsHintRevealed)
+        {
+            case 1:
+                HintOrder1 = order;
+                break;
+            case 2:
+                HintOrder2 = order;
+                break;
+            case 3:
+                HintOrder3 = order;
+                break;
+        }
+
+        IsHintRevealed.Value = newHintOrder;
     }
 
     public void HideHint()

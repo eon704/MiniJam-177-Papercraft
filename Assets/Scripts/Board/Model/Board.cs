@@ -12,7 +12,7 @@ public class Board
   
   public readonly BoardHistory BoardHistory = new();
   
-  private int currentHintStep = 0;
+  private int currentHintStep = 1;
   
   public Board(Vector2Int size, CellData[] map, LevelData levelData)
   {
@@ -132,10 +132,11 @@ public class Board
     // Get the next step in the solution
     SolutionStep nextStep = LevelData.CachedSolution[currentHintStep];
     Cell cellToReveal = GetCell(nextStep.Position);
-    cellToReveal.RevealHint();
+    cellToReveal.RevealHint(currentHintStep);
     currentHintStep++;
 
-    if (currentHintStep >= LevelData.CachedSolution.Count)
+    // No need to reveal the turn to finish tile
+    if (currentHintStep >= LevelData.CachedSolution.Count - 1)
     {
       areAllHintsRevealed = true;
     }
