@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -9,7 +10,7 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     IPointerUpHandler
 {
     [SerializeField] private SpriteRenderer fill;
-    [SerializeField] private List<SpriteRenderer> hints;
+    [SerializeField] public List<SpriteRenderer> hints;
     [SerializeField] private GameObject fire;
     [SerializeField] private GameObject water;
     [SerializeField] private GameObject stone;
@@ -18,6 +19,8 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     [SerializeField] private GameObject star;
     private float starDefaultScale;
+
+    public ReadOnlyCollection<SpriteRenderer> HintRenderers => hints.AsReadOnly();
 
     [SerializeField] private Color defaultColor;
 
@@ -51,7 +54,6 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
             return;
         
         Cell.Item.OnChanged += OnCellItemChange;
-        Cell.IsHintRevealed.OnChanged += OnHintRevealedChange;
 
         player = newPlayer;
         
@@ -80,28 +82,6 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     public void ResetIsValidMoveOption()
     {
         isValid = false;
-    }
-
-    private void OnHintRevealedChange(Observable<int> observable, int oldValue, int newValue)
-    {
-        if (newValue <= 0)
-        {
-            HideHints();
-        }
-        else
-        {
-            ShowHint(newValue);
-        }
-    }
-
-    private void ShowHint(int hintDepth)
-    {
-        hints[hintDepth].gameObject.SetActive(true);
-    }
-
-    private void HideHints()
-    {
-        hints.ForEach(hint => hint.gameObject.SetActive(false));
     }
 
     public Sequence DoOutOfMovesPulse()

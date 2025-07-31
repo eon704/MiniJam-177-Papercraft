@@ -53,9 +53,11 @@ public class Cell
         }
     }
 
-    public void RevealHint()
+    public int RevealHint()
     {
-        IsHintRevealed.Value = IsHintRevealed.Value + 1;
+        int newRevealDepth = IsHintRevealed.Value + 1;
+        IsHintRevealed.Value = newRevealDepth;
+        return newRevealDepth;
     }
 
     public void HideHint()

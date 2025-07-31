@@ -119,20 +119,20 @@ public class Board
   /// Reveals the next cell in the cached solution as a hint.
   /// Returns true if a hint was revealed, false if no more hints available.
   /// </summary>
-  public Cell RevealNextHint(out bool areAllHintsRevealed)
+  public (Cell, int) RevealNextHint(out bool areAllHintsRevealed)
   {
     areAllHintsRevealed = false;
 
     if (currentHintStep >= LevelData.CachedSolution.Count)
     {
       Debug.LogWarning("No more hints to reveal.");
-      return null;
+      return(null, -1);
     }
 
     // Get the next step in the solution
     SolutionStep nextStep = LevelData.CachedSolution[currentHintStep];
     Cell cellToReveal = GetCell(nextStep.Position);
-    cellToReveal.RevealHint();
+    int revealDepth = cellToReveal.RevealHint();
     currentHintStep++;
 
     // No need to reveal the turn to finish tile
@@ -141,7 +141,7 @@ public class Board
       areAllHintsRevealed = true;
     }
 
-    return cellToReveal;
+    return (cellToReveal, revealDepth);
   }
 
   /// <summary>
