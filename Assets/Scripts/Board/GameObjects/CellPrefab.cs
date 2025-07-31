@@ -8,6 +8,9 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     IPointerUpHandler
 {
     [SerializeField] private SpriteRenderer fill;
+    [SerializeField] private SpriteRenderer hint1;
+    [SerializeField] private SpriteRenderer hint2;
+    [SerializeField] private SpriteRenderer hint3;
     [SerializeField] private GameObject fire;
     [SerializeField] private GameObject water;
     [SerializeField] private GameObject stone;
@@ -24,7 +27,6 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     [SerializeField] private Color validMoveColor;
     [SerializeField] private Color invalidMoveColor;
-    [SerializeField] private Color hintColor = Color.yellow;
 
     private bool isValid;
     private bool isPointerOver;
@@ -41,6 +43,11 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     public void Initialize(Cell cellData, Player newPlayer, float delay)
     {
+        fill.color = new Color(0, 0, 0, 0);
+        hint1.gameObject.SetActive(false);
+        hint2.gameObject.SetActive(false);
+        hint3.gameObject.SetActive(false);
+
         Cell = cellData;
         gameObject.SetActive(Cell.Terrain != TerrainType.Empty);
         if (Cell.Terrain == TerrainType.Empty)
@@ -78,39 +85,39 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         isValid = false;
     }
 
-    private void OnHintRevealedChange(Observable<bool> observable, bool oldValue, bool newValue)
+    private void OnHintRevealedChange(Observable<int> observable, int oldValue, int newValue)
     {
-        if (newValue)
+        if (newValue <= 0)
         {
-            StartHintPulse();
+            HideHints();
         }
         else
         {
-            StopHintPulse();
+            ShowHint(newValue);
         }
     }
 
-    private void StartHintPulse()
+    private void ShowHint(int order)
     {
-        StopHintPulse(); // Stop any existing hint pulse
-        
-        hintPulseSequence = DOTween.Sequence();
-        hintPulseSequence.Append(fill.DOColor(hintColor, 0.5f).SetEase(Ease.InOutSine));
-        hintPulseSequence.Append(fill.DOColor(defaultColor, 0.5f).SetEase(Ease.InOutSine));
-        hintPulseSequence.SetLoops(-1); // Loop infinitely
-        hintPulseSequence.Play();
-    }
-
-    private void StopHintPulse()
-    {
-        hintPulseSequence?.Kill();
-        hintPulseSequence = null;
-        
-        // Reset color to default if not being overridden by pointer hover
-        if (!isPointerOver)
+        switch (order)
         {
-            fill.color = defaultColor;
+            case 1:
+                hint1.gameObject.SetActive(true);
+                break;
+            case 2:
+                hint2.gameObject.SetActive(true);
+                break;
+            case 3:
+                hint3.gameObject.SetActive(true);
+                break;
         }
+    }
+
+    private void HideHints()
+    {
+        hint1.gameObject.SetActive(false);
+        hint2.gameObject.SetActive(false);
+        hint3.gameObject.SetActive(false);
     }
 
     public Sequence DoOutOfMovesPulse()
@@ -145,18 +152,12 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     public void ResetPulse()
     {
         pulseSequence?.Kill(true);
-        
-        // Don't reset color if hint is active
-        if (!Cell.IsHintRevealed.Value)
-        {
-            fill.color = defaultColor;
-        }
+        fill.color = defaultColor;
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
         pulseSequence?.Pause();
-        hintPulseSequence?.Pause(); // Pause hint pulse on hover
         isPointerOver = true;
 
         bool isPlayerOnCell = !Cell.IsFree;
@@ -171,15 +172,7 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         transform.DOScale(1f, 0.2f).SetEase(Ease.OutQuad);
         isPointerOver = false;
 
-        // Resume hint pulse if it was active
-        if (Cell.IsHintRevealed.Value)
-        {
-            hintPulseSequence?.Play();
-        }
-        else
-        {
-            fill.color = defaultColor;
-        }
+        fill.color = defaultColor;
 
         if (pulseSequence == null)
             return;

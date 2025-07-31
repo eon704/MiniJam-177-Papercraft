@@ -140,7 +140,7 @@ public class Board
     
     if (cellToReveal != null)
     {
-      cellToReveal.SetHintRevealed(true);
+      cellToReveal.RevealHint();
       currentHintStep++;
       Debug.Log($"Revealed hint step {currentHintStep}/{LevelData.CachedSolution.Count} at position {nextStep.Position}");
     }
@@ -160,7 +160,7 @@ public class Board
     {
       for (int y = 0; y < Size.y; y++)
       {
-        CellArray[x, y].SetHintRevealed(false);
+        CellArray[x, y].HideHint();
       }
     }
     
