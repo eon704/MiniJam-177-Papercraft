@@ -146,9 +146,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fill: {fileID: 197268715773774920}
-  hint1: {fileID: 8430517589106359699}
-  hint2: {fileID: 8283439871366441351}
-  hint3: {fileID: 2641139974352163117}
+  hints:
+  - {fileID: 8430517589106359699}
+  - {fileID: 8283439871366441351}
+  - {fileID: 2641139974352163117}
   fire: {fileID: 9134848988137552819}
   water: {fileID: 6649524219624519267}
   stone: {fileID: 3091414380822036382}

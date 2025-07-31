@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -8,9 +9,7 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     IPointerUpHandler
 {
     [SerializeField] private SpriteRenderer fill;
-    [SerializeField] private SpriteRenderer hint1;
-    [SerializeField] private SpriteRenderer hint2;
-    [SerializeField] private SpriteRenderer hint3;
+    [SerializeField] private List<SpriteRenderer> hints;
     [SerializeField] private GameObject fire;
     [SerializeField] private GameObject water;
     [SerializeField] private GameObject stone;
@@ -44,10 +43,8 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     public void Initialize(Cell cellData, Player newPlayer, float delay)
     {
         fill.color = new Color(0, 0, 0, 0);
-        hint1.gameObject.SetActive(false);
-        hint2.gameObject.SetActive(false);
-        hint3.gameObject.SetActive(false);
-
+        hints.ForEach(hint => hint.gameObject.SetActive(false));
+        
         Cell = cellData;
         gameObject.SetActive(Cell.Terrain != TerrainType.Empty);
         if (Cell.Terrain == TerrainType.Empty)
@@ -97,27 +94,14 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         }
     }
 
-    private void ShowHint(int order)
+    private void ShowHint(int hintDepth)
     {
-        switch (order)
-        {
-            case 1:
-                hint1.gameObject.SetActive(true);
-                break;
-            case 2:
-                hint2.gameObject.SetActive(true);
-                break;
-            case 3:
-                hint3.gameObject.SetActive(true);
-                break;
-        }
+        hints[hintDepth].gameObject.SetActive(true);
     }
 
     private void HideHints()
     {
-        hint1.gameObject.SetActive(false);
-        hint2.gameObject.SetActive(false);
-        hint3.gameObject.SetActive(false);
+        hints.ForEach(hint => hint.gameObject.SetActive(false));
     }
 
     public Sequence DoOutOfMovesPulse()

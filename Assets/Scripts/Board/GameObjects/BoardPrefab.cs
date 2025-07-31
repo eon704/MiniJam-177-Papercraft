@@ -161,7 +161,7 @@ public class BoardPrefab : MonoBehaviour
   /// </summary>
   public void RevealNextHint(out bool areAllHintsRevealed)
   {
-    Board.RevealNextHint(out areAllHintsRevealed);
+    Cell revealedCell = Board.RevealNextHint(out areAllHintsRevealed);
   }
 
   /// <summary>
