@@ -105,6 +105,12 @@ public class LevelData : ScriptableObject
 
         foreach (var entry in StartMovesPerForm)
         {
+            if (entry.State == Player.StateType.Default && entry.Moves > 0)
+            {
+                Debug.LogError("Default moves must be 0.");
+                return false;
+            }
+
             if (entry.Moves < -1)
             {
                 Debug.LogError($"Invalid moves count for state {entry.State}: {entry.Moves}. Must be either -1 or a non-negative integer.");

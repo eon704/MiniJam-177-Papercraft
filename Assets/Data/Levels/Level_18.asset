@@ -125,11 +125,8 @@ MonoBehaviour:
   - Position: {x: 0, y: 4}
     State: 2
     StarsCollected: 1
-  - Position: {x: 1, y: 4}
-    State: 1
-    StarsCollected: 1
   - Position: {x: 2, y: 4}
-    State: 1
+    State: 4
     StarsCollected: 1
   - Position: {x: 3, y: 5}
     State: 2
@@ -143,6 +140,9 @@ MonoBehaviour:
   - Position: {x: 4, y: 4}
     State: 4
     StarsCollected: 3
+  - Position: {x: 5, y: 4}
+    State: 1
+    StarsCollected: 3
   - Position: {x: 6, y: 4}
-    State: 4
+    State: 1
     StarsCollected: 3

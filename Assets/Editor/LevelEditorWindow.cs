@@ -830,7 +830,6 @@ public class LevelEditorWindow : EditorWindow
         // Find the start and end positions
         Vector2Int startPos = Vector2Int.zero;
         Vector2Int endPos = Vector2Int.zero;
-        int totalStars = 0;
 
         for (int y = 0; y < level.MapSize.y; y++)
         {
@@ -843,16 +842,13 @@ public class LevelEditorWindow : EditorWindow
                     startPos = new Vector2Int(x, y);
                 if (cell.Terrain == TerrainType.End)
                     endPos = new Vector2Int(x, y);
-                if (cell.Item == CellItem.Star)
-                    totalStars++;
             }
         }
 
         // BFS to find solution
-        Queue<(TurnInfo, int)> queue = new(); // Include depth to prevent infinite search
+        Queue<TurnInfo> queue = new(); // Include depth to prevent infinite search
         HashSet<string> visited = new();
         Dictionary<string, TurnInfo> parent = new();
-        const int maxDepth = 100; // Prevent infinite search
 
         // Initial state
         TurnInfo initialTurn = new TurnInfo
@@ -864,29 +860,19 @@ public class LevelEditorWindow : EditorWindow
             CollectedStarPositions = new HashSet<Vector2Int>()
         };
 
-        queue.Enqueue((initialTurn, 0));
+        queue.Enqueue(initialTurn);
         string initialKey = GetStateKey(initialTurn);
         visited.Add(initialKey);
+        int steps = 10000;
 
-        while (queue.Count > 0)
+        while (queue.Count > 0 && steps > 0)
         {
-            var (current, depth) = queue.Dequeue();
+            steps--;
+            var current = queue.Dequeue();
             string currentKey = GetStateKey(current);
 
-            // Prevent too deep search
-            if (depth > maxDepth) continue;
-
-            // Debug: Log when we reach the end position
-            if (current.Position == endPos)
-            {
-                Debug.Log($"Reached end position {endPos} with {current.Stars} stars (need exactly 3)");
-            }
-
-            // Check if we reached the goal (end position with exactly 3 stars)
             if (current.Position == endPos && current.Stars == 3)
             {
-                Debug.Log($"BFS Goal condition met: Position={current.Position}, Stars={current.Stars}");
-                
                 // Reconstruct path
                 List<TurnInfo> solution = new();
                 string key = currentKey;
@@ -896,11 +882,11 @@ public class LevelEditorWindow : EditorWindow
                     key = GetStateKey(parent[key]);
                 }
                 solution.Add(current);
-                
+
                 // Debug: Log the solution for verification
                 Debug.Log($"Found potential solution with {solution.Count} steps, final state: Position={current.Position}, Stars={current.Stars}");
-                
-                // Final validation: ensure the solution path ends at the goal with exactly 3 stars
+
+                // Final validation: ensure the solution path ends at the goal with all stars
                 if (ValidateSolution(solution, endPos))
                 {
                     return solution;
@@ -915,48 +901,41 @@ public class LevelEditorWindow : EditorWindow
             // Try all possible states from current position
             foreach (Player.StateType stateType in System.Enum.GetValues(typeof(Player.StateType)))
             {
-                // Default state can only be used on the initial turn (when depth == 0)
-                if (stateType == Player.StateType.Default && depth > 0) continue;
-                
+                if (stateType == Player.StateType.Default) continue;
+
                 // For non-default states, check if we have moves left
-                if (stateType != Player.StateType.Default && current.MovesPerForm[stateType] <= 0) continue;
+                if (current.MovesPerForm[stateType] <= 0) continue;
 
                 // Get the state model for movement options
                 if (!StateModelInfo.StateModels.TryGetValue(stateType, out StateModel stateModel)) continue;
-
-                // Skip default state if it has no movement options
-                if (stateType == Player.StateType.Default && stateModel.MoveOptions.Count == 0) continue;
 
                 // Try all possible moves for this state
                 foreach (Vector2Int moveOffset in stateModel.MoveOptions)
                 {
                     Vector2Int newPos = current.Position + moveOffset;
-                    
+
                     // Check bounds
-                    if (newPos.x < 0 || newPos.x >= level.MapSize.x || 
+                    if (newPos.x < 0 || newPos.x >= level.MapSize.x ||
                         newPos.y < 0 || newPos.y >= level.MapSize.y) continue;
 
                     int cellIndex = newPos.y * level.MapSize.x + newPos.x;
                     CellData targetCell = level.Map[cellIndex];
-                    
-                    // Check if this state can move to this terrain
-                    if (!stateModel.MoveTerrain.Contains(targetCell.Terrain)) continue;
-                    
+
                     // Invalidate any moves that go on Fire terrain
                     if (targetCell.Terrain == TerrainType.Fire) continue;
+
+                    // Check if this state can move to this terrain
+                    if (!stateModel.MoveTerrain.Contains(targetCell.Terrain)) continue;
 
                     // Calculate new star count - only count if this star position hasn't been collected yet
                     int newStars = current.Stars;
                     HashSet<Vector2Int> newCollectedStars = new(current.CollectedStarPositions ?? new HashSet<Vector2Int>());
-                    
+
                     if (targetCell.Item == CellItem.Star && !newCollectedStars.Contains(newPos))
                     {
                         newStars++;
                         newCollectedStars.Add(newPos);
                     }
-
-                    // Don't pursue paths with more than 3 stars (optimization)
-                    if (newStars > 3) continue;
 
                     // Create new moves dictionary
                     Dictionary<Player.StateType, int> newMovesPerForm = new(current.MovesPerForm);
@@ -979,7 +958,7 @@ public class LevelEditorWindow : EditorWindow
                     {
                         visited.Add(nextKey);
                         parent[nextKey] = current;
-                        queue.Enqueue((nextTurn, depth + 1));
+                        queue.Enqueue(nextTurn);
                     }
                 }
             }
