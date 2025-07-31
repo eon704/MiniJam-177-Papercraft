@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class Board
@@ -118,35 +119,25 @@ public class Board
   /// Reveals the next cell in the cached solution as a hint.
   /// Returns true if a hint was revealed, false if no more hints available.
   /// </summary>
-  public void RevealNextHint()
+  public void RevealNextHint(out bool areAllHintsRevealed)
   {
-    // Check if we have a cached solution
-    if (LevelData.CachedSolution == null || LevelData.CachedSolution.Count == 0)
-    {
-      Debug.LogWarning("No cached solution available for hints.");
-      return;
-    }
+    areAllHintsRevealed = false;
 
-    // Check if we've already revealed all steps
     if (currentHintStep >= LevelData.CachedSolution.Count)
     {
-      Debug.Log("All solution steps have been revealed.");
+      Debug.LogWarning("DO NOT REVEAL MORE");
       return;
     }
 
     // Get the next step in the solution
     SolutionStep nextStep = LevelData.CachedSolution[currentHintStep];
     Cell cellToReveal = GetCell(nextStep.Position);
-    
-    if (cellToReveal != null)
+    cellToReveal.RevealHint();
+    currentHintStep++;
+
+    if (currentHintStep >= LevelData.CachedSolution.Count)
     {
-      cellToReveal.RevealHint();
-      currentHintStep++;
-      Debug.Log($"Revealed hint step {currentHintStep}/{LevelData.CachedSolution.Count} at position {nextStep.Position}");
-    }
-    else
-    {
-      Debug.LogError($"Invalid position in solution step: {nextStep.Position}");
+      areAllHintsRevealed = true;
     }
   }
 

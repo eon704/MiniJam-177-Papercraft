@@ -159,9 +159,9 @@ public class BoardPrefab : MonoBehaviour
   /// Reveals the next cell in the solution as a hint.
   /// Returns true if a hint was revealed, false if no more hints available.
   /// </summary>
-  public void RevealNextHint()
+  public void RevealNextHint(out bool areAllHintsRevealed)
   {
-    Board.RevealNextHint();
+    Board.RevealNextHint(out areAllHintsRevealed);
   }
 
   /// <summary>
