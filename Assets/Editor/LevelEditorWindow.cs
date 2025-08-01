@@ -399,6 +399,19 @@ public class LevelEditorWindow : EditorWindow
             GUILayout.Space(2);
         }
         EditorGUILayout.EndVertical();
+
+        EditorGUILayout.Space();
+
+        // Board Operations
+        EditorGUILayout.LabelField("Board Operations", EditorStyles.boldLabel);
+        EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+
+        if (GUILayout.Button("Flip Y Axis", GUILayout.MaxWidth(280)))
+        {
+            FlipBoardYAxis();
+        }
+
+        EditorGUILayout.EndVertical();
     }
 
     private void DrawMovesTool()
@@ -527,8 +540,6 @@ public class LevelEditorWindow : EditorWindow
                 EditorGUILayout.LabelField("Step", EditorStyles.toolbarButton, GUILayout.Width(40));
                 EditorGUILayout.LabelField("Position", EditorStyles.toolbarButton, GUILayout.Width(70));
                 EditorGUILayout.LabelField("Form", EditorStyles.toolbarButton, GUILayout.Width(70));
-                EditorGUILayout.LabelField("Stars", EditorStyles.toolbarButton, GUILayout.Width(50));
-                EditorGUILayout.LabelField("Action", EditorStyles.toolbarButton, GUILayout.ExpandWidth(true));
                 EditorGUILayout.EndHorizontal();
                 
                 // Display solution steps directly without separate scroll view
@@ -556,34 +567,6 @@ public class LevelEditorWindow : EditorWindow
                     GUIStyle stateStyle = new GUIStyle(EditorStyles.label);
                     stateStyle.normal.textColor = stepColor;
                     EditorGUILayout.LabelField($"{turn.State}", stateStyle, GUILayout.Width(70));
-                    
-                    // Stars collected
-                    EditorGUILayout.LabelField($"★ {turn.Stars}", GUILayout.Width(50));
-                    
-                    // Action description
-                    string actionDescription = "";
-                    if (i == 0)
-                    {
-                        actionDescription = "Start position";
-                    }
-                    else
-                    {
-                        TurnInfo prevTurn = currentSolutionPath[i - 1];
-                        if (turn.Stars > prevTurn.Stars)
-                        {
-                            actionDescription = "Collected star";
-                        }
-                        else if (turn.Position == finalStep.Position && i == currentSolutionPath.Count - 1)
-                        {
-                            actionDescription = "Reached end";
-                        }
-                        else
-                        {
-                            actionDescription = "Move";
-                        }
-                    }
-                    
-                    EditorGUILayout.LabelField(actionDescription, GUILayout.ExpandWidth(true));
                     
                     EditorGUILayout.EndHorizontal();
                 }
@@ -652,8 +635,9 @@ public class LevelEditorWindow : EditorWindow
                     CellData cellData = workingLevel.Map[index];
 
                     // Calculate position with padding
+                    // Flip Y coordinate to match Unity's coordinate system (Y=0 at bottom)
                     float posX = x * (tileSize + tilePadding);
-                    float posY = y * (tileSize + tilePadding);
+                    float posY = (workingLevel.MapSize.y - 1 - y) * (tileSize + tilePadding);
                     Rect tileRect = new Rect(posX, posY, tileSize, tileSize);
 
                     // Handle click on tile
@@ -730,6 +714,38 @@ public class LevelEditorWindow : EditorWindow
 
         EditorGUILayout.EndVertical(); // End padding container
         EditorGUILayout.EndVertical();
+    }
+
+    private void FlipBoardYAxis()
+    {
+        if (workingLevel == null || workingLevel.Map == null)
+        {
+            Debug.LogWarning("Cannot flip board: No level data available.");
+            return;
+        }
+
+        int width = workingLevel.MapSize.x;
+        int height = workingLevel.MapSize.y;
+        CellData[] flippedMap = new CellData[workingLevel.Map.Length];
+
+        // Flip the map along the Y axis
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                int originalIndex = y * width + x;
+                int flippedIndex = (height - 1 - y) * width + x;
+                flippedMap[flippedIndex] = workingLevel.Map[originalIndex];
+            }
+        }
+
+        // Apply the flipped map
+        workingLevel.Map = flippedMap;
+        hasUnsavedChanges = true;
+        ResetSolvabilityCheck(); // Reset when level changes
+        
+        Debug.Log("Board flipped along Y axis.");
+        Repaint();
     }
 
     private void CreateNewLevel()
@@ -812,7 +828,7 @@ public class LevelEditorWindow : EditorWindow
         return solution != null;
     }
 
-    private List<TurnInfo> SolveLevel(LevelData level)
+    public static List<TurnInfo> SolveLevel(LevelData level)
     {
         if (level == null || level.Map == null || level.Map.Length == 0)
         {
@@ -967,7 +983,7 @@ public class LevelEditorWindow : EditorWindow
         return null; // No solution found
     }
 
-    private struct TurnInfo
+    public struct TurnInfo
     {
         public Vector2Int Position;
         public int Stars;
@@ -976,7 +992,7 @@ public class LevelEditorWindow : EditorWindow
         public HashSet<Vector2Int> CollectedStarPositions; // Track which star positions have been collected
     }
 
-    private string GetStateKey(TurnInfo state)
+    public static string GetStateKey(TurnInfo state)
     {
         // Create a more comprehensive key that includes move counts and collected star positions to avoid redundant states
         string movesKey = string.Join(",", state.MovesPerForm.OrderBy(kvp => kvp.Key).Select(kvp => $"{kvp.Key}:{kvp.Value}"));
@@ -1395,7 +1411,8 @@ public class LevelEditorWindow : EditorWindow
     private Vector2 GetTileCenterPosition(Vector2Int tileCoord)
     {
         float posX = tileCoord.x * (tileSize + tilePadding) + tileSize * 0.5f;
-        float posY = tileCoord.y * (tileSize + tilePadding) + tileSize * 0.5f;
+        // Flip Y coordinate to match Unity's coordinate system (Y=0 at bottom)
+        float posY = (workingLevel.MapSize.y - 1 - tileCoord.y) * (tileSize + tilePadding) + tileSize * 0.5f;
         return new Vector2(posX, posY);
     }
     
@@ -1551,7 +1568,7 @@ public class LevelEditorWindow : EditorWindow
         return texture;
     }
 
-    private bool ValidateSolution(List<TurnInfo> solution, Vector2Int expectedEndPos)
+    public static bool ValidateSolution(List<TurnInfo> solution, Vector2Int expectedEndPos)
     {
         if (solution == null || solution.Count == 0)
         {

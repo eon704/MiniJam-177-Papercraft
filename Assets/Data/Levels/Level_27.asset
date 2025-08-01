@@ -14,90 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MapSize: {x: 7, y: 7}
   Map:
-  - Terrain: 2
-    Item: 0
-  - Terrain: 1
-    Item: 0
-  - Terrain: 5
-    Item: 0
-  - Terrain: 1
-    Item: 0
-  - Terrain: 0
-    Item: 0
-  - Terrain: 0
-    Item: 0
-  - Terrain: 0
-    Item: 0
-  - Terrain: 6
-    Item: 0
-  - Terrain: 4
-    Item: 0
-  - Terrain: 6
-    Item: 0
-  - Terrain: 1
-    Item: 0
-  - Terrain: 0
-    Item: 0
-  - Terrain: 0
-    Item: 0
-  - Terrain: 0
-    Item: 0
-  - Terrain: 1
-    Item: 0
-  - Terrain: 4
-    Item: 0
-  - Terrain: 1
-    Item: 0
-  - Terrain: 6
-    Item: 0
-  - Terrain: 1
-    Item: 0
-  - Terrain: 1
-    Item: 1
-  - Terrain: 0
-    Item: 0
-  - Terrain: 5
-    Item: 0
-  - Terrain: 4
-    Item: 0
-  - Terrain: 0
-    Item: 0
-  - Terrain: 1
-    Item: 0
-  - Terrain: 5
-    Item: 0
-  - Terrain: 1
-    Item: 0
-  - Terrain: 0
-    Item: 0
-  - Terrain: 1
-    Item: 0
-  - Terrain: 4
-    Item: 0
-  - Terrain: 6
-    Item: 0
-  - Terrain: 1
-    Item: 0
-  - Terrain: 1
-    Item: 1
-  - Terrain: 1
-    Item: 0
-  - Terrain: 0
-    Item: 0
-  - Terrain: 1
-    Item: 0
-  - Terrain: 5
-    Item: 0
-  - Terrain: 1
-    Item: 0
-  - Terrain: 1
-    Item: 0
-  - Terrain: 1
-    Item: 0
-  - Terrain: 4
-    Item: 0
-  - Terrain: 0
-    Item: 0
   - Terrain: 0
     Item: 0
   - Terrain: 0
@@ -112,6 +28,90 @@ MonoBehaviour:
     Item: 0
   - Terrain: 3
     Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 5
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 4
+    Item: 0
+  - Terrain: 0
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 4
+    Item: 0
+  - Terrain: 6
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 1
+    Item: 1
+  - Terrain: 1
+    Item: 0
+  - Terrain: 0
+    Item: 0
+  - Terrain: 5
+    Item: 0
+  - Terrain: 4
+    Item: 0
+  - Terrain: 0
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 5
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 0
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 4
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 6
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 1
+    Item: 1
+  - Terrain: 0
+    Item: 0
+  - Terrain: 6
+    Item: 0
+  - Terrain: 4
+    Item: 0
+  - Terrain: 6
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 0
+    Item: 0
+  - Terrain: 0
+    Item: 0
+  - Terrain: 0
+    Item: 0
+  - Terrain: 2
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 5
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 0
+    Item: 0
+  - Terrain: 0
+    Item: 0
+  - Terrain: 0
+    Item: 0
   StartMovesPerForm:
   - State: 0
     Moves: 0
@@ -123,40 +123,4 @@ MonoBehaviour:
     Moves: 1
   - State: 4
     Moves: 4
-  cachedSolution:
-  - Position: {x: 0, y: 0}
-    State: 0
-    StarsCollected: 0
-  - Position: {x: 1, y: 0}
-    State: 1
-    StarsCollected: 0
-  - Position: {x: 1, y: 1}
-    State: 3
-    StarsCollected: 0
-  - Position: {x: 2, y: 2}
-    State: 2
-    StarsCollected: 0
-  - Position: {x: 4, y: 2}
-    State: 4
-    StarsCollected: 0
-  - Position: {x: 5, y: 2}
-    State: 1
-    StarsCollected: 1
-  - Position: {x: 4, y: 2}
-    State: 1
-    StarsCollected: 1
-  - Position: {x: 4, y: 4}
-    State: 4
-    StarsCollected: 2
-  - Position: {x: 3, y: 5}
-    State: 2
-    StarsCollected: 2
-  - Position: {x: 2, y: 6}
-    State: 2
-    StarsCollected: 3
-  - Position: {x: 4, y: 6}
-    State: 4
-    StarsCollected: 3
-  - Position: {x: 6, y: 6}
-    State: 4
-    StarsCollected: 3
+  cachedSolution: []
