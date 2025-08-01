@@ -49,7 +49,7 @@ public class HintButton : MonoBehaviour
     }
     else
     {
-      Debug.LogWarning("No rewarded ad available for hint.");
+      // No ad available - button should be hidden by GameUI
     }
   }
 

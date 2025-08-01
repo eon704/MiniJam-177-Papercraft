@@ -45,7 +45,6 @@ public class AdManager : Singleton<AdManager>
         LevelPlay.LaunchTestSuite();
 #endif
 
-        Debug.Log("AdManager initialized successfully.");
         InitializeRewardedAd();
     }
 
@@ -78,7 +77,6 @@ public class AdManager : Singleton<AdManager>
 
     private void OnRewardedAdLoaded(LevelPlayAdInfo adInfo)
     {
-        Debug.Log($"✅ Rewarded ad loaded successfully. Ad Unit: {AdUnitId}");
         OnAdLoadedChanged?.Invoke();
     }
 
@@ -95,7 +93,7 @@ public class AdManager : Singleton<AdManager>
 
     private void OnRewardedAdDisplayed(LevelPlayAdInfo adInfo)
     {
-        Debug.Log($"📺 Rewarded ad displayed. Revenue: {adInfo.Revenue}");
+        // Ad displayed successfully
     }
 
     // NOTE: This method uses obsolete API that will be updated in LevelPlay SDK 9.0.0
@@ -112,21 +110,17 @@ public class AdManager : Singleton<AdManager>
 
     private void OnRewardedAdRewarded(LevelPlayAdInfo adInfo, LevelPlayReward reward)
     {
-        Debug.Log($"🎁 User earned reward: {reward.Name} x{reward.Amount}");
-        
         // Grant the reward to the user
         GrantRewardToUser(reward);
     }
 
     private void OnRewardedAdClicked(LevelPlayAdInfo adInfo)
     {
-        Debug.Log($"👆 Rewarded ad clicked");
+        // Ad clicked
     }
 
     private void OnRewardedAdClosed(LevelPlayAdInfo adInfo)
     {
-        Debug.Log($"❌ Rewarded ad closed");
-        
         // Preload the next ad
         LoadRewardedAd();
     }
@@ -142,11 +136,9 @@ public class AdManager : Singleton<AdManager>
     {
         if (rewardedAd == null)
         {
-            Debug.LogWarning("⚠️ Rewarded ad not initialized yet.");
             return;
         }
 
-        Debug.Log("🔄 Loading rewarded ad...");
         rewardedAd.LoadAd();
     }
 
@@ -158,12 +150,10 @@ public class AdManager : Singleton<AdManager>
     {
         if (!IsRewardedAdReady())
         {
-            Debug.LogWarning("⚠️ Rewarded ad is not ready to show. Loading new ad...");
             LoadRewardedAd();
             return false;
         }
 
-        Debug.Log("🎬 Showing rewarded ad...");
         rewardedAd.ShowAd();
         return true;
     }
@@ -194,8 +184,6 @@ public class AdManager : Singleton<AdManager>
 
     private void GrantRewardToUser(LevelPlayReward reward)
     {
-        Debug.Log($"🎁 Granting reward to user: {reward.Name} x{reward.Amount}");
-        
         // Invoke the reward event for other components to respond
         OnAdRewarded?.Invoke();
     }
