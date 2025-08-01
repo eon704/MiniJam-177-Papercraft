@@ -15,6 +15,7 @@ public class GameUI : MonoBehaviour
   [SerializeField] private CanvasGroup winScreen;
   [SerializeField] private StarsUI starsUI;
   [SerializeField] private WinScreenStarsUI WinScreenStarsUI;
+  [SerializeField] private HintButton hintButton;
   
   public void FinishGame()
   {
@@ -25,6 +26,7 @@ public class GameUI : MonoBehaviour
   private void Awake()
   {
     _foreground.gameObject.SetActive(true);
+    hintButton.gameObject.SetActive(false);
   }
 
   private IEnumerator Start()
@@ -33,12 +35,21 @@ public class GameUI : MonoBehaviour
     gameController.PlayerPrefab.StarAmount.OnChanged += OnStarChange;
     gameController.PlayerPrefab.OnPlayerWon.AddListener(OnWin);
     
+    AdManager.Instance.OnAdLoadedChanged.AddListener(OnAdLoadedChanged);
+    OnAdLoadedChanged();
+    
     yield return ForegroundFadeOut();
   }
 
   private void OnDestroy()
   {
-    _foreground.DOKill(); 
+    _foreground.DOKill();
+    
+    // Unsubscribe from AdManager events
+    if (AdManager.Instance != null)
+    {
+      AdManager.Instance.OnAdLoadedChanged.RemoveListener(OnAdLoadedChanged);
+    }
   }
 
   private void OnWin(int stars)
@@ -57,6 +68,16 @@ public class GameUI : MonoBehaviour
   {
     
     starsUI.OnStarChange(newVal);
+  }
+
+  private void OnAdLoadedChanged()
+  {
+    bool hasAdReady = AdManager.Instance.IsRewardedAdReady();
+    bool hasMoreHints = gameController.BoardPrefab.HasMoreHints;
+    
+    bool shouldShowButton = hasAdReady && hasMoreHints;
+    Debug.Log($"Ad ready: {hasAdReady}, More hints available: {hasMoreHints}, Show button: {shouldShowButton}");
+    hintButton.gameObject.SetActive(shouldShowButton);
   }
 
   private IEnumerator LoadMainMenu()

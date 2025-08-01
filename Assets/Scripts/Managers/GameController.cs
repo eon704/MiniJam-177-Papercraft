@@ -12,7 +12,8 @@ public class GameController : MonoBehaviour
     [field: SerializeField]
     public Player PlayerPrefab { get; private set; }
 
-    [SerializeField] private BoardPrefab boardPrefab;
+    [field: SerializeField]
+    public BoardPrefab BoardPrefab { get; private set; }
     [SerializeField] private List<PulseImage> nudgeImages;
     [SerializeField] private GameObject finalScreen;
     [SerializeField] private GameObject winScreen;
@@ -39,16 +40,16 @@ public class GameController : MonoBehaviour
     {
         UgsManager.Instance.RecordNewLevelAttemptEvent(LevelManager.Instance.CurrentLevelIndex, attemptsCount);
         GlobalSoundManager.PlayRandomSoundByType(SoundType.Lose);
-        CellPrefab startCell = boardPrefab.GetStartCellPrefab();
+        CellPrefab startCell = BoardPrefab.GetStartCellPrefab();
         startCell.Cell.FreePiece();
 
-        List<CellPrefab> starCells = boardPrefab.GetStarCellPrefabs();
+        List<CellPrefab> starCells = BoardPrefab.GetStarCellPrefabs();
         starCells.ForEach(cell => cell.Cell.ReassignStar());
 
         PlayerPrefab.StarAmount.Value = 0;
 
         nudgeImages.ForEach(image => image.gameObject.SetActive(true));
-        boardPrefab.Board.BoardHistory.Reset();
+        BoardPrefab.Board.BoardHistory.Reset();
         OnMapReset?.Invoke();
 
         PlayerPrefab.isMovementLocked = true;
@@ -103,19 +104,19 @@ public class GameController : MonoBehaviour
         }
 #endif
 
-        boardPrefab.Initialize(LevelManager.Instance.CurrentLevel);
+        BoardPrefab.Initialize(LevelManager.Instance.CurrentLevel);
         CellPrefab cellPrefab;
-        (playerPiece, cellPrefab) = boardPrefab.CreateNewPlayerPrefab();
+        (playerPiece, cellPrefab) = BoardPrefab.CreateNewPlayerPrefab();
 
-        PlayerPrefab.Initialize(playerPiece, cellPrefab, boardPrefab);
+        PlayerPrefab.Initialize(playerPiece, cellPrefab, BoardPrefab);
         PlayerPrefab.OnPlayerWon.AddListener(OnWin);
         PlayerPrefab.OnPlayerDied.AddListener(ResetMap);
         PlayerPrefab.OnTransformation.AddListener(_ =>
             nudgeImages.ForEach(image => image.gameObject.SetActive(false)));
         PlayerPrefab.transform.localScale = Vector3.zero;
 
-        cameraObject.transform.position = boardPrefab.WorldCenter;
-        cameraObject.orthographicSize = boardPrefab.Size.x switch
+        cameraObject.transform.position = BoardPrefab.WorldCenter;
+        cameraObject.orthographicSize = BoardPrefab.Size.x switch
         {
             <= 6 => 10f,
             7 => 12f,
@@ -127,7 +128,7 @@ public class GameController : MonoBehaviour
         PlayerPrefab.SetTransformationLimits(startMovesPerForm);
         nudgeImages.ForEach(image => image.gameObject.SetActive(true));
 
-        yield return new WaitUntil(() => boardPrefab.IsSpawnAnimationComplete);
+        yield return new WaitUntil(() => BoardPrefab.IsSpawnAnimationComplete);
         PlayerPrefab.transform.DOScale(Vector3.one, 0.5f);
         
         yield return new WaitUntil(() => UgsManager.Instance.IsInitialized);

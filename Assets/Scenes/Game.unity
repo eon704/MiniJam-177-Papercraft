@@ -1450,6 +1450,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1054182539}
     - target: {fileID: 5853703254329433214, guid: 9b91cb75ffea040578771d321da2431e, type: 3}
+      propertyPath: <BoardPrefab>k__BackingField
+      value: 
+      objectReference: {fileID: 1189492192}
+    - target: {fileID: 5853703254329433214, guid: 9b91cb75ffea040578771d321da2431e, type: 3}
       propertyPath: <PlayerPrefab>k__BackingField
       value: 
       objectReference: {fileID: 6273721070179436126}

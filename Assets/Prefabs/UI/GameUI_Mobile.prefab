@@ -2166,6 +2166,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d1be75f39fb64e17aea91b6ba7ada88, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  boardPrefab: {fileID: 0}
 --- !u!1 &2285402226190421721
 GameObject:
   m_ObjectHideFlags: 0
@@ -4211,6 +4212,7 @@ MonoBehaviour:
   winScreen: {fileID: 5939597298059370743}
   starsUI: {fileID: 4225503326977844162}
   WinScreenStarsUI: {fileID: 1067644154996635236}
+  hintButton: {fileID: 1985274451268849769}
 --- !u!1 &4094008459783966474
 GameObject:
   m_ObjectHideFlags: 0
