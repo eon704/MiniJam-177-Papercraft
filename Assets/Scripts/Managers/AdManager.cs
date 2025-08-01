@@ -9,6 +9,7 @@ public class AdManager : Singleton<AdManager>
     {
         base.Awake();
         
+        LevelPlay.SetMetaData("is_test_suite", "enable");
         LevelPlay.OnInitSuccess += OnInitSuccess;
         LevelPlay.OnInitFailed += OnInitFailed;
     }
@@ -16,6 +17,7 @@ public class AdManager : Singleton<AdManager>
     private void OnInitSuccess(LevelPlayConfiguration configuration)
     {
         Debug.Log("AdManager initialized successfully.");
+        LevelPlay.LaunchTestSuite();
     }
 
     private void OnInitFailed(LevelPlayInitError error)
