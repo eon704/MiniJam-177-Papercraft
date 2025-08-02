@@ -218,7 +218,6 @@ public class AdManager : Singleton<AdManager>
         // Load consent from PlayerPrefs (persistent storage)
         LoadConsentFromStorage();
 
-        print($"Consent checked: {consentChecked}, User consent: {hasUserConsent}");
         if (!consentChecked && showConsentDialogOnStart)
         {
             // Trigger consent dialog - other components can listen to this event
