@@ -20,6 +20,9 @@ public class AdManager : Singleton<AdManager>
     private LevelPlayRewardedAd rewardedAd;
     private bool hasUserConsent = false;
     private bool consentChecked = false;
+    private int retryAttempts = 0;
+    private const int maxRetryAttempts = 5;
+    private const float baseRetryDelay = 1f;
     
     // Get platform-specific ad unit ID
     private string AdUnitId
@@ -86,6 +89,8 @@ public class AdManager : Singleton<AdManager>
 
     private void OnRewardedAdLoaded(LevelPlayAdInfo adInfo)
     {
+        // Reset retry attempts on successful load
+        retryAttempts = 0;
         OnAdLoadedChanged?.Invoke();
     }
 
@@ -378,9 +383,23 @@ public class AdManager : Singleton<AdManager>
 
     private void RetryLoadAd()
     {
-        // Simple retry after 3 seconds
-        // In production, you might want to implement exponential backoff
-        Invoke(nameof(LoadRewardedAd), 3f);
+        if (retryAttempts >= maxRetryAttempts)
+        {
+            Debug.LogWarning($"❌ Max retry attempts ({maxRetryAttempts}) reached for rewarded ad loading. Stopping retries.");
+            retryAttempts = 0;
+            Invoke(nameof(LoadRewardedAd), 120f); // Retry after 2 minutes
+            return;
+        }
+
+        retryAttempts++;
+        
+        // Exponential backoff: delay = baseDelay * 2^(attempts-1)
+        // Results in delays: 1s, 2s, 4s, 8s, 16s
+        float delay = baseRetryDelay * Mathf.Pow(2, retryAttempts - 1);
+        
+        Debug.Log($"🔄 Retrying ad load in {delay}s (attempt {retryAttempts}/{maxRetryAttempts})");
+        
+        Invoke(nameof(LoadRewardedAd), delay);
     }
 
     #endregion
