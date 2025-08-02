@@ -63,6 +63,26 @@ MonoBehaviour:
     m_Key: Completed
     m_Metadata:
       m_Items: []
+  - m_Id: 50485372818284544
+    m_Key: PrivacyTitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50485461959827456
+    m_Key: PrivacyBody
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50485494939639808
+    m_Key: PrivacyPolicy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50485530142433280
+    m_Key: Accept
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50485547867561984
+    m_Key: Decline
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

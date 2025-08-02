@@ -75,6 +75,34 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 7044852755617284180
+  - m_Id: 50485372818284544
+    m_Localized: Privacy & Data
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50485547867561984
+    m_Localized: Decline
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50485530142433280
+    m_Localized: Accept
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50485494939639808
+    m_Localized: Privacy Policy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50485461959827456
+    m_Localized: 'We''d like to show you personalized ads to support free features
+      like hints.
+
+
+      This requires collecting device data and usage analytics
+      from you and our ad partners.
+
+
+      You can change this anytime in Settings.'
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:

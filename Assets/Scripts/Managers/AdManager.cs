@@ -1,17 +1,25 @@
 using UnityEngine;
 using Unity.Services.LevelPlay;
 using UnityEngine.Events;
+using System.Collections;
 
 public class AdManager : Singleton<AdManager>
 {
     [Header("Ad Configuration")]
     [SerializeField] private string iosAdUnitId = "fkzi5sh7p8hyeuoc";
     [SerializeField] private string androidAdUnitId = "gigmwhy9jpw7vuys";
+    
+    [Header("Privacy Settings")]
+    [SerializeField] private bool requireConsent = true;
+    [SerializeField] private bool showConsentDialogOnStart = true;
 
     public UnityEvent OnAdLoadedChanged;
     public UnityEvent OnAdRewarded;
+    public UnityEvent OnConsentRequired;
 
     private LevelPlayRewardedAd rewardedAd;
+    private bool hasUserConsent = false;
+    private bool consentChecked = false;
     
     // Get platform-specific ad unit ID
     private string AdUnitId
@@ -45,7 +53,8 @@ public class AdManager : Singleton<AdManager>
         LevelPlay.LaunchTestSuite();
 #endif
 
-        InitializeRewardedAd();
+        // Delay consent check to allow UI components to subscribe to events
+        StartCoroutine(DelayedConsentCheck());
     }
 
     private void InitializeRewardedAd()
@@ -145,9 +154,15 @@ public class AdManager : Singleton<AdManager>
     /// <summary>
     /// Shows a rewarded ad if one is available and ready.
     /// </summary>
-    /// <returns>True if ad was shown, false if not ready</returns>
+    /// <returns>True if ad was shown, false if not ready or no consent</returns>
     public bool ShowRewardedAd()
     {
+        // Check consent first
+        if (!hasUserConsent)
+        {
+            return false;
+        }
+
         if (!IsRewardedAdReady())
         {
             LoadRewardedAd();
@@ -161,10 +176,169 @@ public class AdManager : Singleton<AdManager>
     /// <summary>
     /// Checks if a rewarded ad is loaded and ready to show.
     /// </summary>
-    /// <returns>True if ad is ready, false otherwise</returns>
+    /// <returns>True if ad is ready and user has consented, false otherwise</returns>
     public bool IsRewardedAdReady()
     {
-        return rewardedAd != null && rewardedAd.IsAdReady();
+        return hasUserConsent && rewardedAd != null && rewardedAd.IsAdReady();
+    }
+
+    #endregion
+
+    #region Privacy & Consent Management
+
+    /// <summary>
+    /// Delays consent check to allow UI components to subscribe to events first
+    /// </summary>
+    private System.Collections.IEnumerator DelayedConsentCheck()
+    {
+        // Wait for end of frame to ensure all Start() methods have been called
+        yield return new WaitForEndOfFrame();
+        
+        // Additional small delay to be extra safe
+        yield return new WaitForSeconds(0.1f);
+        
+        CheckUserConsent();
+    }
+
+    /// <summary>
+    /// Checks if user consent is required and handles consent flow
+    /// </summary>
+    private void CheckUserConsent()
+    {
+        if (!requireConsent)
+        {
+            // Skip consent if not required (e.g., for regions outside GDPR scope)
+            hasUserConsent = true;
+            consentChecked = true;
+            SetConsentInSDK(true);
+            InitializeRewardedAd();
+            return;
+        }
+
+        // Load consent from PlayerPrefs (persistent storage)
+        LoadConsentFromStorage();
+
+        print($"Consent checked: {consentChecked}, User consent: {hasUserConsent}");
+        if (!consentChecked && showConsentDialogOnStart)
+        {
+            // Trigger consent dialog - other components can listen to this event
+            OnConsentRequired?.Invoke();
+        }
+        else if (hasUserConsent)
+        {
+            SetConsentInSDK(true);
+            InitializeRewardedAd();
+        }
+        else
+        {
+            SetConsentInSDK(false);
+            // Don't initialize ads without consent
+        }
+    }
+
+    /// <summary>
+    /// Call this method when user grants consent
+    /// </summary>
+    public void SetUserConsent(bool consent)
+    {
+        hasUserConsent = consent;
+        consentChecked = true;
+        
+        // Save consent to persistent storage
+        SaveConsentToStorage();
+        
+        // Set consent in the ad SDK
+        SetConsentInSDK(consent);
+        
+        if (consent)
+        {
+            InitializeRewardedAd();
+        }
+        else
+        {
+            // Clear any existing ads if consent is revoked
+            if (rewardedAd != null)
+            {
+                UnsubscribeFromRewardedAdEvents();
+                rewardedAd = null;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Gets the current consent status
+    /// </summary>
+    public bool HasUserConsent => hasUserConsent;
+
+    /// <summary>
+    /// Gets whether consent has been checked/set
+    /// </summary>
+    public bool IsConsentChecked => consentChecked;
+
+    private void SetConsentInSDK(bool consent)
+    {
+        // Set GDPR consent in LevelPlay
+        LevelPlay.SetMetaData("is_child_directed", "false");
+        LevelPlay.SetMetaData("do_not_sell", consent ? "false" : "true");
+        
+        // Set GDPR consent - this is the main consent flag
+        if (consent)
+        {
+            LevelPlay.SetMetaData("gdpr_consent", "true");
+        }
+        else
+        {
+            LevelPlay.SetMetaData("gdpr_consent", "false");
+        }
+    }
+
+    private void SaveConsentToStorage()
+    {
+        PlayerPrefs.SetInt("AdManager_UserConsent", hasUserConsent ? 1 : 0);
+        PlayerPrefs.SetInt("AdManager_ConsentChecked", consentChecked ? 1 : 0);
+        PlayerPrefs.Save();
+    }
+
+    private void LoadConsentFromStorage()
+    {
+        if (PlayerPrefs.HasKey("AdManager_ConsentChecked"))
+        {
+            consentChecked = PlayerPrefs.GetInt("AdManager_ConsentChecked") == 1;
+            hasUserConsent = PlayerPrefs.GetInt("AdManager_UserConsent") == 1;
+        }
+        else
+        {
+            // First time user - no consent stored
+            consentChecked = false;
+            hasUserConsent = false;
+        }
+    }
+
+    /// <summary>
+    /// Revokes user consent - can be called from settings menu
+    /// </summary>
+    public void RevokeConsent()
+    {
+        SetUserConsent(false);
+    }
+
+    /// <summary>
+    /// Shows consent dialog again - can be called from settings menu
+    /// </summary>
+    public void ShowConsentDialog()
+    {
+        OnConsentRequired?.Invoke();
+    }
+
+    /// <summary>
+    /// Manually trigger consent check - can be called by ConsentDialog after it's ready
+    /// </summary>
+    public void TriggerConsentCheckIfNeeded()
+    {
+        if (!consentChecked && requireConsent)
+        {
+            CheckUserConsent();
+        }
     }
 
     #endregion
