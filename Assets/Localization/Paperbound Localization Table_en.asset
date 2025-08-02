@@ -103,6 +103,10 @@ MonoBehaviour:
       You can change this anytime in Settings.'
     m_Metadata:
       m_Items: []
+  - m_Id: 50495634644393984
+    m_Localized: Privacy
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:
