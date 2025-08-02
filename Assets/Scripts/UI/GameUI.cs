@@ -19,6 +19,9 @@ public class GameUI : MonoBehaviour
   
   public void FinishGame()
   {
+    // Kill all DOTween animations before transitioning
+    DOTween.KillAll();
+    
     gameController.OnLoadingMainMenu();
     StartCoroutine(LoadMainMenu());
   }
@@ -44,6 +47,13 @@ public class GameUI : MonoBehaviour
   private void OnDestroy()
   {
     _foreground.DOKill();
+    winScreen.DOKill();
+    
+    // Kill any animations on WinScreenStarsUI
+    if (WinScreenStarsUI != null)
+    {
+      WinScreenStarsUI.transform.DOKill(true); // Kill all tweens on this transform and its children
+    }
     
     // Unsubscribe from AdManager events
     if (AdManager.Instance != null)
@@ -61,7 +71,12 @@ public class GameUI : MonoBehaviour
       .DOFade(1, 0.25f)
       .SetEase(Ease.OutCubic)
       .SetDelay(0.25f)
-      .OnComplete(() => WinScreenStarsUI.AnimateStars(stars));
+      .OnComplete(() => {
+        if (WinScreenStarsUI != null && WinScreenStarsUI.gameObject != null)
+        {
+          WinScreenStarsUI.AnimateStars(stars);
+        }
+      });
   }
 
   private void OnStarChange(Observable<int> stars, int oldVal, int newVal)
@@ -109,10 +124,5 @@ public class GameUI : MonoBehaviour
 
     yield return new WaitForSeconds(0.25f);
     _foreground.gameObject.SetActive(false);
-  }
-  
-  private void onDestroy()
-  {
-    DOTween.Kill(this);
   }
 }
