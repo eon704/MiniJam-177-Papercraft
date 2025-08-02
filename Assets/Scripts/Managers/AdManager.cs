@@ -52,13 +52,22 @@ public class AdManager : Singleton<AdManager>
     {
         // Launch test suite in development builds
 #if DEVELOPMENT_BUILD || UNITY_EDITOR
-        LevelPlay.SetMetaData("is_test_suite", "enable");
-        LevelPlay.LaunchTestSuite();
+        StartCoroutine(DelayedTestSuiteLaunch());
 #endif
 
         // Delay consent check to allow UI components to subscribe to events
         StartCoroutine(DelayedConsentCheck());
     }
+
+#if DEVELOPMENT_BUILD || UNITY_EDITOR
+    private IEnumerator DelayedTestSuiteLaunch()
+    {
+        yield return new WaitForSeconds(5f);
+        Debug.Log("🔧 Launching LevelPlay test suite in development mode");
+        LevelPlay.SetMetaData("is_test_suite", "enable");
+        LevelPlay.LaunchTestSuite();
+    }
+#endif
 
     private void InitializeRewardedAd()
     {
