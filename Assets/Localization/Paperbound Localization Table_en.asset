@@ -107,6 +107,22 @@ MonoBehaviour:
     m_Localized: Privacy
     m_Metadata:
       m_Items: []
+  - m_Id: 50502277109112832
+    m_Localized: Update Consent
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50504184741486592
+    m_Localized: 'Ads Consent: Not Provided'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50504312235745280
+    m_Localized: 'Ads Consent: Granted'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50504404539793408
+    m_Localized: 'Ads Consent: Declined'
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:

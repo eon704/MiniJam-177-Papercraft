@@ -87,6 +87,22 @@ MonoBehaviour:
     m_Key: PrivacySettingsTitle
     m_Metadata:
       m_Items: []
+  - m_Id: 50502277109112832
+    m_Key: UpdateConsent
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50504184741486592
+    m_Key: AdsConsentNotProvided
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50504312235745280
+    m_Key: AdsConsentGranted
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50504404539793408
+    m_Key: AdsConsentDeclined
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

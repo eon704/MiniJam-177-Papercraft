@@ -1,16 +1,23 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 
 public class PrivacySettings : MonoBehaviour
 {
     [Header("UI References")]
-    [SerializeField] private Toggle consentToggle;
     [SerializeField] private Button changeConsentButton;
     [SerializeField] private Button privacyPolicyButton;
-    [SerializeField] private Text consentStatusText;
+    [SerializeField] private TMP_Text consentStatusText;
     
     [Header("Privacy Policy")]
-    [SerializeField] private string privacyPolicyURL = "https://yourwebsite.com/privacy-policy";
+    [SerializeField] private string privacyPolicyURL = "https://eon704.com/paperbound/privacy";
+
+    [Header("Localization")]
+    [SerializeField] private LocalizedString consentNotProvidedString;
+    [SerializeField] private LocalizedString adsConsentGrantedString;
+    [SerializeField] private LocalizedString adsConsentDeclinedString;
 
     private void Start()
     {
@@ -21,9 +28,6 @@ public class PrivacySettings : MonoBehaviour
         if (privacyPolicyButton != null)
             privacyPolicyButton.onClick.AddListener(OnOpenPrivacyPolicy);
             
-        if (consentToggle != null)
-            consentToggle.onValueChanged.AddListener(OnConsentToggleChanged);
-
         // Update UI with current consent status
         UpdateConsentUI();
     }
@@ -40,37 +44,21 @@ public class PrivacySettings : MonoBehaviour
         bool hasConsent = AdManager.Instance.HasUserConsent;
         bool isChecked = AdManager.Instance.IsConsentChecked;
 
-        // Update toggle
-        if (consentToggle != null)
-        {
-            consentToggle.SetIsOnWithoutNotify(hasConsent);
-            consentToggle.interactable = isChecked;
-        }
-
         // Update status text
         if (consentStatusText != null)
         {
             if (!isChecked)
             {
-                consentStatusText.text = "Consent not yet provided";
+                consentStatusText.text = consentNotProvidedString.GetLocalizedString();
             }
             else if (hasConsent)
             {
-                consentStatusText.text = "Ads consent: Granted";
+                consentStatusText.text = adsConsentGrantedString.GetLocalizedString();
             }
             else
             {
-                consentStatusText.text = "Ads consent: Declined";
+                consentStatusText.text = adsConsentDeclinedString.GetLocalizedString();
             }
-        }
-    }
-
-    private void OnConsentToggleChanged(bool value)
-    {
-        if (AdManager.Instance != null)
-        {
-            AdManager.Instance.SetUserConsent(value);
-            UpdateConsentUI();
         }
     }
 
