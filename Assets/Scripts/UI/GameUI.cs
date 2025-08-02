@@ -76,7 +76,6 @@ public class GameUI : MonoBehaviour
     bool hasMoreHints = gameController.BoardPrefab.HasMoreHints;
     
     bool shouldShowButton = hasAdReady && hasMoreHints;
-    Debug.Log($"Ad ready: {hasAdReady}, More hints available: {hasMoreHints}, Show button: {shouldShowButton}");
     hintButton.gameObject.SetActive(shouldShowButton);
   }
 

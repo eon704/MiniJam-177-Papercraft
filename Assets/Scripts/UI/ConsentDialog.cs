@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Events;
 
 public class ConsentDialog : MonoBehaviour
 {
@@ -11,6 +12,9 @@ public class ConsentDialog : MonoBehaviour
 
     [Header("Privacy Policy")]
     [SerializeField] private string privacyPolicyURL = "https://eon704.com/paperbound/privacy";
+
+    [Header("Events")]
+    public UnityEvent OnConsentChanged;
 
     private void Awake()
     {
@@ -73,6 +77,7 @@ public class ConsentDialog : MonoBehaviour
             AdManager.Instance.SetUserConsent(true);
         }
         HideConsentDialog();
+        OnConsentChanged?.Invoke();
     }
 
     private void OnDeclineConsent()
@@ -82,6 +87,7 @@ public class ConsentDialog : MonoBehaviour
             AdManager.Instance.SetUserConsent(false);
         }
         HideConsentDialog();
+        OnConsentChanged?.Invoke();
     }
 
     private void OnOpenPrivacyPolicy()

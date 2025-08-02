@@ -19,15 +19,14 @@ public class PrivacySettings : MonoBehaviour
     [SerializeField] private LocalizedString adsConsentGrantedString;
     [SerializeField] private LocalizedString adsConsentDeclinedString;
 
+    [Header("Consent Dialog")]
+    [SerializeField] private ConsentDialog consentDialog;
+
     private void Start()
     {
         // Setup button listeners
-        if (changeConsentButton != null)
-            changeConsentButton.onClick.AddListener(OnChangeConsent);
-            
-        if (privacyPolicyButton != null)
-            privacyPolicyButton.onClick.AddListener(OnOpenPrivacyPolicy);
-            
+        changeConsentButton.onClick.AddListener(OnChangeConsent);
+        privacyPolicyButton.onClick.AddListener(OnOpenPrivacyPolicy);
         // Update UI with current consent status
         UpdateConsentUI();
     }
@@ -35,6 +34,12 @@ public class PrivacySettings : MonoBehaviour
     private void OnEnable()
     {
         UpdateConsentUI();
+        consentDialog.OnConsentChanged.AddListener(UpdateConsentUI);
+    }
+
+    private void OnDisable()
+    {
+        consentDialog.OnConsentChanged.RemoveListener(UpdateConsentUI);
     }
 
     private void UpdateConsentUI()
@@ -64,10 +69,7 @@ public class PrivacySettings : MonoBehaviour
 
     private void OnChangeConsent()
     {
-        if (AdManager.Instance != null)
-        {
-            AdManager.Instance.ShowConsentDialog();
-        }
+        consentDialog.ShowConsentDialog();
     }
 
     private void OnOpenPrivacyPolicy()

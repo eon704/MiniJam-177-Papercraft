@@ -1071,6 +1071,9 @@ MonoBehaviour:
   declineButton: {fileID: 5669646155220359962}
   privacyPolicyButton: {fileID: 5256999294713207217}
   privacyPolicyURL: https://eon704.com/paperbound/privacy
+  OnConsentChanged:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &5864827226328328670
 GameObject:
   m_ObjectHideFlags: 0
@@ -2180,6 +2183,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 7326548391318804362}
     m_Modifications:
+    - target: {fileID: 795133384193099013, guid: e59ddfdaf10164fc8a6a063ce1475d2c, type: 3}
+      propertyPath: consentDialog
+      value: 
+      objectReference: {fileID: 3958931528832743636}
     - target: {fileID: 834201346348871495, guid: e59ddfdaf10164fc8a6a063ce1475d2c, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
