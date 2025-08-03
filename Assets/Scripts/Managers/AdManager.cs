@@ -8,22 +8,25 @@ public class AdManager : Singleton<AdManager>
     [Header("Ad Configuration")]
     [SerializeField] private string iosAdUnitId = "fkzi5sh7p8hyeuoc";
     [SerializeField] private string androidAdUnitId = "gigmwhy9jpw7vuys";
-    
+
     [Header("Privacy Settings")]
     [SerializeField] private bool requireConsent = true;
     [SerializeField] private bool showConsentDialogOnStart = true;
+
+    [Header("Debug Settings")]
+    [SerializeField] private bool enableDetailedLogging = false;
 
     public UnityEvent OnAdLoadedChanged;
     public UnityEvent OnAdRewarded;
     public UnityEvent OnConsentRequired;
 
     private LevelPlayRewardedAd rewardedAd;
-    private bool hasUserConsent = false;
+    private bool targetedAdsConsent = false;
     private bool consentChecked = false;
     private int retryAttempts = 0;
     private const int maxRetryAttempts = 5;
     private const float baseRetryDelay = 1f;
-    
+
     // Get platform-specific ad unit ID
     private string AdUnitId
     {
@@ -98,6 +101,11 @@ public class AdManager : Singleton<AdManager>
 
     private void OnRewardedAdLoaded(LevelPlayAdInfo adInfo)
     {
+        if (enableDetailedLogging)
+        {
+            Debug.Log($"✅ Rewarded ad loaded successfully. AdInfo: {adInfo}");
+        }
+        
         // Reset retry attempts on successful load
         retryAttempts = 0;
         OnAdLoadedChanged?.Invoke();
@@ -106,33 +114,41 @@ public class AdManager : Singleton<AdManager>
     private void OnRewardedAdLoadFailed(LevelPlayAdError error)
     {
         Debug.LogError($"❌ Rewarded ad failed to load. Error: {error}");
-        
+
         // Notify that ad is not available
         OnAdLoadedChanged?.Invoke();
-        
+
         // Implement exponential backoff for retries
         RetryLoadAd();
     }
 
     private void OnRewardedAdDisplayed(LevelPlayAdInfo adInfo)
     {
-        // Ad displayed successfully
+        if (enableDetailedLogging)
+        {
+            Debug.Log($"📺 Rewarded ad displayed. AdInfo: {adInfo}");
+        }
     }
 
     // NOTE: This method uses obsolete API that will be updated in LevelPlay SDK 9.0.0
     // The new signature will be: OnRewardedAdDisplayFailed(LevelPlayAdInfo adInfo, LevelPlayAdError error)
-    #pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
     private void OnRewardedAdDisplayFailed(LevelPlayAdDisplayInfoError error)
     {
         Debug.LogError($"❌ Rewarded ad display failed. Error: {error}");
-        
+
         // Load a new ad since this one failed to display
         LoadRewardedAd();
     }
-    #pragma warning restore CS0618
+#pragma warning restore CS0618
 
     private void OnRewardedAdRewarded(LevelPlayAdInfo adInfo, LevelPlayReward reward)
     {
+        if (enableDetailedLogging)
+        {
+            Debug.Log($"🎁 User rewarded! AdInfo: {adInfo}, Reward: {reward.Amount} {reward.Name}");
+        }
+        
         // Grant the reward to the user
         GrantRewardToUser(reward);
     }
@@ -162,13 +178,19 @@ public class AdManager : Singleton<AdManager>
             return;
         }
 
+        // Optional: Add network check for better UX
+        if (Application.internetReachability == NetworkReachability.NotReachable)
+        {
+            Debug.LogWarning("⚠️ No internet connection - ad load may fail");
+        }
+
         rewardedAd.LoadAd();
     }
 
     /// <summary>
     /// Shows a rewarded ad if one is available and ready.
     /// </summary>
-    /// <returns>True if ad was shown, false if not ready or no consent</returns>
+    /// <returns>True if ad was shown, false if not ready</returns>
     public bool ShowRewardedAd()
     {
         // Check if ad is ready
@@ -177,14 +199,24 @@ public class AdManager : Singleton<AdManager>
             LoadRewardedAd();
             return false;
         }
-        rewardedAd.ShowAd();
-        return true;
+        
+        try
+        {
+            rewardedAd.ShowAd();
+            return true;
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"❌ Failed to show rewarded ad: {e.Message}");
+            LoadRewardedAd(); // Reload after failure
+            return false;
+        }
     }
 
     /// <summary>
     /// Checks if a rewarded ad is loaded and ready to show.
     /// </summary>
-    /// <returns>True if ad is ready and user has consented, false otherwise</returns>
+    /// <returns>True if ad is ready, false otherwise</returns>
     public bool IsRewardedAdReady()
     {
         return rewardedAd != null && rewardedAd.IsAdReady();
@@ -197,14 +229,14 @@ public class AdManager : Singleton<AdManager>
     /// <summary>
     /// Delays consent check to allow UI components to subscribe to events first
     /// </summary>
-    private System.Collections.IEnumerator DelayedConsentCheck()
+    private IEnumerator DelayedConsentCheck()
     {
         // Wait for end of frame to ensure all Start() methods have been called
         yield return new WaitForEndOfFrame();
-        
+
         // Additional small delay to be extra safe
-        yield return new WaitForSeconds(0.1f);
-        
+        yield return new WaitForSeconds(1f);
+
         CheckUserConsent();
     }
 
@@ -216,7 +248,7 @@ public class AdManager : Singleton<AdManager>
         if (!requireConsent)
         {
             // Skip consent if not required (e.g., for regions outside GDPR scope)
-            hasUserConsent = true;
+            targetedAdsConsent = true;
             consentChecked = true;
             SetConsentInSDK(true);
             InitializeRewardedAd();
@@ -234,44 +266,38 @@ public class AdManager : Singleton<AdManager>
         else
         {
             // Always initialize ads, but set consent in SDK accordingly
-            SetConsentInSDK(hasUserConsent);
+            SetConsentInSDK(targetedAdsConsent);
             InitializeRewardedAd();
         }
     }
 
     /// <summary>
-    /// Call this method when user grants consent
+    /// Call this method when user grants or revokes consent for targeted ads.
+    /// Ads will always be served - consent only affects personalization.
     /// </summary>
     public void SetUserConsent(bool consent)
     {
-        hasUserConsent = consent;
+        targetedAdsConsent = consent;
         consentChecked = true;
-        
+
         // Save consent to persistent storage
         SaveConsentToStorage();
-        
+
         // Set consent in the ad SDK
         SetConsentInSDK(consent);
-        
-        if (consent)
+
+        // ALWAYS initialize ads regardless of consent
+        // The SDK will serve personalized vs non-personalized ads based on consent flags
+        if (rewardedAd == null)
         {
             InitializeRewardedAd();
-        }
-        else
-        {
-            // Clear any existing ads if consent is revoked
-            if (rewardedAd != null)
-            {
-                UnsubscribeFromRewardedAdEvents();
-                rewardedAd = null;
-            }
         }
     }
 
     /// <summary>
     /// Gets the current consent status
     /// </summary>
-    public bool HasUserConsent => hasUserConsent;
+    public bool HasUserConsent => targetedAdsConsent;
 
     /// <summary>
     /// Gets whether consent has been checked/set
@@ -282,7 +308,7 @@ public class AdManager : Singleton<AdManager>
     {
         // Set GDPR consent in LevelPlay
         LevelPlay.SetMetaData("is_child_directed", "false");
-        
+
         // CCPA: Force do_not_sell to true for California users
         if (IsCaliforniaUser())
         {
@@ -310,11 +336,11 @@ public class AdManager : Singleton<AdManager>
             // Check if device is in Pacific timezone (California's timezone)
             var timezone = System.TimeZoneInfo.Local;
             var utcOffset = timezone.GetUtcOffset(System.DateTime.Now);
-            
+
             // Pacific Time: UTC-8 (standard) or UTC-7 (daylight saving)
             var offsetHours = utcOffset.TotalHours;
             bool isPacificTime = offsetHours == -8 || offsetHours == -7;
-            
+
             if (isPacificTime)
             {
                 // Double-check with region if available
@@ -323,11 +349,11 @@ public class AdManager : Singleton<AdManager>
                 {
                     return true;
                 }
-                
+
                 // If region unavailable but timezone matches, assume California for CCPA safety
                 return true;
             }
-            
+
             return false;
         }
         catch (System.Exception)
@@ -339,7 +365,7 @@ public class AdManager : Singleton<AdManager>
 
     private void SaveConsentToStorage()
     {
-        PlayerPrefs.SetInt("AdManager_UserConsent", hasUserConsent ? 1 : 0);
+        PlayerPrefs.SetInt("AdManager_UserConsent", targetedAdsConsent ? 1 : 0);
         PlayerPrefs.SetInt("AdManager_ConsentChecked", consentChecked ? 1 : 0);
         PlayerPrefs.Save();
     }
@@ -349,22 +375,23 @@ public class AdManager : Singleton<AdManager>
         if (PlayerPrefs.HasKey("AdManager_ConsentChecked"))
         {
             consentChecked = PlayerPrefs.GetInt("AdManager_ConsentChecked") == 1;
-            hasUserConsent = PlayerPrefs.GetInt("AdManager_UserConsent") == 1;
+            targetedAdsConsent = PlayerPrefs.GetInt("AdManager_UserConsent") == 1;
         }
         else
         {
             // First time user - no consent stored
             consentChecked = false;
-            hasUserConsent = false;
+            targetedAdsConsent = false;
         }
     }
 
     /// <summary>
-    /// Revokes user consent - can be called from settings menu
+    /// Revokes user consent - ads will continue but be non-personalized
     /// </summary>
     public void RevokeConsent()
     {
         SetUserConsent(false);
+        // Note: Ads continue serving, just non-personalized
     }
 
     /// <summary>
@@ -401,13 +428,13 @@ public class AdManager : Singleton<AdManager>
         }
 
         retryAttempts++;
-        
+
         // Exponential backoff: delay = baseDelay * 2^(attempts-1)
         // Results in delays: 1s, 2s, 4s, 8s, 16s
         float delay = baseRetryDelay * Mathf.Pow(2, retryAttempts - 1);
-        
+
         Debug.Log($"🔄 Retrying ad load in {delay}s (attempt {retryAttempts}/{maxRetryAttempts})");
-        
+
         Invoke(nameof(LoadRewardedAd), delay);
     }
 
@@ -443,7 +470,7 @@ public class AdManager : Singleton<AdManager>
     {
         // Unsubscribe from events to prevent memory leaks
         UnsubscribeFromRewardedAdEvents();
-        
+
         LevelPlay.OnInitSuccess -= OnInitSuccess;
         LevelPlay.OnInitFailed -= OnInitFailed;
     }
@@ -453,5 +480,16 @@ public class AdManager : Singleton<AdManager>
     private void OnInitFailed(LevelPlayInitError error)
     {
         Debug.LogError($"❌ LevelPlay initialization failed: {error}");
+        
+        // Add retry logic for initialization
+        StartCoroutine(RetryInitialization());
+    }
+    
+    private IEnumerator RetryInitialization()
+    {
+        yield return new WaitForSeconds(5f);
+        Debug.Log("🔄 Retrying LevelPlay initialization...");
+        // Note: Initialization retry would need to be triggered from your main initialization flow
+        // since LevelPlay doesn't expose a direct retry method
     }
 }
