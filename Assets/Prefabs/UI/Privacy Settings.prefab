@@ -161,6 +161,7 @@ GameObject:
   - component: {fileID: 7517251327197578700}
   - component: {fileID: 2430971203254661645}
   - component: {fileID: 3238603064054038454}
+  - component: {fileID: 7040779012029749862}
   m_Layer: 5
   m_Name: Close Button
   m_TagString: Untagged
@@ -184,9 +185,9 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 50, y: 50}
+  m_AnchoredPosition: {x: -39.99997, y: -39.99991}
   m_SizeDelta: {x: 180, y: 180}
-  m_Pivot: {x: 1, y: 1}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2652113629733421854
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -305,6 +306,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 15c214dd1ecb81846932b7e41f3751d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &7040779012029749862
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3200432228311211507}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb5fd5085159415287106807fc1a7a3a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isCard: 0
 --- !u!1 &3810133846993542004
 GameObject:
   m_ObjectHideFlags: 0
