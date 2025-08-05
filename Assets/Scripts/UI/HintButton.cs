@@ -1,84 +1,43 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
+using UnityEngine.Events;
 
 public class HintButton : MonoBehaviour
 {
-  [SerializeField] private BoardPrefab boardPrefab;
-  private Button _button;
-  private bool isWaitingForReward = false;
+    [SerializeField] private TMP_Text hintNumber;
+    [SerializeField] private Button button;
+    [SerializeField] private Image buttonImage;
+    [SerializeField] private Color normalColor = Color.white;
+    [SerializeField] private Color revealedColor = Color.gray;
 
-  private void Awake()
-  {
-    _button = GetComponent<Button>();
-    _button.onClick.AddListener(OnClick);
-  }
+    private int hintIndex;
+    private UnityAction originalOnClick;
 
-  private void Start()
-  {
-    // Subscribe to ad reward events
-    AdManager.Instance.OnAdRewarded.AddListener(OnAdRewarded);
-  }
-
-  private void OnDestroy()
-  {
-    // Unsubscribe from ad events
-    if (AdManager.Instance != null)
+    public void Initialize(int number, UnityAction onClick)
     {
-      AdManager.Instance.OnAdRewarded.RemoveListener(OnAdRewarded);
+        hintIndex = number;
+        hintNumber.text = number.ToString();
+        originalOnClick = onClick;
+        button.onClick.AddListener(onClick);
+        
+        // Set initial visual state
+        UpdateVisualState(false);
     }
-  }
 
-  private void OnClick()
-  {
-    // Check if we can show an ad
-    if (AdManager.Instance != null && AdManager.Instance.IsRewardedAdReady())
+    public void UpdateVisualState(bool isRevealed)
     {
-      // Disable button while waiting for reward
-      _button.interactable = false;
-      isWaitingForReward = true;
-      
-      // Show the rewarded ad
-      bool adShown = AdManager.Instance.ShowRewardedAd();
-      
-      if (!adShown)
-      {
-        // Re-enable button if ad failed to show
-        _button.interactable = true;
-        isWaitingForReward = false;
-      }
+        if (buttonImage != null)
+        {
+            buttonImage.color = isRevealed ? revealedColor : normalColor;
+        }
+        
+        // Disable button if hint is already revealed
+        button.interactable = !isRevealed;
     }
-    else
-    {
-      // No ad available - button should be hidden by GameUI
-    }
-  }
 
-  private void OnAdRewarded()
-  {
-    // Only process if we're waiting for a reward
-    if (!isWaitingForReward) return;
-    
-    isWaitingForReward = false;
-    
-    // Reveal the next hint
-    boardPrefab.RevealNextHint(out bool areAllHintsRevealed);
-    
-    // Hide/show button based on whether there are more hints and if next ad is loaded
-    bool hasMoreHints = boardPrefab.HasMoreHints;
-    bool hasAdReady = AdManager.Instance != null && AdManager.Instance.IsRewardedAdReady();
-    gameObject.SetActive(hasMoreHints && hasAdReady);
-    
-    // Re-enable button for future use
-    _button.interactable = true;
-    
-    // If all hints are revealed, keep the button hidden permanently
-    if (areAllHintsRevealed)
+    public int GetHintIndex()
     {
-      // Unsubscribe from ad events since we don't need hints anymore
-      if (AdManager.Instance != null)
-      {
-        AdManager.Instance.OnAdRewarded.RemoveListener(OnAdRewarded);
-      }
+        return hintIndex;
     }
-  }
 }

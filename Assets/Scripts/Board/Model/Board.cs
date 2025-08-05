@@ -145,6 +145,50 @@ public class Board
   }
 
   /// <summary>
+  /// Reveals a specific hint by step number (1-based index, excluding start position).
+  /// This allows players to choose which hint they want to reveal.
+  /// </summary>
+  public (Cell, int) RevealSpecificHint(int hintStepNumber, out bool areAllHintsRevealed)
+  {
+    areAllHintsRevealed = false;
+
+    // Validate the hint step number (1-based, excluding start position)
+    if (hintStepNumber < 1 || hintStepNumber >= LevelData.CachedSolution.Count - 1)
+    {
+      Debug.LogWarning($"Invalid hint step number: {hintStepNumber}. Valid range is 1 to {LevelData.CachedSolution.Count - 2}");
+      return (null, -1);
+    }
+
+    // Get the specific step in the solution (convert to 0-based index)
+    SolutionStep targetStep = LevelData.CachedSolution[hintStepNumber];
+    Cell cellToReveal = GetCell(targetStep.Position);
+    
+    // Check if this hint is already revealed
+    if (cellToReveal.IsHintRevealed.Value > 0)
+    {
+      Debug.LogWarning($"Hint {hintStepNumber} is already revealed.");
+      return (cellToReveal, -1);
+    }
+
+    int revealDepth = cellToReveal.RevealHint();
+
+    // Check if all valid hints are now revealed
+    bool allRevealed = true;
+    for (int i = 1; i < LevelData.CachedSolution.Count - 1; i++)
+    {
+      Cell checkCell = GetCell(LevelData.CachedSolution[i].Position);
+      if (checkCell.IsHintRevealed.Value <= 0)
+      {
+        allRevealed = false;
+        break;
+      }
+    }
+    areAllHintsRevealed = allRevealed;
+
+    return (cellToReveal, revealDepth);
+  }
+
+  /// <summary>
   /// Clears all revealed hints and resets the hint step counter.
   /// </summary>
   public void ClearAllHints()
@@ -177,4 +221,22 @@ public class Board
   /// Checks if there are more hints available to reveal.
   /// </summary>
   public bool HasMoreHints => currentHintStep < TotalSolutionSteps;
+
+  /// <summary>
+  /// Checks if there are any hints that haven't been revealed yet.
+  /// This is different from HasMoreHints which only checks sequential progression.
+  /// </summary>
+  public bool HasUnrevealedHints()
+  {
+    // Check if any steps in the solution (excluding start and end) are not revealed
+    for (int i = 1; i < LevelData.CachedSolution.Count - 1; i++)
+    {
+      Cell checkCell = GetCell(LevelData.CachedSolution[i].Position);
+      if (checkCell.IsHintRevealed.Value <= 0)
+      {
+        return true;
+      }
+    }
+    return false;
+  }
 }

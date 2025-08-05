@@ -15,7 +15,7 @@ public class GameUI : MonoBehaviour
   [SerializeField] private CanvasGroup winScreen;
   [SerializeField] private StarsUI starsUI;
   [SerializeField] private WinScreenStarsUI WinScreenStarsUI;
-  [SerializeField] private HintButton hintButton;
+  [SerializeField] private GameObject hintButton;
   
   public void FinishGame()
   {
@@ -88,7 +88,7 @@ public class GameUI : MonoBehaviour
   private void OnAdLoadedChanged()
   {
     bool hasAdReady = AdManager.Instance.IsRewardedAdReady();
-    bool hasMoreHints = gameController.BoardPrefab.HasMoreHints;
+    bool hasMoreHints = gameController.BoardPrefab.HasUnrevealedHints();
     
     bool shouldShowButton = hasAdReady && hasMoreHints;
     hintButton.gameObject.SetActive(shouldShowButton);

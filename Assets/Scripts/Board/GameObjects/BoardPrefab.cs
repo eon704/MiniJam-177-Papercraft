@@ -192,6 +192,27 @@ public class BoardPrefab : MonoBehaviour
   }
 
   /// <summary>
+  /// Reveals a specific hint by step number (1-based index, skipping start position).
+  /// </summary>
+  public void RevealSpecificHint(int hintStepNumber)
+  {
+    (Cell, int) revealedCellDepth = Board.RevealSpecificHint(hintStepNumber, out bool areAllHintsRevealed);
+    Cell cell = revealedCellDepth.Item1;
+    int depth = revealedCellDepth.Item2;
+
+    if (cell != null)
+    {
+      CellPrefab cellPrefab = GetCellPrefab(cell);
+      SpriteRenderer revealedHint = cellPrefab.HintRenderers[depth];
+      revealedHint.gameObject.SetActive(true);
+      revealedHint.color = revealedHint.color.ToTransparent();
+
+      revealedHints.Add(revealedHint);
+      PulseHintPath();
+    }
+  }
+
+  /// <summary>
   /// Gets the current hint step (0-based index).
   /// </summary>
   public int CurrentHintStep => Board.CurrentHintStep;
@@ -200,6 +221,15 @@ public class BoardPrefab : MonoBehaviour
   /// Checks if there are more hints available to reveal.
   /// </summary>
   public bool HasMoreHints => Board.HasMoreHints;
+
+  /// <summary>
+  /// Checks if there are any hints that haven't been revealed yet.
+  /// This is different from HasMoreHints which only checks sequential progression.
+  /// </summary>
+  public bool HasUnrevealedHints()
+  {
+    return Board.HasUnrevealedHints();
+  }
 
   private void PulseHintPath()
   {
