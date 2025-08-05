@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 1027622590649207126}
   - component: {fileID: 3466700986816714329}
   - component: {fileID: 5894418821759164475}
+  - component: {fileID: 5930585092189357430}
   m_Layer: 5
   m_Name: LanguageCard
   m_TagString: Untagged
@@ -156,6 +157,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   locale: 0
+--- !u!114 &5930585092189357430
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2938136135618392029}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 15c214dd1ecb81846932b7e41f3751d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5620719959039613364
 GameObject:
   m_ObjectHideFlags: 0

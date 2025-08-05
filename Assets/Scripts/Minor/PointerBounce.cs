@@ -2,7 +2,8 @@ using UnityEngine;
 using DG.Tweening;
 using UnityEngine.EventSystems;
 
-public class ButtonBehavior : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
+[DisallowMultipleComponent]
+public class PointerBounce : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
     private Vector3 originalScale;
 
@@ -28,7 +29,7 @@ public class ButtonBehavior : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         transform.DOKill();
         transform.DOScale(originalScale * 1f, 0.2f).SetEase(Ease.OutQuad);
     }
-    
+
     private void OnDestroy()
     {
         transform.DOKill(true);

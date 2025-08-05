@@ -149,6 +149,8 @@ GameObject:
   - component: {fileID: 5686083964188059220}
   - component: {fileID: 2578744704384754561}
   - component: {fileID: 1372132283644504406}
+  - component: {fileID: 7891115970078634126}
+  - component: {fileID: 4999284959515734747}
   m_Layer: 5
   m_Name: HintButton
   m_TagString: Untagged
@@ -275,3 +277,28 @@ MonoBehaviour:
   buttonImage: {fileID: 5686083964188059220}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
   revealedColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+--- !u!114 &7891115970078634126
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6171136715595632660}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 15c214dd1ecb81846932b7e41f3751d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &4999284959515734747
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6171136715595632660}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb5fd5085159415287106807fc1a7a3a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isCard: 0

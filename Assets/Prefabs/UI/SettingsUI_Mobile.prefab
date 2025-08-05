@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 6000215152288926446}
   - component: {fileID: 7697075727403529664}
   - component: {fileID: 5716047213107102905}
+  - component: {fileID: 4950068377200636288}
   m_Layer: 5
   m_Name: Privacy
   m_TagString: Untagged
@@ -135,6 +136,18 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!114 &4950068377200636288
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 68294576465720473}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 15c214dd1ecb81846932b7e41f3751d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &662318827177217715
 GameObject:
   m_ObjectHideFlags: 0
@@ -317,8 +330,8 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 5047984721133180861}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.429, y: 0}
-  m_AnchorMax: {x: 0.429, y: 1}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 75, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -392,8 +405,8 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 7210112895655252964}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.429, y: 0}
-  m_AnchorMax: {x: 0.429, y: 1}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 75, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -606,7 +619,7 @@ RectTransform:
   m_Father: {fileID: 329310762768141671}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0.429, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -899,10 +912,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 6484647146775730802}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 150, y: -70}
-  m_SizeDelta: {x: 300, y: 68.33}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3347772998887656604
 CanvasRenderer:
@@ -1109,10 +1122,10 @@ RectTransform:
   - {fileID: 6345532135305912435}
   m_Father: {fileID: 6484647146775730802}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 575, y: -70}
-  m_SizeDelta: {x: 550, y: 75}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &4013245313327241231
 MonoBehaviour:
@@ -1233,10 +1246,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 3628113524131661380}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 150, y: -70}
-  m_SizeDelta: {x: 300, y: 68.33}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6994423562498317809
 CanvasRenderer:
@@ -1498,6 +1511,7 @@ GameObject:
   - component: {fileID: 6982087715263644861}
   - component: {fileID: 6770780237300246893}
   - component: {fileID: 8150286900271212069}
+  - component: {fileID: 1411914598493581421}
   m_Layer: 5
   m_Name: "\u0421hange language"
   m_TagString: Untagged
@@ -1621,6 +1635,18 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!114 &1411914598493581421
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6088739284692468619}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 15c214dd1ecb81846932b7e41f3751d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6287200030477515602
 GameObject:
   m_ObjectHideFlags: 0
@@ -1689,10 +1715,10 @@ RectTransform:
   - {fileID: 2815580656743293411}
   m_Father: {fileID: 3628113524131661380}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 575, y: -70}
-  m_SizeDelta: {x: 550, y: 75}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &5295498643859333045
 MonoBehaviour:
@@ -1747,7 +1773,7 @@ RectTransform:
   m_Father: {fileID: 9103135076541011349}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0.429, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -2133,6 +2159,7 @@ GameObject:
   - component: {fileID: 8213452388424771111}
   - component: {fileID: 3508639644662756043}
   - component: {fileID: 6522989159988566788}
+  - component: {fileID: 5867472760676016365}
   m_Layer: 5
   m_Name: Close Button
   m_TagString: Untagged
@@ -2253,6 +2280,18 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &5867472760676016365
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7344750823986838173}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 15c214dd1ecb81846932b7e41f3751d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7595242224488437250
 GameObject:
   m_ObjectHideFlags: 0
@@ -2374,7 +2413,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &7449324719998669001
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2827,6 +2866,10 @@ PrefabInstance:
     - target: {fileID: 4486574470483796920, guid: 334e26a23d68f4cf8a0c8ca7bd0e4084, type: 3}
       propertyPath: m_Name
       value: Privacy Settings
+      objectReference: {fileID: 0}
+    - target: {fileID: 4486574470483796920, guid: 334e26a23d68f4cf8a0c8ca7bd0e4084, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7517251327197578700, guid: 334e26a23d68f4cf8a0c8ca7bd0e4084, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target

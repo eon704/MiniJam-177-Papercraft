@@ -124,11 +124,19 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 51655421851590656
-    m_Localized: Watch an Ad to reveal a move
+    m_Localized: Watch an Ad to reveal a hint
     m_Metadata:
       m_Items: []
   - m_Id: 51655489467965440
     m_Localized: Hints
+    m_Metadata:
+      m_Items: []
+  - m_Id: 51667778996789248
+    m_Localized: Congratulations!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 51668379986026496
+    m_Localized: You have completed the game
     m_Metadata:
       m_Items: []
   references:

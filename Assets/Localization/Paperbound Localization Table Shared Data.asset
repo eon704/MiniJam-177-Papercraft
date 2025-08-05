@@ -111,6 +111,14 @@ MonoBehaviour:
     m_Key: HintTitle
     m_Metadata:
       m_Items: []
+  - m_Id: 51667778996789248
+    m_Key: Congratulation
+    m_Metadata:
+      m_Items: []
+  - m_Id: 51668379986026496
+    m_Key: CongratulationSubtitle
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
