@@ -13,8 +13,12 @@ public class MainMenuUI : MonoBehaviour
 
     private float startPosY;
     
+    // Static field to remember if levels panel should be shown
+    private static bool shouldShowLevelsPanel = false;
+    
     public void ShowLevels()
     {
+        shouldShowLevelsPanel = true;
         startPanel.interactable = false;
 
         var sequence = DOTween.Sequence();
@@ -36,6 +40,7 @@ public class MainMenuUI : MonoBehaviour
 
     public void HideLevels()
     {
+        shouldShowLevelsPanel = false;
         levelsPanel.interactable = false;
 
         var sequence = DOTween.Sequence();
@@ -64,7 +69,19 @@ public class MainMenuUI : MonoBehaviour
     private IEnumerator Start()
     {
         startPosY = title.anchoredPosition.y;
+
         Application.targetFrameRate = 60;
+        // Check if we should show levels panel immediately
+        if (shouldShowLevelsPanel)
+        {
+            // Set up the UI to show levels panel without animation
+            title.anchoredPosition = new Vector2(title.anchoredPosition.x, -165);
+            startPanel.gameObject.SetActive(false);
+            levelsPanel.gameObject.SetActive(true);
+            levelsPanel.alpha = 1;
+            levelsPanel.interactable = true;
+        }
+        
         yield return ForegroundFadeOut();
     }
 
