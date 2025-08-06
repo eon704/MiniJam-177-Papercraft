@@ -18,7 +18,7 @@ public class Cell
         Position = position;
         Terrain = type;
         Item = new Observable<CellItem>(item);
-        IsHintRevealed = new Observable<int>(0);
+        IsHintRevealed = new Observable<int>(-1);
     }
     
     public void SetNeighbors(List<Cell> neighbors)

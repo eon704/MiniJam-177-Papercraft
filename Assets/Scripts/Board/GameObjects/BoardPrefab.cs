@@ -20,10 +20,6 @@ public class BoardPrefab : MonoBehaviour
 
   private CellPrefab[,] cellPrefabs;
 
-  private List<SpriteRenderer> revealedHints = new();
-
-  private Sequence pulseSequence;
-
   public void Initialize(LevelData levelData)
   {
     LevelData = levelData;
@@ -78,19 +74,8 @@ public class BoardPrefab : MonoBehaviour
     worldGrid = GetComponent<Grid>();
   }
 
-    private void OnDestroy()
-    {
-      pulseSequence?.Kill();
-      
-      // Kill any remaining tweens on hint renderers
-      foreach (SpriteRenderer hintRenderer in revealedHints)
-      {
-        if (hintRenderer != null)
-          hintRenderer.DOKill();
-      }
-    }
 
-    private void InstantiateBoard()
+  private void InstantiateBoard()
   {
     int centerX = Size.x / 2;
     int centerY = Size.y / 2;
@@ -171,26 +156,6 @@ public class BoardPrefab : MonoBehaviour
   }
 
   // Hint System Methods
-
-  /// <summary>
-  /// Reveals the next cell in the solution as a hint.
-  /// Returns true if a hint was revealed, false if no more hints available.
-  /// </summary>
-  public void RevealNextHint(out bool areAllHintsRevealed)
-  {
-    (Cell, int) revealedCellDepth = Board.RevealNextHint(out areAllHintsRevealed);
-    Cell cell = revealedCellDepth.Item1;
-    int depth = revealedCellDepth.Item2;
-
-    CellPrefab cellPrefab = GetCellPrefab(cell);
-    SpriteRenderer revealedHint = cellPrefab.HintRenderers[depth];
-    revealedHint.gameObject.SetActive(true);
-    revealedHint.color = revealedHint.color.ToTransparent();
-
-    revealedHints.Add(revealedHint);
-    PulseHintPath();
-  }
-
   /// <summary>
   /// Reveals a specific hint by step number (1-based index, skipping start position).
   /// </summary>
@@ -205,22 +170,8 @@ public class BoardPrefab : MonoBehaviour
       CellPrefab cellPrefab = GetCellPrefab(cell);
       SpriteRenderer revealedHint = cellPrefab.HintRenderers[depth];
       revealedHint.gameObject.SetActive(true);
-      revealedHint.color = revealedHint.color.ToTransparent();
-
-      revealedHints.Add(revealedHint);
-      PulseHintPath();
     }
   }
-
-  /// <summary>
-  /// Gets the current hint step (0-based index).
-  /// </summary>
-  public int CurrentHintStep => Board.CurrentHintStep;
-
-  /// <summary>
-  /// Checks if there are more hints available to reveal.
-  /// </summary>
-  public bool HasMoreHints => Board.HasMoreHints;
 
   /// <summary>
   /// Checks if there are any hints that haven't been revealed yet.
@@ -229,41 +180,5 @@ public class BoardPrefab : MonoBehaviour
   public bool HasUnrevealedHints()
   {
     return Board.HasUnrevealedHints();
-  }
-
-  private void PulseHintPath()
-  {
-    pulseSequence?.Kill();
-    
-    // Kill any existing tweens on the hint renderers to prevent conflicts
-    foreach (SpriteRenderer hintRenderer in revealedHints)
-    {
-      hintRenderer.DOKill();
-      // Reset to transparent state
-      hintRenderer.color = hintRenderer.color.ToTransparent();
-    }
-    
-    pulseSequence = DOTween.Sequence();
-
-    float staggerDelay = 0.2f;  // Time between each hint starting to pulse
-    float fadeDuration = 0.4f;  // Duration for fade in/out
-    float pauseDuration = 0.3f; // Pause between fade in and fade out
-    
-    for (int i = 0; i < revealedHints.Count; i++)
-    {
-      SpriteRenderer hintRenderer = revealedHints[i];
-      float startTime = i * staggerDelay;
-      
-      // Fade in
-      pulseSequence.Insert(startTime, hintRenderer.DOFade(1f, fadeDuration).SetEase(Ease.OutSine));
-      // Fade out (after fade in + pause)
-      pulseSequence.Insert(startTime + fadeDuration + pauseDuration, hintRenderer.DOFade(0f, fadeDuration).SetEase(Ease.InSine));
-    }
-
-    // Add a delay at the end before looping to create a clear cycle
-    pulseSequence.AppendInterval(0.5f); // Brief pause before restarting
-    
-    pulseSequence.SetLoops(-1);
-    pulseSequence.Play();
   }
 }
