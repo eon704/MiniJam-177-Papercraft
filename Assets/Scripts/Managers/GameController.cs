@@ -15,7 +15,6 @@ public class GameController : MonoBehaviour
     [field: SerializeField]
     public BoardPrefab BoardPrefab { get; private set; }
     [SerializeField] private List<PulseImage> nudgeImages;
-    [SerializeField] private GameObject finalScreen;
     [SerializeField] private GameObject winScreen;
     [SerializeField] private Camera cameraObject;
 
@@ -137,11 +136,6 @@ public class GameController : MonoBehaviour
 
     private void OnWin(int stars)
     {
-        if (LevelManager.Instance.IsLastLevel())
-        {
-            finalScreen.SetActive(true);
-        }
-
         wasLevelWon = true;
         UgsManager.Instance.RecordLevelPassedEvent(LevelManager.Instance.CurrentLevelIndex, attemptsCount, stars);
         LevelManager.Instance.SetCurrentLevelComplete(stars);

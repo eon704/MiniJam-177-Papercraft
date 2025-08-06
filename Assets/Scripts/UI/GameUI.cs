@@ -18,6 +18,7 @@ public class GameUI : MonoBehaviour
   [SerializeField] private StarsUI starsUI;
   [SerializeField] private WinScreenStarsUI WinScreenStarsUI;
   [SerializeField] private GameObject hintButton;
+  [SerializeField] private GameObject finalScreen;
 
   public void FinishGame()
   {
@@ -26,6 +27,26 @@ public class GameUI : MonoBehaviour
 
     gameController.OnLoadingMainMenu();
     StartCoroutine(LoadMainMenu());
+  }
+
+  public void ShowFinalScreen()
+  {
+    if (finalScreen != null)
+    {
+      finalScreen.SetActive(true);
+    }
+  }
+
+  public void OnNextLevelButtonPressed()
+  {
+    if (LevelManager.Instance.IsLastLevel())
+    {
+      ShowFinalScreen();
+    }
+    else
+    {
+      gameController.LoadNextLevel();
+    }
   }
 
   private void Awake()
