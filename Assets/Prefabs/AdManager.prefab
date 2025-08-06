@@ -45,3 +45,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   persistent: 1
+  iosAdUnitId: fkzi5sh7p8hyeuoc
+  androidAdUnitId: gigmwhy9jpw7vuys
+  requireConsent: 1
+  showConsentDialogOnStart: 1
+  enableDetailedLogging: 0
+  OnAdLoadedChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  OnAdRewarded:
+    m_PersistentCalls:
+      m_Calls: []
+  OnConsentRequired:
+    m_PersistentCalls:
+      m_Calls: []
+  OnAdDisplayed:
+    m_PersistentCalls:
+      m_Calls: []
+  OnAdClosed:
+    m_PersistentCalls:
+      m_Calls: []

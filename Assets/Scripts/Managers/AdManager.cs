@@ -16,9 +16,12 @@ public class AdManager : Singleton<AdManager>
     [Header("Debug Settings")]
     [SerializeField] private bool enableDetailedLogging = false;
 
+
     public UnityEvent OnAdLoadedChanged;
     public UnityEvent OnAdRewarded;
     public UnityEvent OnConsentRequired;
+    public UnityEvent OnAdDisplayed;
+    public UnityEvent OnAdClosed;
 
     private LevelPlayRewardedAd rewardedAd;
     private bool targetedAdsConsent = false;
@@ -128,6 +131,8 @@ public class AdManager : Singleton<AdManager>
         {
             Debug.Log($"📺 Rewarded ad displayed. AdInfo: {adInfo}");
         }
+
+        OnAdDisplayed?.Invoke();
     }
 
     // NOTE: This method uses obsolete API that will be updated in LevelPlay SDK 9.0.0
@@ -160,6 +165,7 @@ public class AdManager : Singleton<AdManager>
 
     private void OnRewardedAdClosed(LevelPlayAdInfo adInfo)
     {
+        OnAdClosed?.Invoke();
         // Preload the next ad
         LoadRewardedAd();
     }
