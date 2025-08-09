@@ -116,7 +116,7 @@ public class HintModal : MonoBehaviour
             {
                 Vector2Int hintPosition = boardPrefab.Board.LevelData.CachedSolution[hintIndex].Position;
                 Cell hintCell = boardPrefab.Board.GetCell(hintPosition);
-                bool isRevealed = hintCell.IsHintRevealed.Value > 0;
+                bool isRevealed = hintCell.IsHintRevealed.Value > -1;
                 
                 hintButton.UpdateVisualState(isRevealed);
             }
