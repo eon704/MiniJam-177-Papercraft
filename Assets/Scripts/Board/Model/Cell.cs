@@ -6,27 +6,10 @@ public class Cell
     public bool IsFree => Piece == null;
     public BoardPiece Piece { get; private set; }
     public Vector2Int Position { get; private set; }
-
-    public enum TerrainType
-    {
-        None,
-        Default,
-        Start,
-        End,
-        Water,
-        Stone,
-        Fire
-    }
-    
-    public enum CellItem
-    {
-        None,
-        Star,
-        RandomPowerup
-    }
     
     public TerrainType Terrain { get; private set; }
     public Observable<CellItem> Item { get; private set; }
+    public Observable<int> IsHintRevealed { get; private set; }
     
     public List<Cell> Neighbors { get; private set; }
     
@@ -35,6 +18,7 @@ public class Cell
         Position = position;
         Terrain = type;
         Item = new Observable<CellItem>(item);
+        IsHintRevealed = new Observable<int>(-1);
     }
     
     public void SetNeighbors(List<Cell> neighbors)
@@ -67,6 +51,18 @@ public class Cell
         {
             CollectStar();
         }
+    }
+
+    public int RevealHint()
+    {
+        int newRevealDepth = IsHintRevealed.Value + 1;
+        IsHintRevealed.Value = newRevealDepth;
+        return newRevealDepth;
+    }
+
+    public void HideHint()
+    {
+        IsHintRevealed.Value = 0;
     }
 
     public static int Distance(Cell cell1, Cell cell2)

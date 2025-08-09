@@ -13,9 +13,27 @@ MonoBehaviour:
   m_Name: Level_3
   m_EditorClassIdentifier: 
   MapSize: {x: 5, y: 2}
-  Map: 'x0G0y
-
-    0G0G0'
+  Map:
+  - Terrain: 0
+    Item: 0
+  - Terrain: 1
+    Item: 1
+  - Terrain: 0
+    Item: 0
+  - Terrain: 1
+    Item: 1
+  - Terrain: 0
+    Item: 0
+  - Terrain: 2
+    Item: 0
+  - Terrain: 0
+    Item: 0
+  - Terrain: 1
+    Item: 1
+  - Terrain: 0
+    Item: 0
+  - Terrain: 3
+    Item: 0
   StartMovesPerForm:
   - State: 0
     Moves: 0
@@ -27,3 +45,19 @@ MonoBehaviour:
     Moves: 0
   - State: 4
     Moves: 0
+  cachedSolution:
+  - Position: {x: 0, y: 1}
+    State: 0
+    StarsCollected: 0
+  - Position: {x: 1, y: 0}
+    State: 2
+    StarsCollected: 1
+  - Position: {x: 2, y: 1}
+    State: 2
+    StarsCollected: 2
+  - Position: {x: 3, y: 0}
+    State: 2
+    StarsCollected: 3
+  - Position: {x: 4, y: 1}
+    State: 2
+    StarsCollected: 3

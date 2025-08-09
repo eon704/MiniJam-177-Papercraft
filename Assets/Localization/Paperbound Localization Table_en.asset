@@ -75,6 +75,70 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 7044852755617284180
+  - m_Id: 50485372818284544
+    m_Localized: Privacy & Data
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50485547867561984
+    m_Localized: Decline
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50485530142433280
+    m_Localized: Accept
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50485494939639808
+    m_Localized: Privacy Policy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50485461959827456
+    m_Localized: 'We''d like to show you personalized ads to support free features
+      like hints.
+
+
+      This requires collecting device data and usage analytics
+      from you and our ad partners.
+
+
+      You can change this anytime in Settings.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50495634644393984
+    m_Localized: Privacy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50502277109112832
+    m_Localized: Update Consent
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50504184741486592
+    m_Localized: 'Ads Consent: Not Provided'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50504312235745280
+    m_Localized: 'Ads Consent: Granted'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50504404539793408
+    m_Localized: 'Ads Consent: Declined'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 51655421851590656
+    m_Localized: Watch an Ad to reveal a hint
+    m_Metadata:
+      m_Items: []
+  - m_Id: 51655489467965440
+    m_Localized: Hints
+    m_Metadata:
+      m_Items: []
+  - m_Id: 51667778996789248
+    m_Localized: Congratulations!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 51668379986026496
+    m_Localized: You have completed the game
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:

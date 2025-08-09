@@ -1,0 +1,97 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5465c63d54240f59ad0d61f1853172b, type: 3}
+  m_Name: Level_Test
+  m_EditorClassIdentifier: 
+  MapSize: {x: 5, y: 7}
+  Map:
+  - Terrain: 1
+    Item: 0
+  - Terrain: 5
+    Item: 0
+  - Terrain: 2
+    Item: 0
+  - Terrain: 5
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 4
+    Item: 0
+  - Terrain: 6
+    Item: 0
+  - Terrain: 4
+    Item: 0
+  - Terrain: 6
+    Item: 0
+  - Terrain: 4
+    Item: 0
+  - Terrain: 0
+    Item: 0
+  - Terrain: 4
+    Item: 0
+  - Terrain: 5
+    Item: 1
+  - Terrain: 4
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 4
+    Item: 0
+  - Terrain: 5
+    Item: 1
+  - Terrain: 4
+    Item: 0
+  - Terrain: 5
+    Item: 1
+  - Terrain: 4
+    Item: 0
+  - Terrain: 0
+    Item: 0
+  - Terrain: 6
+    Item: 0
+  - Terrain: 5
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 0
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 6
+    Item: 0
+  - Terrain: 3
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  StartMovesPerForm:
+  - State: 0
+    Moves: -1
+  - State: 1
+    Moves: 3
+  - State: 2
+    Moves: 2
+  - State: 3
+    Moves: 1
+  - State: 4
+    Moves: 5

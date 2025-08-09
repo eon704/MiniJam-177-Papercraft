@@ -12,8 +12,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5465c63d54240f59ad0d61f1853172b, type: 3}
   m_Name: Level_4
   m_EditorClassIdentifier: 
-  MapSize: {x: 5, y: 1}
-  Map: x222y
+  MapSize: {x: 5, y: 3}
+  Map:
+  - Terrain: 4
+    Item: 0
+  - Terrain: 4
+    Item: 0
+  - Terrain: 4
+    Item: 0
+  - Terrain: 4
+    Item: 0
+  - Terrain: 4
+    Item: 0
+  - Terrain: 2
+    Item: 0
+  - Terrain: 4
+    Item: 1
+  - Terrain: 4
+    Item: 1
+  - Terrain: 4
+    Item: 1
+  - Terrain: 3
+    Item: 0
+  - Terrain: 4
+    Item: 0
+  - Terrain: 4
+    Item: 0
+  - Terrain: 4
+    Item: 0
+  - Terrain: 4
+    Item: 0
+  - Terrain: 4
+    Item: 0
   StartMovesPerForm:
   - State: 0
     Moves: 0
@@ -25,3 +55,19 @@ MonoBehaviour:
     Moves: 3
   - State: 4
     Moves: 0
+  cachedSolution:
+  - Position: {x: 0, y: 1}
+    State: 0
+    StarsCollected: 0
+  - Position: {x: 1, y: 1}
+    State: 3
+    StarsCollected: 1
+  - Position: {x: 2, y: 1}
+    State: 3
+    StarsCollected: 2
+  - Position: {x: 3, y: 1}
+    State: 3
+    StarsCollected: 3
+  - Position: {x: 4, y: 1}
+    State: 1
+    StarsCollected: 3

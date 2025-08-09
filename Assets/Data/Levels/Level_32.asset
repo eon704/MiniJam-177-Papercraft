@@ -13,17 +13,79 @@ MonoBehaviour:
   m_Name: Level_32
   m_EditorClassIdentifier: 
   MapSize: {x: 6, y: 6}
-  Map: 'x+SF00
-
-    F0W+WG
-
-    S+F0+F
-
-    0WSWS0
-
-    G++0+S
-
-    0F+WGy'
+  Map:
+  - Terrain: 0
+    Item: 0
+  - Terrain: 6
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 4
+    Item: 0
+  - Terrain: 1
+    Item: 1
+  - Terrain: 3
+    Item: 0
+  - Terrain: 1
+    Item: 1
+  - Terrain: 1
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 0
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 5
+    Item: 0
+  - Terrain: 0
+    Item: 0
+  - Terrain: 4
+    Item: 0
+  - Terrain: 5
+    Item: 0
+  - Terrain: 4
+    Item: 0
+  - Terrain: 5
+    Item: 0
+  - Terrain: 0
+    Item: 0
+  - Terrain: 5
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 6
+    Item: 0
+  - Terrain: 0
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 6
+    Item: 0
+  - Terrain: 6
+    Item: 0
+  - Terrain: 0
+    Item: 0
+  - Terrain: 4
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 4
+    Item: 0
+  - Terrain: 1
+    Item: 1
+  - Terrain: 2
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 5
+    Item: 0
+  - Terrain: 6
+    Item: 0
+  - Terrain: 0
+    Item: 0
+  - Terrain: 0
+    Item: 0
   StartMovesPerForm:
   - State: 0
     Moves: 0
@@ -35,3 +97,4 @@ MonoBehaviour:
     Moves: 2
   - State: 4
     Moves: 3
+  cachedSolution: []

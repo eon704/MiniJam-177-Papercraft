@@ -63,6 +63,62 @@ MonoBehaviour:
     m_Key: Completed
     m_Metadata:
       m_Items: []
+  - m_Id: 50485372818284544
+    m_Key: PrivacyTitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50485461959827456
+    m_Key: PrivacyBody
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50485494939639808
+    m_Key: PrivacyPolicy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50485530142433280
+    m_Key: Accept
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50485547867561984
+    m_Key: Decline
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50495634644393984
+    m_Key: PrivacySettingsTitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50502277109112832
+    m_Key: UpdateConsent
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50504184741486592
+    m_Key: AdsConsentNotProvided
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50504312235745280
+    m_Key: AdsConsentGranted
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50504404539793408
+    m_Key: AdsConsentDeclined
+    m_Metadata:
+      m_Items: []
+  - m_Id: 51655421851590656
+    m_Key: HintSubtitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 51655489467965440
+    m_Key: HintTitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 51667778996789248
+    m_Key: Congratulation
+    m_Metadata:
+      m_Items: []
+  - m_Id: 51668379986026496
+    m_Key: CongratulationSubtitle
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

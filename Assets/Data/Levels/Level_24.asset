@@ -13,17 +13,91 @@ MonoBehaviour:
   m_Name: Level_24
   m_EditorClassIdentifier: 
   MapSize: {x: 7, y: 6}
-  Map: 'x+F+000
-
-    SW+SG00
-
-    +0W0F+0
-
-    FW0+S+y
-
-    ++WG0F0
-
-    G0S0W+0'
+  Map:
+  - Terrain: 1
+    Item: 1
+  - Terrain: 0
+    Item: 0
+  - Terrain: 5
+    Item: 0
+  - Terrain: 0
+    Item: 0
+  - Terrain: 4
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 0
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 4
+    Item: 0
+  - Terrain: 1
+    Item: 1
+  - Terrain: 0
+    Item: 0
+  - Terrain: 6
+    Item: 0
+  - Terrain: 0
+    Item: 0
+  - Terrain: 6
+    Item: 0
+  - Terrain: 4
+    Item: 0
+  - Terrain: 0
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 5
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 3
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 0
+    Item: 0
+  - Terrain: 4
+    Item: 0
+  - Terrain: 0
+    Item: 0
+  - Terrain: 6
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 0
+    Item: 0
+  - Terrain: 5
+    Item: 0
+  - Terrain: 4
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 5
+    Item: 0
+  - Terrain: 1
+    Item: 1
+  - Terrain: 0
+    Item: 0
+  - Terrain: 0
+    Item: 0
+  - Terrain: 2
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 6
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 0
+    Item: 0
+  - Terrain: 0
+    Item: 0
+  - Terrain: 0
+    Item: 0
   StartMovesPerForm:
   - State: 0
     Moves: 0
@@ -35,3 +109,40 @@ MonoBehaviour:
     Moves: 1
   - State: 4
     Moves: 3
+  cachedSolution:
+  - Position: {x: 0, y: 5}
+    State: 0
+    StarsCollected: 0
+  - Position: {x: 0, y: 3}
+    State: 4
+    StarsCollected: 0
+  - Position: {x: 0, y: 1}
+    State: 4
+    StarsCollected: 0
+  - Position: {x: 0, y: 0}
+    State: 1
+    StarsCollected: 1
+  - Position: {x: 1, y: 1}
+    State: 2
+    StarsCollected: 1
+  - Position: {x: 2, y: 1}
+    State: 3
+    StarsCollected: 1
+  - Position: {x: 3, y: 1}
+    State: 1
+    StarsCollected: 2
+  - Position: {x: 3, y: 2}
+    State: 1
+    StarsCollected: 2
+  - Position: {x: 4, y: 2}
+    State: 1
+    StarsCollected: 2
+  - Position: {x: 4, y: 4}
+    State: 4
+    StarsCollected: 3
+  - Position: {x: 5, y: 3}
+    State: 2
+    StarsCollected: 3
+  - Position: {x: 6, y: 2}
+    State: 2
+    StarsCollected: 3

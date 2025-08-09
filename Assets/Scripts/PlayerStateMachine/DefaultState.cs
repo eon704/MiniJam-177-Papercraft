@@ -9,10 +9,11 @@ namespace PlayerStateMachine
         private readonly Sprite _stateSprite;
         
         public Player.StateType StateType => Player.StateType.Default;
+        private StateModel stateModel => StateModelInfo.StateModels[StateType];
         
-        public List<Vector2Int> MoveOptions => new();
+        public List<Vector2Int> MoveOptions => stateModel.MoveOptions;
 
-        public List<Cell.TerrainType> MoveTerrain => new();
+        public List<TerrainType> MoveTerrain => stateModel.MoveTerrain;
         
         public DefaultState(Sprite sprite, SpriteRenderer spriteRenderer)
         {

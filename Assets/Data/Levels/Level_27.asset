@@ -13,19 +13,105 @@ MonoBehaviour:
   m_Name: Level_27
   m_EditorClassIdentifier: 
   MapSize: {x: 7, y: 7}
-  Map: 'x+S+000
-
-    FWF+000
-
-    +W+F+G0
-
-    SW0+S+0
-
-    +WF+G+0
-
-    +S+++W0
-
-    00G0+0y'
+  Map:
+  - Terrain: 0
+    Item: 0
+  - Terrain: 0
+    Item: 0
+  - Terrain: 1
+    Item: 1
+  - Terrain: 0
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 0
+    Item: 0
+  - Terrain: 3
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 5
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 4
+    Item: 0
+  - Terrain: 0
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 4
+    Item: 0
+  - Terrain: 6
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 1
+    Item: 1
+  - Terrain: 1
+    Item: 0
+  - Terrain: 0
+    Item: 0
+  - Terrain: 5
+    Item: 0
+  - Terrain: 4
+    Item: 0
+  - Terrain: 0
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 5
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 0
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 4
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 6
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 1
+    Item: 1
+  - Terrain: 0
+    Item: 0
+  - Terrain: 6
+    Item: 0
+  - Terrain: 4
+    Item: 0
+  - Terrain: 6
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 0
+    Item: 0
+  - Terrain: 0
+    Item: 0
+  - Terrain: 0
+    Item: 0
+  - Terrain: 2
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 5
+    Item: 0
+  - Terrain: 1
+    Item: 0
+  - Terrain: 0
+    Item: 0
+  - Terrain: 0
+    Item: 0
+  - Terrain: 0
+    Item: 0
   StartMovesPerForm:
   - State: 0
     Moves: 0
@@ -37,3 +123,4 @@ MonoBehaviour:
     Moves: 1
   - State: 4
     Moves: 4
+  cachedSolution: []

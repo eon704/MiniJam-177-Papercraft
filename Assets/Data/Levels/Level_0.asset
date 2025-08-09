@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Level_0
   m_EditorClassIdentifier: 
   MapSize: {x: 3, y: 1}
-  Map: "SoE\r\r\r\r"
+  Map: SoE
   StartMovesPerForm:
   - State: 0
     Moves: 0
