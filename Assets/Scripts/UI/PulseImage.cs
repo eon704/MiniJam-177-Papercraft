@@ -9,16 +9,16 @@ public class PulseImage : MonoBehaviour
   
   private void OnEnable()
   {
-    this.border = this.GetComponent<Image>();
-    this.borderSequence = DOTween.Sequence();
-    this.borderSequence.Append(this.border.DOFade(1f, 1f).SetEase(Ease.InCubic));
-    this.borderSequence.Append(this.border.DOFade(0f, 1f).SetEase(Ease.OutCubic));
-    this.borderSequence.SetLoops(-1);
-    this.borderSequence.Play();
+    border = GetComponent<Image>();
+    borderSequence = DOTween.Sequence();
+    borderSequence.Append(border.DOFade(1f, 1f).SetEase(Ease.InCubic));
+    borderSequence.Append(border.DOFade(0f, 1f).SetEase(Ease.OutCubic));
+    borderSequence.SetLoops(-1);
+    borderSequence.Play();
   }
 
   private void OnDisable()
   {
-    this.borderSequence?.Kill();
+    borderSequence?.Kill();
   }
 }

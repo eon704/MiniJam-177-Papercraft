@@ -21,11 +21,6 @@ public class StateCardUI : MonoBehaviour
         cardGlowImage = cardGlow.GetComponent<Image>();
     }
 
-    private void OnDestroy()
-    {
-        cardGlowImage.DOKill();
-    }
-
     private void Start()
     {
         cardGlow.SetActive(false);
@@ -33,25 +28,30 @@ public class StateCardUI : MonoBehaviour
         player.OnTransformation.AddListener(OnTransformation);
     }
 
+    private void OnDestroy()
+    {
+        cardGlowImage.DOKill();
+    }
+
     private void OnTransformation(Player.StateType newType)
     {
         isSelected = newType == stateType;
         
         cardGlow.SetActive(newType == stateType);
-
+        
         cardGlowImage.DOKill();
         if (newType == stateType)
         {
             Color color = cardGlowImage.color;
             color.a = 0;
             cardGlowImage.color = color;
-            cardGlowImage.DOFade(1, 0.5f).SetEase(Ease.InOutCubic).SetLoops(-1, LoopType.Yoyo);
+            cardGlowImage.DOFade(1, 0.5f).SetLoops(-1, LoopType.Yoyo);
         }
     }
     
     private void OnMove(Player.StateType moveStateType, int transformationsLeft)
     {
-        if (moveStateType != this.stateType) 
+        if (moveStateType != stateType) 
             return;
         
         movesText.text = transformationsLeft.ToString("D2");

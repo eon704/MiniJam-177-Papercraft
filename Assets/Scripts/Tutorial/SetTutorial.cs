@@ -9,7 +9,7 @@ public class ToggleObject : MonoBehaviour
 
     private void Start()
     {
-        activateButton.onClick.AddListener(ActivateObject);
+        activateButton?.onClick.AddListener(ActivateObject);
         deactivateButton.onClick.AddListener(DeactivateObject);
     }
 

@@ -75,7 +75,7 @@ namespace BgTools.PlayerPrefsEditor
         [MenuItem("Tools/BG Tools/PlayerPrefs Editor", false, 1)]
         static void ShowWindow()
         {
-            PreferencesEditorWindow window = EditorWindow.GetWindow<PreferencesEditorWindow>(false, "Prefs Editor");
+            PreferencesEditorWindow window = GetWindow<PreferencesEditorWindow>(false, "Prefs Editor");
             window.minSize = new Vector2(270.0f, 300.0f);
             window.name = "Prefs Editor";
 
@@ -152,7 +152,7 @@ namespace BgTools.PlayerPrefsEditor
                 }
                 else
                 {
-                    prefEntryHolder = ScriptableObject.CreateInstance<PreferenceEntryHolder>();
+                    prefEntryHolder = CreateInstance<PreferenceEntryHolder>();
                 }
             }
 
@@ -695,6 +695,6 @@ public class MySearchField : SearchField
         return result;
     }
 
-    public new string OnToolbarGUI(string text, params GUILayoutOption[] options) => this.OnToolbarGUI(GUILayoutUtility.GetRect(29f, 200f, 18f, 18f, EditorStyles.toolbarSearchField, options), text);
-    public new string OnToolbarGUI(Rect rect, string text) => this.OnGUI(rect, text, EditorStyles.toolbarSearchField, EditorStyles.toolbarButton, EditorStyles.toolbarButton);
+    public new string OnToolbarGUI(string text, params GUILayoutOption[] options) => OnToolbarGUI(GUILayoutUtility.GetRect(29f, 200f, 18f, 18f, EditorStyles.toolbarSearchField, options), text);
+    public new string OnToolbarGUI(Rect rect, string text) => OnGUI(rect, text, EditorStyles.toolbarSearchField, EditorStyles.toolbarButton, EditorStyles.toolbarButton);
 }

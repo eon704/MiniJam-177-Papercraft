@@ -226,7 +226,7 @@ namespace BgTools.PlayerPrefsEditor
                 string stdOut = String.Empty;
                 string errOut = String.Empty;
 
-                var process = new System.Diagnostics.Process();
+                var process = new Process();
                 process.StartInfo.UseShellExecute = false;
                 process.StartInfo.FileName = "plutil";
                 process.StartInfo.Arguments = cmdStr;

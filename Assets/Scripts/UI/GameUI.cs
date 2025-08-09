@@ -12,14 +12,14 @@ public class GameUI : MonoBehaviour
   
   [Header("Internal UI References")]
   [SerializeField] private Image _foreground;
-  [SerializeField] private GameObject winScreen;
+  [SerializeField] private CanvasGroup winScreen;
   [SerializeField] private StarsUI starsUI;
   [SerializeField] private WinScreenStarsUI WinScreenStarsUI;
   
   public void FinishGame()
   {
     gameController.OnLoadingMainMenu();
-    this.StartCoroutine(this.LoadMainMenu());
+    StartCoroutine(LoadMainMenu());
   }
 
   private void Awake()
@@ -30,60 +30,65 @@ public class GameUI : MonoBehaviour
   private IEnumerator Start()
   {
     yield return null;
-    this.gameController.PlayerPrefab.StarAmount.OnChanged += this.OnStarChange;
-    this.gameController.PlayerPrefab.OnPlayerWon.AddListener(this.OnWin);
+    gameController.PlayerPrefab.StarAmount.OnChanged += OnStarChange;
+    gameController.PlayerPrefab.OnPlayerWon.AddListener(OnWin);
     
-    yield return this.ForegroundFadeOut();
+    yield return ForegroundFadeOut();
   }
 
   private void OnDestroy()
   {
-    this._foreground.DOKill(); 
+    _foreground.DOKill(); 
   }
 
   private void OnWin(int stars)
   {
-    this.winScreen.SetActive(true);
-    this.WinScreenStarsUI.AnimateStars(stars);
+    winScreen.gameObject.SetActive(true);
+    winScreen.alpha = 0;
+    
+    winScreen
+      .DOFade(1, 0.25f)
+      .SetEase(Ease.OutCubic)
+      .SetDelay(0.25f)
+      .OnComplete(() => WinScreenStarsUI.AnimateStars(stars));
   }
 
   private void OnStarChange(Observable<int> stars, int oldVal, int newVal)
   {
     
-    this.starsUI.OnStarChange(newVal);
+    starsUI.OnStarChange(newVal);
   }
 
   private IEnumerator LoadMainMenu()
   {
-    yield return this.ForegroundFadeIn();
-    yield return new WaitForSeconds(0.5f);
+    yield return ForegroundFadeIn();
     AsyncOperation loadSceneAsync = SceneManager.LoadSceneAsync("MainMenu");
     yield return new WaitUntil(() => loadSceneAsync == null || loadSceneAsync.isDone);
   }
     
   private IEnumerator ForegroundFadeIn()
   {
-    this._foreground.color = new Color(0, 0, 0, 0);
-    this._foreground.gameObject.SetActive(true);
+    _foreground.color = new Color(0, 0, 0, 0);
+    _foreground.gameObject.SetActive(true);
         
-    Tween tween = this._foreground
-                      .DOFade(1, 0.5f)
+    Tween tween = _foreground
+                      .DOFade(1, 0.25f)
                       .SetEase(Ease.OutCubic);
 
-    yield return tween.WaitForCompletion();
+    yield return new WaitForSeconds(0.25f);
   }
     
   private IEnumerator ForegroundFadeOut()
   {
-    this._foreground.color = Color.black;
-    this._foreground.gameObject.SetActive(true);
+    _foreground.color = Color.black;
+    _foreground.gameObject.SetActive(true);
         
-    Tween tween = this._foreground
-                      .DOFade(0, 0.5f)
+    Tween tween = _foreground
+                      .DOFade(0, 0.25f)
                       .SetEase(Ease.InCubic);
-    
-    yield return tween.WaitForCompletion();
-    this._foreground.gameObject.SetActive(false);
+
+    yield return new WaitForSeconds(0.25f);
+    _foreground.gameObject.SetActive(false);
   }
   
   private void onDestroy()

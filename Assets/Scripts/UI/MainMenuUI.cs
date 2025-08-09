@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using DG.Tweening;
 using UnityEngine;
@@ -12,83 +11,66 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private CanvasGroup levelsPanel;
     [SerializeField] private Image foreground;
 
-
-    private void Update()
-    {
-        if (levelsPanel.gameObject.activeSelf != true)
-        {
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                Application.Quit();
-            }
-        }
-        else
-        {
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                HideLevels();
-            }
-        }
-    }
-
+    private float startPosY;
+    
     public void ShowLevels()
     {
-        this.startPanel.interactable = false;
+        startPanel.interactable = false;
 
         var sequence = DOTween.Sequence();
-        sequence.Append(title.DOScale(0.2f, 0.5f).SetEase(Ease.InOutCubic));
-        sequence.Append(this.title.DOAnchorPosY(320, 0.5f).SetEase(Ease.InOutCubic));
-        sequence.Join(this.startPanel.DOFade(0, 0.2f).SetEase(Ease.InOutCubic));
+        sequence.Append(title.DOAnchorPosY(-165, 0.5f).SetEase(Ease.InOutCubic));
+        sequence.Join(startPanel.DOFade(0, 0.2f).SetEase(Ease.InOutCubic));
 
         sequence.AppendCallback(() =>
         {
-            this.startPanel.gameObject.SetActive(false);
-            this.levelsPanel.gameObject.SetActive(true);
-            this.levelsPanel.alpha = 0;
+            startPanel.gameObject.SetActive(false);
+            levelsPanel.gameObject.SetActive(true);
+            levelsPanel.alpha = 0;
         });
         sequence.AppendInterval(0.2f);
-        sequence.Append(this.levelsPanel.DOFade(1, 0.25f).SetEase(Ease.InOutCubic));
-        sequence.AppendCallback(() => this.levelsPanel.interactable = true);
+        sequence.Append(levelsPanel.DOFade(1, 0.25f).SetEase(Ease.InOutCubic));
+        sequence.AppendCallback(() => levelsPanel.interactable = true);
 
         sequence.Play();
     }
 
     public void HideLevels()
     {
-        this.levelsPanel.interactable = false;
+        levelsPanel.interactable = false;
 
         var sequence = DOTween.Sequence();
-        sequence.Append(this.levelsPanel.DOFade(-250, 0.3f).SetEase(Ease.InOutCubic));
+        sequence.Append(levelsPanel.DOFade(0, 0.3f).SetEase(Ease.InOutCubic));
         sequence.Append(title.DOScale(0.4f, 0.3f).SetEase(Ease.InOutCubic));
-        sequence.Join(this.title.DOAnchorPosY(100, 0.3f).SetEase(Ease.InOutCubic));
+        sequence.Join(title.DOAnchorPosY(startPosY, 0.3f).SetEase(Ease.InOutCubic));
       
         sequence.AppendCallback(() =>
         {
-            this.levelsPanel.gameObject.SetActive(false);
-            this.startPanel.gameObject.SetActive(true);
-            this.startPanel.alpha = 0;
+            levelsPanel.gameObject.SetActive(false);
+            startPanel.gameObject.SetActive(true);
+            startPanel.alpha = 0;
         });
         sequence.AppendInterval(0.2f);
-        sequence.Append(this.startPanel.DOFade(1, 0.3f).SetEase(Ease.InOutCubic));
-        sequence.AppendCallback(() => this.startPanel.interactable = true);
+        sequence.Append(startPanel.DOFade(1, 0.3f).SetEase(Ease.InOutCubic));
+        sequence.AppendCallback(() => startPanel.interactable = true);
 
         sequence.Play();
     }
 
     public void StartGame()
     {
-        this.StartCoroutine(this.LoadGame());
+        StartCoroutine(LoadGame());
     }
 
     private IEnumerator Start()
     {
-        yield return this.ForegroundFadeOut();
+        startPosY = title.anchoredPosition.y;
+        Application.targetFrameRate = 60;
+        yield return ForegroundFadeOut();
     }
 
     private IEnumerator LoadGame()
     {
-        yield return this.ForegroundFadeIn();
-        
+        yield return ForegroundFadeIn();
         AsyncOperation loadSceneAsync = SceneManager.LoadSceneAsync("Game");
         yield return new WaitUntil(() => loadSceneAsync!.isDone);
 
@@ -97,26 +79,26 @@ public class MainMenuUI : MonoBehaviour
 
     private IEnumerator ForegroundFadeIn()
     {
-        this.foreground.color = new Color(0, 0, 0, 0);
-        this.foreground.gameObject.SetActive(true);
+        foreground.color = new Color(0, 0, 0, 0);
+        foreground.gameObject.SetActive(true);
 
-        Tween tween = this.foreground
-            .DOFade(1, 0.5f)
+        Tween tween = foreground
+            .DOFade(1, 0.25f)
             .SetEase(Ease.OutCubic);
 
-        yield return tween.WaitForCompletion();
+        yield return new WaitForSeconds(0.25f);
     }
 
     private IEnumerator ForegroundFadeOut()
     {
-        this.foreground.color = Color.black;
-        this.foreground.gameObject.SetActive(true);
+        foreground.color = Color.black;
+        foreground.gameObject.SetActive(true);
 
-        Tween tween = this.foreground
-            .DOFade(0,  0.5f)
+        Tween tween = foreground
+            .DOFade(0, 0.25f)
             .SetEase(Ease.InCubic);
-        
-        yield return tween.WaitForCompletion();
-        this.foreground.gameObject.SetActive(false);
+
+        yield return new WaitForSeconds(0.25f);
+        foreground.gameObject.SetActive(false);
     }
 }

@@ -15,6 +15,13 @@ MonoBehaviour:
   m_GroupName: Localization-String-Tables-Russian (ru)
   m_GUID: 4e4297e9b579dc240a870a5f463efc8d
   m_SerializeEntries:
+  - m_GUID: 3460b56c81cb64433a90b17fd6c595a6
+    m_Address: Metadata-iOS_ru
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ru
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 8299ce7e8a080ee4fa0ad9385f79e065
     m_Address: Paperbound Localization Table_ru
     m_ReadOnly: 1
@@ -26,6 +33,7 @@ MonoBehaviour:
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-ru
+    - Preload
     FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 1
   m_Settings: {fileID: 11400000, guid: 93ba14c3a1292f44c9c67574a590a1e6, type: 2}

@@ -12,14 +12,14 @@ public class BoardPiecePrefab : MonoBehaviour
     
   public void Initialize(BoardPiece boardPieceData, CellPrefab startCell, BoardPrefab initBoardPrefab)
   {
-    this.boardPrefab = initBoardPrefab;
-    this.BoardPiece = boardPieceData;
-    this.BoardPiece.OccupiedCell.OnChanged += (_, oldCell, newCell) =>
+    boardPrefab = initBoardPrefab;
+    BoardPiece = boardPieceData;
+    BoardPiece.OccupiedCell.OnChanged += (_, oldCell, newCell) =>
     {
-      this.boardPrefab.GetCellPrefab(oldCell).ResetPulse();
-      this.CurrentCell = this.boardPrefab.GetCellPrefab(newCell);
+      boardPrefab.GetCellPrefab(oldCell).ResetPulse();
+      CurrentCell = boardPrefab.GetCellPrefab(newCell);
     };
-    this.Teleport(startCell);
+    Teleport(startCell);
   }
 
   public List<CellPrefab> GetMoveOptionCellPrefabs()
@@ -37,39 +37,44 @@ public class BoardPiecePrefab : MonoBehaviour
     
     return moveOptionCellPrefabs;
   }
+  
+  public void CancelMove()
+  {
+    transform.DOKill();
+  }
 
   public bool Move(CellPrefab targetCell, UnityAction onComplete = null, bool forceFailMovement = false)
   {
-    this.transform.DOComplete(true);
-    bool success = !forceFailMovement && this.BoardPiece.MoveTo(targetCell.Cell);
+    transform.DOKill();
+    bool success = !forceFailMovement && BoardPiece.MoveTo(targetCell.Cell);
 
     if (success)
     {
-      var path = new Vector3[]
+      var path = new[]
       {
-        this.transform.position,
-        (this.transform.position + targetCell.transform.position) / 2 + Vector3.up * 0.4f, // Midpoint with an upward offset
+        transform.position,
+        (transform.position + targetCell.transform.position) / 2 + Vector3.up * 0.4f, // Midpoint with an upward offset
         targetCell.transform.position
       };
 
-      this.transform
+      transform
         .DOPath(path, 0.5f, PathType.CatmullRom)
         .SetEase(Ease.InOutQuad)
-        .OnComplete(() => onComplete?.Invoke());
+        .OnKill(() => onComplete?.Invoke());
     }
     else
     {
-      this.transform
+      transform
         .DOShakePosition(0.5f, 0.3f)
-        .OnComplete(() => onComplete?.Invoke());
+        .OnKill(() => onComplete?.Invoke());
     }
 
     return success;
   }
 
-  public void Teleport(CellPrefab targetCell)
+  public void Teleport(CellPrefab targetCell, bool tweenMovement = false)
   {
-    bool success = this.BoardPiece.TeleportTo(targetCell.Cell);
+    bool success = BoardPiece.TeleportTo(targetCell.Cell);
 
     if (!success)
     {
@@ -77,11 +82,29 @@ public class BoardPiecePrefab : MonoBehaviour
       return;
     }
 
-    this.transform.position = targetCell.transform.position;
+    if (tweenMovement)
+    {
+      transform.DOKill();
+      
+      var path = new[]
+      {
+        transform.position,
+        (transform.position + targetCell.transform.position) / 2 + Vector3.up * 0.4f, // Midpoint with an upward offset
+        targetCell.transform.position
+      };
+
+      transform
+        .DOPath(path, 0.5f, PathType.CatmullRom)
+        .SetEase(Ease.InOutQuad);
+    }
+    else
+    {
+      transform.position = targetCell.transform.position;
+    }
   }
 
   private void OnDestroy()
   {
-    this.transform.DOKill();
+    transform.DOKill();
   }
 }

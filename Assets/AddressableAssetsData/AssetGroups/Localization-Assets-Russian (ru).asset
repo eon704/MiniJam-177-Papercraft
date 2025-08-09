@@ -14,7 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_GroupName: Localization-Assets-Russian (ru)
   m_GUID: d940de1b0289d3648bec886e8eccb32f
-  m_SerializeEntries: []
+  m_SerializeEntries:
+  - m_GUID: deba20d49c8f2e04192292811bfaefe9
+    m_Address: RuthlessSketch
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ru
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 1
   m_Settings: {fileID: 11400000, guid: 93ba14c3a1292f44c9c67574a590a1e6, type: 2}
   m_SchemaSet:

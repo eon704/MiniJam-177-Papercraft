@@ -8,10 +8,12 @@ public class Board
   public readonly Cell StartCell;
   public readonly List<Cell> StarCells = new();
   
+  public readonly BoardHistory BoardHistory = new();
+  
   public Board(Vector2Int size, char[,] map)
   {
-    this.Size = size; 
-    this.CellArray = new Cell[size.x, size.y];
+    Size = size; 
+    CellArray = new Cell[size.x, size.y];
     
     // Parse the board map
     for (int x = 0; x < size.x; x++)
@@ -46,16 +48,16 @@ public class Board
           _ => Cell.CellItem.None
         };
         
-        this.CellArray[x, y] = new Cell(new Vector2Int(x, y), type, item);
+        CellArray[x, y] = new Cell(new Vector2Int(x, y), type, item);
 
         if (type == Cell.TerrainType.Start)
         {
-          this.StartCell = this.CellArray[x, y];
+          StartCell = CellArray[x, y];
         }
         
         if (item == Cell.CellItem.Star)
         {
-          this.StarCells.Add(this.CellArray[x, y]);
+          StarCells.Add(CellArray[x, y]);
         }
       }
     }
@@ -65,47 +67,47 @@ public class Board
     {
       for (int y = 0; y < size.y; y++)
       {
-        Cell cell = this.CellArray[x, y];
+        Cell cell = CellArray[x, y];
         List<Cell> neighbours = new();
         
         if (x > 0)
         {
-          neighbours.Add(this.CellArray[x - 1, y]);
+          neighbours.Add(CellArray[x - 1, y]);
         }
         
         if (x < size.x - 1)
         {
-          neighbours.Add(this.CellArray[x + 1, y]);
+          neighbours.Add(CellArray[x + 1, y]);
         }
         
         if (y > 0)
         {
-          neighbours.Add(this.CellArray[x, y - 1]);
+          neighbours.Add(CellArray[x, y - 1]);
         }
         
         if (y < size.y - 1)
         {
-          neighbours.Add(this.CellArray[x, y + 1]);
+          neighbours.Add(CellArray[x, y + 1]);
         }
         
         if (x > 0 && y > 0)
         {
-          neighbours.Add(this.CellArray[x - 1, y - 1]);
+          neighbours.Add(CellArray[x - 1, y - 1]);
         }
         
         if (x < size.x - 1 && y > 0)
         {
-          neighbours.Add(this.CellArray[x + 1, y - 1]);
+          neighbours.Add(CellArray[x + 1, y - 1]);
         }
         
         if (x > 0 && y < size.y - 1)
         {
-          neighbours.Add(this.CellArray[x - 1, y + 1]);
+          neighbours.Add(CellArray[x - 1, y + 1]);
         }
         
         if (x < size.x - 1 && y < size.y - 1)
         {
-          neighbours.Add(this.CellArray[x + 1, y + 1]);
+          neighbours.Add(CellArray[x + 1, y + 1]);
         }
         
         cell.SetNeighbors(neighbours);
@@ -118,19 +120,19 @@ public class Board
     int x = coord.x;
     int y = coord.y;
     
-    if (x < 0 || x >= this.Size.x || y < 0 || y >= this.Size.y)
+    if (x < 0 || x >= Size.x || y < 0 || y >= Size.y)
       return null;
     
-    return this.CellArray[x, y];
+    return CellArray[x, y];
   }
 
   public BoardPiece CreateNewPiece(Vector2Int coord)
   {
-    return new BoardPiece(this, this.CellArray[coord.x, coord.y]);
+    return new BoardPiece(this, CellArray[coord.x, coord.y]);
   }
 
   public BoardPiece CreatePlayerPiece()
   {
-    return new BoardPiece(this, this.StartCell);
+    return new BoardPiece(this, StartCell);
   }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
@@ -36,9 +37,15 @@ public class Player : MonoBehaviour
     private IState _planeState;
     private IState _boatState;
     private IState _frogState;
+
+    private const int TotalStars = 3;
     
     private Sequence _pulseSequence;
     public bool isMovementLocked;
+    
+    private BoardPrefab _boardPrefab;
+
+    public Action<int> OnUndoHistoryChange;
     
     public enum StateType
     {
@@ -55,28 +62,30 @@ public class Player : MonoBehaviour
 
     public void Initialize(BoardPiece boardPiece, CellPrefab startCell, BoardPrefab boardPrefab)
     {
-        this.BoardPiecePrefab.Initialize(boardPiece, startCell, boardPrefab);
-        this.BoardPiecePrefab.BoardPiece.OccupiedCell.OnChanged += this.OnPlayerMoved;
+        _boardPrefab = boardPrefab;
+        BoardPiecePrefab.Initialize(boardPiece, startCell, boardPrefab);
+        BoardPiecePrefab.BoardPiece.OccupiedCell.OnChanged += OnPlayerMoved;
+        BoardPiecePrefab.BoardPiece.OnCollectedStar += OnCollectStar;
     }
 
     public void SetTransformationLimits(Dictionary<StateType, int> startingMoves)
     {
-        this._movesPerForm = new Dictionary<StateType, int>(startingMoves);
+        _movesPerForm = new Dictionary<StateType, int>(startingMoves);
         
-        this.OnMovesLeftChanged?.Invoke(StateType.Boat, this._movesPerForm[StateType.Boat]);
-        this.OnMovesLeftChanged?.Invoke(StateType.Crane, this._movesPerForm[StateType.Crane]);
-        this.OnMovesLeftChanged?.Invoke(StateType.Frog, this._movesPerForm[StateType.Frog]);
-        this.OnMovesLeftChanged?.Invoke(StateType.Plane, this._movesPerForm[StateType.Plane]);
+        OnMovesLeftChanged?.Invoke(StateType.Boat, _movesPerForm[StateType.Boat]);
+        OnMovesLeftChanged?.Invoke(StateType.Crane, _movesPerForm[StateType.Crane]);
+        OnMovesLeftChanged?.Invoke(StateType.Frog, _movesPerForm[StateType.Frog]);
+        OnMovesLeftChanged?.Invoke(StateType.Plane, _movesPerForm[StateType.Plane]);
     } 
     
 
     private void Awake()
     {
-        this._spriteRenderer = GetComponent<SpriteRenderer>();
-        this.BoardPiecePrefab = GetComponent<BoardPiecePrefab>();
-        this._stateMachine = new StateMachine();
+        _spriteRenderer = GetComponent<SpriteRenderer>();
+        BoardPiecePrefab = GetComponent<BoardPiecePrefab>();
+        _stateMachine = new StateMachine();
 
-        _defaultState = new DefaultState(defaultStateSprite, this._spriteRenderer);
+        _defaultState = new DefaultState(defaultStateSprite, _spriteRenderer);
         _craneState = new CraneState(craneStateGameObject, this);
         _planeState = new PlaneState(planeStateGameObject, this);
         _boatState = new BoatState(boatStateGameObject,this);
@@ -87,6 +96,8 @@ public class Player : MonoBehaviour
     {
         yield return null;
         SetDefaultState();
+        yield return null;
+        AddHistoryRecord();
     }
 
     private void OnPlayerMoved(Observable<Cell> cell, Cell oldCell, Cell newCell)
@@ -94,6 +105,38 @@ public class Player : MonoBehaviour
         ResetPulse();
         _moveOptionCells = BoardPiecePrefab.GetMoveOptionCellPrefabs();
         PulseReachableCells();
+    }
+
+    private IState GetState(StateType stateType)
+    {
+        return stateType switch
+        {
+            StateType.Default => _defaultState,
+            StateType.Crane => _craneState,
+            StateType.Plane => _planeState,
+            StateType.Boat => _boatState,
+            StateType.Frog => _frogState,
+            _ => throw new ArgumentOutOfRangeException(nameof(stateType), stateType, null)
+        };
+    }
+    
+    private StateType GetStateType(IState state)
+    {
+        switch (state)
+        {
+            case DefaultState:
+                return StateType.Default;
+            case CraneState:
+                return StateType.Crane;
+            case PlaneState:
+                return StateType.Plane;
+            case BoatState:
+                return StateType.Boat;
+            case FrogState:
+                return StateType.Frog;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(state), state, null);
+        }
     }
 
     private void PulseReachableCells()
@@ -124,42 +167,37 @@ public class Player : MonoBehaviour
         {
             foreach (var cellPrefab in distanceToCellsPair.Value)
             {
-                this._pulseSequence.Insert(distanceToCellsPair.Key * delay, cellPrefab.DoPulse(duration));
+                _pulseSequence.Insert(distanceToCellsPair.Key * delay, cellPrefab.DoPulse(duration));
             }
         }
 
-        this._pulseSequence.SetLoops(-1);
-        this._pulseSequence.Play();
+        _pulseSequence.SetLoops(-1);
+        _pulseSequence.Play();
     }
 
     // ReSharper disable Unity.PerformanceAnalysis
     public void SetDefaultState()
     {
-        this.OnTransformation?.Invoke(StateType.Default);
         SetState(_defaultState);
     }
 
     public void SetCraneState()
     {
-        this.OnTransformation?.Invoke(StateType.Crane);
         SetState(_craneState);
     }
 
     public void SerFrogState()
     {
-        this.OnTransformation?.Invoke(StateType.Frog);
         SetState(_frogState);
     }
 
     public void SetPlaneState()
     {
-        this.OnTransformation?.Invoke(StateType.Plane);
         SetState(_planeState);
     }
 
     public void SetBoatState()
     {
-        this.OnTransformation?.Invoke(StateType.Boat);
         SetState(_boatState);
     }
 
@@ -168,30 +206,95 @@ public class Player : MonoBehaviour
         if (isMovementLocked)
             return;
         
-        IState currentState = (this._stateMachine.CurrentState as IState)!; 
+        BoardPiecePrefab.CancelMove();
+        
+        IState currentState = (_stateMachine.CurrentState as IState)!; 
         StateType type = currentState.StateType;
-        bool forceFailMovement = this._movesPerForm[type] <= 0;
-        bool success = this.BoardPiecePrefab.Move(targetCell, this.OnMove, forceFailMovement);
+        bool forceFailMovement = _movesPerForm[type] <= 0;
+        bool success = BoardPiecePrefab.Move(targetCell, OnMove, forceFailMovement);
         
         if (success)
         {
             isMovementLocked = targetCell.Cell.Terrain == Cell.TerrainType.Fire;
             targetCell.ShakeCell();
             _movesPerForm[type]--;
-            OnMovesLeftChanged?.Invoke(type, this._movesPerForm[type]);
+            OnMovesLeftChanged?.Invoke(type, _movesPerForm[type]);
             
             if (_movesPerForm[type] <= 0)
             {
                 OnOutOfMoves();
             }
+            
+            AddHistoryRecord();
         }
     }
+    
+    public void UndoMove()
+    {
+        if (isMovementLocked)
+            return;
+        
+        BoardRecord? lastRecord = _boardPrefab.Board.BoardHistory.Undo();
+        if (!lastRecord.HasValue)
+            return;
+        
+        OnUndoHistoryChange?.Invoke(_boardPrefab.Board.BoardHistory.Count);
+        BoardPiecePrefab.CancelMove();
+        BoardPiecePrefab.BoardPiece.OccupiedCell.Value.FreePiece();
+        
+        Vector2Int playerPosition = lastRecord.Value.PlayerPosition;
+        StateType playerState = lastRecord.Value.PlayerState;
+        List<Vector2Int> starsRemaining = lastRecord.Value.StarsRemaining;
+        
+        _movesPerForm = new Dictionary<StateType, int>(lastRecord.Value.MovesPerForm);
+        foreach (var kvp in _movesPerForm)
+        {
+            OnMovesLeftChanged?.Invoke(kvp.Key, kvp.Value);
+        }
 
-    private void Update() => this._stateMachine.Tick();
+        BoardPiecePrefab.Teleport(_boardPrefab.GetCellPrefab(playerPosition), tweenMovement: true);
+        SetState(GetState(playerState));
+        
+        foreach (var cell in starsRemaining)
+        {
+            _boardPrefab.GetCellPrefab(cell).Cell.ReassignStar();
+        }
+        
+        StarAmount.Value = TotalStars - starsRemaining.Count;
+    }
+    
+    private void AddHistoryRecord()
+    {
+        Vector2Int playerPosition = BoardPiecePrefab.CurrentCell.Cell.Position;
+        StateType playerState = (_stateMachine.CurrentState as IState)!.StateType;
+        List<Vector2Int> starsRemaining = new();
+        
+        foreach (var cell in _boardPrefab.Board.StarCells)
+        {
+            if (cell.Item == Cell.CellItem.Star)
+            {
+                starsRemaining.Add(cell.Position);
+            }
+        }
+
+        _boardPrefab.Board.BoardHistory.AddRecord(
+            playerPosition,
+            playerState,
+            starsRemaining,
+            new Dictionary<StateType, int>(_movesPerForm)
+        );
+        
+        OnUndoHistoryChange?.Invoke(_boardPrefab.Board.BoardHistory.Count);
+    }
+
+    private void Update()
+    {
+        _stateMachine.Tick();
+    }
 
     private void OnDisable()
     {
-        this._pulseSequence?.Kill();
+        _pulseSequence?.Kill();
     }
 
     private void SetState(IState state)
@@ -199,6 +302,8 @@ public class Player : MonoBehaviour
         GlobalSoundManager.PlayRandomSoundByType(SoundType.ChangeState);
         _stateMachine.SetState(state);
         BoardPiecePrefab.BoardPiece.SetState(state);
+        OnTransformation?.Invoke(GetStateType(state));
+        
         ResetPulse();
         PulseReachableCells();
     }
@@ -226,23 +331,20 @@ public class Player : MonoBehaviour
         _pulseSequence.Play();
     }
 
+    private void OnCollectStar()
+    {
+        StarAmount.Value += 1;
+    }
+
     private void OnMove()
     {
-        Cell targetCell = this.BoardPiecePrefab.CurrentCell.Cell;
-
-        if (targetCell.Item == Cell.CellItem.Star)
-        {
-            targetCell.CollectStar();
-            GlobalSoundManager.PlayRandomSoundByType(SoundType.Ding,1f);
-            this.StarAmount.Value += 1;
-        }
-        
+        Cell targetCell = BoardPiecePrefab.CurrentCell.Cell;
         if (targetCell.Terrain == Cell.TerrainType.End)
         {
-            this.OnPlayerWon?.Invoke(this.StarAmount);
+            OnPlayerWon?.Invoke(StarAmount);
         } else if (targetCell.Terrain == Cell.TerrainType.Fire)
         {
-            this.OnPlayerDied?.Invoke();
+            OnPlayerDied?.Invoke();
         }
     }
 }

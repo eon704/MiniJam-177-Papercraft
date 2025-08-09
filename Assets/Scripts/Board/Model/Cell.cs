@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class Cell
 {
-    public bool IsFree => this.Piece == null;
+    public bool IsFree => Piece == null;
     public BoardPiece Piece { get; private set; }
     public Vector2Int Position { get; private set; }
 
@@ -32,37 +32,41 @@ public class Cell
     
     public Cell(Vector2Int position, TerrainType type, CellItem item)
     {
-        this.Position = position;
-        this.Terrain = type;
-        this.Item = new Observable<CellItem>(item);
+        Position = position;
+        Terrain = type;
+        Item = new Observable<CellItem>(item);
     }
     
     public void SetNeighbors(List<Cell> neighbors)
     {
-        this.Neighbors = neighbors;
+        Neighbors = neighbors;
     }
     
     public void FreePiece()
     {
-        this.Piece = null;
+        Piece = null;
     }
 
     public void ReassignStar()
     {
-        this.Item.Value = CellItem.Star;
+        Item.Value = CellItem.Star;
     }
 
     public void CollectStar()
     {
-        if (this.Item.Value == CellItem.Star)
-        {
-            this.Item.Value = CellItem.None;
-        }
+        Item.Value = CellItem.None;
+        GlobalSoundManager.PlayRandomSoundByType(SoundType.Ding,1f);
+        Piece?.OnCollectedStar?.Invoke();
     }
     
     public void AssignPiece(BoardPiece piece)
     {
-        this.Piece = piece;
+        Piece = piece;
+
+        if (Item.Value == CellItem.Star)
+        {
+            CollectStar();
+        }
     }
 
     public static int Distance(Cell cell1, Cell cell2)

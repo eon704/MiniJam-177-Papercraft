@@ -10,57 +10,62 @@ public class WinScreenStarsUI : MonoBehaviour
     [SerializeField] private Sprite fullStar;
 
     private TextPulsing[] texts;
-    private bool isWindowActive;
+    
+    Sequence initialStarSequence;
 
     public void AnimateStars(int totalStars)
     {
-        isWindowActive = true;
-        var sequence = DOTween.Sequence();
-        sequence.AppendInterval(1f);
+        initialStarSequence = DOTween.Sequence();
+        initialStarSequence.AppendInterval(0.5f);
 
         for (var i = 0; i < totalStars; i++)
         {
-            var star = this.stars[i];
-            sequence.AppendCallback(() =>
+            var star = stars[i];
+            initialStarSequence.AppendCallback(() =>
             {
-                if (!isWindowActive) return;
                 GlobalSoundManager.PlayRandomSoundByType(SoundType.Ding);
-                star.sprite = this.fullStar;
-                star.transform.DOScale(Vector3.one * 1.5f, 0.5f).SetLoops(2, LoopType.Yoyo);
+                star.sprite = fullStar;
+                star.transform.DOScale(Vector3.one * 1.25f, 0.5f).SetLoops(2, LoopType.Yoyo);
             });
-            sequence.AppendInterval(0.5f);
+            initialStarSequence.AppendInterval(0.5f);
         }
 
-        sequence.OnComplete(() =>
+        initialStarSequence.AppendInterval(0.5f);
+        initialStarSequence.OnComplete(() =>
         {
-            if (!isWindowActive) return;
             for (var i = 0; i < totalStars; i++)
             {
-                this.texts[i].enabled = true;
+                stars[i].transform.DOKill();
+                stars[i].transform.localScale = Vector3.one;
+                texts[i].enabled = true;
             }
         });
 
-        sequence.Play();
+        initialStarSequence.Play();
     }
 
-    public void CloseWindow()
+    private void OnEnable()
     {
-        isWindowActive = false;
-        // Additional logic to close the window
-    }
-
-    private void Start()
-    {
-        foreach (var star in this.stars)
+        texts = stars.Select(star => star.GetComponent<TextPulsing>()).ToArray();
+        
+        foreach (var star in stars)
         {
-            star.sprite = this.emptyStar;
+            star.sprite = emptyStar;
         }
 
-        this.texts = this.stars.Select(star => star.GetComponent<TextPulsing>()).ToArray();
+        foreach (var textPulsing in texts)
+        {
+            textPulsing.enabled = false;
+        }
     }
     
-    private void OnDestroy()
+    private void OnDisable()
     {
-        DOTween.Kill(this);
+        initialStarSequence?.Kill();
+        
+        foreach (var star in stars)
+        {
+            star.DOKill();
+        }
     }
 }

@@ -12,7 +12,7 @@ public class TitleWaveUI : MonoBehaviour
     sequence = DOTween.Sequence();
     
     sequence.AppendInterval(2f);
-    foreach (RectTransform icon in this.icons)
+    foreach (RectTransform icon in icons)
     {
       sequence.Append(icon.DOScale(1.1f, 0.25f).SetEase(Ease.InSine));
       sequence.Append(icon.DOScale(1f, 0.25f).SetEase(Ease.OutSine));
@@ -24,6 +24,6 @@ public class TitleWaveUI : MonoBehaviour
 
   public void StopSequence()
   {
-    this.sequence.Kill();
+    sequence.Kill();
   }
 }
