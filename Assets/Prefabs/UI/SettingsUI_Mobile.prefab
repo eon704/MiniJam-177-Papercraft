@@ -2475,7 +2475,6 @@ GameObject:
   - component: {fileID: 4164104620801299673}
   - component: {fileID: 7828278310107346713}
   - component: {fileID: 1606227807457297291}
-  - component: {fileID: 20775743633163958}
   m_Layer: 5
   m_Name: SettingsUI_Mobile
   m_TagString: Untagged
@@ -2525,7 +2524,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.78431374}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2556,26 +2555,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sfxVolumeSlider: {fileID: 7369732521921579832}
   soundtrackVolumeSlider: {fileID: 3171145047096393059}
---- !u!114 &20775743633163958
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7769312843586547003}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6bf66f75ac5474f919fbb4cb82b1bf0e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  consentPanel: {fileID: 0}
-  acceptButton: {fileID: 0}
-  declineButton: {fileID: 0}
-  privacyPolicyButton: {fileID: 0}
-  privacyPolicyURL: https://eon704.com/paperbound/privacy
-  OnConsentChanged:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!1 &8170323027648673540
 GameObject:
   m_ObjectHideFlags: 0

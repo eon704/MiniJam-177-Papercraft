@@ -4746,6 +4746,7 @@ GameObject:
   - component: {fileID: 6994268566753917412}
   - component: {fileID: 5086779018085956818}
   - component: {fileID: 2104031108037643245}
+  - component: {fileID: 4165372866444976239}
   m_Layer: 5
   m_Name: GameUI_Mobile
   m_TagString: Untagged
@@ -4878,6 +4879,26 @@ MonoBehaviour:
   hintButtonPrefab: {fileID: 1372132283644504406, guid: 167b8465ea8bf44b6a57687f1343774c, type: 3}
   buttonsGrid: {fileID: 5001803735575043936}
   modalBackground: {fileID: 5266650211058664818}
+--- !u!114 &4165372866444976239
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3995977761627044903}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6bf66f75ac5474f919fbb4cb82b1bf0e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  consentPanel: {fileID: 3093632249071166815}
+  acceptButton: {fileID: 8254354570842141272}
+  declineButton: {fileID: 7128568697909329260}
+  privacyPolicyButton: {fileID: 7257550063559720903}
+  privacyPolicyURL: https://eon704.com/paperbound/privacy
+  OnConsentChanged:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &4094008459783966474
 GameObject:
   m_ObjectHideFlags: 0
@@ -14218,6 +14239,10 @@ PrefabInstance:
       propertyPath: privacyPolicyButton
       value: 
       objectReference: {fileID: 7257550063559720903}
+    - target: {fileID: 795133384193099013, guid: e59ddfdaf10164fc8a6a063ce1475d2c, type: 3}
+      propertyPath: consentDialog
+      value: 
+      objectReference: {fileID: 4165372866444976239}
     - target: {fileID: 834201346348871495, guid: e59ddfdaf10164fc8a6a063ce1475d2c, type: 3}
       propertyPath: m_AnchorMax.y
       value: 1
