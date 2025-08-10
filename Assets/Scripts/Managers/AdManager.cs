@@ -5,6 +5,10 @@ using System.Collections;
 
 public class AdManager : Singleton<AdManager>
 {
+    [Header("App Keys")]
+    private string androidAppKey = "231f070f5";
+    private string iosAppKey = "223b9d07d";
+
     [Header("Ad Configuration")]
     [SerializeField] private string iosAdUnitId = "fkzi5sh7p8hyeuoc";
     [SerializeField] private string androidAdUnitId = "gigmwhy9jpw7vuys";
@@ -15,7 +19,6 @@ public class AdManager : Singleton<AdManager>
 
     [Header("Debug Settings")]
     [SerializeField] private bool enableDetailedLogging = false;
-
 
     public UnityEvent OnAdLoadedChanged;
     public UnityEvent OnAdRewarded;
@@ -45,6 +48,20 @@ public class AdManager : Singleton<AdManager>
         }
     }
 
+    private string AppKey
+    {
+        get
+        {
+#if UNITY_IOS
+            return iosAppKey;
+#elif UNITY_ANDROID
+            return androidAppKey;
+#else
+            return iosAppKey; // Fallback for editor
+#endif
+        }
+    }
+
     protected override void Awake()
     {
         base.Awake();
@@ -56,10 +73,21 @@ public class AdManager : Singleton<AdManager>
         LevelPlay.OnInitFailed += OnInitFailed;
     }
 
+    private IEnumerator Start()
+    {
+        yield return null;
+
+        CheckUserConsent();
+
+        yield return new WaitUntil(() => consentChecked);
+
+        LevelPlay.Init(AppKey);
+    }
+
     private void InitMetadata()
     {
         LevelPlay.SetMetaData("is_child_directed", "false");
-        LevelPlay.SetMetaData("Yandex_COPPA","false");
+        LevelPlay.SetMetaData("Yandex_COPPA", "false");
 
         // CCPA: Force do_not_sell to true for California users
         if (IsCaliforniaUser())
@@ -78,19 +106,16 @@ public class AdManager : Singleton<AdManager>
 
     private void OnInitSuccess(LevelPlayConfiguration configuration)
     {
-        // Launch test suite in development builds
 #if DEVELOPMENT_BUILD || UNITY_EDITOR
+        // Launch test suite in development builds
         StartCoroutine(DelayedTestSuiteLaunch());
 #endif
-
-        // Delay consent check to allow UI components to subscribe to events
-        StartCoroutine(DelayedConsentCheck());
     }
 
 #if DEVELOPMENT_BUILD || UNITY_EDITOR
     private IEnumerator DelayedTestSuiteLaunch()
     {
-        yield return new WaitForSeconds(5f);
+        yield return new WaitForSeconds(2f);
         Debug.Log("🔧 Launching LevelPlay test suite in development mode");
         LevelPlay.LaunchTestSuite();
     }
@@ -252,18 +277,6 @@ public class AdManager : Singleton<AdManager>
     #endregion
 
     #region Privacy & Consent Management
-
-    /// <summary>
-    /// Delays consent check to allow UI components to subscribe to events first
-    /// </summary>
-    private IEnumerator DelayedConsentCheck()
-    {
-        // Additional small delay to be extra safe
-        yield return new WaitForSeconds(1f);
-
-        CheckUserConsent();
-    }
-
     /// <summary>
     /// Checks if user consent is required and handles consent flow
     /// </summary>
