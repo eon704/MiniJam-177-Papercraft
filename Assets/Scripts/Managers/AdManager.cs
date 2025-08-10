@@ -314,6 +314,7 @@ public class AdManager : Singleton<AdManager>
     {
         // Set GDPR consent in LevelPlay
         LevelPlay.SetMetaData("is_child_directed", "false");
+        LevelPlay.SetMetaData("Yandex_COPPA","false");
 
         // CCPA: Force do_not_sell to true for California users
         if (IsCaliforniaUser())
