@@ -49,9 +49,31 @@ public class AdManager : Singleton<AdManager>
     {
         base.Awake();
 
+        InitMetadata();
+
         // Subscribe to initialization events
         LevelPlay.OnInitSuccess += OnInitSuccess;
         LevelPlay.OnInitFailed += OnInitFailed;
+    }
+
+    private void InitMetadata()
+    {
+        LevelPlay.SetMetaData("is_child_directed", "false");
+        LevelPlay.SetMetaData("Yandex_COPPA","false");
+
+        // CCPA: Force do_not_sell to true for California users
+        if (IsCaliforniaUser())
+        {
+            LevelPlay.SetMetaData("do_not_sell", "true");
+        }
+        else
+        {
+            LevelPlay.SetMetaData("do_not_sell", "false");
+        }
+
+#if DEVELOPMENT_BUILD || UNITY_EDITOR
+        LevelPlay.SetMetaData("is_test_suite", "enable");
+#endif
     }
 
     private void OnInitSuccess(LevelPlayConfiguration configuration)
@@ -70,7 +92,6 @@ public class AdManager : Singleton<AdManager>
     {
         yield return new WaitForSeconds(5f);
         Debug.Log("🔧 Launching LevelPlay test suite in development mode");
-        LevelPlay.SetMetaData("is_test_suite", "enable");
         LevelPlay.LaunchTestSuite();
     }
 #endif
@@ -237,9 +258,6 @@ public class AdManager : Singleton<AdManager>
     /// </summary>
     private IEnumerator DelayedConsentCheck()
     {
-        // Wait for end of frame to ensure all Start() methods have been called
-        yield return new WaitForEndOfFrame();
-
         // Additional small delay to be extra safe
         yield return new WaitForSeconds(1f);
 
@@ -312,20 +330,6 @@ public class AdManager : Singleton<AdManager>
 
     private void SetConsentInSDK(bool consent)
     {
-        // Set GDPR consent in LevelPlay
-        LevelPlay.SetMetaData("is_child_directed", "false");
-        LevelPlay.SetMetaData("Yandex_COPPA","false");
-
-        // CCPA: Force do_not_sell to true for California users
-        if (IsCaliforniaUser())
-        {
-            LevelPlay.SetMetaData("do_not_sell", "true");
-        }
-        else
-        {
-            LevelPlay.SetMetaData("do_not_sell", "false");
-        }
-
         // Set GDPR consent - this is the main consent flag
         LevelPlay.SetMetaData("gdpr_consent", consent ? "true" : "false");
         // Set non-personalized ads flag if consent is declined
