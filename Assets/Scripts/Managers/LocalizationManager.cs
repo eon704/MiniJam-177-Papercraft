@@ -16,7 +16,16 @@ public class LocalizationManager : Singleton<LocalizationManager>
   {
     yield return LocalizationSettings.InitializationOperation;
 
-    var localeIndex = PlayerPrefs.GetInt("localeIndex", 0);
+    int localeIndex;
+    if (!PlayerPrefs.HasKey("localeIndex"))
+    {
+      localeIndex = GetLocaleIndexFromSystemLanguage(Application.systemLanguage);
+    }
+    else
+    {
+      localeIndex = PlayerPrefs.GetInt("localeIndex", 0);
+    }
+
     ChangeLocale(localeIndex);
   }
 
@@ -38,5 +47,20 @@ public class LocalizationManager : Singleton<LocalizationManager>
     var selectedLocale = LocalizationSettings.AvailableLocales.Locales[localeIndex];
     LocalizationSettings.SelectedLocale = selectedLocale;
     PlayerPrefs.SetInt("localeIndex", localeIndex);
+  }
+
+  private int GetLocaleIndexFromSystemLanguage(SystemLanguage language)
+  {
+    switch (language)
+    {
+      case SystemLanguage.Russian:
+        return 1;
+      case SystemLanguage.Chinese:
+      case SystemLanguage.ChineseSimplified:
+      case SystemLanguage.ChineseTraditional:
+        return 3;
+      default:
+        return 0; // English fallback
+    }
   }
 }
