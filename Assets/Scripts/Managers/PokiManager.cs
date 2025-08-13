@@ -1,5 +1,6 @@
 using UnityEngine;
 
+#if UNITY_WEBGL
 public class PokiManager : Singleton<PokiManager>
 {
 
@@ -10,3 +11,4 @@ public class PokiManager : Singleton<PokiManager>
         PokiUnitySDK.Instance.init();
     }
 }
+#endif

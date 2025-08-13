@@ -87,6 +87,10 @@ public class GameController : MonoBehaviour
 
     private IEnumerator Start()
     {
+#if UNITY_WEBGL
+        PokiUnitySDK.Instance.gameplayStart();
+#endif
+
         startMovesPerForm = new Dictionary<Player.StateType, int>();
         foreach (MovePerFormEntry movesPerForm in LevelManager.Instance.CurrentLevel.StartMovesPerForm)
         {
@@ -132,6 +136,13 @@ public class GameController : MonoBehaviour
         
         yield return new WaitUntil(() => UgsManager.Instance.IsInitialized);
         UgsManager.Instance.RecordNewLevelAttemptEvent(LevelManager.Instance.CurrentLevelIndex, attemptsCount);
+    }
+
+    private void ODisable()
+    {
+#if UNITY_WEBGL
+        PokiUnitySDK.Instance.gameplayStop();
+#endif
     }
 
     private void OnWin(int stars)
