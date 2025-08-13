@@ -21,18 +21,18 @@ public class HintModal : MonoBehaviour
         Hide();
         
         // Subscribe to ad reward events
-        if (AdManager.Instance != null)
+        if (MobileAdManager.Instance != null)
         {
-            AdManager.Instance.OnAdRewarded.AddListener(OnAdRewarded);
+            MobileAdManager.Instance.OnAdRewarded.AddListener(OnAdRewarded);
         }
     }
 
     private void OnDestroy()
     {
         // Unsubscribe from ad events
-        if (AdManager.Instance != null)
+        if (MobileAdManager.Instance != null)
         {
-            AdManager.Instance.OnAdRewarded.RemoveListener(OnAdRewarded);
+            MobileAdManager.Instance.OnAdRewarded.RemoveListener(OnAdRewarded);
         }
     }
 
@@ -64,13 +64,13 @@ public class HintModal : MonoBehaviour
         Hide();
         
         // Check if we can show an ad
-        if (AdManager.Instance != null && AdManager.Instance.IsRewardedAdReady())
+        if (MobileAdManager.Instance != null && MobileAdManager.Instance.IsRewardedAdReady())
         {
             // Store which hint was requested for after the ad
             currentHintRequest = hintNumber;
             
             // Show the rewarded ad
-            bool adShown = AdManager.Instance.ShowRewardedAd();
+            bool adShown = MobileAdManager.Instance.ShowRewardedAd();
             
             if (!adShown)
             {

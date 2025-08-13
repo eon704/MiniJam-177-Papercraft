@@ -61,9 +61,9 @@ public class GameUI : MonoBehaviour
     gameController.PlayerPrefab.StarAmount.OnChanged += OnStarChange;
     gameController.PlayerPrefab.OnPlayerWon.AddListener(OnWin);
 
-    AdManager.Instance.OnAdLoadedChanged.AddListener(OnAdLoadedChanged);
-    AdManager.Instance.OnAdDisplayed.AddListener(OnAdDisplayed);
-    AdManager.Instance.OnAdClosed.AddListener(OnAdClosed);
+    MobileAdManager.Instance.OnAdLoadedChanged.AddListener(OnAdLoadedChanged);
+    MobileAdManager.Instance.OnAdDisplayed.AddListener(OnAdDisplayed);
+    MobileAdManager.Instance.OnAdClosed.AddListener(OnAdClosed);
     OnAdLoadedChanged();
 
     yield return ForegroundFadeOut();
@@ -81,11 +81,11 @@ public class GameUI : MonoBehaviour
     }
 
     // Unsubscribe from AdManager events
-    if (AdManager.Instance != null)
+    if (MobileAdManager.Instance != null)
     {
-      AdManager.Instance.OnAdLoadedChanged.RemoveListener(OnAdLoadedChanged);
-      AdManager.Instance.OnAdDisplayed.RemoveListener(OnAdDisplayed);
-      AdManager.Instance.OnAdClosed.RemoveListener(OnAdClosed);
+      MobileAdManager.Instance.OnAdLoadedChanged.RemoveListener(OnAdLoadedChanged);
+      MobileAdManager.Instance.OnAdDisplayed.RemoveListener(OnAdDisplayed);
+      MobileAdManager.Instance.OnAdClosed.RemoveListener(OnAdClosed);
     }
   }
 
@@ -127,7 +127,7 @@ public class GameUI : MonoBehaviour
 
   private void OnAdLoadedChanged()
   {
-    bool hasAdReady = AdManager.Instance.IsRewardedAdReady();
+    bool hasAdReady = MobileAdManager.Instance.IsRewardedAdReady();
     bool hasMoreHints = gameController.BoardPrefab.HasUnrevealedHints();
 
     bool shouldShowButton = hasAdReady && hasMoreHints;
