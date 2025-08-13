@@ -1,5 +1,3 @@
-#if UNITY_IOS || UNITY_ANDROID
-
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
@@ -18,33 +16,23 @@ public class ConsentDialog : MonoBehaviour
     [Header("Events")]
     public UnityEvent OnConsentChanged;
 
+#if UNITY_IOS || UNITY_ANDROID
     private void Awake()
     {
-        // Setup button listeners
-        if (acceptButton != null)
-            acceptButton.onClick.AddListener(OnAcceptConsent);
+        acceptButton.onClick.AddListener(OnAcceptConsent);
+        declineButton.onClick.AddListener(OnDeclineConsent);
+        privacyPolicyButton.onClick.AddListener(OnOpenPrivacyPolicy);
 
-        if (declineButton != null)
-            declineButton.onClick.AddListener(OnDeclineConsent);
-
-        if (privacyPolicyButton != null)
-            privacyPolicyButton.onClick.AddListener(OnOpenPrivacyPolicy);
-
-        // Hide the panel initially
-        if (consentPanel != null)
-            consentPanel.SetActive(false);
+        consentPanel.SetActive(false);
     }
 
     private void Start()
     {
-        // Listen for consent requests from AdManager
-        if (AdManager.Instance != null)
-        {
-            AdManager.Instance.OnConsentRequired.AddListener(ShowConsentDialog);
+        AdManager.Instance.adEventsInstance.OnConsentRequired.AddListener(ShowConsentDialog);
 
-            // Trigger consent check as a backup in case the timing was off
-            AdManager.Instance.TriggerConsentCheckIfNeeded();
-        }
+        // Trigger consent check as a backup in case the timing was off
+        MobileAdManager mobileAdManager = AdManager.Instance.adEventsInstance as MobileAdManager;
+        mobileAdManager.TriggerConsentCheckIfNeeded();
     }
 
     private void OnDestroy()
@@ -52,52 +40,41 @@ public class ConsentDialog : MonoBehaviour
         // Cleanup listeners
         if (AdManager.Instance != null)
         {
-            AdManager.Instance.OnConsentRequired.RemoveListener(ShowConsentDialog);
+            AdManager.Instance.adEventsInstance.OnConsentRequired.RemoveListener(ShowConsentDialog);
         }
     }
 
     public void ShowConsentDialog()
     {
-        if (consentPanel != null)
-        {
-            consentPanel.SetActive(true);
-        }
+        consentPanel.SetActive(true);
     }
 
     public void HideConsentDialog()
     {
-        if (consentPanel != null)
-        {
-            consentPanel.SetActive(false);
-        }
+        consentPanel.SetActive(false);
     }
 
     private void OnAcceptConsent()
     {
-        if (AdManager.Instance != null)
-        {
-            AdManager.Instance.SetUserConsent(true);
-        }
+        MobileAdManager mobileAdManager = AdManager.Instance.adEventsInstance as MobileAdManager;
+        mobileAdManager.SetUserConsent(true);
+
         HideConsentDialog();
         OnConsentChanged?.Invoke();
     }
 
     private void OnDeclineConsent()
     {
-        if (AdManager.Instance != null)
-        {
-            AdManager.Instance.SetUserConsent(false);
-        }
+        MobileAdManager mobileAdManager = AdManager.Instance.adEventsInstance as MobileAdManager;
+        mobileAdManager.SetUserConsent(false);
+
         HideConsentDialog();
         OnConsentChanged?.Invoke();
     }
 
     private void OnOpenPrivacyPolicy()
     {
-        if (!string.IsNullOrEmpty(privacyPolicyURL))
-        {
-            Application.OpenURL(privacyPolicyURL);
-        }
+        Application.OpenURL(privacyPolicyURL);
     }
 
     /// <summary>
@@ -113,10 +90,8 @@ public class ConsentDialog : MonoBehaviour
     /// </summary>
     public void RevokeConsent()
     {
-        if (AdManager.Instance != null)
-        {
-            AdManager.Instance.RevokeConsent();
-        }
+        MobileAdManager mobileAdManager = AdManager.Instance.adEventsInstance as MobileAdManager;
+        mobileAdManager.RevokeConsent();
     }
-}
 #endif
+}

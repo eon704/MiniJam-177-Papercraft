@@ -1,4 +1,3 @@
-#if UNITY_IOS || UNITY_ANDROID
 
 using TMPro;
 using UnityEngine;
@@ -23,6 +22,7 @@ public class PrivacySettings : MonoBehaviour
     [Header("Consent Dialog")]
     [SerializeField] private ConsentDialog consentDialog;
 
+#if UNITY_IOS || UNITY_ANDROID
     private void Start()
     {
         // Setup button listeners
@@ -47,8 +47,9 @@ public class PrivacySettings : MonoBehaviour
     {
         if (AdManager.Instance == null) return;
 
-        bool hasConsent = AdManager.Instance.HasUserConsent;
-        bool isChecked = AdManager.Instance.IsConsentChecked;
+        MobileAdManager mobileAdManager = AdManager.Instance.adEventsInstance as MobileAdManager;
+        bool hasConsent = mobileAdManager.HasUserConsent;
+        bool isChecked = mobileAdManager.IsConsentChecked;
 
         // Update status text
         if (consentStatusText != null)
@@ -80,5 +81,5 @@ public class PrivacySettings : MonoBehaviour
             Application.OpenURL(privacyPolicyURL);
         }
     }
-}
 #endif
+}

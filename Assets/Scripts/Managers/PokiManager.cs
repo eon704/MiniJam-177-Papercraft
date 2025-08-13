@@ -1,5 +1,3 @@
-#if UNITY_WEBGL
-using UnityEngine;
 using UnityEngine.Events;
 
 public class PokiManager : Singleton<PokiManager>, IAdEvents
@@ -36,4 +34,3 @@ public class PokiManager : Singleton<PokiManager>, IAdEvents
         OnAdClosed?.Invoke();
     }
 }
-#endif

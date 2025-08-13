@@ -6,10 +6,16 @@ public class SettingsMenuUI : MonoBehaviour
     [SerializeField] private Slider sfxVolumeSlider;
     [SerializeField] private Slider soundtrackVolumeSlider;
 
+    [SerializeField] private Button privacyButton;
+
     private void OnEnable()
     {
         sfxVolumeSlider.value = SettingsManager.Instance.SFXVolume;
         soundtrackVolumeSlider.value = SettingsManager.Instance.SoundtrackVolume;
+
+#if UNITY_WEBGL
+        privacyButton.gameObject.SetActive(false);
+#endif
     }
 
     public void OnSFXVolumeChanged(float volume)

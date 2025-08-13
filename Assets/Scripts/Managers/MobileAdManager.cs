@@ -223,7 +223,7 @@ public class MobileAdManager : Singleton<MobileAdManager>, IAdEvents
     /// <summary>
     /// Loads a rewarded ad. Called automatically after ads are shown or failed.
     /// </summary>
-    public void LoadRewardedAd()
+    private void LoadRewardedAd()
     {
         if (rewardedAd == null)
         {
@@ -294,7 +294,6 @@ public class MobileAdManager : Singleton<MobileAdManager>, IAdEvents
 
         // Load consent from PlayerPrefs (persistent storage)
         LoadConsentFromStorage();
-
         if (!consentChecked && showConsentDialogOnStart)
         {
             // Trigger consent dialog - other components can listen to this event

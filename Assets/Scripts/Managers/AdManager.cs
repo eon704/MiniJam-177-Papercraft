@@ -7,27 +7,20 @@ public class AdManager : Singleton<AdManager>
     [SerializeField] private PokiManager pokiManagerPrefab;
     [SerializeField] private MobileAdManager mobileAdManagerPrefab;
 
-    private IAdEvents adEventsInstance;
-
-    [HideInInspector]
-    public UnityEvent OnAdLoadedChanged;
-    [HideInInspector]
-    public UnityEvent OnAdRewarded;
-
-    [HideInInspector]
-    public UnityEvent OnConsentRequired;
-
-    [HideInInspector]
-    public UnityEvent OnAdDisplayed;
-    [HideInInspector]
-    public UnityEvent OnAdClosed;
+    public IAdEvents adEventsInstance { get; private set; }
 
     protected override void Awake()
     {
         base.Awake();
+
+        if (AdManager.Instance != this)
+        {
+            return;
+        }
+
 #if UNITY_WEBGL
         adEventsInstance = Instantiate(pokiManagerPrefab);
-#else
+#elif UNITY_IOS || UNITY_ANDROID
         adEventsInstance = Instantiate(mobileAdManagerPrefab);
 #endif
     }
@@ -37,8 +30,8 @@ public class AdManager : Singleton<AdManager>
         return adEventsInstance.IsRewardedAdReady();
     }
 
-    public void ShowRewardedAd()
+    public bool ShowRewardedAd()
     {
-        adEventsInstance.ShowRewardedAd();
+        return adEventsInstance.ShowRewardedAd();
     }
 }
