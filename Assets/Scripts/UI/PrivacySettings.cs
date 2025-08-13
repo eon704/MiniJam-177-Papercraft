@@ -1,8 +1,9 @@
+#if UNITY_IOS || UNITY_ANDROID
+
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Localization;
-using UnityEngine.Localization.Settings;
 
 public class PrivacySettings : MonoBehaviour
 {
@@ -10,7 +11,7 @@ public class PrivacySettings : MonoBehaviour
     [SerializeField] private Button changeConsentButton;
     [SerializeField] private Button privacyPolicyButton;
     [SerializeField] private TMP_Text consentStatusText;
-    
+
     [Header("Privacy Policy")]
     [SerializeField] private string privacyPolicyURL = "https://eon704.com/paperbound/privacy";
 
@@ -80,3 +81,4 @@ public class PrivacySettings : MonoBehaviour
         }
     }
 }
+#endif

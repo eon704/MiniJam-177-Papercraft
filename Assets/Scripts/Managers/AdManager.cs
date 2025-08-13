@@ -1,3 +1,5 @@
+#if UNITY_IOS || UNITY_ANDROID
+
 using UnityEngine;
 using Unity.Services.LevelPlay;
 using UnityEngine.Events;
@@ -154,7 +156,7 @@ public class AdManager : Singleton<AdManager>
         {
             Debug.Log($"✅ Rewarded ad loaded successfully. AdInfo: {adInfo}");
         }
-        
+
         // Reset retry attempts on successful load
         retryAttempts = 0;
         OnAdLoadedChanged?.Invoke();
@@ -199,7 +201,7 @@ public class AdManager : Singleton<AdManager>
         {
             Debug.Log($"🎁 User rewarded! AdInfo: {adInfo}, Reward: {reward.Amount} {reward.Name}");
         }
-        
+
         // Grant the reward to the user
         GrantRewardToUser(reward);
     }
@@ -251,7 +253,7 @@ public class AdManager : Singleton<AdManager>
             LoadRewardedAd();
             return false;
         }
-        
+
         try
         {
             rewardedAd.ShowAd();
@@ -504,11 +506,11 @@ public class AdManager : Singleton<AdManager>
     private void OnInitFailed(LevelPlayInitError error)
     {
         Debug.LogError($"❌ LevelPlay initialization failed: {error}");
-        
+
         // Add retry logic for initialization
         StartCoroutine(RetryInitialization());
     }
-    
+
     private IEnumerator RetryInitialization()
     {
         yield return new WaitForSeconds(5f);
@@ -517,3 +519,4 @@ public class AdManager : Singleton<AdManager>
         // since LevelPlay doesn't expose a direct retry method
     }
 }
+#endif

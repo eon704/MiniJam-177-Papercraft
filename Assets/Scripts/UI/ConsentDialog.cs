@@ -1,3 +1,5 @@
+#if UNITY_IOS || UNITY_ANDROID
+
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
@@ -39,7 +41,7 @@ public class ConsentDialog : MonoBehaviour
         if (AdManager.Instance != null)
         {
             AdManager.Instance.OnConsentRequired.AddListener(ShowConsentDialog);
-            
+
             // Trigger consent check as a backup in case the timing was off
             AdManager.Instance.TriggerConsentCheckIfNeeded();
         }
@@ -117,3 +119,4 @@ public class ConsentDialog : MonoBehaviour
         }
     }
 }
+#endif
