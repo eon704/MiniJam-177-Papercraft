@@ -3,7 +3,7 @@ using Unity.Services.LevelPlay;
 using UnityEngine.Events;
 using System.Collections;
 
-public class MobileAdManager : Singleton<MobileAdManager>
+public class MobileAdManager : Singleton<MobileAdManager>, IAdEvents
 {
     [Header("App Keys")]
     private string androidAppKey = "231f070f5";
@@ -20,11 +20,11 @@ public class MobileAdManager : Singleton<MobileAdManager>
     [Header("Debug Settings")]
     [SerializeField] private bool enableDetailedLogging = false;
 
-    public UnityEvent OnAdLoadedChanged;
-    public UnityEvent OnAdRewarded;
-    public UnityEvent OnConsentRequired;
-    public UnityEvent OnAdDisplayed;
-    public UnityEvent OnAdClosed;
+    public UnityEvent OnAdLoadedChanged { get; } = new();
+    public UnityEvent OnAdRewarded { get; } = new();
+    public UnityEvent OnConsentRequired { get; } = new();
+    public UnityEvent OnAdDisplayed { get; } = new();
+    public UnityEvent OnAdClosed { get; } = new();
 
     private LevelPlayRewardedAd rewardedAd;
     private bool targetedAdsConsent = false;
