@@ -9,14 +9,17 @@ public class AdManager : Singleton<AdManager>
 
     private IAdEvents adEventsInstance;
 
+    [HideInInspector]
     public UnityEvent OnAdLoadedChanged;
-
+    [HideInInspector]
     public UnityEvent OnAdRewarded;
 
+    [HideInInspector]
     public UnityEvent OnConsentRequired;
 
+    [HideInInspector]
     public UnityEvent OnAdDisplayed;
-
+    [HideInInspector]
     public UnityEvent OnAdClosed;
 
     protected override void Awake()
