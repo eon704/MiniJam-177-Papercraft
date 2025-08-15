@@ -50,28 +50,28 @@ MonoBehaviour:
   soundList:
   - name: Click
     sounds:
-    - {fileID: 8300000, guid: 9152911a4ce0f418ea339560a59d9275, type: 3}
+    - {fileID: 8300000, guid: 6fd2046e848734ad18f821268129938a, type: 3}
   - name: ChangeState
     sounds:
-    - {fileID: 8300000, guid: 423cbe774ebc544e4bdda3f8dccb968f, type: 3}
+    - {fileID: 8300000, guid: c337367f9d887418b8d77659eaa17969, type: 3}
   - name: Move
     sounds:
-    - {fileID: 8300000, guid: c323651ceeaf6da4185e3c2c15ef626c, type: 3}
+    - {fileID: 8300000, guid: b5807bb5a3d224a13ba1aeab909ba671, type: 3}
   - name: Win
     sounds:
-    - {fileID: 8300000, guid: 9815bbf7919881f48b5c8585e0b510af, type: 3}
+    - {fileID: 8300000, guid: 6149913138cbb4daabf65c8bcc554ba4, type: 3}
   - name: Lose
     sounds:
-    - {fileID: 8300000, guid: b68a40a6b663116468dd419a6cb6667d, type: 3}
+    - {fileID: 8300000, guid: ef5f44c6f43c34a99a1fcd200942bfab, type: 3}
   - name: Fail
     sounds:
-    - {fileID: 8300000, guid: 6edb1357d0d33e94f9225537f7cc3d1a, type: 3}
+    - {fileID: 8300000, guid: 0e42db725b1c44c589424bda523dc9eb, type: 3}
   - name: Ding
     sounds:
     - {fileID: 8300000, guid: e726036fdf3b12a4980ce2ab07853d0f, type: 3}
   - name: Card
     sounds:
-    - {fileID: 8300000, guid: e0c99cafb46854877bd1786f3771693f, type: 3}
+    - {fileID: 8300000, guid: 3a5f79e7d177c43959bcfdd647563b18, type: 3}
   soundtrackSource: {fileID: 2112911085611960578}
 --- !u!82 &8772165836158369560
 AudioSource:
@@ -212,7 +212,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 69196ae9c2a93bf42b4184076f1e7972, type: 3}
+  m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 69196ae9c2a93bf42b4184076f1e7972, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 0.417
