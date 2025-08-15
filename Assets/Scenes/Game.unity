@@ -269,7 +269,6 @@ MonoBehaviour:
   m_ScreenCoordScaleBias: {x: 0, y: 0, z: 0, w: 0}
   m_RequiresDepthTexture: 0
   m_RequiresColorTexture: 0
-  m_Version: 2
   m_TaaSettings:
     m_Quality: 3
     m_FrameInfluence: 0.1
@@ -277,6 +276,7 @@ MonoBehaviour:
     m_MipBias: 0
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
+  m_Version: 2
 --- !u!20 &519420031
 Camera:
   m_ObjectHideFlags: 0
@@ -410,10 +410,6 @@ PrefabInstance:
     - target: {fileID: 3942721650178626967, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8929989948581232250, guid: 2eec94dd6b2e14c94b9ef90270262c56, type: 3}
-      propertyPath: forceLevelIndex
-      value: 32
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -573,18 +569,6 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 6273721070179436126}
     - target: {fileID: 4625076230976713563, guid: c140b9c5830284671abaca8a7bba24ac, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 1.2548
-      objectReference: {fileID: 0}
-    - target: {fileID: 4625076230976713563, guid: c140b9c5830284671abaca8a7bba24ac, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 1.2548
-      objectReference: {fileID: 0}
-    - target: {fileID: 4625076230976713563, guid: c140b9c5830284671abaca8a7bba24ac, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 1.2548
-      objectReference: {fileID: 0}
-    - target: {fileID: 4625076230976713563, guid: c140b9c5830284671abaca8a7bba24ac, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1.4
       objectReference: {fileID: 0}
@@ -640,10 +624,6 @@ PrefabInstance:
     - target: {fileID: 477644652607868441, guid: d76fda00f7fe44862aa9f9896c10dc54, type: 3}
       propertyPath: m_Name
       value: SettingsManager
-      objectReference: {fileID: 0}
-    - target: {fileID: 477644652607868441, guid: d76fda00f7fe44862aa9f9896c10dc54, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 651099837529182923, guid: d76fda00f7fe44862aa9f9896c10dc54, type: 3}
       propertyPath: m_LocalPosition.x
@@ -753,30 +733,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: SoundManager
       objectReference: {fileID: 0}
-    - target: {fileID: 7798311172439309626, guid: f4530026f16f2471fbe4adba402f8cc3, type: 3}
-      propertyPath: soundList.Array.size
-      value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 7798311172439309626, guid: f4530026f16f2471fbe4adba402f8cc3, type: 3}
-      propertyPath: soundList.Array.data[6].name
-      value: Ding
-      objectReference: {fileID: 0}
-    - target: {fileID: 7798311172439309626, guid: f4530026f16f2471fbe4adba402f8cc3, type: 3}
-      propertyPath: soundList.Array.data[7].name
-      value: Card
-      objectReference: {fileID: 0}
-    - target: {fileID: 7798311172439309626, guid: f4530026f16f2471fbe4adba402f8cc3, type: 3}
-      propertyPath: soundList.Array.data[6].sounds.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7798311172439309626, guid: f4530026f16f2471fbe4adba402f8cc3, type: 3}
-      propertyPath: 'soundList.Array.data[6].sounds.Array.data[0]'
-      value: 
-      objectReference: {fileID: 8300000, guid: 984c1ec03b54ea14a9f6bc385a5844dc, type: 3}
-    - target: {fileID: 7798311172439309626, guid: f4530026f16f2471fbe4adba402f8cc3, type: 3}
-      propertyPath: 'soundList.Array.data[7].sounds.Array.data[0]'
-      value: 
-      objectReference: {fileID: 8300000, guid: 4e1c18b5ffe8b884791296d640dbef74, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1028,7 +984,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3995977761627044903, guid: e6a05bcc319f249cc9c8a4b9299d92e9, type: 3}
       propertyPath: m_Name
-      value: GameUI_Mobile
+      value: GameUI
       objectReference: {fileID: 0}
     - target: {fileID: 4687493557873850740, guid: e6a05bcc319f249cc9c8a4b9299d92e9, type: 3}
       propertyPath: m_AnchorMax.y
@@ -1404,11 +1360,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 4967558254387036338, guid: e6a05bcc319f249cc9c8a4b9299d92e9, type: 3}
   m_PrefabInstance: {fileID: 1780332643}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1780332645 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1751629689739413689, guid: e6a05bcc319f249cc9c8a4b9299d92e9, type: 3}
-  m_PrefabInstance: {fileID: 1780332643}
-  m_PrefabAsset: {fileID: 0}
 --- !u!114 &1780332646 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7093435601965944265, guid: e6a05bcc319f249cc9c8a4b9299d92e9, type: 3}
@@ -1678,21 +1629,9 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1780332644}
     - target: {fileID: 5853703254329433214, guid: 9b91cb75ffea040578771d321da2431e, type: 3}
-      propertyPath: boardPrefab
-      value: 
-      objectReference: {fileID: 1189492192}
-    - target: {fileID: 5853703254329433214, guid: 9b91cb75ffea040578771d321da2431e, type: 3}
-      propertyPath: finalScreen
-      value: 
-      objectReference: {fileID: 1780332645}
-    - target: {fileID: 5853703254329433214, guid: 9b91cb75ffea040578771d321da2431e, type: 3}
       propertyPath: cameraObject
       value: 
       objectReference: {fileID: 519420031}
-    - target: {fileID: 5853703254329433214, guid: 9b91cb75ffea040578771d321da2431e, type: 3}
-      propertyPath: playerPrefab
-      value: 
-      objectReference: {fileID: 6273721070179436126}
     - target: {fileID: 5853703254329433214, guid: 9b91cb75ffea040578771d321da2431e, type: 3}
       propertyPath: 'nudgeImages.Array.data[0]'
       value: 
@@ -1892,18 +1831,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1778729080347273923, guid: dc34e17202d914640a68ef953534436d, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 1.2548
-      objectReference: {fileID: 0}
-    - target: {fileID: 1778729080347273923, guid: dc34e17202d914640a68ef953534436d, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 1.2548
-      objectReference: {fileID: 0}
-    - target: {fileID: 1778729080347273923, guid: dc34e17202d914640a68ef953534436d, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 1.2548
-      objectReference: {fileID: 0}
     - target: {fileID: 1778729080347273923, guid: dc34e17202d914640a68ef953534436d, type: 3}
       propertyPath: m_LocalPosition.x
       value: 3.5
