@@ -9282,7 +9282,6 @@ GameObject:
   m_Component:
   - component: {fileID: 8268771932023808552}
   - component: {fileID: 3395928398096113393}
-  - component: {fileID: 4178612795612042547}
   m_Layer: 5
   m_Name: Tutorial
   m_TagString: Untagged
@@ -9332,21 +9331,6 @@ MonoBehaviour:
   - {fileID: 3565776800793845039}
   - {fileID: 5260631189034689563}
   - {fileID: 3155002120347523304}
---- !u!114 &4178612795612042547
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7673579849375446893}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a21cbe9a56914e318776665c9e6a44f3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  targetObject: {fileID: 0}
-  activateButton: {fileID: 0}
-  deactivateButton: {fileID: 0}
 --- !u!1 &7730507061269007583
 GameObject:
   m_ObjectHideFlags: 0
