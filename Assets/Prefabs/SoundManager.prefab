@@ -63,9 +63,6 @@ MonoBehaviour:
   - name: Lose
     sounds:
     - {fileID: 8300000, guid: ef5f44c6f43c34a99a1fcd200942bfab, type: 3}
-  - name: Fail
-    sounds:
-    - {fileID: 8300000, guid: 0e42db725b1c44c589424bda523dc9eb, type: 3}
   - name: Ding
     sounds:
     - {fileID: 8300000, guid: e726036fdf3b12a4980ce2ab07853d0f, type: 3}

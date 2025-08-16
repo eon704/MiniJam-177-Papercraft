@@ -8,7 +8,6 @@ public enum SoundType
     Move,
     Win,
     Lose,
-    Fail,
     Ding,
     Card
 }
