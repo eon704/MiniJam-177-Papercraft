@@ -15,7 +15,7 @@ public class ScanTextComponents
     [MenuItem("Tools/Get Used Characters/RU")]
     static void GetChars_RU() => GetCharsForLanguage("ru");
 
-    [MenuItem("Tools/Get Used Characters/KZ")]
+    [MenuItem("Tools/Get Used Characters/KK")]
     static void GetChars_KZ() => GetCharsForLanguage("kk");
 
     [MenuItem("Tools/Get Used Characters/ZH Simplified")]
