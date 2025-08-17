@@ -42,12 +42,12 @@ MonoBehaviour:
     maskTextureChannel: 0
     blendMode: 0
   - name: Multiply with Mask
-    maskTextureChannel: 1
+    maskTextureChannel: 0
     blendMode: 1
   - name: Additive with Mask
-    maskTextureChannel: 1
+    maskTextureChannel: 0
     blendMode: 0
-  m_UseDepthStencilBuffer: 1
+  m_UseDepthStencilBuffer: 0
   m_UseCameraSortingLayersTexture: 0
   m_CameraSortingLayersTextureBound: -1
   m_CameraSortingLayerDownsamplingMethod: 0
