@@ -17,6 +17,7 @@ public class PokiManager : Singleton<PokiManager>, IAdEvents
     public bool ShowRewardedAd()
     {
         OnAdDisplayed?.Invoke();
+        PokiUnitySDK.Instance.rewardedBreakCallBack += rewardedBreakCallback;
         PokiUnitySDK.Instance.rewardedBreak();
         return true;
     }
@@ -25,10 +26,9 @@ public class PokiManager : Singleton<PokiManager>, IAdEvents
     {
         base.Awake();
         PokiUnitySDK.Instance.init();
-        PokiUnitySDK.Instance.rewardedBreakCallBack += rewardedBreakComplete;
     }
 
-    private void rewardedBreakComplete(bool withReward)
+    private void rewardedBreakCallback(bool withReward)
     {
         OnAdRewarded?.Invoke();
         OnAdClosed?.Invoke();

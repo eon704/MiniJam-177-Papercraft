@@ -23,6 +23,7 @@ public class AdManager : Singleton<AdManager>
 #elif UNITY_IOS || UNITY_ANDROID
         adEventsInstance = Instantiate(mobileAdManagerPrefab);
 #endif
+        adEventsInstance.OnAdClosed.AddListener(UnmuteAll);
     }
 
     public bool IsRewardedAdReady()
@@ -32,6 +33,12 @@ public class AdManager : Singleton<AdManager>
 
     public bool ShowRewardedAd()
     {
+        GlobalSoundManager.Instance.MuteAll();
         return adEventsInstance.ShowRewardedAd();
+    }
+
+    private void UnmuteAll()
+    {
+        GlobalSoundManager.Instance.UnmuteAll();
     }
 }

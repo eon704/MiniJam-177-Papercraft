@@ -13,12 +13,46 @@ public enum SoundType
 }
 
 [RequireComponent(typeof(AudioSource))]
+
 public class GlobalSoundManager : Singleton<GlobalSoundManager>
 {
     [SerializeField] private SoundList[] soundList;
     [SerializeField] private AudioSource soundtrackSource;
 
     private AudioSource _audioSource;
+
+    private float _lastSFXVolume = 1f;
+    private float _lastSoundtrackVolume = 1f;
+    private bool _isMuted = false;
+    public void MuteAll()
+    {
+        if (_isMuted) return;
+        _isMuted = true;
+        if (_audioSource != null)
+        {
+            _lastSFXVolume = _audioSource.volume;
+            _audioSource.volume = 0f;
+        }
+        if (soundtrackSource != null)
+        {
+            _lastSoundtrackVolume = soundtrackSource.volume;
+            soundtrackSource.volume = 0f;
+        }
+    }
+
+    public void UnmuteAll()
+    {
+        if (!_isMuted) return;
+        _isMuted = false;
+        if (_audioSource != null)
+        {
+            _audioSource.volume = _lastSFXVolume;
+        }
+        if (soundtrackSource != null)
+        {
+            soundtrackSource.volume = _lastSoundtrackVolume;
+        }
+    }
 
     private void OnEnable()
     {
