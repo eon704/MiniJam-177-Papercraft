@@ -89,16 +89,6 @@ public class MobileAdManager : Singleton<MobileAdManager>, IAdEvents
         LevelPlay.SetMetaData("is_child_directed", "false");
         LevelPlay.SetMetaData("Yandex_COPPA", "false");
 
-        // CCPA: Force do_not_sell to true for California users
-        if (IsCaliforniaUser())
-        {
-            LevelPlay.SetMetaData("do_not_sell", "true");
-        }
-        else
-        {
-            LevelPlay.SetMetaData("do_not_sell", "false");
-        }
-
 #if DEVELOPMENT_BUILD || UNITY_EDITOR
         LevelPlay.SetMetaData("is_test_suite", "enable");
 #endif
@@ -346,44 +336,6 @@ public class MobileAdManager : Singleton<MobileAdManager>, IAdEvents
         LevelPlay.SetMetaData("gdpr_consent", consent ? "true" : "false");
         // Set non-personalized ads flag if consent is declined
         LevelPlay.SetMetaData("is_non_personalized", consent ? "false" : "true");
-    }
-
-    /// <summary>
-    /// Detects California users for CCPA compliance on iOS/Android.
-    /// Uses device timezone as primary indicator.
-    /// </summary>
-    private bool IsCaliforniaUser()
-    {
-        try
-        {
-            // Check if device is in Pacific timezone (California's timezone)
-            var timezone = System.TimeZoneInfo.Local;
-            var utcOffset = timezone.GetUtcOffset(System.DateTime.Now);
-
-            // Pacific Time: UTC-8 (standard) or UTC-7 (daylight saving)
-            var offsetHours = utcOffset.TotalHours;
-            bool isPacificTime = offsetHours == -8 || offsetHours == -7;
-
-            if (isPacificTime)
-            {
-                // Double-check with region if available
-                var region = System.Globalization.RegionInfo.CurrentRegion;
-                if (region?.TwoLetterISORegionName == "US")
-                {
-                    return true;
-                }
-
-                // If region unavailable but timezone matches, assume California for CCPA safety
-                return true;
-            }
-
-            return false;
-        }
-        catch (System.Exception)
-        {
-            // Fallback: assume not California to avoid unnecessary restrictions
-            return false;
-        }
     }
 
     private void SaveConsentToStorage()
