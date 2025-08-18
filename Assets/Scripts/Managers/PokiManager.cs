@@ -16,21 +16,27 @@ public class PokiManager : Singleton<PokiManager>, IAdEvents
 
     public bool ShowRewardedAd()
     {
+#if UNITY_WEBGL
         OnAdDisplayed?.Invoke();
         PokiUnitySDK.Instance.rewardedBreakCallBack += rewardedBreakCallback;
         PokiUnitySDK.Instance.rewardedBreak();
+#endif
         return true;
     }
 
     protected override void Awake()
     {
+#if UNITY_WEBGL
         base.Awake();
         PokiUnitySDK.Instance.init();
+#endif
     }
 
     private void rewardedBreakCallback(bool withReward)
     {
+#if UNITY_WEBGL
         OnAdRewarded?.Invoke();
         OnAdClosed?.Invoke();
+#endif
     }
 }

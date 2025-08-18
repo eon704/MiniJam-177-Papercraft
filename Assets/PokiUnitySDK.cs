@@ -12,7 +12,9 @@ public class PokiException : System.Exception {
 	public PokiException(string message) : base(message){}
 }
 
+
 public class PokiUnitySDK : MonoBehaviour {
+#if UNITY_WEBGL && !UNITY_EDITOR
 	[DllImport("__Internal")]
 	private static extern void JS_PokiSDK_initPokiBridge(string instanceName);
 	[DllImport("__Internal")]
@@ -305,4 +307,5 @@ public class PokiUnitySDK : MonoBehaviour {
 		shareableURLRejectedCallback();
 		#endif
 	}
+	#endif
 }
