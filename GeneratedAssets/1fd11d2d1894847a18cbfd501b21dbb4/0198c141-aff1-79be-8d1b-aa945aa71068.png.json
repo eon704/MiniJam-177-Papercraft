@@ -1,0 +1,29 @@
+{
+    "asset": "1fd11d2d1894847a18cbfd501b21dbb4",
+    "fileName": "0198c141-aff1-79be-8d1b-aa945aa71068.png",
+    "prompt": "Background, Serene, Huge Lake taking up the majority of the screen",
+    "negativePrompt": "Blurry, messy, artifacts, watermark",
+    "model": "48889f10-63e9-4608-8eea-a668ac2aff3e",
+    "modelName": "Casual Environments",
+    "customSeed": -1,
+    "w3CTraceId": "d259c07f3e847ca24145439a534be85e",
+    "refinementMode": "Generation",
+    "pixelateTargetSize": 0,
+    "pixelateKeepImageSize": false,
+    "pixelatePixelBlockSize": 0,
+    "pixelateMode": 0,
+    "pixelateOutlineThickness": 0,
+    "doodles": {
+        "m_Items": [
+            {
+                "doodleReferenceType": 8,
+                "doodle": [],
+                "label": "Style",
+                "strength": 0.25,
+                "invertStrength": false,
+                "assetReferenceGuid": "1ff9653209b1b4d449a3110901006711"
+            }
+        ]
+    },
+    "upscaleFactor": 0
+}
