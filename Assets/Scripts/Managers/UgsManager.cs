@@ -9,7 +9,7 @@ public class UgsManager : Singleton<UgsManager>
     
     public void RecordLevelPassedEvent(int levelIndex, int attemptsCount, int starsCount)
     {
-#if UNITY_IOS || UNITY_ANDROID
+#if UNITY_IOS || UNITY_ANDROID || UNITY_EDITOR
         var levelPassed = new LevelPassed(levelIndex, attemptsCount, starsCount);
         AnalyticsService.Instance.RecordEvent(levelPassed);
 #endif
@@ -17,7 +17,7 @@ public class UgsManager : Singleton<UgsManager>
     
     public void RecordLevelQuitEvent(int levelIndex, int attemptsCount)
     {
-#if UNITY_IOS || UNITY_ANDROID
+#if UNITY_IOS || UNITY_ANDROID || UNITY_EDITOR
         var levelQuit = new LevelQuit(levelIndex, attemptsCount);
         AnalyticsService.Instance.RecordEvent(levelQuit);
 #endif
@@ -25,7 +25,7 @@ public class UgsManager : Singleton<UgsManager>
     
     public void RecordNewLevelAttemptEvent(int levelIndex, int attemptsCount)
     {
-#if UNITY_IOS || UNITY_ANDROID
+#if UNITY_IOS || UNITY_ANDROID || UNITY_EDITOR
         var newLevelAttempt = new NewLevelAttempt(levelIndex, attemptsCount);
         AnalyticsService.Instance.RecordEvent(newLevelAttempt);
 #endif
@@ -40,7 +40,7 @@ public class UgsManager : Singleton<UgsManager>
             return;
         }
 
-#if UNITY_IOS || UNITY_ANDROID   
+#if UNITY_IOS || UNITY_ANDROID || UNITY_EDITOR   
         var options = new InitializationOptions();
         options.SetEnvironmentName("dev");
         await UnityServices.InitializeAsync(options);
