@@ -14,7 +14,7 @@ public class PokiException : System.Exception {
 
 
 public class PokiUnitySDK : MonoBehaviour {
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
 	[DllImport("__Internal")]
 	private static extern void JS_PokiSDK_initPokiBridge(string instanceName);
 	[DllImport("__Internal")]
