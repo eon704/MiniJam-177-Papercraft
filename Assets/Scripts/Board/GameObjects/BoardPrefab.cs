@@ -7,7 +7,7 @@ public class BoardPrefab : MonoBehaviour
 {
   [Header("Setup")]
   [SerializeField] private Player player;
-  [SerializeField] private Transform boardBorder;
+  [SerializeField] private SpriteRenderer boardBorder;
   [SerializeField] private CellPrefab cellPrefab;
 
   private Grid worldGrid;
@@ -28,8 +28,8 @@ public class BoardPrefab : MonoBehaviour
     cellPrefabs = new CellPrefab[Size.x, Size.y];
 
     InstantiateBoard();
-    UpdateBorder();
     ComputeBoardCenterPosition();
+    UpdateBorder();
   }
 
   public List<CellPrefab> GetCellPrefabs(List<Cell> cells)
@@ -110,17 +110,8 @@ public class BoardPrefab : MonoBehaviour
   private void UpdateBorder()
   {
     boardBorder.gameObject.SetActive(true);
-    boardBorder.localScale = new Vector3(Size.x + 0.1f, Size.y + 0.1f, 1);
-
-    Vector3 borderPosition = worldGrid.GetCellCenterWorld(new Vector3Int(Size.x / 2, Size.y / 2, 0));
-
-    if (Size.x % 2 == 0)
-      borderPosition.x -= worldGrid.cellSize.x / 2;
-
-    if (Size.y % 2 == 0)
-      borderPosition.y -= worldGrid.cellSize.y / 2;
-
-    boardBorder.position = borderPosition;
+    boardBorder.transform.position = WorldCenter.WithZ(0);
+    boardBorder.size = new Vector2(Size.x * worldGrid.cellSize.x * 1.2f, Size.y * worldGrid.cellSize.y * 1.2f);
   }
 
   private void ComputeBoardCenterPosition()

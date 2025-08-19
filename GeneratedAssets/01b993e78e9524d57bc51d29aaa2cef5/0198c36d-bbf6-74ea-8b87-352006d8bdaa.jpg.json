@@ -1,0 +1,20 @@
+{
+    "asset": "01b993e78e9524d57bc51d29aaa2cef5",
+    "fileName": "0198c36d-bbf6-74ea-8b87-352006d8bdaa.jpg",
+    "prompt": "Generate a tiled brick texture, darker blue colored, cartoonish",
+    "negativePrompt": "blurry, messy, artifacts, watermark",
+    "model": "fa6e0327-dd80-4b48-865f-5a3aa03f82b8",
+    "modelName": "Flux.1 Pro",
+    "customSeed": -1,
+    "w3CTraceId": "9ba7067d52be1531dae1aa6e19c77ffd",
+    "refinementMode": "Generation",
+    "pixelateTargetSize": 0,
+    "pixelateKeepImageSize": false,
+    "pixelatePixelBlockSize": 0,
+    "pixelateMode": 0,
+    "pixelateOutlineThickness": 0,
+    "doodles": {
+        "m_Items": []
+    },
+    "upscaleFactor": 0
+}
