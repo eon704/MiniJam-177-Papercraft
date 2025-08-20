@@ -39,8 +39,7 @@ public class UgsManager : Singleton<UgsManager>
         {
             return;
         }
-
-#if UNITY_IOS || UNITY_ANDROID || UNITY_EDITOR   
+#if UNITY_IOS || UNITY_ANDROID || UNITY_EDITOR
         var options = new InitializationOptions();
         options.SetEnvironmentName("dev");
         await UnityServices.InitializeAsync(options);
