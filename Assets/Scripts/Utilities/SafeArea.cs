@@ -102,7 +102,6 @@ namespace Crystal
         ScreenOrientation LastOrientation = ScreenOrientation.AutoRotation;
         [SerializeField] bool ConformX = true;  // Conform to screen safe area on X-axis (default true, disable to ignore)
         [SerializeField] bool ConformY = true;  // Conform to screen safe area on Y-axis (default true, disable to ignore)
-        [SerializeField] bool Logging = false;  // Conform to screen safe area on Y-axis (default true, disable to ignore)
 
         void Awake ()
         {
@@ -221,12 +220,6 @@ namespace Crystal
                     Panel.anchorMin = anchorMin;
                     Panel.anchorMax = anchorMax;
                 }
-            }
-
-            if (Logging)
-            {
-                Debug.LogFormat ("New safe area applied to {0}: x={1}, y={2}, w={3}, h={4} on full extents w={5}, h={6}",
-                name, r.x, r.y, r.width, r.height, Screen.width, Screen.height);
             }
         }
     }

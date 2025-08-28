@@ -125,7 +125,6 @@ public class Board
 
     if (currentHintStep >= LevelData.CachedSolution.Count)
     {
-      Debug.LogWarning("No more hints to reveal.");
       return(null, -1);
     }
 
@@ -155,7 +154,6 @@ public class Board
     // Validate the hint step number (1-based, excluding start position)
     if (hintStepNumber < 1 || hintStepNumber >= LevelData.CachedSolution.Count - 1)
     {
-      Debug.LogWarning($"Invalid hint step number: {hintStepNumber}. Valid range is 1 to {LevelData.CachedSolution.Count - 2}");
       return (null, -1);
     }
 
@@ -166,7 +164,6 @@ public class Board
     // Check if this hint is already revealed
     if (cellToReveal.IsHintRevealed.Value > 0)
     {
-      Debug.LogWarning($"Hint {hintStepNumber} is already revealed.");
       return (cellToReveal, -1);
     }
 
@@ -204,7 +201,6 @@ public class Board
     
     // Reset hint step counter
     currentHintStep = 0;
-    Debug.Log("All hints cleared.");
   }
 
   /// <summary>
