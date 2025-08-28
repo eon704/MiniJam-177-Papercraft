@@ -1,0 +1,29 @@
+{
+    "asset": "ede8f2587093e49928ae6753de58a62e",
+    "fileName": "0198c7cd-a271-781b-affb-3c4816922461.png",
+    "prompt": "Generate a cartoonish map, winding road from bottom to top, with slots for level buttons in along the road. 1-10 slots on the winding road should have forrest and valley, 11-20 should have lakes, 21-30 should have rocky mountain, 30-40 should have volcanic ashy terrain",
+    "negativePrompt": "",
+    "model": "48889f10-63e9-4608-8eea-a668ac2aff3e",
+    "modelName": "Casual Environments",
+    "customSeed": -1,
+    "w3CTraceId": "e10fd4a2ab675df3efd74f64dfe5f2f9",
+    "refinementMode": "Generation",
+    "pixelateTargetSize": 0,
+    "pixelateKeepImageSize": false,
+    "pixelatePixelBlockSize": 0,
+    "pixelateMode": 0,
+    "pixelateOutlineThickness": 0,
+    "doodles": {
+        "m_Items": [
+            {
+                "doodleReferenceType": 8,
+                "doodle": [],
+                "label": "Style",
+                "strength": 0.25,
+                "invertStrength": false,
+                "assetReferenceGuid": "1fd11d2d1894847a18cbfd501b21dbb4"
+            }
+        ]
+    },
+    "upscaleFactor": 0
+}

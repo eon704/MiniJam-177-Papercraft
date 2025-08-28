@@ -26,7 +26,7 @@
   <projectSetting name="GooglePlayServices.PatchSettingsTemplateGradle" value="True" />
   <projectSetting name="GooglePlayServices.PromptBeforeAutoResolution" value="False" />
   <projectSetting name="GooglePlayServices.UseFullCustomMavenRepoPathWhenExport" value="True" />
-  <projectSetting name="GooglePlayServices.UseFullCustomMavenRepoPathWhenNotExport" value="False" />
+  <projectSetting name="GooglePlayServices.UseFullCustomMavenRepoPathWhenNotExport" value="True" />
   <projectSetting name="GooglePlayServices.UseGradleDaemon" value="False" />
   <projectSetting name="GooglePlayServices.UseJetifier" value="True" />
   <projectSetting name="GooglePlayServices.UserRejectedGradleUpgrade" value="False" />

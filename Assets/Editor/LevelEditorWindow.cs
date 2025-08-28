@@ -30,9 +30,9 @@ public class LevelEditorWindow : EditorWindow
         { TerrainType.Default, "Assets/Sprites/Cell/NewCell/Default Layer 2.png" },
         { TerrainType.Start, "Assets/Sprites/Cell/NewCell/Start.png" },
         { TerrainType.End, "Assets/Sprites/Cell/NewCell/Finish cell/StaticEnd.png" },
-        { TerrainType.Water, "Assets/Obstacles/water/0.gif" },
-        { TerrainType.Stone, "Assets/Sprites/Cell/NewCell/Group 869.png" },
-        { TerrainType.Fire, "Assets/Obstacles/fire/1.jpeg" }
+        { TerrainType.Water, "Assets/Sprites/Obstacles/water/0.gif" },
+        { TerrainType.Stone, "Assets/Sprites/Cell/NewCell/Rock.png" },
+        { TerrainType.Fire, "Assets/Sprites/Obstacles/fire/1.jpeg" }
     };
 
     private Dictionary<CellItem, string> itemTexturePaths = new() {
