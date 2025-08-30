@@ -23,6 +23,11 @@ public class WinScreenStarsUI : MonoBehaviour
             var star = stars[i];
             initialStarSequence.AppendCallback(() =>
             {
+                if (star == null || star.transform == null)
+                    return;
+                // UnityEngine.Object overrides == to check for destroyed objects
+                if (star.Equals(null) || star.transform.Equals(null))
+                    return;
                 GlobalSoundManager.PlayRandomSoundByType(SoundType.Ding);
                 star.sprite = fullStar;
                 star.transform.DOScale(Vector3.one * 1.25f, 0.5f).SetLoops(2, LoopType.Yoyo);
@@ -35,9 +40,15 @@ public class WinScreenStarsUI : MonoBehaviour
         {
             for (var i = 0; i < totalStars; i++)
             {
-                stars[i].transform.DOKill();
-                stars[i].transform.localScale = Vector3.one;
-                texts[i].enabled = true;
+                var star = stars[i];
+                if (star == null || star.transform == null)
+                    continue;
+                if (star.Equals(null) || star.transform.Equals(null))
+                    continue;
+                star.transform.DOKill();
+                star.transform.localScale = Vector3.one;
+                if (texts != null && i < texts.Length && texts[i] != null && !texts[i].Equals(null))
+                    texts[i].enabled = true;
             }
         });
 

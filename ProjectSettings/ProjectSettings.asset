@@ -175,7 +175,7 @@ PlayerSettings:
     iPhone: 23
     tvOS: 0
   overrideDefaultApplicationIdentifier: 1
-  AndroidBundleVersionCode: 20
+  AndroidBundleVersionCode: 21
   AndroidMinSdkVersion: 29
   AndroidTargetSdkVersion: 0
   AndroidPreferredInstallLocation: 1
@@ -820,7 +820,8 @@ PlayerSettings:
   scriptingBackend:
     Android: 1
   il2cppCompilerConfiguration: {}
-  il2cppCodeGeneration: {}
+  il2cppCodeGeneration:
+    WebGL: 1
   il2cppStacktraceInformation: {}
   managedStrippingLevel:
     Android: 3
@@ -832,7 +833,7 @@ PlayerSettings:
     PS5: 1
     QNX: 1
     VisionOS: 1
-    WebGL: 3
+    WebGL: 4
     Windows Store Apps: 1
     XboxOne: 1
     iPhone: 3
