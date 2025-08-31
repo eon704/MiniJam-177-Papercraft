@@ -15,9 +15,22 @@ public class MainMenuUI : MonoBehaviour
     
     // Static field to remember if levels panel should be shown
     private static bool shouldShowLevelsPanel = false;
+
+    [RuntimeInitializeOnLoadMethod]
+    private static void ResetShouldShowLevelsPanel()
+    {
+        shouldShowLevelsPanel = false;
+    }
     
     public void ShowLevels()
     {
+        if (LevelManager.Instance.NextLevelIndex == 1)
+        {
+            LevelManager.Instance.SetCurrentLevel(1);
+            StartGame();
+            return;
+        }
+
         shouldShowLevelsPanel = true;
         startPanel.interactable = false;
 

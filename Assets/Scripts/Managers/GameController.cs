@@ -81,13 +81,14 @@ public class GameController : MonoBehaviour
     {
         if (wasLevelWon)
             return;
-        
+
         UgsManager.Instance.RecordLevelQuitEvent(LevelManager.Instance.CurrentLevelIndex, attemptsCount);
     }
 
     private IEnumerator Start()
     {
 #if UNITY_WEBGL
+        PokiUnitySDK.Instance.commercialBreak();    
         PokiUnitySDK.Instance.gameplayStart();
 #endif
 
@@ -138,7 +139,7 @@ public class GameController : MonoBehaviour
         UgsManager.Instance.RecordNewLevelAttemptEvent(LevelManager.Instance.CurrentLevelIndex, attemptsCount);
     }
 
-    private void ODisable()
+    private void OnDisable()
     {
 #if UNITY_WEBGL
         PokiUnitySDK.Instance.gameplayStop();

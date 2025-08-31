@@ -73,10 +73,13 @@ public class WinScreenStarsUI : MonoBehaviour
     private void OnDisable()
     {
         initialStarSequence?.Kill();
-        
+
         foreach (var star in stars)
         {
-            star.DOKill();
+            if (star != null && star.transform != null && !star.Equals(null) && !star.transform.Equals(null))
+            {
+                star.transform.DOKill();
+            }
         }
     }
 }

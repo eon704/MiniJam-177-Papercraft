@@ -29,7 +29,6 @@ public class PokiManager : Singleton<PokiManager>, IAdEvents
 #if UNITY_WEBGL
         base.Awake();
         PokiUnitySDK.Instance.init();
-        PokiUnitySDK.Instance.gameLoadingFinished();
 #endif
     }
 
