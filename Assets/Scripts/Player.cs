@@ -6,21 +6,20 @@ using PlayerStateMachine;
 using UnityEngine;
 using UnityEngine.Events;
 
-
 public class Player : MonoBehaviour
 {
     public BoardPiecePrefab BoardPiecePrefab { get; private set; }
     public GameObject changeStateEffect;
 
     public readonly Observable<int> StarAmount = new(0);
-    
+
     public readonly UnityEvent<int> OnPlayerWon = new();
     public readonly UnityEvent OnPlayerDied = new();
     public readonly UnityEvent<StateType> OnTransformation = new();
     public readonly UnityEvent<StateType, int> OnMovesLeftChanged = new();
-    
+
     private int MovesLeftForCurrentState => _movesPerForm[(_stateMachine.CurrentState as IState)!.StateType];
-    
+
     private StateMachine _stateMachine;
     private SpriteRenderer _spriteRenderer;
 
@@ -30,7 +29,7 @@ public class Player : MonoBehaviour
     [SerializeField] private GameObject planeStateGameObject;
     [SerializeField] private GameObject boatStateGameObject;
     [SerializeField] private GameObject frogStateGameObject;
-    
+
 
     private IState _defaultState;
     private IState _craneState;
@@ -39,14 +38,14 @@ public class Player : MonoBehaviour
     private IState _frogState;
 
     private const int TotalStars = 3;
-    
+
     private Sequence _pulseSequence;
     public bool isMovementLocked;
-    
+
     private BoardPrefab _boardPrefab;
 
     public Action<int> OnUndoHistoryChange;
-    
+
     public enum StateType
     {
         Default,
@@ -71,13 +70,13 @@ public class Player : MonoBehaviour
     public void SetTransformationLimits(Dictionary<StateType, int> startingMoves)
     {
         _movesPerForm = new Dictionary<StateType, int>(startingMoves);
-        
+
         OnMovesLeftChanged?.Invoke(StateType.Boat, _movesPerForm[StateType.Boat]);
         OnMovesLeftChanged?.Invoke(StateType.Crane, _movesPerForm[StateType.Crane]);
         OnMovesLeftChanged?.Invoke(StateType.Frog, _movesPerForm[StateType.Frog]);
         OnMovesLeftChanged?.Invoke(StateType.Plane, _movesPerForm[StateType.Plane]);
-    } 
-    
+    }
+
 
     private void Awake()
     {
@@ -88,8 +87,8 @@ public class Player : MonoBehaviour
         _defaultState = new DefaultState(defaultStateSprite, _spriteRenderer);
         _craneState = new CraneState(craneStateGameObject, this);
         _planeState = new PlaneState(planeStateGameObject, this);
-        _boatState = new BoatState(boatStateGameObject,this);
-        _frogState = new FrogState(frogStateGameObject,this);
+        _boatState = new BoatState(boatStateGameObject, this);
+        _frogState = new FrogState(frogStateGameObject, this);
     }
 
     private IEnumerator Start()
@@ -119,7 +118,7 @@ public class Player : MonoBehaviour
             _ => throw new ArgumentOutOfRangeException(nameof(stateType), stateType, null)
         };
     }
-    
+
     private StateType GetStateType(IState state)
     {
         switch (state)
@@ -160,7 +159,7 @@ public class Player : MonoBehaviour
         var delay = duration / 4;
         _pulseSequence?.Kill();
         _pulseSequence = DOTween.Sequence();
-        
+
         _pulseSequence.Insert(0, BoardPiecePrefab.CurrentCell.DoPulse(duration));
 
         foreach (KeyValuePair<int, List<CellPrefab>> distanceToCellsPair in reachableCellsByDistance)
@@ -205,47 +204,48 @@ public class Player : MonoBehaviour
     {
         if (isMovementLocked)
             return;
-        
+
         BoardPiecePrefab.CancelMove();
-        
-        IState currentState = (_stateMachine.CurrentState as IState)!; 
+
+        IState currentState = (_stateMachine.CurrentState as IState)!;
         StateType type = currentState.StateType;
         bool forceFailMovement = _movesPerForm[type] <= 0;
         bool success = BoardPiecePrefab.Move(targetCell, OnMove, forceFailMovement);
-        
+
         if (success)
         {
-            isMovementLocked = targetCell.Cell.Terrain == TerrainType.Fire;
+            bool didMoveOnFire = targetCell.Cell.Terrain == TerrainType.Fire;
+            isMovementLocked = didMoveOnFire;
             targetCell.ShakeCell();
             _movesPerForm[type]--;
             OnMovesLeftChanged?.Invoke(type, _movesPerForm[type]);
-            
+
             if (_movesPerForm[type] <= 0)
             {
                 OnOutOfMoves();
             }
-            
+
             AddHistoryRecord();
         }
     }
-    
+
     public void UndoMove()
     {
         if (isMovementLocked)
             return;
-        
+
         BoardRecord? lastRecord = _boardPrefab.Board.BoardHistory.Undo();
         if (!lastRecord.HasValue)
             return;
-        
+
         OnUndoHistoryChange?.Invoke(_boardPrefab.Board.BoardHistory.Count);
         BoardPiecePrefab.CancelMove();
         BoardPiecePrefab.BoardPiece.OccupiedCell.Value.FreePiece();
-        
+
         Vector2Int playerPosition = lastRecord.Value.PlayerPosition;
         StateType playerState = lastRecord.Value.PlayerState;
         List<Vector2Int> starsRemaining = lastRecord.Value.StarsRemaining;
-        
+
         _movesPerForm = new Dictionary<StateType, int>(lastRecord.Value.MovesPerForm);
         foreach (var kvp in _movesPerForm)
         {
@@ -254,21 +254,21 @@ public class Player : MonoBehaviour
 
         BoardPiecePrefab.Teleport(_boardPrefab.GetCellPrefab(playerPosition), tweenMovement: true);
         SetState(GetState(playerState));
-        
+
         foreach (var cell in starsRemaining)
         {
             _boardPrefab.GetCellPrefab(cell).Cell.ReassignStar();
         }
-        
+
         StarAmount.Value = TotalStars - starsRemaining.Count;
     }
-    
+
     private void AddHistoryRecord()
     {
         Vector2Int playerPosition = BoardPiecePrefab.CurrentCell.Cell.Position;
         StateType playerState = (_stateMachine.CurrentState as IState)!.StateType;
         List<Vector2Int> starsRemaining = new();
-        
+
         foreach (var cell in _boardPrefab.Board.StarCells)
         {
             if (cell.Item == CellItem.Star)
@@ -283,7 +283,7 @@ public class Player : MonoBehaviour
             starsRemaining,
             new Dictionary<StateType, int>(_movesPerForm)
         );
-        
+
         OnUndoHistoryChange?.Invoke(_boardPrefab.Board.BoardHistory.Count);
     }
 
@@ -303,7 +303,7 @@ public class Player : MonoBehaviour
         _stateMachine.SetState(state);
         BoardPiecePrefab.BoardPiece.SetState(state);
         OnTransformation?.Invoke(GetStateType(state));
-        
+
         ResetPulse();
         PulseReachableCells();
     }
@@ -312,10 +312,10 @@ public class Player : MonoBehaviour
     {
         if (_moveOptionCells == null || _moveOptionCells.Count == 0)
             return;
-        
+
         _moveOptionCells?.ForEach(cellPrefab => cellPrefab.ResetIsValidMoveOption());
         _pulseSequence?.Kill();
-        foreach(var cellPrefab in _moveOptionCells!)
+        foreach (var cellPrefab in _moveOptionCells!)
         {
             cellPrefab.ResetPulse();
         }
@@ -342,7 +342,8 @@ public class Player : MonoBehaviour
         if (targetCell.Terrain == TerrainType.End)
         {
             OnPlayerWon?.Invoke(StarAmount);
-        } else if (targetCell.Terrain == TerrainType.Fire)
+        }
+        else if (targetCell.Terrain == TerrainType.Fire)
         {
             OnPlayerDied?.Invoke();
         }

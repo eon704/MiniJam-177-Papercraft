@@ -1,10 +1,13 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+
+#if UNITY_IOS
+using UnityEngine.iOS;
+#endif
+
 
 public class GameUI : MonoBehaviour
 {
@@ -117,6 +120,11 @@ public class GameUI : MonoBehaviour
         {
           WinScreenStarsUI.AnimateStars(stars);
         }
+
+#if UNITY_IOS
+        if (stars >= 3 && LevelManager.Instance.CurrentLevelIndex % 10 == 0)
+          Device.RequestStoreReview();
+#endif
       });
   }
 
