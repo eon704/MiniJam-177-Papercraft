@@ -133,6 +133,19 @@ public class GameUI : MonoBehaviour
         {
           Google.Play.Review.ReviewManager reviewManager = new Google.Play.Review.ReviewManager();
           var requestFlowOperation = reviewManager.RequestReviewFlow();
+          requestFlowOperation.Completed += operation =>
+          {
+            if (operation.Error == Google.Play.Common.PlayAsyncOperationErrorCode.NoError)
+            {
+              var reviewInfo = operation.GetResult();
+              var launchFlowOperation = reviewManager.LaunchReviewFlow(reviewInfo);
+              // Optionally, handle launchFlowOperation.Completed for result
+            }
+            else
+            {
+              Debug.LogWarning("Review flow request failed: " + operation.Error);
+            }
+          };
         }
 #endif
       });
