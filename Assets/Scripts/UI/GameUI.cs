@@ -123,7 +123,17 @@ public class GameUI : MonoBehaviour
 
 #if UNITY_IOS
         if (stars >= 3 && LevelManager.Instance.CurrentLevelIndex % 10 == 0)
+        {
           Device.RequestStoreReview();
+        }
+#endif
+
+#if UNITY_ANDROID
+        if (stars >= 3 && LevelManager.Instance.CurrentLevelIndex % 10 == 0) 
+        {
+          Google.Play.Review.ReviewManager reviewManager = new Google.Play.Review.ReviewManager();
+          var requestFlowOperation = reviewManager.RequestReviewFlow();
+        }
 #endif
       });
   }
