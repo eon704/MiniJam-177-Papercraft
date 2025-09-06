@@ -791,7 +791,7 @@ that it can run first and determine the latest version of a plugin component to
 activate. The build of `EDM4U` plugin has Unity asset metadata that is
 configured so that the editor components are not initially enabled when it's
 imported into a Unity project. To maintain this configuration when importing the
-`mobile-dependency-resolver.unitypackage` into a Unity plugin project, you
+`external-dependency-manager.unitypackage` into a Unity plugin project, you
 *must* specify the command line option `-gvh_disable` which will prevent the
 Version Handler component from running and changing the Unity asset metadata.
 
