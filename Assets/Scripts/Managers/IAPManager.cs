@@ -6,7 +6,7 @@ using UnityEngine.Purchasing;
 
 public class IAPService : Singleton<IAPService>
 {
-    StoreController m_StoreController;
+    public StoreController m_StoreController { get; private set; }
     private const string noAdsProductId = "remove_ads";
 
     private void Start()

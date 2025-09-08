@@ -34,7 +34,7 @@ public class MobileAdManager : Singleton<MobileAdManager>, IAdEvents
     private const float baseRetryDelay = 1f;
 
     private const string NoAdsKey = "NoAds";
-    private bool hasNoAds = false;
+    public bool HasNoAds { get; private set; } = false;
 
     // Get platform-specific ad unit ID
     private string AdUnitId
@@ -69,8 +69,8 @@ public class MobileAdManager : Singleton<MobileAdManager>, IAdEvents
     {
         base.Awake();
 
-        hasNoAds = PlayerPrefs.GetInt(NoAdsKey, 0) == 1;
-        if (hasNoAds)
+        HasNoAds = PlayerPrefs.GetInt(NoAdsKey, 0) == 1;
+        if (HasNoAds)
         {
             Debug.Log("🚫 Ads disabled due to No Ads purchase");
             return;
@@ -85,7 +85,7 @@ public class MobileAdManager : Singleton<MobileAdManager>, IAdEvents
 
     private IEnumerator Start()
     {
-        if (hasNoAds)
+        if (HasNoAds)
             yield break;
 
         yield return null;
@@ -126,7 +126,7 @@ public class MobileAdManager : Singleton<MobileAdManager>, IAdEvents
 
     private void InitializeRewardedAd()
     {
-        if (hasNoAds)
+        if (HasNoAds)
             return;
 
         rewardedAd = new LevelPlayRewardedAd(AdUnitId);
@@ -222,7 +222,7 @@ public class MobileAdManager : Singleton<MobileAdManager>, IAdEvents
 
     public void DisableAds()
     {
-        hasNoAds = true;
+        HasNoAds = true;
         PlayerPrefs.SetInt(NoAdsKey, 1);
         PlayerPrefs.Save();
         UnsubscribeFromRewardedAdEvents();
@@ -235,7 +235,7 @@ public class MobileAdManager : Singleton<MobileAdManager>, IAdEvents
     /// </summary>
     private void LoadRewardedAd()
     {
-        if (hasNoAds || rewardedAd == null)
+        if (HasNoAds || rewardedAd == null)
         {
             return;
         }
@@ -255,7 +255,7 @@ public class MobileAdManager : Singleton<MobileAdManager>, IAdEvents
     /// <returns>True if ad was shown, false if not ready</returns>
     public bool ShowRewardedAd()
     {
-        if (hasNoAds)
+        if (HasNoAds)
         {
             OnAdRewarded?.Invoke();
             return true;
@@ -287,7 +287,7 @@ public class MobileAdManager : Singleton<MobileAdManager>, IAdEvents
     /// <returns>True if ad is ready, false otherwise</returns>
     public bool IsRewardedAdReady()
     {
-        return hasNoAds || (rewardedAd != null && rewardedAd.IsAdReady());
+        return HasNoAds || (rewardedAd != null && rewardedAd.IsAdReady());
     }
 
     #endregion

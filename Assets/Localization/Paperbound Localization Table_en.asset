@@ -147,6 +147,14 @@ MonoBehaviour:
     m_Localized: Restore Purchases
     m_Metadata:
       m_Items: []
+  - m_Id: 63856365355917312
+    m_Localized: Purchasing...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 63856457521553408
+    m_Localized: Ads Removed
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:

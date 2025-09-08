@@ -127,6 +127,14 @@ MonoBehaviour:
     m_Key: RestorePurchase
     m_Metadata:
       m_Items: []
+  - m_Id: 63856365355917312
+    m_Key: purchasePending
+    m_Metadata:
+      m_Items: []
+  - m_Id: 63856457521553408
+    m_Key: adsRemoved
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

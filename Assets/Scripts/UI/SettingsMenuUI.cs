@@ -5,8 +5,9 @@ public class SettingsMenuUI : MonoBehaviour
 {
     [SerializeField] private Slider sfxVolumeSlider;
     [SerializeField] private Slider soundtrackVolumeSlider;
-
     [SerializeField] private Button privacyButton;
+    [SerializeField] private Button noAdsButton;
+    [SerializeField] private Button restorePurchasesButton;
 
     private void OnEnable()
     {
