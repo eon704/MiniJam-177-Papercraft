@@ -119,6 +119,14 @@ MonoBehaviour:
     m_Key: CongratulationSubtitle
     m_Metadata:
       m_Items: []
+  - m_Id: 63433550366498816
+    m_Key: removeAds
+    m_Metadata:
+      m_Items: []
+  - m_Id: 63435864401764352
+    m_Key: RestorePurchase
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

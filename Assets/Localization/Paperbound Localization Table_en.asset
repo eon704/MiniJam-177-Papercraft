@@ -139,6 +139,14 @@ MonoBehaviour:
     m_Localized: You have completed the game
     m_Metadata:
       m_Items: []
+  - m_Id: 63433550366498816
+    m_Localized: Remove Ads
+    m_Metadata:
+      m_Items: []
+  - m_Id: 63435864401764352
+    m_Localized: Restore Purchases
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:

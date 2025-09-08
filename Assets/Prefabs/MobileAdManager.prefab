@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3540706608261718753}
   - component: {fileID: 3048691123866652093}
+  - component: {fileID: 7463586047708590551}
   m_Layer: 0
   m_Name: MobileAdManager
   m_TagString: Untagged
@@ -50,18 +51,16 @@ MonoBehaviour:
   requireConsent: 1
   showConsentDialogOnStart: 1
   enableDetailedLogging: 0
-  OnAdLoadedChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  OnAdRewarded:
-    m_PersistentCalls:
-      m_Calls: []
-  OnConsentRequired:
-    m_PersistentCalls:
-      m_Calls: []
-  OnAdDisplayed:
-    m_PersistentCalls:
-      m_Calls: []
-  OnAdClosed:
-    m_PersistentCalls:
-      m_Calls: []
+--- !u!114 &7463586047708590551
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5133913998187891659}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 508a5e0221f454c118262151e1dc4244, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::IAPManager
+  persistent: 1

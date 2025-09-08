@@ -26,6 +26,14 @@ public class AdManager : Singleton<AdManager>
         adEventsInstance.OnAdClosed.AddListener(UnmuteAll);
     }
 
+    public void DisableAds()
+    {
+        if (adEventsInstance is MobileAdManager mobileAdManager)
+        {
+            mobileAdManager.DisableAds();
+        }
+    }
+
     public bool IsRewardedAdReady()
     {
         return adEventsInstance.IsRewardedAdReady();
