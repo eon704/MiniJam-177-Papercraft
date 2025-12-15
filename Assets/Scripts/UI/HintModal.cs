@@ -23,16 +23,16 @@ public class HintModal : MonoBehaviour
         // Subscribe to ad reward events
         if (AdManager.Instance != null)
         {
-            AdManager.Instance.adEventsInstance.OnAdRewarded.AddListener(OnAdRewarded);
+            AdManager.Instance.ADEventsInstance.OnAdRewarded.AddListener(OnAdRewarded);
         }
     }
 
     private void OnDestroy()
     {
         // Unsubscribe from ad events
-        if (AdManager.Instance != null)
+        if (AdManager.Instance.ADEventsInstance != null)
         {
-            AdManager.Instance.adEventsInstance.OnAdRewarded.RemoveListener(OnAdRewarded);
+            AdManager.Instance.ADEventsInstance.OnAdRewarded.RemoveListener(OnAdRewarded);
         }
     }
 

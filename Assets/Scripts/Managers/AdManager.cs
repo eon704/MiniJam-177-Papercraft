@@ -7,7 +7,7 @@ public class AdManager : Singleton<AdManager>
     [SerializeField] private PokiManager pokiManagerPrefab;
     [SerializeField] private MobileAdManager mobileAdManagerPrefab;
 
-    public IAdEvents adEventsInstance { get; private set; }
+    public IAdEvents ADEventsInstance { get; private set; }
 
     protected override void Awake()
     {
@@ -18,23 +18,29 @@ public class AdManager : Singleton<AdManager>
             return;
         }
 
-#if UNITY_WEBGL
+#if ITCH
+        ADEventsInstance = null;
+        return;
+#elif POKI
         adEventsInstance = Instantiate(pokiManagerPrefab);
 #elif UNITY_IOS || UNITY_ANDROID
         adEventsInstance = Instantiate(mobileAdManagerPrefab);
 #endif
-        adEventsInstance.OnAdClosed.AddListener(UnmuteAll);
+        ADEventsInstance.OnAdClosed.AddListener(UnmuteAll);
     }
 
     public bool IsRewardedAdReady()
     {
-        return adEventsInstance.IsRewardedAdReady();
+        return ADEventsInstance?.IsRewardedAdReady() ?? false;
     }
 
     public bool ShowRewardedAd()
     {
+        if (ADEventsInstance == null)
+            return false; 
+        
         GlobalSoundManager.Instance.MuteAll();
-        return adEventsInstance.ShowRewardedAd();
+        return ADEventsInstance.ShowRewardedAd();
     }
 
     private void UnmuteAll()

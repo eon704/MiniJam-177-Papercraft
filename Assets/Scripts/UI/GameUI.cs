@@ -65,10 +65,13 @@ public class GameUI : MonoBehaviour
     gameController.PlayerPrefab.StarAmount.OnChanged += OnStarChange;
     gameController.PlayerPrefab.OnPlayerWon.AddListener(OnWin);
 
-    AdManager.Instance.adEventsInstance.OnAdLoadedChanged.AddListener(OnAdLoadedChanged);
-    AdManager.Instance.adEventsInstance.OnAdDisplayed.AddListener(OnAdDisplayed);
-    AdManager.Instance.adEventsInstance.OnAdClosed.AddListener(OnAdClosed);
-    OnAdLoadedChanged();
+    if (AdManager.Instance.ADEventsInstance != null)
+    {
+      AdManager.Instance.ADEventsInstance.OnAdLoadedChanged.AddListener(OnAdLoadedChanged);
+      AdManager.Instance.ADEventsInstance.OnAdDisplayed.AddListener(OnAdDisplayed);
+      AdManager.Instance.ADEventsInstance.OnAdClosed.AddListener(OnAdClosed);
+      OnAdLoadedChanged();
+    }
 
     yield return ForegroundFadeOut();
   }
@@ -85,11 +88,11 @@ public class GameUI : MonoBehaviour
     }
 
     // Unsubscribe from AdManager events
-    if (AdManager.Instance != null)
+    if (AdManager.Instance.ADEventsInstance != null)
     {
-      AdManager.Instance.adEventsInstance.OnAdLoadedChanged.RemoveListener(OnAdLoadedChanged);
-      AdManager.Instance.adEventsInstance.OnAdDisplayed.RemoveListener(OnAdDisplayed);
-      AdManager.Instance.adEventsInstance.OnAdClosed.RemoveListener(OnAdClosed);
+      AdManager.Instance.ADEventsInstance.OnAdLoadedChanged.RemoveListener(OnAdLoadedChanged);
+      AdManager.Instance.ADEventsInstance.OnAdDisplayed.RemoveListener(OnAdDisplayed);
+      AdManager.Instance.ADEventsInstance.OnAdClosed.RemoveListener(OnAdClosed);
     }
   }
 
@@ -135,11 +138,17 @@ public class GameUI : MonoBehaviour
           var requestFlowOperation = reviewManager.RequestReviewFlow();
           requestFlowOperation.Completed += operation =>
           {
-            if (operation.Error == Google.Play.Common.PlayAsyncOperationErrorCode.NoError)
+            if (operation.Error == Google.Play.Review.ReviewErrorCode.NoError)
             {
               var reviewInfo = operation.GetResult();
               var launchFlowOperation = reviewManager.LaunchReviewFlow(reviewInfo);
-              // Optionally, handle launchFlowOperation.Completed for result
+              launchFlowOperation.Completed += launchOp =>
+              {
+                if (launchOp.Error != Google.Play.Review.ReviewErrorCode.NoError)
+                {
+                  Debug.LogWarning("Launch review flow failed: " + launchOp.Error);
+                }
+              };
             }
             else
             {
@@ -159,7 +168,7 @@ public class GameUI : MonoBehaviour
 
   private void OnAdLoadedChanged()
   {
-    bool hasAdReady = AdManager.Instance.IsRewardedAdReady();
+    bool hasAdReady = AdManager.Instance?.IsRewardedAdReady() ?? false;
     bool hasMoreHints = gameController.BoardPrefab.HasUnrevealedHints();
 
     bool shouldShowButton = hasAdReady && hasMoreHints;

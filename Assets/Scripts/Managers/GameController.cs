@@ -87,7 +87,7 @@ public class GameController : MonoBehaviour
 
     private IEnumerator Start()
     {
-#if UNITY_WEBGL
+#if POKI
         PokiUnitySDK.Instance.commercialBreak();    
         PokiUnitySDK.Instance.gameplayStart();
 #endif
@@ -141,7 +141,7 @@ public class GameController : MonoBehaviour
 
     private void OnDisable()
     {
-#if UNITY_WEBGL
+#if POKI
         PokiUnitySDK.Instance.gameplayStop();
 #endif
     }
