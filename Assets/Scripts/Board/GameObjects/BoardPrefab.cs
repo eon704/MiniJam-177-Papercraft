@@ -5,171 +5,138 @@ using UnityEngine;
 
 public class BoardPrefab : MonoBehaviour
 {
-  [Header("Setup")]
-  [SerializeField] private Player player;
-  [SerializeField] private SpriteRenderer boardBorder;
-  [SerializeField] private CellPrefab cellPrefab;
+    [Header("Setup")]
+    [SerializeField] private Player player;
+    [SerializeField] private CellPrefab cellPrefab;
+    [SerializeField] private float cellSize = 1.1f;
 
-  private Grid worldGrid;
-  public Vector2Int Size { get; private set; }
-  public Vector3 WorldCenter { get; private set; }
+    public Vector2Int Size { get; private set; }
+    public Vector3 WorldCenter { get; private set; }
 
-  public Board Board { get; private set; }
-  public LevelData LevelData { get; private set; }
-  public bool IsSpawnAnimationComplete { get; private set; }
+    public Board Board { get; private set; }
+    public LevelData LevelData { get; private set; }
+    public bool IsSpawnAnimationComplete { get; private set; }
 
-  private CellPrefab[,] cellPrefabs;
+    private CellPrefab[,] cellPrefabs;
 
-  public void Initialize(LevelData levelData)
-  {
-    LevelData = levelData;
-    Size = levelData.MapSize;
-    Board = new Board(Size, levelData.Map, levelData);
-    cellPrefabs = new CellPrefab[Size.x, Size.y];
-
-    InstantiateBoard();
-    ComputeBoardCenterPosition();
-    UpdateBorder();
-  }
-
-  public List<CellPrefab> GetCellPrefabs(List<Cell> cells)
-  {
-    return cells.Select(cell => GetCellPrefab(cell.Position)).ToList();
-  }
-
-  public List<CellPrefab> GetCellPrefabs(List<Vector2Int> coords)
-  {
-    return coords.Select(GetCellPrefab).ToList();
-  }
-
-  public CellPrefab GetCellPrefab(Cell cell)
-  {
-    return GetCellPrefab(cell.Position);
-  }
-
-  public CellPrefab GetCellPrefab(Vector2Int coord)
-  {
-    return cellPrefabs[coord.x, coord.y];
-  }
-
-  public CellPrefab GetStartCellPrefab()
-  {
-    return GetCellPrefab(Board.StartCell.Position);
-  }
-
-  public List<CellPrefab> GetStarCellPrefabs()
-  {
-    return GetCellPrefabs(Board.StarCells);
-  }
-
-  public (BoardPiece, CellPrefab) CreateNewPlayerPrefab()
-  {
-    BoardPiece playerPiece = Board.CreatePlayerPiece();
-    CellPrefab startCell = GetCellPrefab(playerPiece.OccupiedCell.Value.Position);
-    return (playerPiece, startCell);
-  }
-
-  private void Awake()
-  {
-    worldGrid = GetComponent<Grid>();
-  }
-
-
-  private void InstantiateBoard()
-  {
-    int centerX = Size.x / 2;
-    int centerY = Size.y / 2;
-    float longestDelay = 0f;
-
-    for (int x = 0; x < Size.x; x++)
+    public void Initialize(LevelData levelData)
     {
-      for (int y = 0; y < Size.y; y++)
-      {
-        Cell cell = Board.CellArray[x, y];
-        Vector3 cellPosition = worldGrid.GetCellCenterWorld(new Vector3Int(x, y, 0));
-        int distanceFromCenter = Mathf.Abs(centerX - x) + Mathf.Abs(centerY - y);
-        float delay = distanceFromCenter * 0.1f + 0.5f;
-        cellPrefabs[x, y] = Instantiate(cellPrefab, cellPosition, Quaternion.identity, transform);
-        cellPrefabs[x, y].Initialize(cell, player, delay);
+        if (player == null)    Debug.LogError("[Board] Player reference is NULL — assign in BoardPrefab Inspector");
+        if (cellPrefab == null) Debug.LogError("[Board] CellPrefab reference is NULL — assign in BoardPrefab Inspector");
 
-        if (cell.Terrain == TerrainType.Empty || delay < longestDelay)
-          continue;
+        LevelData = levelData;
+        Size = levelData.MapSize;
+        Board = new Board(Size, levelData.Map, levelData);
+        cellPrefabs = new CellPrefab[Size.x, Size.y];
 
-        longestDelay = delay;
-      }
+        ComputeBoardCenterPosition();
+        Debug.Log($"[Board] Init — Size: {Size}  CellSize: {cellSize}  WorldCenter: {WorldCenter}");
+        InstantiateBoard();
     }
 
-    Invoke(nameof(SetAnimationComplete), longestDelay + 0.5f);
-  }
-
-  private void SetAnimationComplete()
-  {
-    IsSpawnAnimationComplete = true;
-  }
-
-  private void UpdateBorder()
-  {
-    boardBorder.gameObject.SetActive(true);
-    boardBorder.transform.position = WorldCenter.WithZ(0);
-    boardBorder.size = new Vector2(Size.x * worldGrid.cellSize.x * 1.2f, Size.y * worldGrid.cellSize.y * 1.2f);
-  }
-
-  private void ComputeBoardCenterPosition()
-  {
-    bool isOddX = Size.x % 2 != 0;
-    bool isOddY = Size.y % 2 != 0;
-
-    float xPos;
-    if (isOddX)
+    public List<CellPrefab> GetCellPrefabs(List<Cell> cells)
     {
-      xPos = worldGrid.GetCellCenterWorld(new Vector3Int(Size.x / 2, 0, 0)).x;
-    }
-    else
-    {
-      float x1 = worldGrid.GetCellCenterWorld(new Vector3Int(Size.x / 2 - 1, 0, 0)).x;
-      float x2 = worldGrid.GetCellCenterWorld(new Vector3Int(Size.x / 2, 0, 0)).x;
-      xPos = (x1 + x2) / 2;
+        return cells.Select(cell => GetCellPrefab(cell.Position)).ToList();
     }
 
-    float yPos;
-    if (isOddY)
+    public List<CellPrefab> GetCellPrefabs(List<Vector2Int> coords)
     {
-      yPos = worldGrid.GetCellCenterWorld(new Vector3Int(0, Size.y / 2, 0)).y;
-    }
-    else
-    {
-      float y1 = worldGrid.GetCellCenterWorld(new Vector3Int(0, Size.y / 2 - 1, 0)).y;
-      float y2 = worldGrid.GetCellCenterWorld(new Vector3Int(0, Size.y / 2, 0)).y;
-      yPos = (y1 + y2) / 2;
+        return coords.Select(GetCellPrefab).ToList();
     }
 
-    WorldCenter = new Vector3(xPos, yPos, -10);
-  }
-
-  // Hint System Methods
-  /// <summary>
-  /// Reveals a specific hint by step number (1-based index, skipping start position).
-  /// </summary>
-  public void RevealSpecificHint(int hintStepNumber)
-  {
-    (Cell, int) revealedCellDepth = Board.RevealSpecificHint(hintStepNumber, out bool areAllHintsRevealed);
-    Cell cell = revealedCellDepth.Item1;
-    int depth = revealedCellDepth.Item2;
-
-    if (cell != null)
+    public CellPrefab GetCellPrefab(Cell cell)
     {
-      CellPrefab cellPrefab = GetCellPrefab(cell);
-      SpriteRenderer revealedHint = cellPrefab.HintRenderers[depth];
-      revealedHint.gameObject.SetActive(true);
+        return GetCellPrefab(cell.Position);
     }
-  }
 
-  /// <summary>
-  /// Checks if there are any hints that haven't been revealed yet.
-  /// This is different from HasMoreHints which only checks sequential progression.
-  /// </summary>
-  public bool HasUnrevealedHints()
-  {
-    return Board.HasUnrevealedHints();
-  }
+    public CellPrefab GetCellPrefab(Vector2Int coord)
+    {
+        return cellPrefabs[coord.x, coord.y];
+    }
+
+    public CellPrefab GetStartCellPrefab()
+    {
+        return GetCellPrefab(Board.StartCell.Position);
+    }
+
+    public List<CellPrefab> GetStarCellPrefabs()
+    {
+        return GetCellPrefabs(Board.StarCells);
+    }
+
+    public (BoardPiece, CellPrefab) CreateNewPlayerPrefab()
+    {
+        BoardPiece playerPiece = Board.CreatePlayerPiece();
+        CellPrefab startCell = GetCellPrefab(playerPiece.OccupiedCell.Value.Position);
+        Debug.Log($"[Board] Player piece created at grid {playerPiece.OccupiedCell.Value.Position}, world {startCell.transform.position}");
+        return (playerPiece, startCell);
+    }
+
+    private void InstantiateBoard()
+    {
+        int centerX = Size.x / 2;
+        int centerY = Size.y / 2;
+        float longestDelay = 0f;
+
+        for (int x = 0; x < Size.x; x++)
+        {
+            for (int y = 0; y < Size.y; y++)
+            {
+                Cell cell = Board.CellArray[x, y];
+                Vector3 cellPosition = new Vector3(x * cellSize, 0f, y * cellSize);
+                int distanceFromCenter = Mathf.Abs(centerX - x) + Mathf.Abs(centerY - y);
+                float delay = distanceFromCenter * 0.1f + 0.5f;
+                cellPrefabs[x, y] = Instantiate(cellPrefab, cellPosition, Quaternion.identity, transform);
+                cellPrefabs[x, y].Initialize(cell, player, delay);
+
+                Debug.Log($"[Board] Cell [{x},{y}] terrain={cell.Terrain} worldPos={cellPosition}");
+
+                if (cell.Terrain == TerrainType.Empty || delay < longestDelay)
+                    continue;
+
+                longestDelay = delay;
+            }
+        }
+
+        Debug.Log($"[Board] All cells instantiated. LongestDelay={longestDelay:F2}s");
+        Invoke(nameof(SetAnimationComplete), longestDelay + 0.5f);
+    }
+
+    private void SetAnimationComplete()
+    {
+        IsSpawnAnimationComplete = true;
+        Debug.Log("[Board] Spawn animation complete");
+    }
+
+    private void ComputeBoardCenterPosition()
+    {
+        float centerX = (Size.x - 1) * cellSize / 2f;
+        float centerZ = (Size.y - 1) * cellSize / 2f;
+        WorldCenter = new Vector3(centerX, 0f, centerZ);
+    }
+
+    public void RevealSpecificHint(int hintStepNumber)
+    {
+        (Cell, int) revealedCellDepth = Board.RevealSpecificHint(hintStepNumber, out bool areAllHintsRevealed);
+        Cell cell = revealedCellDepth.Item1;
+        int depth = revealedCellDepth.Item2;
+
+        if (cell != null)
+        {
+            CellPrefab cp = GetCellPrefab(cell);
+            if (depth < cp.HintObjects.Count)
+                cp.HintObjects[depth].SetActive(true);
+            else
+                Debug.LogWarning($"[Board] RevealHint: depth {depth} out of range (HintObjects.Count={cp.HintObjects.Count})");
+        }
+        else
+        {
+            Debug.LogWarning($"[Board] RevealHint: cell is null for step {hintStepNumber}");
+        }
+    }
+
+    public bool HasUnrevealedHints()
+    {
+        return Board.HasUnrevealedHints();
+    }
 }

@@ -11,6 +11,9 @@ public class LevelData : ScriptableObject
     [Header("Player data")]
     public List<MovePerFormEntry> StartMovesPerForm;
 
+    [Header("Biome")]
+    public BiomeType Biome;
+
     [Header("Solution Data")]
     [SerializeField] private List<SolutionStep> cachedSolution;
 

@@ -4,15 +4,9 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-#if UNITY_IOS
-using UnityEngine.iOS;
-#endif
-
 
 public class GameUI : MonoBehaviour
 {
-  [Header("UI Blocker")]
-  [SerializeField] private Canvas adBlockerCanvas;
   [Header("Game References")]
   [SerializeField] private GameController gameController;
 
@@ -21,12 +15,10 @@ public class GameUI : MonoBehaviour
   [SerializeField] private CanvasGroup winScreen;
   [SerializeField] private StarsUI starsUI;
   [SerializeField] private WinScreenStarsUI WinScreenStarsUI;
-  [SerializeField] private GameObject hintButton;
   [SerializeField] private GameObject finalScreen;
 
   public void FinishGame()
   {
-    // Kill all DOTween animations before transitioning
     DOTween.KillAll();
 
     gameController.OnLoadingMainMenu();
@@ -56,7 +48,6 @@ public class GameUI : MonoBehaviour
   private void Awake()
   {
     _foreground.gameObject.SetActive(true);
-    hintButton.gameObject.SetActive(false);
   }
 
   private IEnumerator Start()
@@ -64,14 +55,6 @@ public class GameUI : MonoBehaviour
     yield return null;
     gameController.PlayerPrefab.StarAmount.OnChanged += OnStarChange;
     gameController.PlayerPrefab.OnPlayerWon.AddListener(OnWin);
-
-    if (AdManager.Instance.ADEventsInstance != null)
-    {
-      AdManager.Instance.ADEventsInstance.OnAdLoadedChanged.AddListener(OnAdLoadedChanged);
-      AdManager.Instance.ADEventsInstance.OnAdDisplayed.AddListener(OnAdDisplayed);
-      AdManager.Instance.ADEventsInstance.OnAdClosed.AddListener(OnAdClosed);
-      OnAdLoadedChanged();
-    }
 
     yield return ForegroundFadeOut();
   }
@@ -81,31 +64,10 @@ public class GameUI : MonoBehaviour
     _foreground.DOKill();
     winScreen.DOKill();
 
-    // Kill any animations on WinScreenStarsUI
     if (WinScreenStarsUI != null)
     {
-      WinScreenStarsUI.transform.DOKill(true); // Kill all tweens on this transform and its children
+      WinScreenStarsUI.transform.DOKill(true);
     }
-
-    // Unsubscribe from AdManager events
-    if (AdManager.Instance.ADEventsInstance != null)
-    {
-      AdManager.Instance.ADEventsInstance.OnAdLoadedChanged.RemoveListener(OnAdLoadedChanged);
-      AdManager.Instance.ADEventsInstance.OnAdDisplayed.RemoveListener(OnAdDisplayed);
-      AdManager.Instance.ADEventsInstance.OnAdClosed.RemoveListener(OnAdClosed);
-    }
-  }
-
-  // Called when ad is shown
-  private void OnAdDisplayed()
-  {
-    adBlockerCanvas.gameObject.SetActive(true);
-  }
-
-  // Called when ad is closed
-  private void OnAdClosed()
-  {
-    adBlockerCanvas.gameObject.SetActive(false);
   }
 
   private void OnWin(int stars)
@@ -123,56 +85,12 @@ public class GameUI : MonoBehaviour
         {
           WinScreenStarsUI.AnimateStars(stars);
         }
-
-#if UNITY_IOS
-        if (stars >= 3 && LevelManager.Instance.CurrentLevelIndex % 10 == 0)
-        {
-          Device.RequestStoreReview();
-        }
-#endif
-
-#if UNITY_ANDROID
-        if (stars >= 3 && LevelManager.Instance.CurrentLevelIndex % 10 == 0) 
-        {
-          Google.Play.Review.ReviewManager reviewManager = new Google.Play.Review.ReviewManager();
-          var requestFlowOperation = reviewManager.RequestReviewFlow();
-          requestFlowOperation.Completed += operation =>
-          {
-            if (operation.Error == Google.Play.Review.ReviewErrorCode.NoError)
-            {
-              var reviewInfo = operation.GetResult();
-              var launchFlowOperation = reviewManager.LaunchReviewFlow(reviewInfo);
-              launchFlowOperation.Completed += launchOp =>
-              {
-                if (launchOp.Error != Google.Play.Review.ReviewErrorCode.NoError)
-                {
-                  Debug.LogWarning("Launch review flow failed: " + launchOp.Error);
-                }
-              };
-            }
-            else
-            {
-              Debug.LogWarning("Review flow request failed: " + operation.Error);
-            }
-          };
-        }
-#endif
       });
   }
 
   private void OnStarChange(Observable<int> stars, int oldVal, int newVal)
   {
-
     starsUI.OnStarChange(newVal);
-  }
-
-  private void OnAdLoadedChanged()
-  {
-    bool hasAdReady = AdManager.Instance?.IsRewardedAdReady() ?? false;
-    bool hasMoreHints = gameController.BoardPrefab.HasUnrevealedHints();
-
-    bool shouldShowButton = hasAdReady && hasMoreHints;
-    hintButton.gameObject.SetActive(shouldShowButton);
   }
 
   private IEnumerator LoadMainMenu()

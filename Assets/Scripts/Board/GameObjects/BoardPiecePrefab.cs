@@ -5,106 +5,117 @@ using UnityEngine.Events;
 
 public class BoardPiecePrefab : MonoBehaviour
 {
-  public BoardPiece BoardPiece { get; private set; }
-  public CellPrefab CurrentCell { get; private set; }
-  
-  private BoardPrefab boardPrefab;
-    
-  public void Initialize(BoardPiece boardPieceData, CellPrefab startCell, BoardPrefab initBoardPrefab)
-  {
-    boardPrefab = initBoardPrefab;
-    BoardPiece = boardPieceData;
-    BoardPiece.OccupiedCell.OnChanged += (_, oldCell, newCell) =>
-    {
-      boardPrefab.GetCellPrefab(oldCell).ResetPulse();
-      CurrentCell = boardPrefab.GetCellPrefab(newCell);
-    };
-    Teleport(startCell);
-  }
+    public BoardPiece BoardPiece { get; private set; }
+    public CellPrefab CurrentCell { get; private set; }
 
-  public List<CellPrefab> GetMoveOptionCellPrefabs()
-  {
-    List<(Cell, bool)> moveOptionCells = BoardPiece.GetMoveOptionCells();
-    List<CellPrefab> moveOptionCellPrefabs = new();
-    foreach (var (cell, isValidMove) in moveOptionCells)
-    {
-        CellPrefab cellPrefab = boardPrefab.GetCellPrefab(cell);
-        cellPrefab.SetIsValidMoveOption(isValidMove);
-        
-        if (isValidMove)
-          moveOptionCellPrefabs.Add(cellPrefab);
-    }
-    
-    return moveOptionCellPrefabs;
-  }
-  
-  public void CancelMove()
-  {
-    transform.DOKill();
-  }
+    [Tooltip("How high above cell surface the piece sits. Tune to match cube height.")]
+    [SerializeField] private float heightOffset = 0.3f;
 
-  public bool Move(CellPrefab targetCell, UnityAction onComplete = null, bool forceFailMovement = false)
-  {
-    transform.DOKill();
-    bool success = !forceFailMovement && BoardPiece.MoveTo(targetCell.Cell);
+    private BoardPrefab boardPrefab;
 
-    if (success)
+    public void Initialize(BoardPiece boardPieceData, CellPrefab startCell, BoardPrefab initBoardPrefab)
     {
-      var path = new[]
-      {
-        transform.position,
-        (transform.position + targetCell.transform.position) / 2 + Vector3.up * 0.4f, // Midpoint with an upward offset
-        targetCell.transform.position
-      };
-
-      transform
-        .DOPath(path, 0.5f, PathType.CatmullRom)
-        .SetEase(Ease.InOutQuad)
-        .OnKill(() => onComplete?.Invoke());
-    }
-    else
-    {
-      transform
-        .DOShakePosition(0.5f, 0.3f)
-        .OnKill(() => onComplete?.Invoke());
+        boardPrefab = initBoardPrefab;
+        BoardPiece = boardPieceData;
+        BoardPiece.OccupiedCell.OnChanged += (_, oldCell, newCell) =>
+        {
+            boardPrefab.GetCellPrefab(oldCell).ResetPulse();
+            CurrentCell = boardPrefab.GetCellPrefab(newCell);
+            Debug.Log($"[Piece] OccupiedCell changed → grid {newCell.Position}  world {CurrentCell.transform.position}");
+        };
+        Teleport(startCell);
+        Debug.Log($"[Piece] Initialized at world pos {transform.position}");
     }
 
-    return success;
-  }
-
-  public void Teleport(CellPrefab targetCell, bool tweenMovement = false)
-  {
-    bool success = BoardPiece.TeleportTo(targetCell.Cell);
-
-    if (!success)
+    public List<CellPrefab> GetMoveOptionCellPrefabs()
     {
-      Debug.LogError("Teleporting failed, targetCell is occupied");
-      return;
+        List<(Cell, bool)> moveOptionCells = BoardPiece.GetMoveOptionCells();
+        List<CellPrefab> moveOptionCellPrefabs = new();
+        foreach (var (cell, isValidMove) in moveOptionCells)
+        {
+            CellPrefab cellPrefab = boardPrefab.GetCellPrefab(cell);
+            cellPrefab.SetIsValidMoveOption(isValidMove);
+
+            if (isValidMove)
+                moveOptionCellPrefabs.Add(cellPrefab);
+        }
+        Debug.Log($"[Piece] GetMoveOptionCellPrefabs → {moveOptionCellPrefabs.Count} valid options");
+        return moveOptionCellPrefabs;
     }
 
-    if (tweenMovement)
+    public void CancelMove()
     {
-      transform.DOKill();
-      
-      var path = new[]
-      {
-        transform.position,
-        (transform.position + targetCell.transform.position) / 2 + Vector3.up * 0.4f, // Midpoint with an upward offset
-        targetCell.transform.position
-      };
-
-      transform
-        .DOPath(path, 0.5f, PathType.CatmullRom)
-        .SetEase(Ease.InOutQuad);
+        transform.DOKill();
     }
-    else
+
+    public bool Move(CellPrefab targetCell, UnityAction onComplete = null, bool forceFailMovement = false)
     {
-      transform.position = targetCell.transform.position;
-    }
-  }
+        transform.DOKill();
+        bool success = !forceFailMovement && BoardPiece.MoveTo(targetCell.Cell);
 
-  private void OnDestroy()
-  {
-    transform.DOKill();
-  }
+        Vector3 targetPos = targetCell.transform.position + Vector3.up * heightOffset;
+        Debug.Log($"[Piece] Move to {targetCell.name} (grid {targetCell.Cell.Position}) — success={success}  from={transform.position}  to={targetPos}");
+
+        if (success)
+        {
+            var path = new[]
+            {
+                transform.position,
+                (transform.position + targetPos) / 2 + Vector3.up * 1.5f,
+                targetPos
+            };
+
+            transform
+                .DOPath(path, 0.5f, PathType.CatmullRom)
+                .SetEase(Ease.InOutQuad)
+                .OnKill(() => onComplete?.Invoke());
+        }
+        else
+        {
+            transform
+                .DOShakePosition(0.5f, 0.3f)
+                .OnKill(() => onComplete?.Invoke());
+        }
+
+        return success;
+    }
+
+    public void Teleport(CellPrefab targetCell, bool tweenMovement = false)
+    {
+        bool success = BoardPiece.TeleportTo(targetCell.Cell);
+
+        if (!success)
+        {
+            Debug.LogError($"[Piece] Teleport FAILED — targetCell {targetCell.name} is occupied");
+            return;
+        }
+
+        Vector3 targetPos = targetCell.transform.position + Vector3.up * heightOffset;
+        Debug.Log($"[Piece] Teleport to {targetCell.name} world={targetPos}  tween={tweenMovement}");
+
+        if (tweenMovement)
+        {
+            transform.DOKill();
+
+            var path = new[]
+            {
+                transform.position,
+                (transform.position + targetPos) / 2 + Vector3.up * 1.5f,
+                targetPos
+            };
+
+            transform
+                .DOPath(path, 0.5f, PathType.CatmullRom)
+                .SetEase(Ease.InOutQuad);
+        }
+        else
+        {
+            transform.position = targetPos;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        transform.DOKill();
+    }
 }

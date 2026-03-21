@@ -58,6 +58,7 @@ public class Player : MonoBehaviour
     private Dictionary<StateType, int> _movesPerForm;
     private Dictionary<StateType, bool> _unlockedForms;
     private List<CellPrefab> _moveOptionCells;
+    private bool _isInitialized;
 
     public void Initialize(BoardPiece boardPiece, CellPrefab startCell, BoardPrefab boardPrefab)
     {
@@ -65,6 +66,7 @@ public class Player : MonoBehaviour
         BoardPiecePrefab.Initialize(boardPiece, startCell, boardPrefab);
         BoardPiecePrefab.BoardPiece.OccupiedCell.OnChanged += OnPlayerMoved;
         BoardPiecePrefab.BoardPiece.OnCollectedStar += OnCollectStar;
+        _isInitialized = true;
     }
 
     public void SetTransformationLimits(Dictionary<StateType, int> startingMoves)
@@ -93,7 +95,7 @@ public class Player : MonoBehaviour
 
     private IEnumerator Start()
     {
-        yield return null;
+        yield return new WaitUntil(() => _isInitialized);
         SetDefaultState();
         yield return null;
         AddHistoryRecord();

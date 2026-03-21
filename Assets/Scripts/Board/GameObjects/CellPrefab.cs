@@ -1,62 +1,50 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.Serialization;
 
 public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler,
     IPointerUpHandler
 {
-    [SerializeField] private SpriteRenderer fill;
-    [SerializeField] public List<SpriteRenderer> hints;
+    [SerializeField] public List<GameObject> hintObjects;
     [SerializeField] private GameObject fire;
     [SerializeField] private GameObject water;
     [SerializeField] private GameObject stone;
     [SerializeField] private GameObject start;
     [SerializeField] private GameObject end;
-
     [SerializeField] private GameObject star;
+
     private float starDefaultScale;
 
-    public ReadOnlyCollection<SpriteRenderer> HintRenderers => hints.AsReadOnly();
-
-    [SerializeField] private Color defaultColor;
-
-    [FormerlySerializedAs("reachableColor")] [SerializeField]
-    private Color pulseColor;
-
-    [SerializeField] private Color validMoveColor;
-    [SerializeField] private Color invalidMoveColor;
-
-    private bool isValid;
-    private bool isPointerOver;
+    public ReadOnlyCollection<GameObject> HintObjects => hintObjects.AsReadOnly();
 
     public Cell Cell { get; private set; }
     private Player player;
 
-    private Sequence pulseSequence;
     private Sequence rippleSequence;
-    private Sequence hintPulseSequence;
-    
     private Tween starGrowTween;
     private Tween starShrinkTween;
 
     public void Initialize(Cell cellData, Player newPlayer, float delay)
     {
-        fill.color = new Color(0, 0, 0, 0);
-        hints.ForEach(hint => hint.gameObject.SetActive(false));
-        
+        if (fire == null)  Debug.LogWarning($"[Cell {name}] fire is NULL");
+        if (water == null) Debug.LogWarning($"[Cell {name}] water is NULL");
+        if (stone == null) Debug.LogWarning($"[Cell {name}] stone is NULL");
+        if (start == null) Debug.LogWarning($"[Cell {name}] start is NULL");
+        if (end == null)   Debug.LogWarning($"[Cell {name}] end is NULL");
+        if (star == null)  Debug.LogWarning($"[Cell {name}] star is NULL");
+
+        hintObjects.ForEach(hint => hint.SetActive(false));
+
         Cell = cellData;
         gameObject.SetActive(Cell.Terrain != TerrainType.Empty);
         if (Cell.Terrain == TerrainType.Empty)
             return;
-        
-        Cell.Item.OnChanged += OnCellItemChange;
 
+        Cell.Item.OnChanged += OnCellItemChange;
         player = newPlayer;
-        
+
         start.SetActive(Cell.Terrain == TerrainType.Start);
         end.SetActive(Cell.Terrain == TerrainType.End);
         fire.SetActive(Cell.Terrain == TerrainType.Fire);
@@ -65,93 +53,57 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
         star.SetActive(Cell.Item == CellItem.Star);
         starDefaultScale = star.transform.localScale.x;
-        
+
+        var col = GetComponent<Collider>();
+        if (col == null)
+            Debug.LogError($"[Cell {name}] No Collider — clicks won't register! Add BoxCollider.");
+
         transform.localScale = Vector3.zero;
-        
         rippleSequence = DOTween.Sequence();
         rippleSequence.AppendInterval(delay);
         rippleSequence.Append(transform.DOScale(1f, 0.5f).SetEase(Ease.OutQuad));
         rippleSequence.Play();
     }
 
-    public void SetIsValidMoveOption(bool newIsValid)
-    {
-        isValid = newIsValid;
-    }
+    public void SetIsValidMoveOption(bool newIsValid) { }
+    public void ResetIsValidMoveOption() { }
 
-    public void ResetIsValidMoveOption()
-    {
-        isValid = false;
-    }
-
-    public Sequence DoOutOfMovesPulse()
-    {
-        return DoPulse(0.5f, invalidMoveColor);
-    }
-
-    public Sequence DoPulse(float duration)
-    {
-        return DoPulse(duration, pulseColor);
-    }
-
-    public Sequence DoPulse(float duration, Color color)
-    {
-        fill.color = defaultColor;
-
-        pulseSequence = DOTween.Sequence();
-        pulseSequence.Append(fill.DOColor(color, duration / 2).SetEase(Ease.OutSine));
-        pulseSequence.Append(fill.DOColor(defaultColor, duration / 2).SetEase(Ease.InSine));
-        pulseSequence.OnUpdate(() =>
-        {
-            if (isPointerOver)
-            {
-                bool isPlayerOnCell = !Cell.IsFree;
-                fill.color = isPlayerOnCell ? Color.white : isValid ? validMoveColor : invalidMoveColor;
-            }
-        });
-
-        return pulseSequence;
-    }
-
-    public void ResetPulse()
-    {
-        pulseSequence?.Kill(true);
-        fill.color = defaultColor;
-    }
+    public Sequence DoOutOfMovesPulse() => DOTween.Sequence();
+    public Sequence DoPulse(float duration) => DOTween.Sequence();
+    public Sequence DoPulse(float duration, Color color) => DOTween.Sequence();
+    public void ResetPulse() { }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        pulseSequence?.Pause();
-        isPointerOver = true;
-
-        bool isPlayerOnCell = !Cell.IsFree;
-        fill.color = isPlayerOnCell ? Color.white : isValid ? validMoveColor : invalidMoveColor;
-        
-        GlobalSoundManager.PlayRandomSoundByType(SoundType.Click, 0.1f);
+        Debug.Log($"[Cell {name}] OnPointerEnter  terrain={Cell?.Terrain}  pos={transform.position}");
         transform.DOScale(1.05f, 0.2f).SetEase(Ease.OutQuad);
+        GlobalSoundManager.PlayRandomSoundByType(SoundType.Click, 0.1f);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
+        Debug.Log($"[Cell {name}] OnPointerExit");
         transform.DOScale(1f, 0.2f).SetEase(Ease.OutQuad);
-        isPointerOver = false;
-
-        fill.color = defaultColor;
-
-        if (pulseSequence == null)
-            return;
-
-        pulseSequence.Goto(Time.time);
-        pulseSequence.Play();
     }
 
     public void OnPointerDown(PointerEventData eventData)
     {
+        Debug.Log($"[Cell {name}] OnPointerDown");
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
+        Debug.Log($"[Cell {name}] OnPointerUp → calling Player.Move");
         player.Move(this);
+    }
+
+    public void ShakeCell()
+    {
+        var shakeSequence = DOTween.Sequence();
+        shakeSequence.AppendInterval(0.5f);
+        shakeSequence.Append(transform.DOShakePosition(0.3f,
+            strength: new Vector3(0.05f, 0f, 0.05f),
+            vibrato: 20, randomness: 90, snapping: false, fadeOut: true));
     }
 
     private void OnCellItemChange(Observable<CellItem> item, CellItem oldValue, CellItem newValue)
@@ -170,19 +122,9 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         }
     }
 
-    public void ShakeCell()
-    {
-        var cell = gameObject;
-        var shakeSequence = DOTween.Sequence();
-        shakeSequence.AppendInterval(0.5f); // Add a delay of 0.5 seconds
-        shakeSequence.Append(cell.transform.DOShakePosition(0.3f, strength: new Vector3(0.05f, 0.05f, 0), vibrato: 20, randomness: 90, snapping: false, fadeOut: true));
-    }
-
     private void OnDestroy()
     {
         rippleSequence?.Kill();
-        pulseSequence?.Kill();
-        hintPulseSequence?.Kill();
         DOTween.Kill(this);
     }
 }

@@ -109,6 +109,7 @@ MonoBehaviour:
     Moves: 1
   - State: 4
     Moves: 4
+  Biome: 1
   cachedSolution:
   - Position: {x: 0, y: 5}
     State: 0

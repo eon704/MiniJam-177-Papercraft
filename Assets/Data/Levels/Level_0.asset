@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Level_0
   m_EditorClassIdentifier: 
   MapSize: {x: 3, y: 1}
-  Map: SoE
+  Map: []
   StartMovesPerForm:
   - State: 0
     Moves: 0
@@ -25,3 +25,5 @@ MonoBehaviour:
     Moves: 3
   - State: 4
     Moves: 3
+  Biome: 1
+  cachedSolution: []
