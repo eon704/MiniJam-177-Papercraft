@@ -15,6 +15,8 @@ namespace PlayerStateMachine
 
         public List<TerrainType> MoveTerrain => stateModel.MoveTerrain;
 
+        public MoveMode MoveMode => MoveMode.BoatSlide;
+
         public BoatState(GameObject gameObject, Player player)
         {
             _stateGameObject = gameObject;

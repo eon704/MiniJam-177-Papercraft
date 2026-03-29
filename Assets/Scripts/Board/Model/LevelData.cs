@@ -14,6 +14,10 @@ public class LevelData : ScriptableObject
     [Header("Biome")]
     public BiomeType Biome;
 
+    [Header("Special Biome Cells")]
+    public List<VolcanoConfig> VolcanoConfigs = new();
+    public List<IceSourceConfig> IceSourceConfigs = new();
+
     [Header("Solution Data")]
     [SerializeField] private List<SolutionStep> cachedSolution;
 
@@ -123,6 +127,22 @@ public class LevelData : ScriptableObject
 
         return true;
     }
+}
+
+[Serializable]
+public class VolcanoConfig
+{
+    public Vector2Int Position;
+    public int Period = 2;
+    public List<Vector2Int> LavaSequence = new();
+}
+
+[Serializable]
+public class IceSourceConfig
+{
+    public Vector2Int Position;
+    public int Period = 3;
+    public List<Vector2Int> FreezeSequence = new();
 }
 
 [Serializable]

@@ -1,4 +1,5 @@
 using UnityEngine;
+using FMODUnity;
 
 [CreateAssetMenu(fileName = "BiomeData", menuName = "Game/Biome Data")]
 public class BiomeData : ScriptableObject
@@ -9,5 +10,5 @@ public class BiomeData : ScriptableObject
     public string[] SceneNames;
 
     [Tooltip("Ambient soundtrack played when this biome is active. Leave empty to keep current music.")]
-    public AudioClip AmbientClip;
+    public EventReference AmbientEvent;
 }

@@ -7,7 +7,7 @@ using System.Linq;
 
 public class LevelEditorWindow : EditorWindow
 {
-    private LevelData currentLevel;
+    [SerializeField] private LevelData currentLevel;
     private WorkingLevelData workingLevel; // Working copy for editing
     private Vector2 scrollPosition;
     private new bool hasUnsavedChanges;
@@ -20,23 +20,30 @@ public class LevelEditorWindow : EditorWindow
     {
         Tiles,
         Moves,
-        Analysis
+        Analysis,
+        VolcanoSequence,
+        IceSequence
     }
 
     private EditorMode currentMode = EditorMode.Tiles;
 
+    // Sequence editing
+    private Vector2Int? selectedVolcanoPos = null;
+    private Vector2Int? selectedIceSourcePos = null;
+
     private Dictionary<TerrainType, string> tileTexturePaths = new() {
-        { TerrainType.Empty, "Assets/Sprites/Cell/NewCell/Border.png" },
-        { TerrainType.Default, "Assets/Sprites/Cell/NewCell/Default Layer 2.png" },
-        { TerrainType.Start, "Assets/Sprites/Cell/NewCell/Start.png" },
-        { TerrainType.End, "Assets/Sprites/Cell/NewCell/Finish cell/StaticEnd.png" },
-        { TerrainType.Water, "Assets/Sprites/Obstacles/water/0.gif" },
-        { TerrainType.Stone, "Assets/Sprites/Cell/NewCell/Rock.png" },
-        { TerrainType.Fire, "Assets/Sprites/Obstacles/fire/1.jpeg" }
+        { TerrainType.Empty, "Assets/Art/Sprites/Cell/NewCell/Border.png" },
+        { TerrainType.Default, "Assets/Art/Sprites/Cell/NewCell/Default Layer 2.png" },
+        { TerrainType.Start, "Assets/Art/Sprites/Cell/NewCell/Start.png" },
+        { TerrainType.End, "Assets/Art/Sprites/Cell/NewCell/Finish cell/StaticEnd.png" },
+        { TerrainType.Water, "Assets/Art/Sprites/Obstacles/water/0.gif" },
+        { TerrainType.Stone, "Assets/Art/Sprites/Cell/NewCell/Rock.png" },
+        { TerrainType.Fire, "Assets/Art/Sprites/Obstacles/fire/1.jpeg" }
+        // Volcano, Lava, Ice: drawn with solid color fallback
     };
 
     private Dictionary<CellItem, string> itemTexturePaths = new() {
-        { CellItem.Star, "Assets/Sprites/Stars/Group 988.png" },
+        { CellItem.Star, "Assets/Art/Sprites/Stars/Group 988.png" },
     };
 
     private Dictionary<char, TerrainType> cellTypes = new() {
@@ -55,7 +62,10 @@ public class LevelEditorWindow : EditorWindow
         { 'F', TerrainType.Fire },
 
         { 'x', TerrainType.Start },
-        { 'y', TerrainType.End }
+        { 'y', TerrainType.End },
+
+        { 'V', TerrainType.Volcano },
+        { 'I', TerrainType.Ice }
     };
 
     private List<TerrainType> toolTerrainTypes = new() {
@@ -65,7 +75,9 @@ public class LevelEditorWindow : EditorWindow
         TerrainType.End,
         TerrainType.Water,
         TerrainType.Stone,
-        TerrainType.Fire
+        TerrainType.Fire,
+        TerrainType.Volcano,
+        TerrainType.Ice
     };
 
     private List<CellItem> toolItemTypes = new() {
@@ -87,10 +99,20 @@ public class LevelEditorWindow : EditorWindow
     private float leftPanelWidth = 350f; // Default width for the left panel
     private bool isDraggingSplitter = false;
     private float splitterWidth = 5f; // Width of the draggable splitter
-    private bool? lastSolvabilityResult = null; // Cache the result
-    private bool isCheckingSolvability = false; // Track if solvability check is in progress
-    private List<TurnInfo> currentSolutionPath = null; // Store the current solution for visualization
-    private bool showSolutionPath = false; // Toggle for showing/hiding the solution path
+    private bool? lastSolvabilityResult = null;
+    private bool? lastTightSolveResult = null; // All finite form moves fully exhausted?
+    private List<(Player.StateType state, int remaining)> wastedMoves = null; // Forms with leftover moves in the regular solution
+    private bool isCheckingSolvability = false;
+    private List<TurnInfo> currentSolutionPath = null;
+    private bool showSolutionPath = false;
+
+    // Fallback colors for terrain types that have no texture
+    private readonly Dictionary<TerrainType, Color> terrainFallbackColors = new()
+    {
+        { TerrainType.Volcano, new Color(0.4f, 0.1f, 0.1f) },
+        { TerrainType.Lava,    new Color(1f,   0.3f, 0f) },
+        { TerrainType.Ice,     new Color(0.6f, 0.85f, 1f) }
+    };
 
     // Colors for different player states
     private readonly Dictionary<Player.StateType, Color> stateColors = new()
@@ -123,6 +145,17 @@ public class LevelEditorWindow : EditorWindow
     private void OnEnable()
     {
         LoadTileTextures();
+
+        // Restore working copy after recompile (currentLevel survives via [SerializeField], workingLevel doesn't)
+        if (currentLevel != null && workingLevel == null)
+        {
+            workingLevel = new WorkingLevelData(currentLevel);
+            if (workingLevel.CachedSolution != null && workingLevel.CachedSolution.Count > 0)
+                LoadCachedSolution();
+        }
+
+        // AssetDatabase may not be ready during domain reload — reload textures after it settles
+        EditorApplication.delayCall += () => { LoadTileTextures(); Repaint(); };
     }
 
     private void LoadTileTextures()
@@ -250,6 +283,12 @@ public class LevelEditorWindow : EditorWindow
 
         EditorGUILayout.Space();
 
+        // Map Size
+        if (workingLevel != null)
+            DrawMapSizeEditor();
+
+        EditorGUILayout.Space();
+
         // Tool Selection
         EditorGUILayout.LabelField("Tools", EditorStyles.boldLabel);
         DrawToolSelection();
@@ -261,6 +300,7 @@ public class LevelEditorWindow : EditorWindow
         {
             case EditorMode.Tiles:
                 DrawTilesTool();
+                DrawSpecialCellsConfig();
                 break;
             case EditorMode.Moves:
                 DrawMovesTool();
@@ -268,11 +308,87 @@ public class LevelEditorWindow : EditorWindow
             case EditorMode.Analysis:
                 DrawAnalysisTool();
                 break;
+            case EditorMode.VolcanoSequence:
+                DrawVolcanoSequenceTool();
+                break;
+            case EditorMode.IceSequence:
+                DrawIceSequenceTool();
+                break;
         }
 
         EditorGUILayout.EndVertical(); // End padding container
         EditorGUILayout.EndScrollView();
         EditorGUILayout.EndVertical();
+    }
+
+    private void DrawMapSizeEditor()
+    {
+        EditorGUILayout.LabelField("Map Size", EditorStyles.boldLabel);
+        EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+
+        int newW = Mathf.Max(1, EditorGUILayout.IntField("Width",  workingLevel.MapSize.x));
+        int newH = Mathf.Max(1, EditorGUILayout.IntField("Height", workingLevel.MapSize.y));
+
+        bool sizeChanged = newW != workingLevel.MapSize.x || newH != workingLevel.MapSize.y;
+
+        EditorGUILayout.BeginHorizontal();
+
+        GUI.enabled = sizeChanged;
+        if (GUILayout.Button("Apply", GUILayout.Height(22)))
+            ResizeMap(newW, newH);
+        GUI.enabled = true;
+
+        if (GUILayout.Button("+ Col",  GUILayout.Height(22))) ResizeMap(workingLevel.MapSize.x + 1, workingLevel.MapSize.y);
+        if (GUILayout.Button("+ Row",  GUILayout.Height(22))) ResizeMap(workingLevel.MapSize.x,     workingLevel.MapSize.y + 1);
+        EditorGUILayout.EndHorizontal();
+
+        EditorGUILayout.BeginHorizontal();
+        GUI.enabled = workingLevel.MapSize.x > 1;
+        if (GUILayout.Button("- Col",  GUILayout.Height(22))) ResizeMap(workingLevel.MapSize.x - 1, workingLevel.MapSize.y);
+        GUI.enabled = workingLevel.MapSize.y > 1;
+        if (GUILayout.Button("- Row",  GUILayout.Height(22))) ResizeMap(workingLevel.MapSize.x,     workingLevel.MapSize.y - 1);
+        GUI.enabled = true;
+        EditorGUILayout.EndHorizontal();
+
+        EditorGUILayout.EndVertical();
+    }
+
+    private void ResizeMap(int newW, int newH)
+    {
+        if (workingLevel == null) return;
+        newW = Mathf.Max(1, newW);
+        newH = Mathf.Max(1, newH);
+
+        int oldW = workingLevel.MapSize.x;
+        int oldH = workingLevel.MapSize.y;
+        var oldMap = workingLevel.Map ?? new CellData[0];
+
+        var newMap = new CellData[newW * newH];
+        for (int i = 0; i < newMap.Length; i++)
+            newMap[i] = new CellData(TerrainType.Empty, CellItem.None);
+
+        // Copy overlapping region
+        for (int y = 0; y < Mathf.Min(oldH, newH); y++)
+        for (int x = 0; x < Mathf.Min(oldW, newW); x++)
+        {
+            int oldIdx = y * oldW + x;
+            int newIdx = y * newW + x;
+            if (oldIdx < oldMap.Length)
+                newMap[newIdx] = new CellData(oldMap[oldIdx].Terrain, oldMap[oldIdx].Item, oldMap[oldIdx].IsFragile);
+        }
+
+        workingLevel.MapSize = new Vector2Int(newW, newH);
+        workingLevel.Map     = newMap;
+
+        // Clamp volcano/ice source positions that fell outside
+        workingLevel.VolcanoConfigs?.RemoveAll(v =>
+            v.Position.x >= newW || v.Position.y >= newH);
+        workingLevel.IceSourceConfigs?.RemoveAll(v =>
+            v.Position.x >= newW || v.Position.y >= newH);
+
+        hasUnsavedChanges = true;
+        ResetSolvabilityCheck();
+        Repaint();
     }
 
     private void DrawToolSelection()
@@ -290,6 +406,14 @@ public class LevelEditorWindow : EditorWindow
         if (GUILayout.Toggle(currentMode == EditorMode.Analysis, "Analysis", EditorStyles.toolbarButton, GUILayout.MinWidth(70)))
         {
             currentMode = EditorMode.Analysis;
+        }
+        if (GUILayout.Toggle(currentMode == EditorMode.VolcanoSequence, "Volcano", EditorStyles.toolbarButton, GUILayout.MinWidth(70)))
+        {
+            currentMode = EditorMode.VolcanoSequence;
+        }
+        if (GUILayout.Toggle(currentMode == EditorMode.IceSequence, "Ice", EditorStyles.toolbarButton, GUILayout.MinWidth(50)))
+        {
+            currentMode = EditorMode.IceSequence;
         }
 
         EditorGUILayout.EndHorizontal();
@@ -492,6 +616,25 @@ public class LevelEditorWindow : EditorWindow
                 string message = lastSolvabilityResult.Value ? "✓ This level is solvable!" : "✗ This level is NOT solvable.";
                 MessageType messageType = lastSolvabilityResult.Value ? MessageType.Info : MessageType.Error;
                 EditorGUILayout.HelpBox(message, messageType);
+
+                if (lastSolvabilityResult.Value && lastTightSolveResult.HasValue)
+                {
+                    if (lastTightSolveResult.Value)
+                    {
+                        EditorGUILayout.HelpBox("✓ Tight: a solution exists that uses ALL move counts to zero. Level is optimally balanced.", MessageType.Info);
+                    }
+                    else
+                    {
+                        // Build a description of which forms still had moves left
+                        string wastedDesc = wastedMoves != null && wastedMoves.Count > 0
+                            ? string.Join(", ", wastedMoves.Select(w => $"{w.state} (+{w.remaining})"))
+                            : "unknown";
+                        EditorGUILayout.HelpBox(
+                            $"⚠ Not tight: no solution uses ALL moves. Forms with leftover moves in the shortest solution: {wastedDesc}\n" +
+                            "Consider reducing those move counts so the player must use every last move.",
+                            MessageType.Warning);
+                    }
+                }
             }
 
             EditorGUILayout.Space();
@@ -580,6 +723,246 @@ public class LevelEditorWindow : EditorWindow
         }
     }
 
+    private void DrawSpecialCellsConfig()
+    {
+        if (workingLevel == null) return;
+
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("Special Biome Cells", EditorStyles.boldLabel);
+        EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+
+        // Volcano configs
+        EditorGUILayout.LabelField("Volcanoes", EditorStyles.boldLabel);
+        if (workingLevel.VolcanoConfigs.Count == 0)
+        {
+            EditorGUILayout.HelpBox("No volcano cells on the map.", MessageType.Info);
+        }
+        else
+        {
+            foreach (var cfg in workingLevel.VolcanoConfigs)
+            {
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+                EditorGUILayout.LabelField($"Volcano ({cfg.Position.x}, {cfg.Position.y})", EditorStyles.boldLabel);
+
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.LabelField("Period:", GUILayout.Width(50));
+                int newPeriod = EditorGUILayout.IntField(cfg.Period, GUILayout.Width(50));
+                if (newPeriod != cfg.Period) { cfg.Period = Mathf.Max(1, newPeriod); hasUnsavedChanges = true; }
+                EditorGUILayout.EndHorizontal();
+
+                EditorGUILayout.LabelField($"Lava sequence: {cfg.LavaSequence?.Count ?? 0} cells", EditorStyles.miniLabel);
+                EditorGUILayout.BeginHorizontal();
+                if (GUILayout.Button("Edit", GUILayout.MaxWidth(80))) { currentMode = EditorMode.VolcanoSequence; selectedVolcanoPos = cfg.Position; }
+                if (GUILayout.Button("Clear", GUILayout.MaxWidth(80))) { cfg.LavaSequence?.Clear(); hasUnsavedChanges = true; Repaint(); }
+                EditorGUILayout.EndHorizontal();
+                EditorGUILayout.EndVertical();
+                EditorGUILayout.Space(2);
+            }
+        }
+
+        EditorGUILayout.Space();
+
+        // Ice source configs
+        EditorGUILayout.LabelField("Ice Sources", EditorStyles.boldLabel);
+        if (workingLevel.IceSourceConfigs.Count == 0)
+        {
+            EditorGUILayout.HelpBox("No ice source cells on the map. Paint an Ice tile to configure it.", MessageType.Info);
+        }
+        else
+        {
+            foreach (var cfg in workingLevel.IceSourceConfigs)
+            {
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+                EditorGUILayout.LabelField($"Ice Source ({cfg.Position.x}, {cfg.Position.y})", EditorStyles.boldLabel);
+
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.LabelField("Period:", GUILayout.Width(50));
+                int newPeriod = EditorGUILayout.IntField(cfg.Period, GUILayout.Width(50));
+                if (newPeriod != cfg.Period) { cfg.Period = Mathf.Max(1, newPeriod); hasUnsavedChanges = true; }
+                EditorGUILayout.EndHorizontal();
+
+                EditorGUILayout.LabelField($"Freeze sequence: {cfg.FreezeSequence?.Count ?? 0} cells", EditorStyles.miniLabel);
+                EditorGUILayout.BeginHorizontal();
+                if (GUILayout.Button("Edit", GUILayout.MaxWidth(80))) { currentMode = EditorMode.IceSequence; selectedIceSourcePos = cfg.Position; }
+                if (GUILayout.Button("Clear", GUILayout.MaxWidth(80))) { cfg.FreezeSequence?.Clear(); hasUnsavedChanges = true; Repaint(); }
+                EditorGUILayout.EndHorizontal();
+                EditorGUILayout.EndVertical();
+                EditorGUILayout.Space(2);
+            }
+        }
+
+        EditorGUILayout.EndVertical();
+    }
+
+    private void DrawVolcanoSequenceTool()
+    {
+        EditorGUILayout.LabelField("Volcano Sequence Editor", EditorStyles.boldLabel);
+        EditorGUILayout.Space();
+
+        if (workingLevel == null)
+        {
+            EditorGUILayout.HelpBox("No level selected.", MessageType.Info);
+            return;
+        }
+
+        if (workingLevel.VolcanoConfigs.Count == 0)
+        {
+            EditorGUILayout.HelpBox("No volcano cells on the map. Switch to Tiles mode and paint a Volcano cell.", MessageType.Warning);
+            return;
+        }
+
+        EditorGUILayout.HelpBox(
+            "1. Click a Volcano cell in the preview to select it.\n" +
+            "2. Then click other cells to add them to the lava sequence.\n" +
+            "Right-click a sequence cell to remove the last entry.",
+            MessageType.Info);
+
+        EditorGUILayout.Space();
+
+        if (selectedVolcanoPos.HasValue)
+        {
+            var cfg = workingLevel.VolcanoConfigs.Find(c => c.Position == selectedVolcanoPos.Value);
+            if (cfg != null)
+            {
+                EditorGUILayout.LabelField($"Selected: Volcano at ({cfg.Position.x}, {cfg.Position.y})", EditorStyles.boldLabel);
+
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.LabelField("Period (moves):", GUILayout.Width(110));
+                int newPeriod = EditorGUILayout.IntField(cfg.Period, GUILayout.Width(50));
+                if (newPeriod != cfg.Period)
+                {
+                    cfg.Period = Mathf.Max(1, newPeriod);
+                    hasUnsavedChanges = true;
+                }
+                EditorGUILayout.EndHorizontal();
+
+                EditorGUILayout.Space();
+                EditorGUILayout.LabelField("Lava Sequence:", EditorStyles.boldLabel);
+
+                if (cfg.LavaSequence == null || cfg.LavaSequence.Count == 0)
+                {
+                    EditorGUILayout.LabelField("  (empty — click cells in the preview to add)", EditorStyles.miniLabel);
+                }
+                else
+                {
+                    for (int i = 0; i < cfg.LavaSequence.Count; i++)
+                    {
+                        EditorGUILayout.BeginHorizontal();
+                        EditorGUILayout.LabelField($"  {i + 1}. ({cfg.LavaSequence[i].x}, {cfg.LavaSequence[i].y})", GUILayout.Width(130));
+                        if (GUILayout.Button("✕", GUILayout.Width(24)))
+                        {
+                            cfg.LavaSequence.RemoveAt(i);
+                            hasUnsavedChanges = true;
+                            Repaint();
+                        }
+                        EditorGUILayout.EndHorizontal();
+                    }
+                }
+
+                EditorGUILayout.Space();
+                if (GUILayout.Button("Clear Sequence", GUILayout.MaxWidth(150)))
+                {
+                    cfg.LavaSequence?.Clear();
+                    hasUnsavedChanges = true;
+                    Repaint();
+                }
+            }
+            else
+            {
+                EditorGUILayout.HelpBox("Selected volcano no longer exists. Click a Volcano cell to re-select.", MessageType.Warning);
+                selectedVolcanoPos = null;
+            }
+        }
+        else
+        {
+            EditorGUILayout.HelpBox("Click a Volcano cell in the preview to select it.", MessageType.Info);
+        }
+    }
+
+    private void DrawIceSequenceTool()
+    {
+        EditorGUILayout.LabelField("Ice Source Sequence Editor", EditorStyles.boldLabel);
+        EditorGUILayout.Space();
+
+        if (workingLevel == null)
+        {
+            EditorGUILayout.HelpBox("No level selected.", MessageType.Info);
+            return;
+        }
+
+        if (workingLevel.IceSourceConfigs.Count == 0)
+        {
+            EditorGUILayout.HelpBox("No ice source cells on the map. Switch to Tiles mode and paint an Ice cell.", MessageType.Warning);
+            return;
+        }
+
+        EditorGUILayout.HelpBox(
+            "1. Click an Ice source cell in the preview to select it.\n" +
+            "2. Then click other cells to define the freeze sequence.",
+            MessageType.Info);
+
+        EditorGUILayout.Space();
+
+        if (selectedIceSourcePos.HasValue)
+        {
+            var cfg = workingLevel.IceSourceConfigs.Find(c => c.Position == selectedIceSourcePos.Value);
+            if (cfg != null)
+            {
+                EditorGUILayout.LabelField($"Selected: Ice Source at ({cfg.Position.x}, {cfg.Position.y})", EditorStyles.boldLabel);
+
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.LabelField("Period (moves):", GUILayout.Width(110));
+                int newPeriod = EditorGUILayout.IntField(cfg.Period, GUILayout.Width(50));
+                if (newPeriod != cfg.Period)
+                {
+                    cfg.Period = Mathf.Max(1, newPeriod);
+                    hasUnsavedChanges = true;
+                }
+                EditorGUILayout.EndHorizontal();
+
+                EditorGUILayout.Space();
+                EditorGUILayout.LabelField("Freeze Sequence:", EditorStyles.boldLabel);
+
+                if (cfg.FreezeSequence == null || cfg.FreezeSequence.Count == 0)
+                {
+                    EditorGUILayout.LabelField("  (empty — click cells in the preview to add)", EditorStyles.miniLabel);
+                }
+                else
+                {
+                    for (int i = 0; i < cfg.FreezeSequence.Count; i++)
+                    {
+                        EditorGUILayout.BeginHorizontal();
+                        EditorGUILayout.LabelField($"  {i + 1}. ({cfg.FreezeSequence[i].x}, {cfg.FreezeSequence[i].y})", GUILayout.Width(130));
+                        if (GUILayout.Button("✕", GUILayout.Width(24)))
+                        {
+                            cfg.FreezeSequence.RemoveAt(i);
+                            hasUnsavedChanges = true;
+                            Repaint();
+                        }
+                        EditorGUILayout.EndHorizontal();
+                    }
+                }
+
+                EditorGUILayout.Space();
+                if (GUILayout.Button("Clear Sequence", GUILayout.MaxWidth(150)))
+                {
+                    cfg.FreezeSequence?.Clear();
+                    hasUnsavedChanges = true;
+                    Repaint();
+                }
+            }
+            else
+            {
+                EditorGUILayout.HelpBox("Selected ice source no longer exists.", MessageType.Warning);
+                selectedIceSourcePos = null;
+            }
+        }
+        else
+        {
+            EditorGUILayout.HelpBox("Click an Ice source cell in the preview to select it.", MessageType.Info);
+        }
+    }
+
     private void DrawPreviewPanel()
     {
         EditorGUILayout.BeginVertical();
@@ -606,6 +989,13 @@ public class LevelEditorWindow : EditorWindow
                 {
                     workingLevel.Map[i] = new CellData(TerrainType.Default, CellItem.None);
                 }
+                // Remove special cell configs that are now out of bounds
+                workingLevel.VolcanoConfigs.RemoveAll(cfg =>
+                    cfg.Position.x < 0 || cfg.Position.x >= workingLevel.MapSize.x ||
+                    cfg.Position.y < 0 || cfg.Position.y >= workingLevel.MapSize.y);
+                workingLevel.IceSourceConfigs.RemoveAll(cfg =>
+                    cfg.Position.x < 0 || cfg.Position.x >= workingLevel.MapSize.x ||
+                    cfg.Position.y < 0 || cfg.Position.y >= workingLevel.MapSize.y);
                 hasUnsavedChanges = true;
                 ResetSolvabilityCheck(); // Reset when level changes
             }
@@ -642,7 +1032,77 @@ public class LevelEditorWindow : EditorWindow
 
                     // Handle click on tile
                     Event e = Event.current;
-                    if (e.type == EventType.MouseDown && e.button == 0 && tileRect.Contains(e.mousePosition))
+
+                    // Right-click: toggle fragile (only in Tiles mode)
+                    if (currentMode == EditorMode.Tiles && e.type == EventType.MouseDown && e.button == 1 && tileRect.Contains(e.mousePosition))
+                    {
+                        if (cellData.Terrain != TerrainType.Empty)
+                        {
+                            cellData.IsFragile = !cellData.IsFragile;
+                            workingLevel.Map[index] = cellData;
+                            hasUnsavedChanges = true;
+                            ResetSolvabilityCheck();
+                            e.Use();
+                        }
+                    }
+
+                    if (currentMode == EditorMode.VolcanoSequence && e.type == EventType.MouseDown && e.button == 0 && tileRect.Contains(e.mousePosition))
+                    {
+                        var clickedPos = new Vector2Int(x, y);
+                        if (cellData.Terrain == TerrainType.Volcano)
+                        {
+                            selectedVolcanoPos = clickedPos;
+                            if (workingLevel.VolcanoConfigs.Find(c => c.Position == clickedPos) == null)
+                                workingLevel.VolcanoConfigs.Add(new VolcanoConfig { Position = clickedPos, Period = 2 });
+                            e.Use();
+                            Repaint();
+                        }
+                        else if (selectedVolcanoPos.HasValue && cellData.Terrain != TerrainType.Empty)
+                        {
+                            var cfg = workingLevel.VolcanoConfigs.Find(c => c.Position == selectedVolcanoPos.Value);
+                            if (cfg != null)
+                            {
+                                if (cfg.LavaSequence == null) cfg.LavaSequence = new System.Collections.Generic.List<Vector2Int>();
+                                if (!cfg.LavaSequence.Contains(clickedPos))
+                                {
+                                    cfg.LavaSequence.Add(clickedPos);
+                                    hasUnsavedChanges = true;
+                                    e.Use();
+                                    Repaint();
+                                }
+                            }
+                        }
+                    }
+
+                    if (currentMode == EditorMode.IceSequence && e.type == EventType.MouseDown && e.button == 0 && tileRect.Contains(e.mousePosition))
+                    {
+                        var clickedPos = new Vector2Int(x, y);
+                        if (cellData.Terrain == TerrainType.Ice)
+                        {
+                            selectedIceSourcePos = clickedPos;
+                            if (workingLevel.IceSourceConfigs.Find(c => c.Position == clickedPos) == null)
+                                workingLevel.IceSourceConfigs.Add(new IceSourceConfig { Position = clickedPos, Period = 3 });
+                            e.Use();
+                            Repaint();
+                        }
+                        else if (selectedIceSourcePos.HasValue && cellData.Terrain != TerrainType.Empty)
+                        {
+                            var cfg = workingLevel.IceSourceConfigs.Find(c => c.Position == selectedIceSourcePos.Value);
+                            if (cfg != null)
+                            {
+                                if (cfg.FreezeSequence == null) cfg.FreezeSequence = new System.Collections.Generic.List<Vector2Int>();
+                                if (!cfg.FreezeSequence.Contains(clickedPos))
+                                {
+                                    cfg.FreezeSequence.Add(clickedPos);
+                                    hasUnsavedChanges = true;
+                                    e.Use();
+                                    Repaint();
+                                }
+                            }
+                        }
+                    }
+
+                    if (currentMode == EditorMode.Tiles && e.type == EventType.MouseDown && e.button == 0 && tileRect.Contains(e.mousePosition))
                     {
                         if (selectedItemType.HasValue)
                         {
@@ -668,8 +1128,31 @@ public class LevelEditorWindow : EditorWindow
                         }
                         else
                         {
+                            var newPos = new Vector2Int(x, y);
                             if (cellData.Terrain != selectedTerrainType)
                             {
+                                // When painting Volcano, auto-create a config entry
+                                if (selectedTerrainType == TerrainType.Volcano &&
+                                    workingLevel.VolcanoConfigs.Find(c => c.Position == newPos) == null)
+                                {
+                                    workingLevel.VolcanoConfigs.Add(new VolcanoConfig { Position = newPos, Period = 2 });
+                                }
+                                // When erasing a Volcano, remove its config
+                                if (cellData.Terrain == TerrainType.Volcano)
+                                {
+                                    workingLevel.VolcanoConfigs.RemoveAll(c => c.Position == newPos);
+                                }
+                                // When painting Ice, auto-create an ice source config
+                                if (selectedTerrainType == TerrainType.Ice &&
+                                    workingLevel.IceSourceConfigs.Find(c => c.Position == newPos) == null)
+                                {
+                                    workingLevel.IceSourceConfigs.Add(new IceSourceConfig { Position = newPos, Period = 3 });
+                                }
+                                // When erasing an Ice source, remove its config
+                                if (cellData.Terrain == TerrainType.Ice)
+                                {
+                                    workingLevel.IceSourceConfigs.RemoveAll(c => c.Position == newPos);
+                                }
                                 cellData.Terrain = selectedTerrainType;
                                 workingLevel.Map[index] = cellData;
                                 hasUnsavedChanges = true;
@@ -679,14 +1162,53 @@ public class LevelEditorWindow : EditorWindow
                         }
                     }
 
-                    // Draw cell texture
-                    Texture2D cellTexture = cellTextures[cellData.Terrain];
-                    GUI.DrawTexture(tileRect, cellTexture);
+                    // Draw cell texture (or solid color fallback)
+                    if (!cellTextures.TryGetValue(cellData.Terrain, out Texture2D cellTexture) || cellTexture == null)
+                    {
+                        if (terrainFallbackColors.TryGetValue(cellData.Terrain, out Color fallback))
+                        {
+                            Color prev = GUI.color;
+                            GUI.color = fallback;
+                            GUI.DrawTexture(tileRect, Texture2D.whiteTexture);
+                            GUI.color = prev;
+                            GUIStyle labelStyle = new GUIStyle(EditorStyles.miniLabel)
+                            {
+                                alignment = TextAnchor.MiddleCenter,
+                                normal = { textColor = Color.white },
+                                fontStyle = FontStyle.Bold
+                            };
+                            GUI.Label(tileRect, cellData.Terrain.ToString(), labelStyle);
+                        }
+                        else
+                        {
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        GUI.DrawTexture(tileRect, cellTexture);
+                    }
+
+                    // Fragile overlay: orange tint + "~" label
+                    if (cellData.IsFragile)
+                    {
+                        Color prevColor = GUI.color;
+                        GUI.color = new Color(1f, 0.55f, 0f, 0.45f);
+                        GUI.DrawTexture(tileRect, Texture2D.whiteTexture);
+                        GUI.color = prevColor;
+                        GUIStyle fragileLabel = new GUIStyle(EditorStyles.boldLabel)
+                        {
+                            fontSize = 18,
+                            alignment = TextAnchor.UpperRight,
+                            normal = { textColor = Color.white }
+                        };
+                        GUI.Label(tileRect, "~", fragileLabel);
+                    }
 
                     // Draw item texture if present
                     if (cellData.Item != CellItem.None)
                     {
-                        if (itemTextures.TryGetValue(cellData.Item, out Texture2D itemTexture))
+                        if (itemTextures.TryGetValue(cellData.Item, out Texture2D itemTexture) && itemTexture != null)
                         {
                             // Calculate star rect to be half the size and centered
                             float starSize = tileSize * 0.5f;
@@ -694,6 +1216,80 @@ public class LevelEditorWindow : EditorWindow
                             float starY = posY + (tileSize - starSize) * 0.5f;
                             Rect starRect = new Rect(starX, starY, starSize, starSize);
                             GUI.DrawTexture(starRect, itemTexture);
+                        }
+                    }
+
+                    // VolcanoSequence mode overlays
+                    if (currentMode == EditorMode.VolcanoSequence)
+                    {
+                        var cellXY = new Vector2Int(x, y);
+
+                        if (selectedVolcanoPos.HasValue && cellXY == selectedVolcanoPos.Value)
+                        {
+                            Color prev = GUI.color;
+                            GUI.color = new Color(1f, 1f, 0f, 0.6f);
+                            GUI.DrawTexture(tileRect, Texture2D.whiteTexture);
+                            GUI.color = prev;
+                        }
+
+                        if (selectedVolcanoPos.HasValue)
+                        {
+                            var cfg = workingLevel.VolcanoConfigs.Find(c => c.Position == selectedVolcanoPos.Value);
+                            if (cfg?.LavaSequence != null)
+                            {
+                                int seqIdx = cfg.LavaSequence.IndexOf(cellXY);
+                                if (seqIdx >= 0)
+                                {
+                                    Color prev = GUI.color;
+                                    GUI.color = new Color(1f, 0.3f, 0f, 0.45f);
+                                    GUI.DrawTexture(tileRect, Texture2D.whiteTexture);
+                                    GUI.color = prev;
+                                    GUIStyle numStyle = new GUIStyle(EditorStyles.boldLabel)
+                                    {
+                                        fontSize = 20,
+                                        alignment = TextAnchor.MiddleCenter,
+                                        normal = { textColor = Color.white }
+                                    };
+                                    GUI.Label(tileRect, (seqIdx + 1).ToString(), numStyle);
+                                }
+                            }
+                        }
+                    }
+
+                    // IceSequence mode overlays
+                    if (currentMode == EditorMode.IceSequence)
+                    {
+                        var cellXY = new Vector2Int(x, y);
+
+                        if (selectedIceSourcePos.HasValue && cellXY == selectedIceSourcePos.Value)
+                        {
+                            Color prev = GUI.color;
+                            GUI.color = new Color(0.5f, 0.9f, 1f, 0.6f);
+                            GUI.DrawTexture(tileRect, Texture2D.whiteTexture);
+                            GUI.color = prev;
+                        }
+
+                        if (selectedIceSourcePos.HasValue)
+                        {
+                            var cfg = workingLevel.IceSourceConfigs.Find(c => c.Position == selectedIceSourcePos.Value);
+                            if (cfg?.FreezeSequence != null)
+                            {
+                                int seqIdx = cfg.FreezeSequence.IndexOf(cellXY);
+                                if (seqIdx >= 0)
+                                {
+                                    Color prev = GUI.color;
+                                    GUI.color = new Color(0.3f, 0.7f, 1f, 0.45f);
+                                    GUI.DrawTexture(tileRect, Texture2D.whiteTexture);
+                                    GUI.color = prev;
+                                    GUIStyle numStyle = new GUIStyle(EditorStyles.boldLabel)
+                                    {
+                                        fontSize = 20,
+                                        alignment = TextAnchor.MiddleCenter,
+                                        normal = { textColor = Color.white }
+                                    };
+                                    GUI.Label(tileRect, (seqIdx + 1).ToString(), numStyle);
+                                }
+                            }
                         }
                     }
                 }
@@ -828,7 +1424,7 @@ public class LevelEditorWindow : EditorWindow
         return solution != null;
     }
 
-    public static List<TurnInfo> SolveLevel(LevelData level)
+    public static List<TurnInfo> SolveLevel(LevelData level, bool requireAllMovesExhausted = false, bool requireLooseSolution = false)
     {
         if (level == null || level.Map == null || level.Map.Length == 0)
         {
@@ -873,7 +1469,8 @@ public class LevelEditorWindow : EditorWindow
             Stars = 0,
             MovesPerForm = level.StartMovesPerForm.ToDictionary(m => m.State, m => m.Moves),
             State = Player.StateType.Default,
-            CollectedStarPositions = new HashSet<Vector2Int>()
+            CollectedStarPositions = new HashSet<Vector2Int>(),
+            CollapsedCells = new HashSet<Vector2Int>()
         };
 
         queue.Enqueue(initialTurn);
@@ -887,7 +1484,12 @@ public class LevelEditorWindow : EditorWindow
             var current = queue.Dequeue();
             string currentKey = GetStateKey(current);
 
-            if (current.Position == endPos && current.Stars == 3)
+            bool _exhausted = AllMovesExhausted(current.MovesPerForm, level.StartMovesPerForm);
+            bool _goalMet = requireAllMovesExhausted ? _exhausted
+                          : requireLooseSolution     ? !_exhausted
+                          : true;
+
+            if (current.Position == endPos && current.Stars == 3 && _goalMet)
             {
                 // Reconstruct path
                 List<TurnInfo> solution = new();
@@ -899,19 +1501,13 @@ public class LevelEditorWindow : EditorWindow
                 }
                 solution.Add(current);
 
-                // Debug: Log the solution for verification
-                Debug.Log($"Found potential solution with {solution.Count} steps, final state: Position={current.Position}, Stars={current.Stars}");
+                Debug.Log($"Found solution with {solution.Count} steps, Position={current.Position}, Stars={current.Stars}");
 
-                // Final validation: ensure the solution path ends at the goal with all stars
                 if (ValidateSolution(solution, endPos))
-                {
                     return solution;
-                }
-                else
-                {
-                    Debug.LogError("Solution failed validation despite meeting BFS goal condition - this should not happen!");
-                    return null; // This should not happen, but return null instead of continue
-                }
+
+                Debug.LogError("Solution failed validation despite meeting BFS goal condition - this should not happen!");
+                return null;
             }
 
             // Try all possible states from current position
@@ -925,38 +1521,33 @@ public class LevelEditorWindow : EditorWindow
                 // Get the state model for movement options
                 if (!StateModelInfo.StateModels.TryGetValue(stateType, out StateModel stateModel)) continue;
 
-                // Try all possible moves for this state
-                foreach (Vector2Int moveOffset in stateModel.MoveOptions)
+                // Determine which cells are collapsed when leaving the current cell
+                HashSet<Vector2Int> collapsedAfterMove = new(current.CollapsedCells ?? new HashSet<Vector2Int>());
+                int curIdx = current.Position.y * level.MapSize.x + current.Position.x;
+                if (level.Map[curIdx].IsFragile)
+                    collapsedAfterMove.Add(current.Position);
+
+                // Generate target positions based on MoveMode (Plane slides, Boat crosses water, etc.)
+                foreach (Vector2Int newPos in GetMoveTargets(current.Position, stateModel, level, collapsedAfterMove))
                 {
-                    Vector2Int newPos = current.Position + moveOffset;
-
-                    // Check bounds
-                    if (newPos.x < 0 || newPos.x >= level.MapSize.x ||
-                        newPos.y < 0 || newPos.y >= level.MapSize.y) continue;
-
                     int cellIndex = newPos.y * level.MapSize.x + newPos.x;
                     CellData targetCell = level.Map[cellIndex];
 
-                    // Invalidate any moves that go on Fire terrain
+                    // Fire is always fatal — never a valid destination
                     if (targetCell.Terrain == TerrainType.Fire) continue;
 
-                    // Check if this state can move to this terrain
-                    if (!stateModel.MoveTerrain.Contains(targetCell.Terrain)) continue;
-
-                    // Calculate new star count - only count if this star position hasn't been collected yet
+                    // Stars
                     int newStars = current.Stars;
                     HashSet<Vector2Int> newCollectedStars = new(current.CollectedStarPositions ?? new HashSet<Vector2Int>());
-
                     if (targetCell.Item == CellItem.Star && !newCollectedStars.Contains(newPos))
                     {
                         newStars++;
                         newCollectedStars.Add(newPos);
                     }
 
-                    // Create new moves dictionary
+                    // Move count
                     Dictionary<Player.StateType, int> newMovesPerForm = new(current.MovesPerForm);
-                    if (stateType != Player.StateType.Default)
-                        newMovesPerForm[stateType]--;
+                    newMovesPerForm[stateType]--;
 
                     TurnInfo nextTurn = new TurnInfo
                     {
@@ -964,12 +1555,11 @@ public class LevelEditorWindow : EditorWindow
                         Stars = newStars,
                         MovesPerForm = newMovesPerForm,
                         State = stateType,
-                        CollectedStarPositions = newCollectedStars
+                        CollectedStarPositions = newCollectedStars,
+                        CollapsedCells = collapsedAfterMove
                     };
 
                     string nextKey = GetStateKey(nextTurn);
-                    
-                    // Check if we've visited this state before
                     if (!visited.Contains(nextKey))
                     {
                         visited.Add(nextKey);
@@ -989,15 +1579,99 @@ public class LevelEditorWindow : EditorWindow
         public int Stars;
         public Dictionary<Player.StateType, int> MovesPerForm;
         public Player.StateType State;
-        public HashSet<Vector2Int> CollectedStarPositions; // Track which star positions have been collected
+        public HashSet<Vector2Int> CollectedStarPositions;
+        public HashSet<Vector2Int> CollapsedCells; // Fragile cells that have been stepped on and left
     }
 
     public static string GetStateKey(TurnInfo state)
     {
-        // Create a more comprehensive key that includes move counts and collected star positions to avoid redundant states
         string movesKey = string.Join(",", state.MovesPerForm.OrderBy(kvp => kvp.Key).Select(kvp => $"{kvp.Key}:{kvp.Value}"));
-        string starsKey = string.Join(";", (state.CollectedStarPositions ?? new HashSet<Vector2Int>()).OrderBy(pos => pos.x).ThenBy(pos => pos.y).Select(pos => $"{pos.x},{pos.y}"));
-        return $"{state.Position.x},{state.Position.y},{state.State},{state.Stars},{movesKey},{starsKey}";
+        string starsKey = string.Join(";", (state.CollectedStarPositions ?? new HashSet<Vector2Int>()).OrderBy(p => p.x).ThenBy(p => p.y).Select(p => $"{p.x},{p.y}"));
+        string collapsedKey = string.Join(";", (state.CollapsedCells ?? new HashSet<Vector2Int>()).OrderBy(p => p.x).ThenBy(p => p.y).Select(p => $"{p.x},{p.y}"));
+        return $"{state.Position.x},{state.Position.y},{state.State},{state.Stars},{movesKey},{starsKey}|{collapsedKey}";
+    }
+
+    // Returns true if every form that started with finite (>0) moves has used them all.
+    private static bool AllMovesExhausted(Dictionary<Player.StateType, int> movesPerForm, List<MovePerFormEntry> startMoves)
+    {
+        foreach (var entry in startMoves)
+        {
+            if (entry.State == Player.StateType.Default) continue;
+            if (entry.Moves <= 0) continue; // 0 = never usable, -1 = unlimited
+            if (movesPerForm.TryGetValue(entry.State, out int remaining) && remaining > 0)
+                return false;
+        }
+        return true;
+    }
+
+    // Returns all valid landing positions for a given state from 'pos', respecting MoveMode mechanics.
+    private static IEnumerable<Vector2Int> GetMoveTargets(
+        Vector2Int pos, StateModel stateModel, LevelData level, HashSet<Vector2Int> collapsedCells)
+    {
+        bool InBounds(Vector2Int p) =>
+            p.x >= 0 && p.x < level.MapSize.x && p.y >= 0 && p.y < level.MapSize.y;
+        CellData Cell(Vector2Int p) => level.Map[p.y * level.MapSize.x + p.x];
+        bool Collapsed(Vector2Int p) => collapsedCells != null && collapsedCells.Contains(p);
+
+        switch (stateModel.MoveMode)
+        {
+            case MoveMode.Normal:
+            case MoveMode.FrogJump:
+                // Single step (Normal) or fixed 2-cell jump (FrogJump) — offsets already encode distance
+                foreach (var offset in stateModel.MoveOptions)
+                {
+                    var target = pos + offset;
+                    if (!InBounds(target)) continue;
+                    var cell = Cell(target);
+                    if (cell.Terrain == TerrainType.Empty) continue;
+                    if (Collapsed(target)) continue;
+                    if (!stateModel.MoveTerrain.Contains(cell.Terrain)) continue;
+                    yield return target;
+                }
+                break;
+
+            case MoveMode.PlaneSlide:
+                // Slide diagonally until terrain blocks or out of bounds.
+                // Fire blocks the slide (you can't fly past fire without dying).
+                foreach (var dir in stateModel.MoveOptions)
+                {
+                    var cursor = pos + dir;
+                    while (InBounds(cursor))
+                    {
+                        var cell = Cell(cursor);
+                        if (cell.Terrain == TerrainType.Empty) break;
+                        if (cell.Terrain == TerrainType.Fire) break;   // fire blocks slide
+                        if (Collapsed(cursor)) break;
+                        if (!stateModel.MoveTerrain.Contains(cell.Terrain)) break;
+                        yield return cursor;
+                        cursor += dir;
+                    }
+                }
+                break;
+
+            case MoveMode.BoatSlide:
+                // Must start with a Water cell, slide through all water, land on the first non-water
+                // cell that is in MoveTerrain (mirrors BoardPiece.GetBoatMoveOptions).
+                foreach (var dir in stateModel.MoveOptions)
+                {
+                    var first = pos + dir;
+                    if (!InBounds(first)) continue;
+                    if (Cell(first).Terrain != TerrainType.Water) continue;
+
+                    var cursor = first + dir;
+                    while (InBounds(cursor))
+                    {
+                        var cell = Cell(cursor);
+                        if (cell.Terrain == TerrainType.Water) { cursor += dir; continue; }
+                        // First non-water cell is the landing spot
+                        if (cell.Terrain != TerrainType.Empty && !Collapsed(cursor) &&
+                            stateModel.MoveTerrain.Contains(cell.Terrain))
+                            yield return cursor;
+                        break;
+                    }
+                }
+                break;
+        }
     }
 
     private IEnumerable<CellData> GetNeighbors(LevelData level, Vector2Int position)
@@ -1038,12 +1712,11 @@ public class LevelEditorWindow : EditorWindow
 
     private void ResetSolvabilityCheck()
     {
-        // Clean up any pending solvability check
         EditorApplication.update -= PerformSolvabilityCheck;
         isCheckingSolvability = false;
         lastSolvabilityResult = null;
-        
-        // Clear solution path visualization when level changes
+        lastTightSolveResult = null;
+        wastedMoves = null;
         currentSolutionPath = null;
         showSolutionPath = false;
     }
@@ -1064,35 +1737,59 @@ public class LevelEditorWindow : EditorWindow
             // Perform the actual solvability check and cache the solution
             if (workingLevel != null)
             {
-                var solution = SolveLevel(workingLevel.ToLevelData());
+                LevelData levelData = workingLevel.ToLevelData();
+
+                // 1. Regular solve — just find any valid solution
+                var solution = SolveLevel(levelData);
                 lastSolvabilityResult = solution != null;
-                
-                // Cache the solution for later use
+
                 if (solution != null)
                 {
                     currentSolutionPath = solution;
-                    
-                    // Store solution in the working level data
                     StoreSolutionInWorkingLevel(solution);
-                    
-                    Debug.Log($"Solvability check completed: Level is solvable with {solution.Count} steps. Solution cached.");
+                    Debug.Log($"Solvability check: solvable in {solution.Count} steps. Solution cached.");
+
+                    // 2. Loose solve — look for ANY winning path that leaves moves unused.
+                    //    Tight = no such path exists. This correctly catches cases where
+                    //    the player can win via a different, easier route.
+                    var looseSolution = SolveLevel(levelData, requireLooseSolution: true);
+                    lastTightSolveResult = looseSolution == null; // tight iff zero loose solutions
+
+                    if (looseSolution != null)
+                    {
+                        // Show which forms still had moves left in the loose winning path
+                        TurnInfo looseEnd = looseSolution[looseSolution.Count - 1];
+                        wastedMoves = new List<(Player.StateType, int)>();
+                        foreach (var entry in levelData.StartMovesPerForm)
+                        {
+                            if (entry.State == Player.StateType.Default) continue;
+                            if (entry.Moves <= 0) continue;
+                            if (looseEnd.MovesPerForm.TryGetValue(entry.State, out int rem) && rem > 0)
+                                wastedMoves.Add((entry.State, rem));
+                        }
+                        Debug.LogWarning($"Not tight: player can win with leftover moves in {looseSolution.Count} steps. Wasted: " +
+                            string.Join(", ", wastedMoves.Select(w => $"{w.state}(+{w.remaining})")));
+                    }
+                    else
+                    {
+                        wastedMoves = null;
+                        Debug.Log("Tight: every winning path exhausts all finite move counts.");
+                    }
                 }
                 else
                 {
                     currentSolutionPath = null;
-                    
-                    // Clear solution from working level data
-                    if (workingLevel != null)
-                    {
-                        workingLevel.CachedSolution = new List<SolutionStep>();
-                    }
-                    
-                    Debug.Log("Solvability check completed: Level is not solvable.");
+                    lastTightSolveResult = null;
+                    wastedMoves = null;
+                    workingLevel.CachedSolution = new List<SolutionStep>();
+                    Debug.Log("Solvability check: level is NOT solvable.");
                 }
             }
             else
             {
                 lastSolvabilityResult = false;
+                lastTightSolveResult = null;
+                wastedMoves = null;
                 currentSolutionPath = null;
             }
         }
@@ -1154,7 +1851,7 @@ public class LevelEditorWindow : EditorWindow
             destination.Map = new CellData[source.Map.Length];
             for (int i = 0; i < source.Map.Length; i++)
             {
-                destination.Map[i] = new CellData(source.Map[i].Terrain, source.Map[i].Item);
+                destination.Map[i] = new CellData(source.Map[i].Terrain, source.Map[i].Item, source.Map[i].IsFragile);
             }
         }
         
@@ -1177,6 +1874,35 @@ public class LevelEditorWindow : EditorWindow
         {
             destination.CachedSolution = new List<SolutionStep>(source.CachedSolution);
         }
+
+        // Copy volcano configs
+        destination.VolcanoConfigs = new List<VolcanoConfig>();
+        if (source.VolcanoConfigs != null)
+        {
+            foreach (var cfg in source.VolcanoConfigs)
+            {
+                destination.VolcanoConfigs.Add(new VolcanoConfig
+                {
+                    Position = cfg.Position,
+                    Period = cfg.Period,
+                    LavaSequence = cfg.LavaSequence != null ? new List<Vector2Int>(cfg.LavaSequence) : new List<Vector2Int>()
+                });
+            }
+        }
+
+        destination.IceSourceConfigs = new List<IceSourceConfig>();
+        if (source.IceSourceConfigs != null)
+        {
+            foreach (var cfg in source.IceSourceConfigs)
+            {
+                destination.IceSourceConfigs.Add(new IceSourceConfig
+                {
+                    Position = cfg.Position,
+                    Period = cfg.Period,
+                    FreezeSequence = cfg.FreezeSequence != null ? new List<Vector2Int>(cfg.FreezeSequence) : new List<Vector2Int>()
+                });
+            }
+        }
     }
 
     // Plain data structure for editing - not a ScriptableObject
@@ -1187,27 +1913,28 @@ public class LevelEditorWindow : EditorWindow
         public CellData[] Map;
         public List<MovePerFormEntry> StartMovesPerForm;
         public List<SolutionStep> CachedSolution; // Store the cached solution
-        
+        public List<VolcanoConfig> VolcanoConfigs = new();
+        public List<IceSourceConfig> IceSourceConfigs = new();
+
         public WorkingLevelData() { }
-        
+
         public WorkingLevelData(LevelData original)
         {
             if (original == null) return;
-            
+
             // Copy basic properties
             MapSize = original.MapSize;
-            
+
             // Deep copy the map array
             if (original.Map != null)
             {
                 Map = new CellData[original.Map.Length];
                 for (int i = 0; i < original.Map.Length; i++)
                 {
-                    // CellData is a struct, so this creates a true copy
-                    Map[i] = new CellData(original.Map[i].Terrain, original.Map[i].Item);
+                    Map[i] = new CellData(original.Map[i].Terrain, original.Map[i].Item, original.Map[i].IsFragile);
                 }
             }
-            
+
             // Deep copy StartMovesPerForm list
             if (original.StartMovesPerForm != null)
             {
@@ -1216,13 +1943,13 @@ public class LevelEditorWindow : EditorWindow
                 {
                     // Create new instances to avoid reference sharing
                     StartMovesPerForm.Add(new MovePerFormEntry
-                    { 
-                        State = move.State, 
-                        Moves = move.Moves 
+                    {
+                        State = move.State,
+                        Moves = move.Moves
                     });
                 }
             }
-            
+
             // Copy cached solution
             if (original.CachedSolution != null)
             {
@@ -1231,6 +1958,36 @@ public class LevelEditorWindow : EditorWindow
             else
             {
                 CachedSolution = new List<SolutionStep>();
+            }
+
+            // Copy volcano configs
+            VolcanoConfigs = new List<VolcanoConfig>();
+            if (original.VolcanoConfigs != null)
+            {
+                foreach (var cfg in original.VolcanoConfigs)
+                {
+                    VolcanoConfigs.Add(new VolcanoConfig
+                    {
+                        Position = cfg.Position,
+                        Period = cfg.Period,
+                        LavaSequence = cfg.LavaSequence != null ? new List<Vector2Int>(cfg.LavaSequence) : new List<Vector2Int>()
+                    });
+                }
+            }
+
+            // Copy ice source configs
+            IceSourceConfigs = new List<IceSourceConfig>();
+            if (original.IceSourceConfigs != null)
+            {
+                foreach (var cfg in original.IceSourceConfigs)
+                {
+                    IceSourceConfigs.Add(new IceSourceConfig
+                    {
+                        Position = cfg.Position,
+                        Period = cfg.Period,
+                        FreezeSequence = cfg.FreezeSequence != null ? new List<Vector2Int>(cfg.FreezeSequence) : new List<Vector2Int>()
+                    });
+                }
             }
         }
         
@@ -1269,7 +2026,7 @@ public class LevelEditorWindow : EditorWindow
                 levelData.Map = new CellData[Map.Length];
                 for (int i = 0; i < Map.Length; i++)
                 {
-                    levelData.Map[i] = new CellData(Map[i].Terrain, Map[i].Item);
+                    levelData.Map[i] = new CellData(Map[i].Terrain, Map[i].Item, Map[i].IsFragile);
                 }
             }
             
@@ -1291,7 +2048,36 @@ public class LevelEditorWindow : EditorWindow
             {
                 levelData.CachedSolution = new List<SolutionStep>(CachedSolution);
             }
-            
+
+            // Copy volcano configs
+            levelData.VolcanoConfigs = new List<VolcanoConfig>();
+            if (VolcanoConfigs != null)
+            {
+                foreach (var cfg in VolcanoConfigs)
+                {
+                    levelData.VolcanoConfigs.Add(new VolcanoConfig
+                    {
+                        Position = cfg.Position,
+                        Period = cfg.Period,
+                        LavaSequence = cfg.LavaSequence != null ? new List<Vector2Int>(cfg.LavaSequence) : new List<Vector2Int>()
+                    });
+                }
+            }
+
+            levelData.IceSourceConfigs = new List<IceSourceConfig>();
+            if (IceSourceConfigs != null)
+            {
+                foreach (var cfg in IceSourceConfigs)
+                {
+                    levelData.IceSourceConfigs.Add(new IceSourceConfig
+                    {
+                        Position = cfg.Position,
+                        Period = cfg.Period,
+                        FreezeSequence = cfg.FreezeSequence != null ? new List<Vector2Int>(cfg.FreezeSequence) : new List<Vector2Int>()
+                    });
+                }
+            }
+
             return levelData;
         }
     }
@@ -1607,5 +2393,28 @@ public class LevelEditorWindow : EditorWindow
         }
         
         return reachesEnd && hasExactly3Stars;
+    }
+
+    // =========================================================================
+    // Generator integration
+    // =========================================================================
+
+    /// <summary>
+    /// Load a generated LevelData into the editor as an unsaved working copy.
+    /// Called from LevelGeneratorWindow when the user clicks "Open in Editor".
+    /// </summary>
+    public void LoadGeneratedLevel(LevelData level)
+    {
+        if (level == null) return;
+        currentLevel  = level;
+        workingLevel  = new WorkingLevelData(level);
+        hasUnsavedChanges = true;
+        currentSolutionPath = null;
+        showSolutionPath    = false;
+        lastSolvabilityResult = null;
+        lastTightSolveResult  = null;
+        wastedMoves           = null;
+        UpdateWindowTitle();
+        Repaint();
     }
 }

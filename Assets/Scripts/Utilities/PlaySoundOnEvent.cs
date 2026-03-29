@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using System.Collections;
+using FMODUnity;
 
 public class PlaySoundOnEvent : MonoBehaviour, IPointerEnterHandler, IPointerClickHandler
 {
@@ -9,29 +10,21 @@ public class PlaySoundOnEvent : MonoBehaviour, IPointerEnterHandler, IPointerCli
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if (!isPlayingSound)
-        {
-            isPlayingSound = true;
-            if (isCard)
-            {
-                GlobalSoundManager.PlayRandomSoundByType(SoundType.Card, 0.6f);
-            }
-            else
-            {
-                GlobalSoundManager.PlayRandomSoundByType(SoundType.Click, 0.6f);
-            }
-            StartCoroutine(ResetSoundFlag());
-        }
+        if (isPlayingSound) return;
+        isPlayingSound = true;
+        var ev = isCard ? FMODEvents.Instance.card : FMODEvents.Instance.click;
+        if (!ev.IsNull) RuntimeManager.PlayOneShot(ev);
+        StartCoroutine(ResetSoundFlag());
     }
- 
+
     public void OnPointerClick(PointerEventData eventData)
     {
-        GlobalSoundManager.PlayRandomSoundByType(SoundType.Move, 1f);
+        if (!FMODEvents.Instance.click.IsNull) RuntimeManager.PlayOneShot(FMODEvents.Instance.ding);
     }
 
     private IEnumerator ResetSoundFlag()
     {
-        yield return new WaitForSeconds(0.05f); // Adjust the delay to match the sound duration
+        yield return new WaitForSeconds(0.05f);
         isPlayingSound = false;
     }
 }

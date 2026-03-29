@@ -3,11 +3,13 @@ public class CellData
 {
     public TerrainType Terrain;
     public CellItem Item;
+    public bool IsFragile;
 
-    public CellData(TerrainType terrain, CellItem item)
+    public CellData(TerrainType terrain, CellItem item, bool isFragile = false)
     {
         Terrain = terrain;
         Item = item;
+        IsFragile = isFragile;
     }
 
     public static CellData FromChar(char c)
@@ -24,6 +26,8 @@ public class CellData
             'F' => TerrainType.Fire,
             'x' => TerrainType.Start,
             'y' => TerrainType.End,
+            'V' => TerrainType.Volcano,
+            'I' => TerrainType.Ice,
             _ => TerrainType.Default
         };
 
@@ -45,6 +49,8 @@ public class CellData
         if (Terrain == TerrainType.End) return 'y';
         if (Terrain == TerrainType.Empty) return '0';
         if (Terrain == TerrainType.Fire) return 'F';
+        if (Terrain == TerrainType.Volcano) return 'V';
+        if (Terrain == TerrainType.Ice) return 'I';
 
         if (Item == CellItem.Star)
         {

@@ -16,6 +16,8 @@ namespace PlayerStateMachine
         public List<Vector2Int> MoveOptions => stateModel.MoveOptions;
 
         public List<TerrainType> MoveTerrain => stateModel.MoveTerrain;
+
+        public MoveMode MoveMode => MoveMode.FrogJump;
         
         public FrogState(GameObject gameObject, Player player)
         {

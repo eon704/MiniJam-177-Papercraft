@@ -5,8 +5,7 @@ namespace PlayerStateMachine
 {
     public class DefaultState : IState
     {
-        private readonly SpriteRenderer _spriteRenderer;
-        private readonly Sprite _stateSprite;
+        private readonly GameObject _defaultPlayer;
         
         public Player.StateType StateType => Player.StateType.Default;
         private StateModel stateModel => StateModelInfo.StateModels[StateType];
@@ -14,11 +13,12 @@ namespace PlayerStateMachine
         public List<Vector2Int> MoveOptions => stateModel.MoveOptions;
 
         public List<TerrainType> MoveTerrain => stateModel.MoveTerrain;
+
+        public MoveMode MoveMode => MoveMode.Normal;
         
-        public DefaultState(Sprite sprite, SpriteRenderer spriteRenderer)
+        public DefaultState(GameObject defaultModel)
         {
-            _stateSprite = sprite;
-            _spriteRenderer = spriteRenderer;
+            _defaultPlayer = defaultModel;
         }
         
 
@@ -28,12 +28,12 @@ namespace PlayerStateMachine
 
         public void OnEnter()
         {
-            _spriteRenderer.sprite = _stateSprite;
+            _defaultPlayer.SetActive(true);
         }
 
         public void OnExit()
         {
-            _spriteRenderer.sprite = null;
+            _defaultPlayer.SetActive(false);
         }
     }
 }

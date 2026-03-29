@@ -10,7 +10,8 @@ public static class StateModelInfo
             new StateModel(
                 Player.StateType.Default,
                 new List<Vector2Int>(),
-                new List<TerrainType>()
+                new List<TerrainType>(),
+                MoveMode.Normal
             )
         },
         {
@@ -29,9 +30,12 @@ public static class StateModelInfo
                     TerrainType.Default,
                     TerrainType.Stone,
                     TerrainType.Fire,
+                    TerrainType.Lava,
+                    TerrainType.Ice,
                     TerrainType.Start,
                     TerrainType.End
-                }
+                },
+                MoveMode.Normal
             )
         },
         {
@@ -43,19 +47,18 @@ public static class StateModelInfo
                     new Vector2Int(0, 2),
                     new Vector2Int(0, -2),
                     new Vector2Int(2, 0),
-                    new Vector2Int(-2, 0),
-                    new Vector2Int(-1, 0),
-                    new Vector2Int(1, 0),
-                    new Vector2Int(0, -1),
-                    new Vector2Int(0, 1)
+                    new Vector2Int(-2, 0)
                 },
                 new List<TerrainType>
                 {
                     TerrainType.Default,
                     TerrainType.Fire,
+                    TerrainType.Lava,
+                    TerrainType.Ice,
                     TerrainType.Start,
                     TerrainType.End
-                }
+                },
+                MoveMode.FrogJump
             )
         },
         {
@@ -73,9 +76,12 @@ public static class StateModelInfo
                 {
                     TerrainType.Default,
                     TerrainType.Fire,
+                    TerrainType.Lava,
+                    TerrainType.Ice,
                     TerrainType.Start,
                     TerrainType.End
-                }
+                },
+                MoveMode.PlaneSlide
             )
         },
         {
@@ -91,9 +97,13 @@ public static class StateModelInfo
                 },
                 new List<TerrainType>
                 {
-                    TerrainType.Water,
-                    TerrainType.Fire
-                }
+                    TerrainType.Default,
+                    TerrainType.Start,
+                    TerrainType.End,
+                    TerrainType.Fire,
+                    TerrainType.Lava
+                },
+                MoveMode.BoatSlide
             )
         }
     };
@@ -107,10 +117,13 @@ public struct StateModel
 
     public List<TerrainType> MoveTerrain { get; private set; }
 
-    public StateModel(Player.StateType stateType, List<Vector2Int> moveOptions, List<TerrainType> moveTerrain)
+    public MoveMode MoveMode { get; private set; }
+
+    public StateModel(Player.StateType stateType, List<Vector2Int> moveOptions, List<TerrainType> moveTerrain, MoveMode moveMode)
     {
         StateType = stateType;
         MoveOptions = moveOptions;
         MoveTerrain = moveTerrain;
+        MoveMode = moveMode;
     }
 }

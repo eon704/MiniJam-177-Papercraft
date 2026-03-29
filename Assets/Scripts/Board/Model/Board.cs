@@ -8,6 +8,7 @@ public class Board
   public readonly Cell[,] CellArray;
   public readonly Cell StartCell;
   public readonly List<Cell> StarCells = new();
+  public readonly List<Cell> FragileCells = new();
   public readonly LevelData LevelData;
   
   public readonly BoardHistory BoardHistory = new();
@@ -27,16 +28,21 @@ public class Board
       {
         int index = y * size.x + x;
         CellData cellData = map[index];
-        CellArray[x, y] = new Cell(new Vector2Int(x, y), cellData.Terrain, cellData.Item);
+        CellArray[x, y] = new Cell(new Vector2Int(x, y), cellData.Terrain, cellData.Item, cellData.IsFragile);
 
         if (cellData.Terrain == TerrainType.Start)
         {
           StartCell = CellArray[x, y];
         }
-        
+
         if (cellData.Item == CellItem.Star)
         {
           StarCells.Add(CellArray[x, y]);
+        }
+
+        if (cellData.IsFragile)
+        {
+          FragileCells.Add(CellArray[x, y]);
         }
       }
     }
@@ -113,6 +119,15 @@ public class Board
   public BoardPiece CreatePlayerPiece()
   {
     return new BoardPiece(this, StartCell);
+  }
+
+  /// <summary>
+  /// Восстанавливает все хрупкие клетки (вызывается при сбросе уровня).
+  /// </summary>
+  public void ResetFragileCells()
+  {
+    foreach (Cell cell in FragileCells)
+      cell.ResetCollapse();
   }
 
   /// <summary>

@@ -21,10 +21,8 @@ public class BoardPiecePrefab : MonoBehaviour
         {
             boardPrefab.GetCellPrefab(oldCell).ResetPulse();
             CurrentCell = boardPrefab.GetCellPrefab(newCell);
-            Debug.Log($"[Piece] OccupiedCell changed → grid {newCell.Position}  world {CurrentCell.transform.position}");
         };
         Teleport(startCell);
-        Debug.Log($"[Piece] Initialized at world pos {transform.position}");
     }
 
     public List<CellPrefab> GetMoveOptionCellPrefabs()
@@ -39,7 +37,6 @@ public class BoardPiecePrefab : MonoBehaviour
             if (isValidMove)
                 moveOptionCellPrefabs.Add(cellPrefab);
         }
-        Debug.Log($"[Piece] GetMoveOptionCellPrefabs → {moveOptionCellPrefabs.Count} valid options");
         return moveOptionCellPrefabs;
     }
 
@@ -54,7 +51,6 @@ public class BoardPiecePrefab : MonoBehaviour
         bool success = !forceFailMovement && BoardPiece.MoveTo(targetCell.Cell);
 
         Vector3 targetPos = targetCell.transform.position + Vector3.up * heightOffset;
-        Debug.Log($"[Piece] Move to {targetCell.name} (grid {targetCell.Cell.Position}) — success={success}  from={transform.position}  to={targetPos}");
 
         if (success)
         {
@@ -68,30 +64,30 @@ public class BoardPiecePrefab : MonoBehaviour
             transform
                 .DOPath(path, 0.5f, PathType.CatmullRom)
                 .SetEase(Ease.InOutQuad)
-                .OnKill(() => onComplete?.Invoke());
+                .OnComplete(() => onComplete?.Invoke());
         }
         else
         {
             transform
                 .DOShakePosition(0.5f, 0.3f)
-                .OnKill(() => onComplete?.Invoke());
+                .OnComplete(() => onComplete?.Invoke());
         }
 
         return success;
     }
 
-    public void Teleport(CellPrefab targetCell, bool tweenMovement = false)
+    public void Teleport(CellPrefab targetCell, bool tweenMovement = false, UnityAction onComplete = null)
     {
         bool success = BoardPiece.TeleportTo(targetCell.Cell);
 
         if (!success)
         {
             Debug.LogError($"[Piece] Teleport FAILED — targetCell {targetCell.name} is occupied");
+            onComplete?.Invoke();
             return;
         }
 
         Vector3 targetPos = targetCell.transform.position + Vector3.up * heightOffset;
-        Debug.Log($"[Piece] Teleport to {targetCell.name} world={targetPos}  tween={tweenMovement}");
 
         if (tweenMovement)
         {
@@ -106,11 +102,13 @@ public class BoardPiecePrefab : MonoBehaviour
 
             transform
                 .DOPath(path, 0.5f, PathType.CatmullRom)
-                .SetEase(Ease.InOutQuad);
+                .SetEase(Ease.InOutQuad)
+                .OnComplete(() => onComplete?.Invoke());
         }
         else
         {
             transform.position = targetPos;
+            onComplete?.Invoke();
         }
     }
 

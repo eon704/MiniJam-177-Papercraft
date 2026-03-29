@@ -76,6 +76,12 @@ public class LevelManager : Singleton<LevelManager>
     return PlayerPrefs.GetInt(key, 0);
   }
 
+  public void UnlockAllLevels()
+  {
+    NextLevelIndex = levels.Count - 1;
+    PlayerPrefs.SetInt("NextLevelIndex", NextLevelIndex);
+  }
+
   public void SetCurrentLevelComplete(int stars)
   {
     string key = "level" + Instance.CurrentLevelIndex + "_stars";

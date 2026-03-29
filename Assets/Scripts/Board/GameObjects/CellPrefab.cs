@@ -14,8 +14,12 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     [SerializeField] private GameObject start;
     [SerializeField] private GameObject end;
     [SerializeField] private GameObject star;
+    [SerializeField] private GameObject volcano;
+    [SerializeField] private GameObject lava;
+    [SerializeField] private GameObject ice;
 
     private float starDefaultScale;
+    private Vector3 _originalLocalPosition;
 
     public ReadOnlyCollection<GameObject> HintObjects => hintObjects.AsReadOnly();
 
@@ -23,18 +27,12 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     private Player player;
 
     private Sequence rippleSequence;
+    private Sequence collapseSequence;
     private Tween starGrowTween;
     private Tween starShrinkTween;
 
     public void Initialize(Cell cellData, Player newPlayer, float delay)
     {
-        if (fire == null)  Debug.LogWarning($"[Cell {name}] fire is NULL");
-        if (water == null) Debug.LogWarning($"[Cell {name}] water is NULL");
-        if (stone == null) Debug.LogWarning($"[Cell {name}] stone is NULL");
-        if (start == null) Debug.LogWarning($"[Cell {name}] start is NULL");
-        if (end == null)   Debug.LogWarning($"[Cell {name}] end is NULL");
-        if (star == null)  Debug.LogWarning($"[Cell {name}] star is NULL");
-
         hintObjects.ForEach(hint => hint.SetActive(false));
 
         Cell = cellData;
@@ -42,21 +40,24 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         if (Cell.Terrain == TerrainType.Empty)
             return;
 
+        _originalLocalPosition = transform.localPosition;
+
         Cell.Item.OnChanged += OnCellItemChange;
         player = newPlayer;
 
-        start.SetActive(Cell.Terrain == TerrainType.Start);
-        end.SetActive(Cell.Terrain == TerrainType.End);
-        fire.SetActive(Cell.Terrain == TerrainType.Fire);
-        water.SetActive(Cell.Terrain == TerrainType.Water);
-        stone.SetActive(Cell.Terrain == TerrainType.Stone);
+        if (Cell.IsFragile)
+        {
+            Cell.OnCollapsed += OnCellCollapsed;
+            Cell.OnCollapsedInstant += OnCellCollapsedInstant;
+            Cell.OnCollapseReset += OnCellCollapseReset;
+        }
+
+        Cell.OnTerrainChanged += HandleTerrainChanged;
+
+        ApplyTerrainVisuals(Cell.Terrain);
 
         star.SetActive(Cell.Item == CellItem.Star);
         starDefaultScale = star.transform.localScale.x;
-
-        var col = GetComponent<Collider>();
-        if (col == null)
-            Debug.LogError($"[Cell {name}] No Collider — clicks won't register! Add BoxCollider.");
 
         transform.localScale = Vector3.zero;
         rippleSequence = DOTween.Sequence();
@@ -75,25 +76,15 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        Debug.Log($"[Cell {name}] OnPointerEnter  terrain={Cell?.Terrain}  pos={transform.position}");
-        transform.DOScale(1.05f, 0.2f).SetEase(Ease.OutQuad);
-        GlobalSoundManager.PlayRandomSoundByType(SoundType.Click, 0.1f);
+        if (!FMODEvents.Instance.click.IsNull) FMODUnity.RuntimeManager.PlayOneShot(FMODEvents.Instance.click);
     }
 
-    public void OnPointerExit(PointerEventData eventData)
-    {
-        Debug.Log($"[Cell {name}] OnPointerExit");
-        transform.DOScale(1f, 0.2f).SetEase(Ease.OutQuad);
-    }
+    public void OnPointerExit(PointerEventData eventData) { }
 
-    public void OnPointerDown(PointerEventData eventData)
-    {
-        Debug.Log($"[Cell {name}] OnPointerDown");
-    }
+    public void OnPointerDown(PointerEventData eventData) { }
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        Debug.Log($"[Cell {name}] OnPointerUp → calling Player.Move");
         player.Move(this);
     }
 
@@ -104,6 +95,32 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         shakeSequence.Append(transform.DOShakePosition(0.3f,
             strength: new Vector3(0.05f, 0f, 0.05f),
             vibrato: 20, randomness: 90, snapping: false, fadeOut: true));
+    }
+
+    private void ApplyTerrainVisuals(TerrainType terrain)
+    {
+        if (start != null) start.SetActive(terrain == TerrainType.Start);
+        if (end != null) end.SetActive(terrain == TerrainType.End);
+        // If a dedicated lava object is assigned use it; otherwise fall back to fire visuals
+        bool isLava = terrain == TerrainType.Lava;
+        if (lava != null)
+        {
+            lava.SetActive(isLava);
+            if (fire != null) fire.SetActive(terrain == TerrainType.Fire);
+        }
+        else
+        {
+            if (fire != null) fire.SetActive(terrain == TerrainType.Fire || isLava);
+        }
+        if (water != null) water.SetActive(terrain == TerrainType.Water);
+        if (stone != null) stone.SetActive(terrain == TerrainType.Stone);
+        if (volcano != null) volcano.SetActive(terrain == TerrainType.Volcano);
+        if (ice != null) ice.SetActive(terrain == TerrainType.Ice);
+    }
+
+    private void HandleTerrainChanged(TerrainType oldTerrain, TerrainType newTerrain)
+    {
+        ApplyTerrainVisuals(newTerrain);
     }
 
     private void OnCellItemChange(Observable<CellItem> item, CellItem oldValue, CellItem newValue)
@@ -122,9 +139,57 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         }
     }
 
+    private void OnCellCollapsed()
+    {
+        collapseSequence?.Kill();
+        collapseSequence = DOTween.Sequence();
+        // Небольшое дрожание — клетка "трещит" перед падением
+        collapseSequence.Append(transform.DOShakePosition(0.25f,
+            strength: new Vector3(0.08f, 0.04f, 0.08f),
+            vibrato: 18, randomness: 60, snapping: false, fadeOut: true));
+        // Пауза на краю
+        collapseSequence.AppendInterval(0.1f);
+        // Падение вниз + уменьшение + лёгкий завал
+        collapseSequence.Append(transform.DOLocalMoveY(_originalLocalPosition.y - 3.5f, 0.7f).SetEase(Ease.InCubic));
+        collapseSequence.Join(transform.DOScale(Vector3.zero, 0.65f).SetEase(Ease.InQuad));
+        collapseSequence.Join(transform.DOLocalRotate(
+            new Vector3(Random.Range(-25f, 25f), Random.Range(-20f, 20f), Random.Range(-25f, 25f)),
+            0.65f, RotateMode.LocalAxisAdd).SetEase(Ease.InCubic));
+    }
+
+    private void OnCellCollapsedInstant()
+    {
+        collapseSequence?.Kill();
+        collapseSequence = null;
+        transform.localScale = Vector3.zero;
+    }
+
+    private void OnCellCollapseReset()
+    {
+        collapseSequence?.Kill();
+        collapseSequence = null;
+        DOTween.Kill(transform);
+        transform.localRotation = Quaternion.identity;
+        transform.localPosition = _originalLocalPosition;
+        transform.localScale = Vector3.zero;
+        collapseSequence = DOTween.Sequence();
+        collapseSequence.Append(transform.DOScale(1f, 0.3f).SetEase(Ease.OutBack));
+    }
+
     private void OnDestroy()
     {
+        if (Cell != null)
+        {
+            Cell.OnTerrainChanged -= HandleTerrainChanged;
+            if (Cell.IsFragile)
+            {
+                Cell.OnCollapsed -= OnCellCollapsed;
+                Cell.OnCollapsedInstant -= OnCellCollapsedInstant;
+                Cell.OnCollapseReset -= OnCellCollapseReset;
+            }
+        }
         rippleSequence?.Kill();
+        collapseSequence?.Kill();
         DOTween.Kill(this);
     }
 }

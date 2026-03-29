@@ -11,8 +11,11 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private CanvasGroup levelsPanel;
     [SerializeField] private Image foreground;
 
+    [Header("Debug")]
+    [SerializeField] private GameObject debugUnlockButton;
+
     private float startPosY;
-    
+
     // Static field to remember if levels panel should be shown
     private static bool shouldShowLevelsPanel = false;
 
@@ -21,7 +24,7 @@ public class MainMenuUI : MonoBehaviour
     {
         shouldShowLevelsPanel = false;
     }
-    
+
     public void ShowLevels()
     {
         if (LevelManager.Instance.NextLevelIndex == 1)
@@ -60,7 +63,7 @@ public class MainMenuUI : MonoBehaviour
         sequence.Append(levelsPanel.DOFade(0, 0.3f).SetEase(Ease.InOutCubic));
         sequence.Append(title.DOScale(0.4f, 0.3f).SetEase(Ease.InOutCubic));
         sequence.Join(title.DOAnchorPosY(startPosY, 0.3f).SetEase(Ease.InOutCubic));
-      
+
         sequence.AppendCallback(() =>
         {
             levelsPanel.gameObject.SetActive(false);
@@ -79,11 +82,18 @@ public class MainMenuUI : MonoBehaviour
         StartCoroutine(LoadGame());
     }
 
+    public void DebugUnlockAllLevels()
+    {
+        LevelManager.Instance.UnlockAllLevels();
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
     private IEnumerator Start()
     {
         startPosY = title.anchoredPosition.y;
 
         Application.targetFrameRate = 60;
+
         // Check if we should show levels panel immediately
         if (shouldShowLevelsPanel)
         {
@@ -94,7 +104,7 @@ public class MainMenuUI : MonoBehaviour
             levelsPanel.alpha = 1;
             levelsPanel.interactable = true;
         }
-        
+
         yield return ForegroundFadeOut();
     }
 
@@ -104,7 +114,7 @@ public class MainMenuUI : MonoBehaviour
         AsyncOperation loadSceneAsync = SceneManager.LoadSceneAsync("Game");
         yield return new WaitUntil(() => loadSceneAsync!.isDone);
 
-        GlobalSoundManager.Instance.PlaySoundtrack(SettingsManager.Instance.gameSoundtrack);
+        GlobalSoundManager.Instance.PlaySoundtrack(FMODEvents.Instance.game);
     }
 
     private IEnumerator ForegroundFadeIn()

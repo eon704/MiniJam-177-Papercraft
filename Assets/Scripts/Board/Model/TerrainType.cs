@@ -6,5 +6,8 @@ public enum TerrainType
     End,
     Water,
     Stone,
-    Fire
+    Fire,
+    Volcano,
+    Lava,
+    Ice
 }

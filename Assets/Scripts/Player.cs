@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
+using FMODUnity;
 using PlayerStateMachine;
 using UnityEngine;
 using UnityEngine.Events;
@@ -24,7 +25,7 @@ public class Player : MonoBehaviour
     private SpriteRenderer _spriteRenderer;
 
     [Header("States Objects")]
-    [SerializeField] private Sprite defaultStateSprite;
+    [SerializeField] private GameObject defaultStateObject;
     [SerializeField] private GameObject craneStateGameObject;
     [SerializeField] private GameObject planeStateGameObject;
     [SerializeField] private GameObject boatStateGameObject;
@@ -43,6 +44,7 @@ public class Player : MonoBehaviour
     public bool isMovementLocked;
 
     private BoardPrefab _boardPrefab;
+    private BiomeCellSystem _biomeCellSystem;
 
     public Action<int> OnUndoHistoryChange;
 
@@ -69,6 +71,11 @@ public class Player : MonoBehaviour
         _isInitialized = true;
     }
 
+    public void SetBiomeCellSystem(BiomeCellSystem biomeCellSystem)
+    {
+        _biomeCellSystem = biomeCellSystem;
+    }
+
     public void SetTransformationLimits(Dictionary<StateType, int> startingMoves)
     {
         _movesPerForm = new Dictionary<StateType, int>(startingMoves);
@@ -86,7 +93,7 @@ public class Player : MonoBehaviour
         BoardPiecePrefab = GetComponent<BoardPiecePrefab>();
         _stateMachine = new StateMachine();
 
-        _defaultState = new DefaultState(defaultStateSprite, _spriteRenderer);
+        _defaultState = new DefaultState(defaultStateObject);
         _craneState = new CraneState(craneStateGameObject, this);
         _planeState = new PlaneState(planeStateGameObject, this);
         _boatState = new BoatState(boatStateGameObject, this);
@@ -207,8 +214,6 @@ public class Player : MonoBehaviour
         if (isMovementLocked)
             return;
 
-        BoardPiecePrefab.CancelMove();
-
         IState currentState = (_stateMachine.CurrentState as IState)!;
         StateType type = currentState.StateType;
         bool forceFailMovement = _movesPerForm[type] <= 0;
@@ -216,8 +221,7 @@ public class Player : MonoBehaviour
 
         if (success)
         {
-            bool didMoveOnFire = targetCell.Cell.Terrain == TerrainType.Fire;
-            isMovementLocked = didMoveOnFire;
+            isMovementLocked = true;
             targetCell.ShakeCell();
             _movesPerForm[type]--;
             OnMovesLeftChanged?.Invoke(type, _movesPerForm[type]);
@@ -227,6 +231,7 @@ public class Player : MonoBehaviour
                 OnOutOfMoves();
             }
 
+            _biomeCellSystem?.OnPlayerMoved();
             AddHistoryRecord();
         }
     }
@@ -254,7 +259,18 @@ public class Player : MonoBehaviour
             OnMovesLeftChanged?.Invoke(kvp.Key, kvp.Value);
         }
 
-        BoardPiecePrefab.Teleport(_boardPrefab.GetCellPrefab(playerPosition), tweenMovement: true);
+        // Restore fragile cells BEFORE teleporting so the target cell exists
+        _boardPrefab.Board.ResetFragileCells();
+        foreach (var pos in lastRecord.Value.CollapsedCells)
+        {
+            _boardPrefab.Board.GetCell(pos)?.CollapseInstant();
+        }
+
+        _biomeCellSystem?.RestoreSnapshot(lastRecord.Value.BiomeSnapshot);
+
+        isMovementLocked = true;
+        BoardPiecePrefab.Teleport(_boardPrefab.GetCellPrefab(playerPosition), tweenMovement: true,
+            onComplete: () => isMovementLocked = false);
         SetState(GetState(playerState));
 
         foreach (var cell in starsRemaining)
@@ -279,11 +295,21 @@ public class Player : MonoBehaviour
             }
         }
 
+        List<Vector2Int> collapsedCells = new();
+        foreach (var cell in _boardPrefab.Board.FragileCells)
+        {
+            if (cell.IsCollapsed)
+                collapsedCells.Add(cell.Position);
+        }
+
+        BiomeCellSnapshot biomeSnapshot = _biomeCellSystem?.TakeSnapshot() ?? default;
         _boardPrefab.Board.BoardHistory.AddRecord(
             playerPosition,
             playerState,
             starsRemaining,
-            new Dictionary<StateType, int>(_movesPerForm)
+            new Dictionary<StateType, int>(_movesPerForm),
+            collapsedCells,
+            biomeSnapshot
         );
 
         OnUndoHistoryChange?.Invoke(_boardPrefab.Board.BoardHistory.Count);
@@ -291,6 +317,7 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
+        if (!_isInitialized) return;
         _stateMachine.Tick();
     }
 
@@ -301,7 +328,7 @@ public class Player : MonoBehaviour
 
     private void SetState(IState state)
     {
-        GlobalSoundManager.PlayRandomSoundByType(SoundType.ChangeState);
+        if (!FMODEvents.Instance.changeState.IsNull) RuntimeManager.PlayOneShot(FMODEvents.Instance.changeState);
         _stateMachine.SetState(state);
         BoardPiecePrefab.BoardPiece.SetState(state);
         OnTransformation?.Invoke(GetStateType(state));
@@ -344,10 +371,16 @@ public class Player : MonoBehaviour
         if (targetCell.Terrain == TerrainType.End)
         {
             OnPlayerWon?.Invoke(StarAmount);
+            // keep locked — game is over
         }
-        else if (targetCell.Terrain == TerrainType.Fire)
+        else if (targetCell.Terrain == TerrainType.Fire || targetCell.Terrain == TerrainType.Lava)
         {
             OnPlayerDied?.Invoke();
+            // keep locked — player died
+        }
+        else
+        {
+            isMovementLocked = false;
         }
     }
 }

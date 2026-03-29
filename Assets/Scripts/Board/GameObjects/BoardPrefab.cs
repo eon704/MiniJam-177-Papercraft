@@ -21,17 +21,15 @@ public class BoardPrefab : MonoBehaviour
 
     public void Initialize(LevelData levelData)
     {
-        if (player == null)    Debug.LogError("[Board] Player reference is NULL — assign in BoardPrefab Inspector");
-        if (cellPrefab == null) Debug.LogError("[Board] CellPrefab reference is NULL — assign in BoardPrefab Inspector");
-
         LevelData = levelData;
         Size = levelData.MapSize;
         Board = new Board(Size, levelData.Map, levelData);
         cellPrefabs = new CellPrefab[Size.x, Size.y];
 
         ComputeBoardCenterPosition();
-        Debug.Log($"[Board] Init — Size: {Size}  CellSize: {cellSize}  WorldCenter: {WorldCenter}");
         InstantiateBoard();
+        if (!FMODEvents.Instance.boardSpawn.IsNull) FMODUnity.RuntimeManager.PlayOneShot(FMODEvents.Instance.boardSpawn);
+      
     }
 
     public List<CellPrefab> GetCellPrefabs(List<Cell> cells)
@@ -68,7 +66,6 @@ public class BoardPrefab : MonoBehaviour
     {
         BoardPiece playerPiece = Board.CreatePlayerPiece();
         CellPrefab startCell = GetCellPrefab(playerPiece.OccupiedCell.Value.Position);
-        Debug.Log($"[Board] Player piece created at grid {playerPiece.OccupiedCell.Value.Position}, world {startCell.transform.position}");
         return (playerPiece, startCell);
     }
 
@@ -86,10 +83,9 @@ public class BoardPrefab : MonoBehaviour
                 Vector3 cellPosition = new Vector3(x * cellSize, 0f, y * cellSize);
                 int distanceFromCenter = Mathf.Abs(centerX - x) + Mathf.Abs(centerY - y);
                 float delay = distanceFromCenter * 0.1f + 0.5f;
-                cellPrefabs[x, y] = Instantiate(cellPrefab, cellPosition, Quaternion.identity, transform);
+                Quaternion randomRotation = Quaternion.Euler(0, Random.Range(0, 4) * 90f, 0);
+                cellPrefabs[x, y] = Instantiate(cellPrefab, cellPosition, randomRotation, transform);
                 cellPrefabs[x, y].Initialize(cell, player, delay);
-
-                Debug.Log($"[Board] Cell [{x},{y}] terrain={cell.Terrain} worldPos={cellPosition}");
 
                 if (cell.Terrain == TerrainType.Empty || delay < longestDelay)
                     continue;
@@ -98,14 +94,20 @@ public class BoardPrefab : MonoBehaviour
             }
         }
 
-        Debug.Log($"[Board] All cells instantiated. LongestDelay={longestDelay:F2}s");
         Invoke(nameof(SetAnimationComplete), longestDelay + 0.5f);
+    }
+
+    /// <summary>
+    /// Восстанавливает все хрупкие клетки поля (модель + вид).
+    /// </summary>
+    public void ResetFragileCells()
+    {
+        Board.ResetFragileCells();
     }
 
     private void SetAnimationComplete()
     {
         IsSpawnAnimationComplete = true;
-        Debug.Log("[Board] Spawn animation complete");
     }
 
     private void ComputeBoardCenterPosition()
@@ -114,29 +116,5 @@ public class BoardPrefab : MonoBehaviour
         float centerZ = (Size.y - 1) * cellSize / 2f;
         WorldCenter = new Vector3(centerX, 0f, centerZ);
     }
-
-    public void RevealSpecificHint(int hintStepNumber)
-    {
-        (Cell, int) revealedCellDepth = Board.RevealSpecificHint(hintStepNumber, out bool areAllHintsRevealed);
-        Cell cell = revealedCellDepth.Item1;
-        int depth = revealedCellDepth.Item2;
-
-        if (cell != null)
-        {
-            CellPrefab cp = GetCellPrefab(cell);
-            if (depth < cp.HintObjects.Count)
-                cp.HintObjects[depth].SetActive(true);
-            else
-                Debug.LogWarning($"[Board] RevealHint: depth {depth} out of range (HintObjects.Count={cp.HintObjects.Count})");
-        }
-        else
-        {
-            Debug.LogWarning($"[Board] RevealHint: cell is null for step {hintStepNumber}");
-        }
-    }
-
-    public bool HasUnrevealedHints()
-    {
-        return Board.HasUnrevealedHints();
-    }
+    
 }

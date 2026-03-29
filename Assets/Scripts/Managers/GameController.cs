@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
+using FMODUnity;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
@@ -14,12 +15,8 @@ public class GameController : MonoBehaviour
 
     [field: SerializeField]
     public BoardPrefab BoardPrefab { get; private set; }
-    [SerializeField] private List<PulseImage> nudgeImages;
     [SerializeField] private GameObject winScreen;
-    [SerializeField] private Camera cameraObject;
-    [Tooltip("Camera offset from board center for isometric view. Tune in Inspector.")]
-    [SerializeField] private Vector3 cameraOffset = new Vector3(-7f, 10f, -7f);
-    [SerializeField] private float cameraOrthographicSize = 8f;
+    private Camera cameraObject;
 
 #if UNITY_EDITOR
     [Header("Testing Tools")]
@@ -32,15 +29,18 @@ public class GameController : MonoBehaviour
 
     private BoardPiece playerPiece;
     private bool wasLevelWon;
+    private BiomeCellSystem _biomeCellSystem;
 
     private Dictionary<Player.StateType, int> startMovesPerForm;
-    private int attemptsCount = 1;
 
     Sequence respawnSequence;
 
     public void ResetMap()
     {
-        GlobalSoundManager.PlayRandomSoundByType(SoundType.Lose);
+        if (!FMODEvents.Instance.lose.IsNull) RuntimeManager.PlayOneShot(FMODEvents.Instance.lose);
+        BoardPrefab.ResetFragileCells();
+        _biomeCellSystem?.Reset();
+
         CellPrefab startCell = BoardPrefab.GetStartCellPrefab();
         startCell.Cell.FreePiece();
 
@@ -48,8 +48,7 @@ public class GameController : MonoBehaviour
         starCells.ForEach(cell => cell.Cell.ReassignStar());
 
         PlayerPrefab.StarAmount.Value = 0;
-
-        nudgeImages.ForEach(image => image.gameObject.SetActive(true));
+        
         BoardPrefab.Board.BoardHistory.Reset();
         OnMapReset?.Invoke();
 
@@ -87,21 +86,11 @@ public class GameController : MonoBehaviour
 
     private IEnumerator Start()
     {
-        Debug.Log("[GC] ── GameController.Start BEGIN ──");
-
-        // --- null checks ---
-        if (PlayerPrefab == null)  Debug.LogError("[GC] PlayerPrefab is NULL — assign in Inspector");
-        if (BoardPrefab == null)   Debug.LogError("[GC] BoardPrefab is NULL — assign in Inspector");
-        if (cameraObject == null)  Debug.LogError("[GC] cameraObject is NULL — assign in Inspector");
-        if (LevelManager.Instance == null) Debug.LogError("[GC] LevelManager.Instance is NULL");
-        if (BiomeManager.Instance == null) Debug.LogError("[GC] BiomeManager.Instance is NULL — add BiomeManager to scene");
-
         startMovesPerForm = new Dictionary<Player.StateType, int>();
         foreach (MovePerFormEntry movesPerForm in LevelManager.Instance.CurrentLevel.StartMovesPerForm)
         {
             startMovesPerForm[movesPerForm.State] = movesPerForm.Moves;
         }
-        Debug.Log($"[GC] StartMovesPerForm loaded: {startMovesPerForm.Count} entries");
 
 #if UNITY_EDITOR
         if (enableInfiniteMoves)
@@ -110,61 +99,40 @@ public class GameController : MonoBehaviour
             {
                 startMovesPerForm[state] = 99;
             }
-            Debug.Log("[GC] InfiniteMoves ON (editor only)");
         }
 #endif
 
-        // --- biome ---
         BiomeType biome = LevelManager.Instance.CurrentLevel.Biome;
-        Debug.Log($"[GC] Loading biome: {biome}");
         yield return BiomeManager.Instance.LoadBiome(biome);
-        Debug.Log($"[GC] Biome load done");
+        cameraObject = Camera.main;
 
-        // --- board ---
-        Debug.Log($"[GC] Initializing board, map size: {LevelManager.Instance.CurrentLevel.MapSize}");
         BoardPrefab.Initialize(LevelManager.Instance.CurrentLevel);
-        Debug.Log($"[GC] Board WorldCenter: {BoardPrefab.WorldCenter}  Size: {BoardPrefab.Size}");
+
+        _biomeCellSystem = new BiomeCellSystem(BoardPrefab.Board, LevelManager.Instance.CurrentLevel);
 
         CellPrefab cellPrefab;
         (playerPiece, cellPrefab) = BoardPrefab.CreateNewPlayerPrefab();
-        Debug.Log($"[GC] Player start cell position: {cellPrefab.transform.position}");
 
         PlayerPrefab.Initialize(playerPiece, cellPrefab, BoardPrefab);
+        PlayerPrefab.SetBiomeCellSystem(_biomeCellSystem);
         PlayerPrefab.OnPlayerWon.AddListener(OnWin);
         PlayerPrefab.OnPlayerDied.AddListener(ResetMap);
-        PlayerPrefab.OnTransformation.AddListener(_ =>
-            nudgeImages.ForEach(image => image.gameObject.SetActive(false)));
         PlayerPrefab.transform.localScale = Vector3.zero;
-
-        // --- camera ---
-        Vector3 camPos = BoardPrefab.WorldCenter + cameraOffset;
-        cameraObject.transform.position = camPos;
-        cameraObject.transform.LookAt(BoardPrefab.WorldCenter);
-        cameraObject.orthographicSize = cameraOrthographicSize;
-        Debug.Log($"[GC] Camera pos: {camPos}  rot: {cameraObject.transform.eulerAngles}  orthoSize: {cameraOrthographicSize}");
-        Debug.Log($"[GC] Camera projection: {(cameraObject.orthographic ? "Orthographic" : "Perspective")}");
-
-        // --- check PhysicsRaycaster ---
-        var raycaster = cameraObject.GetComponent<UnityEngine.EventSystems.PhysicsRaycaster>();
-        if (raycaster == null)
-            Debug.LogWarning("[GC] PhysicsRaycaster NOT found on camera — cell clicks will not work!");
-        else
-            Debug.Log("[GC] PhysicsRaycaster found on camera ✓");
 
         yield return null;
         PlayerPrefab.SetTransformationLimits(startMovesPerForm);
-        nudgeImages.ForEach(image => image.gameObject.SetActive(true));
+       
 
         yield return new WaitUntil(() => BoardPrefab.IsSpawnAnimationComplete);
-        PlayerPrefab.transform.DOScale(Vector3.one, 0.5f);
-        Debug.Log("[GC] ── GameController.Start COMPLETE ──");
+        PlayerPrefab.isMovementLocked = true;
+        yield return PlayerPrefab.transform.DOScale(Vector3.one, 0.5f).WaitForCompletion();
+        PlayerPrefab.isMovementLocked = false;
     }
 
     private void OnWin(int stars)
     {
-        Debug.Log($"[GC] OnWin — stars: {stars}");
         wasLevelWon = true;
         LevelManager.Instance.SetCurrentLevelComplete(stars);
-        GlobalSoundManager.PlayRandomSoundByType(SoundType.Win);
+        if (!FMODEvents.Instance.win.IsNull) FMODUnity.RuntimeManager.PlayOneShot(FMODEvents.Instance.win);
     }
 }

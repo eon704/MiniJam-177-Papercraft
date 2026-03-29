@@ -139,6 +139,52 @@ MonoBehaviour:
     m_Localized: You have completed the game
     m_Metadata:
       m_Items: []
+  - m_Id: 134673363777077248
+    m_Localized: 'Crane '
+    m_Metadata:
+      m_Items: []
+  - m_Id: 134675094091055104
+    m_Localized: Frog
+    m_Metadata:
+      m_Items: []
+  - m_Id: 134675095487758336
+    m_Localized: Plane
+    m_Metadata:
+      m_Items: []
+  - m_Id: 134675096347590656
+    m_Localized: Boat
+    m_Metadata:
+      m_Items: []
+  - m_Id: 134675787199791104
+    m_Localized: 'Moves one tile vertically or horizontally.
+
+      Can move onto
+      an elevated tile.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 134675788130926592
+    m_Localized: Moves only by jumping over one tile vertically or horizontally.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 134675789598932992
+    m_Localized: Moves diagonally. Can move any number of tiles as long as the path
+      is clear.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 134675796242710528
+    m_Localized: Can cross any amount of water if there is a tile to land on after
+      it.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 134689514364059648
+    m_Localized: Choose a form
+    m_Metadata:
+      m_Items: []
+  - m_Id: 134689560350408704
+    m_Localized: Each form moves differently. The number of moves for each form is
+      limited. Reach the finish within the given number of steps.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:

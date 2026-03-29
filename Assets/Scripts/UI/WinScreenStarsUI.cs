@@ -28,7 +28,7 @@ public class WinScreenStarsUI : MonoBehaviour
                 // UnityEngine.Object overrides == to check for destroyed objects
                 if (star.Equals(null) || star.transform.Equals(null))
                     return;
-                GlobalSoundManager.PlayRandomSoundByType(SoundType.Ding);
+                if (!FMODEvents.Instance.ding.IsNull) FMODUnity.RuntimeManager.PlayOneShot(FMODEvents.Instance.ding);
                 star.sprite = fullStar;
                 star.transform.DOScale(Vector3.one * 1.25f, 0.5f).SetLoops(2, LoopType.Yoyo);
             });

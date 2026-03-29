@@ -1,124 +1,70 @@
 using UnityEngine;
-using System;
-
-public enum SoundType
-{
-    Click,
-    ChangeState,
-    Move,
-    Win,
-    Lose,
-    Ding,
-    Card
-}
-
-[RequireComponent(typeof(AudioSource))]
+using System.Collections;
+using FMODUnity;
+using StopMode = FMOD.Studio.STOP_MODE;
 
 public class GlobalSoundManager : Singleton<GlobalSoundManager>
 {
-    [SerializeField] private SoundList[] soundList;
-    [SerializeField] private AudioSource soundtrackSource;
+    private const string BusSFX   = "bus:/SFX";
+    private const string BusMusic = "bus:/Music";
 
-    private AudioSource _audioSource;
+    private FMOD.Studio.EventInstance _musicInstance;
 
-    private float _lastSFXVolume = 1f;
-    private float _lastSoundtrackVolume = 1f;
-    private bool _isMuted = false;
-    public void MuteAll()
+    private IEnumerator Start()
     {
-        if (_isMuted) return;
-        _isMuted = true;
-        if (_audioSource != null)
-        {
-            _lastSFXVolume = _audioSource.volume;
-            _audioSource.volume = 0f;
-        }
-        if (soundtrackSource != null)
-        {
-            _lastSoundtrackVolume = soundtrackSource.volume;
-            soundtrackSource.volume = 0f;
-        }
+        while (!RuntimeManager.HaveAllBanksLoaded)
+            yield return null;
+
+        yield return null;
+
+        ApplySFXVolume(SettingsManager.Instance.SFXVolume);
+        ApplyMusicVolume(SettingsManager.Instance.SoundtrackVolume);
     }
 
-    public void UnmuteAll()
+    private void OnDestroy()
     {
-        if (!_isMuted) return;
-        _isMuted = false;
-        if (_audioSource != null)
-        {
-            _audioSource.volume = _lastSFXVolume;
-        }
-        if (soundtrackSource != null)
-        {
-            soundtrackSource.volume = _lastSoundtrackVolume;
-        }
+        StopMusic(false);
     }
 
-    private void OnEnable()
-    {
-        var soundTypeNames = Enum.GetNames(typeof(SoundType));
-        Array.Resize(ref soundList, soundTypeNames.Length);
+    // ── Music ─────────────────────────────────────────────────────────────
 
-        for (var i = 0; i < soundList.Length; i++)
-        {
-            soundList[i].name = soundTypeNames[i];
-        }
+    public void PlaySoundtrack(EventReference ev)
+    {
+        StopMusic();
+        if (ev.IsNull) return;
+        _musicInstance = RuntimeManager.CreateInstance(ev);
+        _musicInstance.start();
     }
 
-    protected override void Awake()
+    public void StopMusic(bool allowFade = true)
     {
-        base.Awake();
-        if (Instance == this)
-        {
-            _audioSource = GetComponent<AudioSource>();
-        }
+        _musicInstance.stop(allowFade ? StopMode.ALLOWFADEOUT : StopMode.IMMEDIATE);
+        _musicInstance.release();
+        _musicInstance = default;
     }
 
-    private void Start()
+    // ── Volume ────────────────────────────────────────────────────────────
+
+    public void UpdateSFXVolume()        => ApplySFXVolume(SettingsManager.Instance.SFXVolume);
+    public void UpdateSoundtrackVolume() => ApplyMusicVolume(SettingsManager.Instance.SoundtrackVolume);
+
+    private static void ApplySFXVolume(float v)  => SetBusVolume(BusSFX, v);
+    private static void ApplyMusicVolume(float v) => SetBusVolume(BusMusic, v);
+
+    private static void SetBusVolume(string busPath, float v)
     {
-        UpdateSFXVolume();
-        UpdateSoundtrackVolume();
+        try { RuntimeManager.GetBus(busPath).setVolume(v); }
+        catch { Debug.LogWarning($"[FMOD] Bus '{busPath}' not found."); }
     }
 
-    public static void PlayRandomSoundByType(SoundType sound, float volume = 1)
+    private static void SetBusMute(string busPath, bool mute)
     {
-        var clips = Instance.soundList[(int)sound].Sounds;
-        var randomClip = clips[UnityEngine.Random.Range(0, clips.Length)];
-        Instance._audioSource.PlayOneShot(randomClip, volume * SettingsManager.Instance.SFXVolume);
+        try { RuntimeManager.GetBus(busPath).setMute(mute); }
+        catch { }
     }
 
-    public void UpdateSFXVolume()
-    {
-        if (_audioSource != null)
-        {
-            _audioSource.volume = SettingsManager.Instance.SFXVolume;
-        }
-    }
+    // ── Mute ──────────────────────────────────────────────────────────────
 
-    public void UpdateSoundtrackVolume()
-    {
-        if (soundtrackSource != null)
-        {
-            soundtrackSource.volume = SettingsManager.Instance.SoundtrackVolume;
-        }
-    }
-
-    public void PlaySoundtrack(AudioClip clip)
-    {
-        if (!soundtrackSource) return;
-        soundtrackSource.clip = clip;
-        soundtrackSource.Play();
-    }
-
-    [Serializable]
-    public struct SoundList
-    {
-        public AudioClip[] Sounds
-        {
-            get => sounds;
-        }
-
-        public string name;
-        [SerializeField] private AudioClip[] sounds;
-    }
+    public void MuteAll()   => SetBusMute("bus:/", true);
+    public void UnmuteAll() => SetBusMute("bus:/", false);
 }
