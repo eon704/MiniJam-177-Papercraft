@@ -22,7 +22,6 @@ public class Player : MonoBehaviour
     private int MovesLeftForCurrentState => _movesPerForm[(_stateMachine.CurrentState as IState)!.StateType];
 
     private StateMachine _stateMachine;
-    private SpriteRenderer _spriteRenderer;
 
     [Header("States Objects")]
     [SerializeField] private GameObject defaultStateObject;
@@ -30,7 +29,6 @@ public class Player : MonoBehaviour
     [SerializeField] private GameObject planeStateGameObject;
     [SerializeField] private GameObject boatStateGameObject;
     [SerializeField] private GameObject frogStateGameObject;
-
 
     private IState _defaultState;
     private IState _craneState;
@@ -41,6 +39,7 @@ public class Player : MonoBehaviour
     private const int TotalStars = 3;
 
     private Sequence _pulseSequence;
+    private Tween _spinTween;
     public bool isMovementLocked;
 
     private BoardPrefab _boardPrefab;
@@ -58,7 +57,6 @@ public class Player : MonoBehaviour
     }
 
     private Dictionary<StateType, int> _movesPerForm;
-    private Dictionary<StateType, bool> _unlockedForms;
     private List<CellPrefab> _moveOptionCells;
     private bool _isInitialized;
 
@@ -86,10 +84,8 @@ public class Player : MonoBehaviour
         OnMovesLeftChanged?.Invoke(StateType.Plane, _movesPerForm[StateType.Plane]);
     }
 
-
     private void Awake()
     {
-        _spriteRenderer = GetComponent<SpriteRenderer>();
         BoardPiecePrefab = GetComponent<BoardPiecePrefab>();
         _stateMachine = new StateMachine();
 
@@ -157,9 +153,7 @@ public class Player : MonoBehaviour
         {
             int distance = Cell.Distance(startCell, cellPrefab.Cell);
             if (!reachableCellsByDistance.ContainsKey(distance))
-            {
                 reachableCellsByDistance[distance] = new List<CellPrefab>();
-            }
 
             reachableCellsByDistance[distance].Add(cellPrefab);
         }
@@ -169,21 +163,16 @@ public class Player : MonoBehaviour
         _pulseSequence?.Kill();
         _pulseSequence = DOTween.Sequence();
 
-        _pulseSequence.Insert(0, BoardPiecePrefab.CurrentCell.DoPulse(duration));
-
         foreach (KeyValuePair<int, List<CellPrefab>> distanceToCellsPair in reachableCellsByDistance)
         {
             foreach (var cellPrefab in distanceToCellsPair.Value)
-            {
                 _pulseSequence.Insert(distanceToCellsPair.Key * delay, cellPrefab.DoPulse(duration));
-            }
         }
 
         _pulseSequence.SetLoops(-1);
         _pulseSequence.Play();
     }
 
-    // ReSharper disable Unity.PerformanceAnalysis
     public void SetDefaultState()
     {
         SetState(_defaultState);
@@ -194,7 +183,7 @@ public class Player : MonoBehaviour
         SetState(_craneState);
     }
 
-    public void SerFrogState()
+    public void SetFrogState()
     {
         SetState(_frogState);
     }
@@ -216,8 +205,37 @@ public class Player : MonoBehaviour
 
         IState currentState = (_stateMachine.CurrentState as IState)!;
         StateType type = currentState.StateType;
+
+        // Лодка: клик по воде — находим клетку приземления на другом берегу
+        if (type == StateType.Boat && targetCell.Cell.Terrain == TerrainType.Water)
+        {
+            Cell landing = BoardPiecePrefab.BoardPiece.FindBoatLandingCell(targetCell.Cell);
+            if (landing == null) return;
+            targetCell = _boardPrefab.GetCellPrefab(landing);
+        }
+
         bool forceFailMovement = _movesPerForm[type] <= 0;
-        bool success = BoardPiecePrefab.Move(targetCell, OnMove, forceFailMovement);
+
+        // Для лодки строим путь через воду для пошаговой анимации
+        List<CellPrefab> boatPath = null;
+        if (type == StateType.Boat && !forceFailMovement)
+        {
+            var pathCells = BoardPiecePrefab.BoardPiece.GetBoatPathCells(targetCell.Cell);
+            boatPath = new List<CellPrefab>(pathCells.Count);
+            foreach (var c in pathCells)
+                boatPath.Add(_boardPrefab.GetCellPrefab(c));
+        }
+
+        float arcHeight = 1.5f;
+        if (type == StateType.Plane && !forceFailMovement)
+        {
+            Vector3 from = BoardPiecePrefab.transform.position;
+            Vector3 to = targetCell.transform.position;
+            float dist = Vector3.Distance(new Vector3(from.x, 0, from.z), new Vector3(to.x, 0, to.z));
+            arcHeight = Mathf.Max(1.25f, dist * 0.3f);
+        }
+
+        bool success = BoardPiecePrefab.Move(targetCell, OnMove, forceFailMovement, boatPath, arcHeight);
 
         if (success)
         {
@@ -227,9 +245,7 @@ public class Player : MonoBehaviour
             OnMovesLeftChanged?.Invoke(type, _movesPerForm[type]);
 
             if (_movesPerForm[type] <= 0)
-            {
                 OnOutOfMoves();
-            }
 
             _biomeCellSystem?.OnPlayerMoved();
             AddHistoryRecord();
@@ -255,16 +271,12 @@ public class Player : MonoBehaviour
 
         _movesPerForm = new Dictionary<StateType, int>(lastRecord.Value.MovesPerForm);
         foreach (var kvp in _movesPerForm)
-        {
             OnMovesLeftChanged?.Invoke(kvp.Key, kvp.Value);
-        }
 
         // Restore fragile cells BEFORE teleporting so the target cell exists
         _boardPrefab.Board.ResetFragileCells();
         foreach (var pos in lastRecord.Value.CollapsedCells)
-        {
             _boardPrefab.Board.GetCell(pos)?.CollapseInstant();
-        }
 
         _biomeCellSystem?.RestoreSnapshot(lastRecord.Value.BiomeSnapshot);
 
@@ -274,9 +286,7 @@ public class Player : MonoBehaviour
         SetState(GetState(playerState));
 
         foreach (var cell in starsRemaining)
-        {
             _boardPrefab.GetCellPrefab(cell).Cell.ReassignStar();
-        }
 
         StarAmount.Value = TotalStars - starsRemaining.Count;
     }
@@ -290,9 +300,7 @@ public class Player : MonoBehaviour
         foreach (var cell in _boardPrefab.Board.StarCells)
         {
             if (cell.Item == CellItem.Star)
-            {
                 starsRemaining.Add(cell.Position);
-            }
         }
 
         List<Vector2Int> collapsedCells = new();
@@ -333,6 +341,14 @@ public class Player : MonoBehaviour
         BoardPiecePrefab.BoardPiece.SetState(state);
         OnTransformation?.Invoke(GetStateType(state));
 
+        // Быстрый спин по Y — скрывает переключение модели
+        _spinTween?.Kill();
+        Vector3 euler = transform.localEulerAngles;
+        euler.y = 0f;
+        transform.localEulerAngles = euler;
+        _spinTween = transform.DORotate(new Vector3(0f, 360f, 0f), 0.3f, RotateMode.LocalAxisAdd)
+            .SetEase(Ease.InOutCubic);
+
         ResetPulse();
         PulseReachableCells();
     }
@@ -345,9 +361,7 @@ public class Player : MonoBehaviour
         _moveOptionCells?.ForEach(cellPrefab => cellPrefab.ResetIsValidMoveOption());
         _pulseSequence?.Kill();
         foreach (var cellPrefab in _moveOptionCells!)
-        {
             cellPrefab.ResetPulse();
-        }
     }
 
     private void OnOutOfMoves()

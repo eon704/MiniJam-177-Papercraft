@@ -10,8 +10,8 @@ public class WinScreenStarsUI : MonoBehaviour
     [SerializeField] private Sprite fullStar;
 
     private TextPulsing[] texts;
-    
-    Sequence initialStarSequence;
+
+    private Sequence initialStarSequence;
 
     public void AnimateStars(int totalStars)
     {
@@ -24,9 +24,6 @@ public class WinScreenStarsUI : MonoBehaviour
             initialStarSequence.AppendCallback(() =>
             {
                 if (star == null || star.transform == null)
-                    return;
-                // UnityEngine.Object overrides == to check for destroyed objects
-                if (star.Equals(null) || star.transform.Equals(null))
                     return;
                 if (!FMODEvents.Instance.ding.IsNull) FMODUnity.RuntimeManager.PlayOneShot(FMODEvents.Instance.ding);
                 star.sprite = fullStar;
@@ -43,11 +40,9 @@ public class WinScreenStarsUI : MonoBehaviour
                 var star = stars[i];
                 if (star == null || star.transform == null)
                     continue;
-                if (star.Equals(null) || star.transform.Equals(null))
-                    continue;
                 star.transform.DOKill();
                 star.transform.localScale = Vector3.one;
-                if (texts != null && i < texts.Length && texts[i] != null && !texts[i].Equals(null))
+                if (texts != null && i < texts.Length && texts[i] != null)
                     texts[i].enabled = true;
             }
         });
@@ -58,28 +53,22 @@ public class WinScreenStarsUI : MonoBehaviour
     private void OnEnable()
     {
         texts = stars.Select(star => star.GetComponent<TextPulsing>()).ToArray();
-        
+
         foreach (var star in stars)
-        {
             star.sprite = emptyStar;
-        }
 
         foreach (var textPulsing in texts)
-        {
             textPulsing.enabled = false;
-        }
     }
-    
+
     private void OnDisable()
     {
         initialStarSequence?.Kill();
 
         foreach (var star in stars)
         {
-            if (star != null && star.transform != null && !star.Equals(null) && !star.transform.Equals(null))
-            {
+            if (star != null && star.transform != null)
                 star.transform.DOKill();
-            }
         }
     }
 }

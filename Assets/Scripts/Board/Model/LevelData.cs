@@ -21,14 +21,12 @@ public class LevelData : ScriptableObject
     [Header("Solution Data")]
     [SerializeField] private List<SolutionStep> cachedSolution;
 
-    // Property to access the cached solution
     public List<SolutionStep> CachedSolution
     {
         get => cachedSolution ?? new List<SolutionStep>();
         set => cachedSolution = value;
     }
 
-    // Check if a cached solution exists
     public bool HasCachedSolution => cachedSolution != null && cachedSolution.Count > 0;
 
     public static LevelData DefaultLevel
@@ -39,16 +37,15 @@ public class LevelData : ScriptableObject
             defaultLevel.MapSize = new Vector2Int(5, 1);
             defaultLevel.Map = new CellData[5 * 1];
             for (int x = 0; x < 5; x++)
-            {
                 defaultLevel.Map[x] = new CellData(TerrainType.Default, CellItem.None);
-            }
+
             defaultLevel.StartMovesPerForm = new List<MovePerFormEntry>()
             {
-                new() {State = Player.StateType.Default, Moves = -1 },
-                new() {State = Player.StateType.Crane, Moves = -1 },
-                new() {State = Player.StateType.Plane, Moves = -1 },
-                new() {State = Player.StateType.Boat, Moves = -1 },
-                new() {State = Player.StateType.Frog, Moves = -1 }
+                new() { State = Player.StateType.Default, Moves = -1 },
+                new() { State = Player.StateType.Crane,   Moves = -1 },
+                new() { State = Player.StateType.Plane,   Moves = -1 },
+                new() { State = Player.StateType.Boat,    Moves = -1 },
+                new() { State = Player.StateType.Frog,    Moves = -1 }
             };
             defaultLevel.cachedSolution = new List<SolutionStep>();
             return defaultLevel;
@@ -67,14 +64,8 @@ public class LevelData : ScriptableObject
         int endCellCount = 0;
         foreach (var cell in Map)
         {
-            if (cell.Terrain == TerrainType.Start)
-            {
-                startCellCount++;
-            }
-            else if (cell.Terrain == TerrainType.End)
-            {
-                endCellCount++;
-            }
+            if (cell.Terrain == TerrainType.Start) startCellCount++;
+            else if (cell.Terrain == TerrainType.End) endCellCount++;
         }
 
         if (startCellCount != 1)
@@ -93,11 +84,9 @@ public class LevelData : ScriptableObject
         foreach (var cell in Map)
         {
             if (cell.Item == CellItem.Star)
-            {
                 starCount++;
-            }
         }
-        
+
         if (starCount != 3)
         {
             Debug.LogError($"Invalid number of stars: {starCount}. There should be exactly 3 stars in the level.");
@@ -158,7 +147,7 @@ public struct SolutionStep
     public Vector2Int Position;
     public Player.StateType State;
     public int StarsCollected;
-    
+
     public SolutionStep(Vector2Int position, Player.StateType state, int starsCollected)
     {
         Position = position;

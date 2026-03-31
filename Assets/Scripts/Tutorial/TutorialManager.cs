@@ -1,4 +1,3 @@
-
 using UnityEngine;
 
 public class TutorialManager : MonoBehaviour
@@ -15,8 +14,6 @@ public class TutorialManager : MonoBehaviour
     private void Update()
     {
         for (int i = 0; i < tutorialLevels.Length; i++)
-        {
             tutorialLevels[i].SetActive(i == _currentLevelIndex - 1);
-        }
     }
 }

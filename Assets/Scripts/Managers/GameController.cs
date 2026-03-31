@@ -16,11 +16,13 @@ public class GameController : MonoBehaviour
     [field: SerializeField]
     public BoardPrefab BoardPrefab { get; private set; }
     [SerializeField] private GameObject winScreen;
+    [SerializeField] private VolcanoProjectile volcanoProjectilePrefab;
+    [SerializeField] private float volcanoArcHeight = 3f;
+    [SerializeField] private float volcanoProjectileDuration = 1f;
     private Camera cameraObject;
 
 #if UNITY_EDITOR
     [Header("Testing Tools")]
-
     [Tooltip("Only works in the editor")]
     [SerializeField] private bool enableInfiniteMoves;
 #endif
@@ -33,7 +35,7 @@ public class GameController : MonoBehaviour
 
     private Dictionary<Player.StateType, int> startMovesPerForm;
 
-    Sequence respawnSequence;
+    private Sequence respawnSequence;
 
     public void ResetMap()
     {
@@ -48,7 +50,7 @@ public class GameController : MonoBehaviour
         starCells.ForEach(cell => cell.Cell.ReassignStar());
 
         PlayerPrefab.StarAmount.Value = 0;
-        
+
         BoardPrefab.Board.BoardHistory.Reset();
         OnMapReset?.Invoke();
 
@@ -63,13 +65,8 @@ public class GameController : MonoBehaviour
         respawnSequence.Append(PlayerPrefab.transform.DOScale(1f, 0.5f));
         respawnSequence.AppendCallback(() => PlayerPrefab.isMovementLocked = false);
 
-        if (winScreen != null)
-        {
-            if (winScreen.activeSelf)
-            {
-                winScreen.SetActive(false);
-            }
-        }
+        if (winScreen != null && winScreen.activeSelf)
+            winScreen.SetActive(false);
     }
 
     public void LoadNextLevel()
@@ -88,17 +85,13 @@ public class GameController : MonoBehaviour
     {
         startMovesPerForm = new Dictionary<Player.StateType, int>();
         foreach (MovePerFormEntry movesPerForm in LevelManager.Instance.CurrentLevel.StartMovesPerForm)
-        {
             startMovesPerForm[movesPerForm.State] = movesPerForm.Moves;
-        }
 
 #if UNITY_EDITOR
         if (enableInfiniteMoves)
         {
             foreach (Player.StateType state in Enum.GetValues(typeof(Player.StateType)))
-            {
                 startMovesPerForm[state] = 99;
-            }
         }
 #endif
 
@@ -109,6 +102,7 @@ public class GameController : MonoBehaviour
         BoardPrefab.Initialize(LevelManager.Instance.CurrentLevel);
 
         _biomeCellSystem = new BiomeCellSystem(BoardPrefab.Board, LevelManager.Instance.CurrentLevel);
+        _biomeCellSystem.OnEruptionRequested += HandleVolcanoEruption;
 
         CellPrefab cellPrefab;
         (playerPiece, cellPrefab) = BoardPrefab.CreateNewPlayerPrefab();
@@ -121,12 +115,63 @@ public class GameController : MonoBehaviour
 
         yield return null;
         PlayerPrefab.SetTransformationLimits(startMovesPerForm);
-       
 
         yield return new WaitUntil(() => BoardPrefab.IsSpawnAnimationComplete);
         PlayerPrefab.isMovementLocked = true;
         yield return PlayerPrefab.transform.DOScale(Vector3.one, 0.5f).WaitForCompletion();
         PlayerPrefab.isMovementLocked = false;
+    }
+
+    private void HandleVolcanoEruption(Vector2Int volcanoPos, Vector2Int targetPos, Action applyLava)
+    {
+        CellPrefab volcanoCell = BoardPrefab.GetCellPrefab(volcanoPos);
+        CellPrefab targetCell  = BoardPrefab.GetCellPrefab(targetPos);
+
+        if (volcanoCell == null || targetCell == null)
+        {
+            applyLava();
+            return;
+        }
+
+        PlayerPrefab.isMovementLocked = true;
+
+        // Shake the volcano cell before eruption
+        volcanoCell.ShakeCell();
+
+        // Delay matches ShakeCell duration (0.5s delay + 0.3s shake)
+        float shakeDelay = 0.8f;
+
+        DOVirtual.DelayedCall(shakeDelay, () =>
+        {
+            if (volcanoProjectilePrefab == null)
+            {
+                // No prefab assigned — apply lava immediately and unblock
+                targetCell.ActivateExplosion(() =>
+                {
+                    applyLava();
+                    PlayerPrefab.isMovementLocked = false;
+                });
+                return;
+            }
+
+            Vector3 from = volcanoCell.VolcanoTop != null
+                ? volcanoCell.VolcanoTop.position
+                : volcanoCell.transform.position + Vector3.up;
+
+            Vector3 to = targetCell.ExplosionWorldPosition;
+
+            VolcanoProjectile projectile = Instantiate(
+                volcanoProjectilePrefab, from, Quaternion.identity);
+
+            projectile.Launch(from, to, volcanoArcHeight, volcanoProjectileDuration, onLanded: () =>
+            {
+                targetCell.ActivateExplosion(() =>
+                {
+                    applyLava();
+                    PlayerPrefab.isMovementLocked = false;
+                });
+            });
+        });
     }
 
     private void OnWin(int stars)

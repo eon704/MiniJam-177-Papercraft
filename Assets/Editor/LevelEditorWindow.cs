@@ -1457,6 +1457,20 @@ public class LevelEditorWindow : EditorWindow
             }
         }
 
+        // --- Precompute biome state cache (lava/ice cells per move count) ---
+        // The biome is deterministic: after N moves each volcano has erupted floor(N/period) times.
+        // We cache up to maxTotalMoves+1 so the BFS can look up any step cheaply.
+        int maxTotalMoves = level.StartMovesPerForm
+            .Where(e => e.State != Player.StateType.Default && e.Moves > 0)
+            .Sum(e => e.Moves);
+        var lavaCellsCache = new Dictionary<int, HashSet<Vector2Int>>(maxTotalMoves + 2);
+        var iceCellsCache  = new Dictionary<int, HashSet<Vector2Int>>(maxTotalMoves + 2);
+        for (int m = 0; m <= maxTotalMoves + 1; m++)
+        {
+            lavaCellsCache[m] = ComputeLavaCells(level, m);
+            iceCellsCache[m]  = ComputeDynamicIceCells(level, m);
+        }
+
         // BFS to find solution
         Queue<TurnInfo> queue = new(); // Include depth to prevent infinite search
         HashSet<string> visited = new();
@@ -1470,7 +1484,8 @@ public class LevelEditorWindow : EditorWindow
             MovesPerForm = level.StartMovesPerForm.ToDictionary(m => m.State, m => m.Moves),
             State = Player.StateType.Default,
             CollectedStarPositions = new HashSet<Vector2Int>(),
-            CollapsedCells = new HashSet<Vector2Int>()
+            CollapsedCells = new HashSet<Vector2Int>(),
+            MoveCount = 0
         };
 
         queue.Enqueue(initialTurn);
@@ -1521,25 +1536,38 @@ public class LevelEditorWindow : EditorWindow
                 // Get the state model for movement options
                 if (!StateModelInfo.StateModels.TryGetValue(stateType, out StateModel stateModel)) continue;
 
+                // Biome state BEFORE this move (used to evaluate which moves are legal)
+                var curLava = lavaCellsCache.TryGetValue(current.MoveCount, out var cl) ? cl : null;
+                var curIce  = iceCellsCache .TryGetValue(current.MoveCount, out var ci) ? ci : null;
+
                 // Determine which cells are collapsed when leaving the current cell
                 HashSet<Vector2Int> collapsedAfterMove = new(current.CollapsedCells ?? new HashSet<Vector2Int>());
                 int curIdx = current.Position.y * level.MapSize.x + current.Position.x;
                 if (level.Map[curIdx].IsFragile)
                     collapsedAfterMove.Add(current.Position);
 
-                // Generate target positions based on MoveMode (Plane slides, Boat crosses water, etc.)
-                foreach (Vector2Int newPos in GetMoveTargets(current.Position, stateModel, level, collapsedAfterMove))
+                // Generate target positions using current biome terrain
+                foreach (Vector2Int newPos in GetMoveTargets(current.Position, stateModel, level, collapsedAfterMove, curLava, curIce))
                 {
                     int cellIndex = newPos.y * level.MapSize.x + newPos.x;
-                    CellData targetCell = level.Map[cellIndex];
+                    CellData staticCell = level.Map[cellIndex];
 
-                    // Fire is always fatal — never a valid destination
-                    if (targetCell.Terrain == TerrainType.Fire) continue;
+                    // Static fire is always fatal
+                    if (staticCell.Terrain == TerrainType.Fire) continue;
+
+                    // Current lava (from previous eruptions) — landing here kills the player
+                    if (curLava != null && curLava.Contains(newPos)) continue;
+
+                    // After this move the biome ticks — check if the target cell BECOMES lava
+                    // exactly as the player lands there (OnMove fires after the tick)
+                    int newMoveCount = current.MoveCount + 1;
+                    var nextLava = lavaCellsCache.TryGetValue(newMoveCount, out var nl) ? nl : null;
+                    if (nextLava != null && nextLava.Contains(newPos)) continue;
 
                     // Stars
                     int newStars = current.Stars;
                     HashSet<Vector2Int> newCollectedStars = new(current.CollectedStarPositions ?? new HashSet<Vector2Int>());
-                    if (targetCell.Item == CellItem.Star && !newCollectedStars.Contains(newPos))
+                    if (staticCell.Item == CellItem.Star && !newCollectedStars.Contains(newPos))
                     {
                         newStars++;
                         newCollectedStars.Add(newPos);
@@ -1551,12 +1579,13 @@ public class LevelEditorWindow : EditorWindow
 
                     TurnInfo nextTurn = new TurnInfo
                     {
-                        Position = newPos,
-                        Stars = newStars,
-                        MovesPerForm = newMovesPerForm,
-                        State = stateType,
+                        Position               = newPos,
+                        Stars                  = newStars,
+                        MovesPerForm           = newMovesPerForm,
+                        State                  = stateType,
                         CollectedStarPositions = newCollectedStars,
-                        CollapsedCells = collapsedAfterMove
+                        CollapsedCells         = collapsedAfterMove,
+                        MoveCount              = newMoveCount,
                     };
 
                     string nextKey = GetStateKey(nextTurn);
@@ -1581,6 +1610,11 @@ public class LevelEditorWindow : EditorWindow
         public Player.StateType State;
         public HashSet<Vector2Int> CollectedStarPositions;
         public HashSet<Vector2Int> CollapsedCells; // Fragile cells that have been stepped on and left
+        /// <summary>
+        /// Total number of player moves made so far. Determines the biome state
+        /// (which cells are covered in lava / dynamic ice) deterministically.
+        /// </summary>
+        public int MoveCount;
     }
 
     public static string GetStateKey(TurnInfo state)
@@ -1588,7 +1622,47 @@ public class LevelEditorWindow : EditorWindow
         string movesKey = string.Join(",", state.MovesPerForm.OrderBy(kvp => kvp.Key).Select(kvp => $"{kvp.Key}:{kvp.Value}"));
         string starsKey = string.Join(";", (state.CollectedStarPositions ?? new HashSet<Vector2Int>()).OrderBy(p => p.x).ThenBy(p => p.y).Select(p => $"{p.x},{p.y}"));
         string collapsedKey = string.Join(";", (state.CollapsedCells ?? new HashSet<Vector2Int>()).OrderBy(p => p.x).ThenBy(p => p.y).Select(p => $"{p.x},{p.y}"));
-        return $"{state.Position.x},{state.Position.y},{state.State},{state.Stars},{movesKey},{starsKey}|{collapsedKey}";
+        // MoveCount is included so that different biome states are never conflated
+        return $"{state.Position.x},{state.Position.y},{state.State},{state.Stars},{movesKey},{starsKey}|{collapsedKey}|mc{state.MoveCount}";
+    }
+
+    // ── Biome simulation helpers ──────────────────────────────────────────────
+
+    /// <summary>
+    /// Returns the set of cells covered in lava after exactly <paramref name="moveCount"/> player moves.
+    /// Each volcano erupts every cfg.Period moves (first eruption at move = cfg.Period).
+    /// </summary>
+    private static HashSet<Vector2Int> ComputeLavaCells(LevelData level, int moveCount)
+    {
+        var lava = new HashSet<Vector2Int>();
+        if (level.VolcanoConfigs == null) return lava;
+        foreach (var cfg in level.VolcanoConfigs)
+        {
+            if (cfg.LavaSequence == null || cfg.LavaSequence.Count == 0 || cfg.Period <= 0) continue;
+            int eruptions = moveCount / cfg.Period;
+            int covered   = Mathf.Min(eruptions, cfg.LavaSequence.Count);
+            for (int i = 0; i < covered; i++)
+                lava.Add(cfg.LavaSequence[i]);
+        }
+        return lava;
+    }
+
+    /// <summary>
+    /// Returns the set of cells frozen by IceSources after exactly <paramref name="moveCount"/> moves.
+    /// </summary>
+    private static HashSet<Vector2Int> ComputeDynamicIceCells(LevelData level, int moveCount)
+    {
+        var ice = new HashSet<Vector2Int>();
+        if (level.IceSourceConfigs == null) return ice;
+        foreach (var cfg in level.IceSourceConfigs)
+        {
+            if (cfg.FreezeSequence == null || cfg.FreezeSequence.Count == 0 || cfg.Period <= 0) continue;
+            int freezes = moveCount / cfg.Period;
+            int covered = Mathf.Min(freezes, cfg.FreezeSequence.Count);
+            for (int i = 0; i < covered; i++)
+                ice.Add(cfg.FreezeSequence[i]);
+        }
+        return ice;
     }
 
     // Returns true if every form that started with finite (>0) moves has used them all.
@@ -1605,44 +1679,55 @@ public class LevelEditorWindow : EditorWindow
     }
 
     // Returns all valid landing positions for a given state from 'pos', respecting MoveMode mechanics.
+    // lavaCells / dynamicIceCells override the static map terrain (simulate biome state at current move).
     private static IEnumerable<Vector2Int> GetMoveTargets(
-        Vector2Int pos, StateModel stateModel, LevelData level, HashSet<Vector2Int> collapsedCells)
+        Vector2Int pos, StateModel stateModel, LevelData level,
+        HashSet<Vector2Int> collapsedCells,
+        HashSet<Vector2Int> lavaCells       = null,
+        HashSet<Vector2Int> dynamicIceCells = null)
     {
         bool InBounds(Vector2Int p) =>
             p.x >= 0 && p.x < level.MapSize.x && p.y >= 0 && p.y < level.MapSize.y;
         CellData Cell(Vector2Int p) => level.Map[p.y * level.MapSize.x + p.x];
         bool Collapsed(Vector2Int p) => collapsedCells != null && collapsedCells.Contains(p);
 
+        // Effective terrain: dynamic lava/ice overrides the static map.
+        TerrainType EffTerrain(Vector2Int p)
+        {
+            if (lavaCells       != null && lavaCells.Contains(p))       return TerrainType.Lava;
+            if (dynamicIceCells != null && dynamicIceCells.Contains(p)) return TerrainType.Ice;
+            return Cell(p).Terrain;
+        }
+
         switch (stateModel.MoveMode)
         {
             case MoveMode.Normal:
             case MoveMode.FrogJump:
-                // Single step (Normal) or fixed 2-cell jump (FrogJump) — offsets already encode distance
                 foreach (var offset in stateModel.MoveOptions)
                 {
                     var target = pos + offset;
                     if (!InBounds(target)) continue;
-                    var cell = Cell(target);
-                    if (cell.Terrain == TerrainType.Empty) continue;
+                    var t = EffTerrain(target);
+                    if (t == TerrainType.Empty) continue;
                     if (Collapsed(target)) continue;
-                    if (!stateModel.MoveTerrain.Contains(cell.Terrain)) continue;
+                    if (!stateModel.MoveTerrain.Contains(t)) continue;
                     yield return target;
                 }
                 break;
 
             case MoveMode.PlaneSlide:
-                // Slide diagonally until terrain blocks or out of bounds.
-                // Fire blocks the slide (you can't fly past fire without dying).
+                // Fire AND Lava block the slide — player can't safely fly through them.
                 foreach (var dir in stateModel.MoveOptions)
                 {
                     var cursor = pos + dir;
                     while (InBounds(cursor))
                     {
-                        var cell = Cell(cursor);
-                        if (cell.Terrain == TerrainType.Empty) break;
-                        if (cell.Terrain == TerrainType.Fire) break;   // fire blocks slide
+                        var t = EffTerrain(cursor);
+                        if (t == TerrainType.Empty) break;
+                        if (t == TerrainType.Fire)  break;
+                        if (t == TerrainType.Lava)  break; // dynamic lava also blocks slide
                         if (Collapsed(cursor)) break;
-                        if (!stateModel.MoveTerrain.Contains(cell.Terrain)) break;
+                        if (!stateModel.MoveTerrain.Contains(t)) break;
                         yield return cursor;
                         cursor += dir;
                     }
@@ -1650,22 +1735,21 @@ public class LevelEditorWindow : EditorWindow
                 break;
 
             case MoveMode.BoatSlide:
-                // Must start with a Water cell, slide through all water, land on the first non-water
-                // cell that is in MoveTerrain (mirrors BoardPiece.GetBoatMoveOptions).
+                // First adjacent cell must be Water (static or effective).
                 foreach (var dir in stateModel.MoveOptions)
                 {
                     var first = pos + dir;
                     if (!InBounds(first)) continue;
-                    if (Cell(first).Terrain != TerrainType.Water) continue;
+                    if (EffTerrain(first) != TerrainType.Water) continue;
 
                     var cursor = first + dir;
                     while (InBounds(cursor))
                     {
-                        var cell = Cell(cursor);
-                        if (cell.Terrain == TerrainType.Water) { cursor += dir; continue; }
+                        var t = EffTerrain(cursor);
+                        if (t == TerrainType.Water) { cursor += dir; continue; }
                         // First non-water cell is the landing spot
-                        if (cell.Terrain != TerrainType.Empty && !Collapsed(cursor) &&
-                            stateModel.MoveTerrain.Contains(cell.Terrain))
+                        if (t != TerrainType.Empty && !Collapsed(cursor) &&
+                            stateModel.MoveTerrain.Contains(t))
                             yield return cursor;
                         break;
                     }

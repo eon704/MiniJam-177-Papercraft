@@ -3,98 +3,93 @@ using UnityEngine;
 
 public class LevelManager : Singleton<LevelManager>
 {
-  [Header("Testing tools")]
-  [Tooltip("Disabled if index is -1 or less.")]
-  [SerializeField] private int forceLevelIndex = -1;
-  
-  [Header("Note: Level 0 is the debug level.")]
-  [SerializeField] private List<LevelData> levels;
-  public int NextLevelIndex { get; private set; }
+    [Header("Testing tools")]
+    [Tooltip("Disabled if index is -1 or less.")]
+    [SerializeField] private int forceLevelIndex = -1;
 
-  public int LevelsCount => levels.Count;
-  
-  /// <summary>
-  /// Playables indexes range: [1, LevelsCount - 1].<br/>
-  /// Level 0 is the debug level.
-  /// </summary>
-  public int CurrentLevelIndex { get; private set; }
-  
-  public LevelData CurrentLevel
-  {
-    get
+    [Header("Note: Level 0 is the debug level.")]
+    [SerializeField] private List<LevelData> levels;
+
+    public int NextLevelIndex { get; private set; }
+    public int LevelsCount => levels.Count;
+
+    /// <summary>
+    /// Playable indexes range: [1, LevelsCount - 1]. Level 0 is the debug level.
+    /// </summary>
+    public int CurrentLevelIndex { get; private set; }
+
+    public LevelData CurrentLevel
     {
-      if (CurrentLevelIndex >= levels.Count)
-        return levels[levels.Count - 1];
+        get
+        {
+            if (CurrentLevelIndex >= levels.Count)
+                return levels[levels.Count - 1];
 
-      LevelData source = CurrentLevelIndex > 0 ? levels[CurrentLevelIndex] : LevelData.DefaultLevel;
-      return Instantiate(source);
+            LevelData source = CurrentLevelIndex > 0 ? levels[CurrentLevelIndex] : LevelData.DefaultLevel;
+            return Instantiate(source);
+        }
     }
-  }
 
-  protected override void Awake()
-  {
-    base.Awake();
-    
-    if (Instance == this)
+    protected override void Awake()
     {
-      NextLevelIndex = PlayerPrefs.GetInt("NextLevelIndex", 1);
-      CurrentLevelIndex = NextLevelIndex;
-      
-      #if UNITY_EDITOR
-      if (forceLevelIndex >= 0)
-      {
-        CurrentLevelIndex = forceLevelIndex;
-      }
-      #endif
-        
-      DontDestroyOnLoad(gameObject);
+        base.Awake();
+
+        if (Instance == this)
+        {
+            NextLevelIndex = PlayerPrefs.GetInt("NextLevelIndex", 1);
+            CurrentLevelIndex = NextLevelIndex;
+
+#if UNITY_EDITOR
+            if (forceLevelIndex >= 0)
+                CurrentLevelIndex = forceLevelIndex;
+#endif
+
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
-    else
+
+    public bool IsLastLevel()
     {
-      Destroy(gameObject); 
+        return CurrentLevelIndex == levels.Count - 1;
     }
-  }
 
-  public bool IsLastLevel()
-  {
-    return CurrentLevelIndex == levels.Count - 1;
-  }
-
-  public void SetCurrentLevel(int index)
-  {
-    CurrentLevelIndex = Mathf.Clamp(index, 1, levels.Count - 1);
-  }
-
-  public void PrepareNextLevel()
-  {
-    SetCurrentLevel(CurrentLevelIndex + 1);
-  }
-
-  public int GetLevelStars(int levelIndex)
-  {
-    string key = "level" + levelIndex + "_stars";
-    return PlayerPrefs.GetInt(key, 0);
-  }
-
-  public void UnlockAllLevels()
-  {
-    NextLevelIndex = levels.Count - 1;
-    PlayerPrefs.SetInt("NextLevelIndex", NextLevelIndex);
-  }
-
-  public void SetCurrentLevelComplete(int stars)
-  {
-    string key = "level" + Instance.CurrentLevelIndex + "_stars";
-    int bestStars = PlayerPrefs.GetInt(key, 0);
-    if (stars > bestStars)
+    public void SetCurrentLevel(int index)
     {
-      PlayerPrefs.SetInt(key, stars);
+        CurrentLevelIndex = Mathf.Clamp(index, 1, levels.Count - 1);
     }
-    
-    if (CurrentLevelIndex + 1 <= NextLevelIndex)
-      return;
-    
-    NextLevelIndex = CurrentLevelIndex + 1;
-    PlayerPrefs.SetInt("NextLevelIndex", NextLevelIndex);
-  }
+
+    public void PrepareNextLevel()
+    {
+        SetCurrentLevel(CurrentLevelIndex + 1);
+    }
+
+    public int GetLevelStars(int levelIndex)
+    {
+        string key = "level" + levelIndex + "_stars";
+        return PlayerPrefs.GetInt(key, 0);
+    }
+
+    public void UnlockAllLevels()
+    {
+        NextLevelIndex = levels.Count - 1;
+        PlayerPrefs.SetInt("NextLevelIndex", NextLevelIndex);
+    }
+
+    public void SetCurrentLevelComplete(int stars)
+    {
+        string key = "level" + Instance.CurrentLevelIndex + "_stars";
+        int bestStars = PlayerPrefs.GetInt(key, 0);
+        if (stars > bestStars)
+            PlayerPrefs.SetInt(key, stars);
+
+        if (CurrentLevelIndex + 1 <= NextLevelIndex)
+            return;
+
+        NextLevelIndex = CurrentLevelIndex + 1;
+        PlayerPrefs.SetInt("NextLevelIndex", NextLevelIndex);
+    }
 }

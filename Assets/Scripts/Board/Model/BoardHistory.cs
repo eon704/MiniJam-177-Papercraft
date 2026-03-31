@@ -11,28 +11,20 @@ public class BoardHistory
     {
         _history.Push(new BoardRecord(playerPosition, playerState, starsRemaining, movesPerForm, collapsedCells, biomeSnapshot));
     }
-    
+
     public BoardRecord? Undo()
     {
         if (_history.Count == 1)
-        {
             return null;
-        }
-        
-        if (_history.Count > 1)
-        {
-            _history.Pop();
-        }
-        
+
+        _history.Pop();
         return _history.Peek();
     }
 
     public void Reset()
     {
         while (_history.Count > 1)
-        {
             _history.Pop();
-        }
     }
 }
 

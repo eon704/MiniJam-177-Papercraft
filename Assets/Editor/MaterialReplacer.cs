@@ -1,7 +1,5 @@
-
 using UnityEngine;
 using UnityEditor;
-
 
 public class MaterialReplacerWindow : EditorWindow
 {
@@ -14,7 +12,6 @@ public class MaterialReplacerWindow : EditorWindow
     {
         GetWindow<MaterialReplacerWindow>("Material Replacer");
     }
-
 
     void OnGUI()
     {
@@ -44,7 +41,6 @@ public class MaterialReplacerWindow : EditorWindow
             ReplaceMaterialsInScene(targetMaterial, newMaterial, targetScene);
         }
     }
-
 
     static void ReplaceMaterialsInPrefabs(Material target, Material replacement)
     {

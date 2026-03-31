@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,11 +8,10 @@ public class StateMachine
     private readonly Dictionary<Type, List<Transition>> _transitions = new Dictionary<Type, List<Transition>>();
     private List<Transition> _currentTransitions = new List<Transition>();
     private readonly List<Transition> _anyTransitions = new List<Transition>();
-    private float _startTime;
     private static readonly List<Transition> EmptyTransitions = new List<Transition>(0);
+
     public object CurrentState => _currentState;
 
-    // ReSharper disable Unity.PerformanceAnalysis
     public void Tick()
     {
         var transition = GetTransition();
@@ -53,6 +52,11 @@ public class StateMachine
         _anyTransitions.Add(new Transition(state, predicate));
     }
 
+    public float TimeInState(IState state)
+    {
+        return state == _currentState ? Time.time : 0;
+    }
+
     private Transition GetTransition()
     {
         foreach (var transition in _anyTransitions)
@@ -77,10 +81,4 @@ public class StateMachine
             Condition = condition;
         }
     }
-
-    public float TimeInState(IState state)
-    {
-        return state == _currentState ? Time.time - _startTime : 0;
-    }
 }
-

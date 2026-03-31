@@ -8,8 +8,8 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 
 public class FontLocalizer : MonoBehaviour
 {
-    public TMP_Text textElement; // Reference to the TextMeshPro text element
-    [SerializeField] private string fontKey = "Font"; // Font key in the Asset Table
+    public TMP_Text textElement;
+    [SerializeField] private string fontKey = "Font";
 
     private IEnumerator Start()
     {
@@ -18,7 +18,7 @@ public class FontLocalizer : MonoBehaviour
         LocalizationSettings.SelectedLocaleChanged += OnLocaleChanged;
     }
 
-    void OnDestroy()
+    private void OnDestroy()
     {
         LocalizationSettings.SelectedLocaleChanged -= OnLocaleChanged;
     }
@@ -30,29 +30,17 @@ public class FontLocalizer : MonoBehaviour
 
     private void ApplyLocalizedFont()
     {
-        // Get the current locale
-        Locale currentLocale = LocalizationSettings.SelectedLocale;
-
-        // Load the asset table
         var assetTable = LocalizationSettings.AssetDatabase.GetTable("FontAssets");
-
-        // Get the entry from the table by key and current locale
         var entry = assetTable.GetEntry(fontKey);
         if (entry != null)
         {
-            // Load the font asynchronously
             var operation = Addressables.LoadAssetAsync<TMP_FontAsset>(entry.Guid);
             operation.Completed += (handle) =>
             {
                 if (handle.Status == AsyncOperationStatus.Succeeded)
-                {
-                    // Apply the font to the text element
                     textElement.font = handle.Result;
-                }
                 else
-                {
-                    Debug.LogError("Failed to load font for locale: " + currentLocale.Identifier);
-                }
+                    Debug.LogError("Failed to load font for locale: " + LocalizationSettings.SelectedLocale.Identifier);
             };
         }
         else

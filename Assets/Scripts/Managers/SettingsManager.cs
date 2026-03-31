@@ -16,7 +16,6 @@ public class SettingsManager : Singleton<SettingsManager>
     private void Start()
     {
         GlobalSoundManager.Instance.PlaySoundtrack(FMODEvents.Instance.mainMenu);
-
     }
 
     public void SetSFXVolume(float volume)

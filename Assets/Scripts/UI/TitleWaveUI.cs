@@ -4,26 +4,24 @@ using UnityEngine;
 
 public class TitleWaveUI : MonoBehaviour
 {
-  [SerializeField] private List<RectTransform> icons;
-  private Sequence sequence;
-  
-  private void Start()
-  {
-    sequence = DOTween.Sequence();
-    
-    sequence.AppendInterval(2f);
-    foreach (RectTransform icon in icons)
+    [SerializeField] private List<RectTransform> icons;
+    private Sequence sequence;
+
+    private void Start()
     {
-      sequence.Append(icon.DOScale(1.1f, 0.25f).SetEase(Ease.InSine));
-      sequence.Append(icon.DOScale(1f, 0.25f).SetEase(Ease.OutSine));
+        sequence = DOTween.Sequence();
+        sequence.AppendInterval(2f);
+        foreach (RectTransform icon in icons)
+        {
+            sequence.Append(icon.DOScale(1.1f, 0.25f).SetEase(Ease.InSine));
+            sequence.Append(icon.DOScale(1f, 0.25f).SetEase(Ease.OutSine));
+        }
+        sequence.SetLoops(-1);
+        sequence.Play();
     }
 
-    sequence.SetLoops(-1);
-    sequence.Play();
-  }
-
-  public void StopSequence()
-  {
-    sequence.Kill();
-  }
+    public void StopSequence()
+    {
+        sequence.Kill();
+    }
 }

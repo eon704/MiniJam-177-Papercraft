@@ -16,7 +16,6 @@ public class MainMenuUI : MonoBehaviour
 
     private float startPosY;
 
-    // Static field to remember if levels panel should be shown
     private static bool shouldShowLevelsPanel = false;
 
     [RuntimeInitializeOnLoadMethod]
@@ -91,13 +90,10 @@ public class MainMenuUI : MonoBehaviour
     private IEnumerator Start()
     {
         startPosY = title.anchoredPosition.y;
-
         Application.targetFrameRate = 60;
 
-        // Check if we should show levels panel immediately
         if (shouldShowLevelsPanel)
         {
-            // Set up the UI to show levels panel without animation
             title.anchoredPosition = new Vector2(title.anchoredPosition.x, -165);
             startPanel.gameObject.SetActive(false);
             levelsPanel.gameObject.SetActive(true);
@@ -121,11 +117,7 @@ public class MainMenuUI : MonoBehaviour
     {
         foreground.color = new Color(0, 0, 0, 0);
         foreground.gameObject.SetActive(true);
-
-        Tween tween = foreground
-            .DOFade(1, 0.25f)
-            .SetEase(Ease.OutCubic);
-
+        foreground.DOFade(1, 0.25f).SetEase(Ease.OutCubic);
         yield return new WaitForSeconds(0.25f);
     }
 
@@ -133,11 +125,7 @@ public class MainMenuUI : MonoBehaviour
     {
         foreground.color = Color.black;
         foreground.gameObject.SetActive(true);
-
-        Tween tween = foreground
-            .DOFade(0, 0.25f)
-            .SetEase(Ease.InCubic);
-
+        foreground.DOFade(0, 0.25f).SetEase(Ease.InCubic);
         yield return new WaitForSeconds(0.25f);
         foreground.gameObject.SetActive(false);
     }

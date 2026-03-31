@@ -1,4 +1,3 @@
-
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Localization;
@@ -14,8 +13,8 @@ public class LocaleSpritePair
 
 public class LocalizedImageLoader : MonoBehaviour
 {
-    public Image targetImage; // UI Image to change
-    public List<LocaleSpritePair> localizedSprites; // List to map locale identifiers to sprites
+    public Image targetImage;
+    public List<LocaleSpritePair> localizedSprites;
 
     private void OnEnable()
     {
@@ -33,13 +32,11 @@ public class LocalizedImageLoader : MonoBehaviour
         LoadLocalizedImage();
     }
 
-    void LoadLocalizedImage()
+    private void LoadLocalizedImage()
     {
-        // Get the current locale
         var currentLocale = LocalizationSettings.SelectedLocale;
         var localeIdentifier = currentLocale.Identifier.Code;
 
-        // Find the sprite for the current locale
         foreach (var pair in localizedSprites)
         {
             if (pair.localeIdentifier == localeIdentifier)

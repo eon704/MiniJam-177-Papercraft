@@ -8,25 +8,22 @@ namespace PlayerStateMachine
         private readonly GameObject _stateGameObject;
         private readonly Player _player;
         private StateModel stateModel => StateModelInfo.StateModels[StateType];
-        
+
         public Player.StateType StateType => Player.StateType.Plane;
-        
+
         public List<Vector2Int> MoveOptions => stateModel.MoveOptions;
 
         public List<TerrainType> MoveTerrain => stateModel.MoveTerrain;
 
         public MoveMode MoveMode => MoveMode.PlaneSlide;
-        
+
         public PlaneState(GameObject gameObject, Player player)
         {
             _stateGameObject = gameObject;
             _player = player;
         }
 
-
-        public void Tick()
-        {
-        }
+        public void Tick() { }
 
         public void OnEnter()
         {

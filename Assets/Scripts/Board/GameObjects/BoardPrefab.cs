@@ -29,7 +29,6 @@ public class BoardPrefab : MonoBehaviour
         ComputeBoardCenterPosition();
         InstantiateBoard();
         if (!FMODEvents.Instance.boardSpawn.IsNull) FMODUnity.RuntimeManager.PlayOneShot(FMODEvents.Instance.boardSpawn);
-      
     }
 
     public List<CellPrefab> GetCellPrefabs(List<Cell> cells)
@@ -69,6 +68,11 @@ public class BoardPrefab : MonoBehaviour
         return (playerPiece, startCell);
     }
 
+    public void ResetFragileCells()
+    {
+        Board.ResetFragileCells();
+    }
+
     private void InstantiateBoard()
     {
         int centerX = Size.x / 2;
@@ -97,14 +101,6 @@ public class BoardPrefab : MonoBehaviour
         Invoke(nameof(SetAnimationComplete), longestDelay + 0.5f);
     }
 
-    /// <summary>
-    /// Восстанавливает все хрупкие клетки поля (модель + вид).
-    /// </summary>
-    public void ResetFragileCells()
-    {
-        Board.ResetFragileCells();
-    }
-
     private void SetAnimationComplete()
     {
         IsSpawnAnimationComplete = true;
@@ -116,5 +112,4 @@ public class BoardPrefab : MonoBehaviour
         float centerZ = (Size.y - 1) * cellSize / 2f;
         WorldCenter = new Vector3(centerX, 0f, centerZ);
     }
-    
 }

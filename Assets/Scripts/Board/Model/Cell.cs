@@ -68,15 +68,9 @@ public class Cell
         Piece = piece;
 
         if (Item.Value == CellItem.Star)
-        {
             CollectStar();
-        }
     }
 
-    /// <summary>
-    /// Обрушить клетку. После вызова клетка недоступна для хода.
-    /// Можно вызывать вручную из кода для событий, разрушающих часть поля.
-    /// </summary>
     public void Collapse()
     {
         if (IsCollapsed) return;
@@ -91,9 +85,6 @@ public class Cell
         OnCollapsedInstant?.Invoke();
     }
 
-    /// <summary>
-    /// Восстановить хрупкую клетку (вызывается при сбросе уровня).
-    /// </summary>
     public void ResetCollapse()
     {
         if (!IsCollapsed) return;

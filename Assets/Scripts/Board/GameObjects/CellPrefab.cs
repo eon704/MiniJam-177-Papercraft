@@ -17,6 +17,25 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     [SerializeField] private GameObject volcano;
     [SerializeField] private GameObject lava;
     [SerializeField] private GameObject ice;
+    [SerializeField] private Transform volcanoTop;
+    [SerializeField] private GameObject explosionEffect;
+
+    public Transform VolcanoTop => volcanoTop;
+
+    // World position where projectile should land (top surface of cell)
+    public Vector3 ExplosionWorldPosition => lava != null
+        ? lava.transform.position
+        : transform.position;
+    [SerializeField] private SpriteRenderer highlightSprite;
+
+    private static readonly Color ColorBlue   = new Color(0.2f, 0.6f, 1.0f, 0.7f);
+    private static readonly Color ColorGreen  = new Color(0.1f, 0.9f, 0.3f, 0.85f);
+    private static readonly Color ColorRed    = new Color(1.0f, 0.2f, 0.2f, 0.85f);
+    private static readonly Color ColorOrange = new Color(1.0f, 0.6f, 0.0f, 0.8f);
+
+    private bool _isReachable;
+    private bool _isHovered;
+    private Tween _pulseTween;
 
     private float starDefaultScale;
     private Vector3 _originalLocalPosition;
@@ -42,6 +61,8 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
         _originalLocalPosition = transform.localPosition;
 
+        if (highlightSprite != null) highlightSprite.enabled = false;
+
         Cell.Item.OnChanged += OnCellItemChange;
         player = newPlayer;
 
@@ -66,20 +87,86 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         rippleSequence.Play();
     }
 
-    public void SetIsValidMoveOption(bool newIsValid) { }
-    public void ResetIsValidMoveOption() { }
+    public void SetIsValidMoveOption(bool isValid)
+    {
+        _isReachable = isValid;
+    }
 
-    public Sequence DoOutOfMovesPulse() => DOTween.Sequence();
-    public Sequence DoPulse(float duration) => DOTween.Sequence();
-    public Sequence DoPulse(float duration, Color color) => DOTween.Sequence();
-    public void ResetPulse() { }
+    public void ResetIsValidMoveOption()
+    {
+        _isReachable = false;
+    }
+
+    public Sequence DoOutOfMovesPulse()
+    {
+        if (highlightSprite == null) return DOTween.Sequence();
+        Sequence trigger = DOTween.Sequence();
+        trigger.AppendCallback(() => StartLocalPulse(ColorOrange, 0.5f));
+        trigger.AppendInterval(0.5f);
+        return trigger;
+    }
+
+    public Sequence DoPulse(float duration) => DoPulse(duration, ColorBlue);
+
+    public Sequence DoPulse(float duration, Color color)
+    {
+        if (highlightSprite == null) return DOTween.Sequence();
+        Sequence trigger = DOTween.Sequence();
+        trigger.AppendCallback(() => StartLocalPulse(color, duration * 0.7f));
+        trigger.AppendInterval(duration * 0.7f);
+        return trigger;
+    }
+
+    public void ResetPulse()
+    {
+        if (highlightSprite == null) return;
+        _isHovered = false;
+        _pulseTween?.Kill();
+        _pulseTween = null;
+        highlightSprite.enabled = false;
+    }
+
+    private void StartLocalPulse(Color color, float duration)
+    {
+        if (_isHovered) return;
+        _pulseTween?.Kill();
+        highlightSprite.enabled = true;
+        highlightSprite.color = new Color(color.r, color.g, color.b, color.a);
+        _pulseTween = highlightSprite
+            .DOFade(color.a * 0.1f, duration * 2f)
+            .SetEase(Ease.InOutSine)
+            .SetLoops(-1, LoopType.Yoyo);
+    }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
         if (!FMODEvents.Instance.click.IsNull) FMODUnity.RuntimeManager.PlayOneShot(FMODEvents.Instance.click);
+
+        if (highlightSprite == null || player == null || player.isMovementLocked) return;
+
+        _isHovered = true;
+        _pulseTween?.Kill();
+        _pulseTween = null;
+        highlightSprite.color = _isReachable ? ColorGreen : ColorRed;
+        highlightSprite.enabled = true;
     }
 
-    public void OnPointerExit(PointerEventData eventData) { }
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        if (highlightSprite == null) return;
+
+        _isHovered = false;
+
+        if (_isReachable)
+        {
+            highlightSprite.color = ColorBlue;
+            highlightSprite.enabled = true;
+        }
+        else
+        {
+            highlightSprite.enabled = false;
+        }
+    }
 
     public void OnPointerDown(PointerEventData eventData) { }
 
@@ -174,6 +261,22 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         transform.localScale = Vector3.zero;
         collapseSequence = DOTween.Sequence();
         collapseSequence.Append(transform.DOScale(1f, 0.3f).SetEase(Ease.OutBack));
+    }
+
+    [SerializeField] private float explosionDuration = 1f;
+
+    // Called by GameController when the projectile lands on this cell
+    public void ActivateExplosion(System.Action onComplete)
+    {
+        if (explosionEffect != null)
+            explosionEffect.SetActive(true);
+
+        DOVirtual.DelayedCall(explosionDuration, () =>
+        {
+            if (explosionEffect != null)
+                explosionEffect.SetActive(false);
+            onComplete?.Invoke();
+        });
     }
 
     private void OnDestroy()
