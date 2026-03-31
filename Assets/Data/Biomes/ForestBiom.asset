@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be7da3a4b8f5d484ba1d6d7a6eb950f6, type: 3}
+  m_Name: ForestBiom
+  m_EditorClassIdentifier: Assembly-CSharp::BiomeData
+  Type: 1
+  SceneNames:
+  - Forest_1
+  AmbientClip: {fileID: 8300000, guid: 69196ae9c2a93bf42b4184076f1e7972, type: 3}

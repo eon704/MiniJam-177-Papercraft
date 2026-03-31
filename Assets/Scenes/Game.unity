@@ -1112,26 +1112,6 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1780332644}
     - target: {fileID: 5853703254329433214, guid: 9b91cb75ffea040578771d321da2431e, type: 3}
-      propertyPath: volcanoProjectilePrefab
-      value: 
-      objectReference: {fileID: -3848600158533825197, guid: a24ad3b0cd3f99f42ba52fb1a6588bd8, type: 3}
-    - target: {fileID: 5853703254329433214, guid: 9b91cb75ffea040578771d321da2431e, type: 3}
-      propertyPath: 'nudgeImages.Array.data[0]'
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 5853703254329433214, guid: 9b91cb75ffea040578771d321da2431e, type: 3}
-      propertyPath: 'nudgeImages.Array.data[1]'
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 5853703254329433214, guid: 9b91cb75ffea040578771d321da2431e, type: 3}
-      propertyPath: 'nudgeImages.Array.data[2]'
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 5853703254329433214, guid: 9b91cb75ffea040578771d321da2431e, type: 3}
-      propertyPath: 'nudgeImages.Array.data[3]'
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 5853703254329433214, guid: 9b91cb75ffea040578771d321da2431e, type: 3}
       propertyPath: <BoardPrefab>k__BackingField
       value: 
       objectReference: {fileID: 1189492192}

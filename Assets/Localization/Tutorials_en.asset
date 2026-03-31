@@ -44,7 +44,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 3661449379840
-    m_Localized: '<color=#54df82>Frog</color> moves 1 or 2 tiles per turn: up, down,
+    m_Localized: '<color=#54df82>Frog</color> moves  2 tiles per turn: up, down,
       left, or right'
     m_Metadata:
       m_Items: []
