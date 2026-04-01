@@ -19,6 +19,8 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     [SerializeField] private GameObject ice;
     [SerializeField] private Transform volcanoTop;
     [SerializeField] private GameObject explosionEffect;
+    [SerializeField] private GameObject splash;
+    [SerializeField] private GameObject fireSplash;
 
     public Transform VolcanoTop => volcanoTop;
 
@@ -28,13 +30,15 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         : transform.position;
     [SerializeField] private SpriteRenderer highlightSprite;
 
-    private static readonly Color ColorBlue   = new Color(0.2f, 0.6f, 1.0f, 0.7f);
-    private static readonly Color ColorGreen  = new Color(0.1f, 0.9f, 0.3f, 0.85f);
-    private static readonly Color ColorRed    = new Color(1.0f, 0.2f, 0.2f, 0.85f);
-    private static readonly Color ColorOrange = new Color(1.0f, 0.6f, 0.0f, 0.8f);
+    private static readonly Color ColorBlue    = new Color(0.2f, 0.6f, 1.0f, 0.7f);
+    private static readonly Color ColorGreen   = new Color(0.1f, 0.9f, 0.3f, 0.85f);
+    private static readonly Color ColorRed     = new Color(1.0f, 0.2f, 0.2f, 0.85f);
+    private static readonly Color ColorOrange  = new Color(1.0f, 0.6f, 0.0f, 0.8f);
+    private static readonly Color ColorWarning = new Color(1.0f, 0.25f, 0.0f, 1.0f);
 
     private bool _isReachable;
     private bool _isHovered;
+    private bool _hasVolcanoWarning;
     private Tween _pulseTween;
 
     private float starDefaultScale;
@@ -117,13 +121,30 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         return trigger;
     }
 
+    public void SetVolcanoWarning(bool active)
+    {
+        _hasVolcanoWarning = active;
+        if (_isHovered) return;
+        if (active)
+            StartWarningPulse();
+        else if (!_isReachable)
+        {
+            _pulseTween?.Kill();
+            _pulseTween = null;
+            if (highlightSprite != null) highlightSprite.enabled = false;
+        }
+    }
+
     public void ResetPulse()
     {
         if (highlightSprite == null) return;
         _isHovered = false;
         _pulseTween?.Kill();
         _pulseTween = null;
-        highlightSprite.enabled = false;
+        if (_hasVolcanoWarning)
+            StartWarningPulse();
+        else
+            highlightSprite.enabled = false;
     }
 
     private void StartLocalPulse(Color color, float duration)
@@ -134,6 +155,18 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         highlightSprite.color = new Color(color.r, color.g, color.b, color.a);
         _pulseTween = highlightSprite
             .DOFade(color.a * 0.1f, duration * 2f)
+            .SetEase(Ease.InOutSine)
+            .SetLoops(-1, LoopType.Yoyo);
+    }
+
+    private void StartWarningPulse()
+    {
+        if (_isHovered) return;
+        _pulseTween?.Kill();
+        highlightSprite.enabled = true;
+        highlightSprite.color = ColorWarning;
+        _pulseTween = highlightSprite
+            .DOFade(0.25f, 0.4f)
             .SetEase(Ease.InOutSine)
             .SetLoops(-1, LoopType.Yoyo);
     }
@@ -161,6 +194,10 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         {
             highlightSprite.color = ColorBlue;
             highlightSprite.enabled = true;
+        }
+        else if (_hasVolcanoWarning)
+        {
+            StartWarningPulse();
         }
         else
         {
@@ -264,6 +301,18 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     }
 
     [SerializeField] private float explosionDuration = 1f;
+
+    public void ActivateSplash()
+    {
+        if (splash != null)
+            splash.SetActive(true);
+    }
+
+    public void ActivateFireSplash()
+    {
+        if (fireSplash != null)
+            fireSplash.SetActive(true);
+    }
 
     // Called by GameController when the projectile lands on this cell
     public void ActivateExplosion(System.Action onComplete)

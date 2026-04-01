@@ -15,7 +15,7 @@ public class PointerBounce : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     public void OnPointerClick(PointerEventData eventData)
     {
         transform.DOKill();
-        transform.DOScale(originalScale * 1.1f, 0.2f).SetEase(Ease.OutQuad);
+        transform.DOScale(originalScale * 0.8f, 0.1f).SetEase(Ease.OutQuad);
     }
 
     public void OnPointerEnter(PointerEventData eventData)

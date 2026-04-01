@@ -12,6 +12,7 @@ public class GameUI : MonoBehaviour
     [Header("Internal UI References")]
     [SerializeField] private Image _foreground;
     [SerializeField] private CanvasGroup winScreen;
+    [SerializeField] private DropInAnimator winScreenAnimator;
     [SerializeField] private StarsUI starsUI;
     [SerializeField] private WinScreenStarsUI WinScreenStarsUI;
     [SerializeField] private GameObject finalScreen;
@@ -62,17 +63,15 @@ public class GameUI : MonoBehaviour
     private void OnWin(int stars)
     {
         winScreen.gameObject.SetActive(true);
-        winScreen.alpha = 0;
+        winScreen.alpha = 1;
 
-        winScreen
-            .DOFade(1, 0.25f)
-            .SetEase(Ease.OutCubic)
-            .SetDelay(0.25f)
-            .OnComplete(() =>
-            {
-                if (WinScreenStarsUI != null && WinScreenStarsUI.gameObject != null)
-                    WinScreenStarsUI.AnimateStars(stars);
-            });
+        // DropInAnimator plays automatically via OnEnable; animate stars after it finishes
+        float delay = winScreenAnimator != null ? winScreenAnimator.TotalDuration + 0.2f : 0.7f;
+        DOVirtual.DelayedCall(delay, () =>
+        {
+            if (WinScreenStarsUI != null && WinScreenStarsUI.gameObject != null)
+                WinScreenStarsUI.AnimateStars(stars);
+        });
     }
 
     private void OnStarChange(Observable<int> stars, int oldVal, int newVal)

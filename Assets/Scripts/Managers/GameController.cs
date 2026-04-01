@@ -32,6 +32,7 @@ public class GameController : MonoBehaviour
     private BoardPiece playerPiece;
     private bool wasLevelWon;
     private BiomeCellSystem _biomeCellSystem;
+    private readonly HashSet<Vector2Int> _volcanoWarningCells = new();
 
     private Dictionary<Player.StateType, int> startMovesPerForm;
 
@@ -40,6 +41,7 @@ public class GameController : MonoBehaviour
     public void ResetMap()
     {
         if (!FMODEvents.Instance.lose.IsNull) RuntimeManager.PlayOneShot(FMODEvents.Instance.lose);
+        PlayerPrefab.CancelPendingEruptions();
         BoardPrefab.ResetFragileCells();
         _biomeCellSystem?.Reset();
 
@@ -102,7 +104,8 @@ public class GameController : MonoBehaviour
         BoardPrefab.Initialize(LevelManager.Instance.CurrentLevel);
 
         _biomeCellSystem = new BiomeCellSystem(BoardPrefab.Board, LevelManager.Instance.CurrentLevel);
-        _biomeCellSystem.OnEruptionRequested += HandleVolcanoEruption;
+        _biomeCellSystem.OnEruptionVisual += HandleVolcanoEruptionVisual;
+        _biomeCellSystem.OnNextTargetsChanged += RefreshVolcanoWarnings;
 
         CellPrefab cellPrefab;
         (playerPiece, cellPrefab) = BoardPrefab.CreateNewPlayerPrefab();
@@ -119,38 +122,45 @@ public class GameController : MonoBehaviour
         yield return new WaitUntil(() => BoardPrefab.IsSpawnAnimationComplete);
         PlayerPrefab.isMovementLocked = true;
         yield return PlayerPrefab.transform.DOScale(Vector3.one, 0.5f).WaitForCompletion();
+        RefreshVolcanoWarnings();
         PlayerPrefab.isMovementLocked = false;
     }
 
-    private void HandleVolcanoEruption(Vector2Int volcanoPos, Vector2Int targetPos, Action applyLava)
+    private void RefreshVolcanoWarnings()
     {
+        foreach (var pos in _volcanoWarningCells)
+            BoardPrefab.GetCellPrefab(pos)?.SetVolcanoWarning(false);
+        _volcanoWarningCells.Clear();
+
+        if (_biomeCellSystem == null) return;
+        foreach (var targetPos in _biomeCellSystem.GetNextLavaTargets())
+        {
+            _volcanoWarningCells.Add(targetPos);
+            BoardPrefab.GetCellPrefab(targetPos)?.SetVolcanoWarning(true);
+        }
+    }
+
+    // Visual handler — lava is already applied. Blocks next move until explosion finishes.
+    private void HandleVolcanoEruptionVisual(Vector2Int volcanoPos, Vector2Int targetPos)
+    {
+        PlayerPrefab.StartEruption();
+
         CellPrefab volcanoCell = BoardPrefab.GetCellPrefab(volcanoPos);
         CellPrefab targetCell  = BoardPrefab.GetCellPrefab(targetPos);
 
         if (volcanoCell == null || targetCell == null)
         {
-            applyLava();
+            PlayerPrefab.EndEruption();
             return;
         }
 
-        PlayerPrefab.isMovementLocked = true;
-
-        // Shake the volcano cell before eruption
         volcanoCell.ShakeCell();
 
-        // Delay matches ShakeCell duration (0.5s delay + 0.3s shake)
-        float shakeDelay = 0.8f;
-
-        DOVirtual.DelayedCall(shakeDelay, () =>
+        DOVirtual.DelayedCall(0.8f, () =>
         {
             if (volcanoProjectilePrefab == null)
             {
-                // No prefab assigned — apply lava immediately and unblock
-                targetCell.ActivateExplosion(() =>
-                {
-                    applyLava();
-                    PlayerPrefab.isMovementLocked = false;
-                });
+                targetCell.ActivateExplosion(() => PlayerPrefab.EndEruption());
                 return;
             }
 
@@ -163,14 +173,8 @@ public class GameController : MonoBehaviour
             VolcanoProjectile projectile = Instantiate(
                 volcanoProjectilePrefab, from, Quaternion.identity);
 
-            projectile.Launch(from, to, volcanoArcHeight, volcanoProjectileDuration, onLanded: () =>
-            {
-                targetCell.ActivateExplosion(() =>
-                {
-                    applyLava();
-                    PlayerPrefab.isMovementLocked = false;
-                });
-            });
+            projectile.Launch(from, to, volcanoArcHeight, volcanoProjectileDuration,
+                onLanded: () => targetCell.ActivateExplosion(() => PlayerPrefab.EndEruption()));
         });
     }
 

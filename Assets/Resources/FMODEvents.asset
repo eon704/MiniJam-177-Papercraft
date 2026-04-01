@@ -25,7 +25,7 @@ MonoBehaviour:
       Data2: 0
       Data3: 0
       Data4: 0
-    Path: 
+    Path: event:/ChangeState
   move:
     Guid:
       Data1: 0

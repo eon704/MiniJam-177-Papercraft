@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class BiomeCellSystem
 {
-    // Raised when a volcano erupts. Subscribers drive the visual (projectile, explosion).
-    // The Action callback must be invoked when the visuals are done to actually apply lava.
-    // If no subscribers — lava is applied immediately (fallback).
-    public event Action<Vector2Int, Vector2Int, Action> OnEruptionRequested;
+    // Raised when a volcano erupts. Lava is already applied to the board at this point.
+    // Subscribers play visuals (projectile, explosion) — non-blocking, no callback needed.
+    public event Action<Vector2Int, Vector2Int> OnEruptionVisual;
+    public event Action OnNextTargetsChanged;
     private readonly Board _board;
 
     private readonly List<VolcanoConfig> _volcanoConfigs;
@@ -43,6 +43,21 @@ public class BiomeCellSystem
     {
         TickVolcanoes();
         TickIceSources();
+        OnNextTargetsChanged?.Invoke();
+    }
+
+    /// <summary>Returns the next cell each active volcano will target.</summary>
+    public IEnumerable<Vector2Int> GetNextLavaTargets()
+    {
+        foreach (var cfg in _volcanoConfigs)
+        {
+            if (cfg.LavaSequence == null || cfg.LavaSequence.Count == 0)
+                continue;
+            int index = _volcanoLavaIndexes[cfg.Position];
+            if (index >= cfg.LavaSequence.Count)
+                continue;
+            yield return cfg.LavaSequence[index];
+        }
     }
 
     // ── Volcano ────────────────────────────────────────────────────────────
@@ -76,16 +91,12 @@ public class BiomeCellSystem
         if (targetCell == null || targetCell.Terrain == TerrainType.Volcano || targetCell.Terrain == TerrainType.Lava)
             return;
 
-        void ApplyLava()
-        {
-            _currentDynamicTerrain[targetPos] = TerrainType.Lava;
-            targetCell.SetTerrain(TerrainType.Lava);
-        }
+        // Apply lava immediately — no waiting for visuals
+        _currentDynamicTerrain[targetPos] = TerrainType.Lava;
+        targetCell.SetTerrain(TerrainType.Lava);
 
-        if (OnEruptionRequested != null)
-            OnEruptionRequested.Invoke(cfg.Position, targetPos, ApplyLava);
-        else
-            ApplyLava();
+        // Notify subscribers to play the visual (non-blocking)
+        OnEruptionVisual?.Invoke(cfg.Position, targetPos);
     }
 
     // ── Ice sources ────────────────────────────────────────────────────────
@@ -170,6 +181,8 @@ public class BiomeCellSystem
         if (snap.IceFreezeIndexes != null)
             foreach (var kvp in snap.IceFreezeIndexes)
                 _iceFreezeIndexes[kvp.Key] = kvp.Value;
+
+        OnNextTargetsChanged?.Invoke();
     }
 
     public void Reset()
@@ -192,5 +205,7 @@ public class BiomeCellSystem
             _iceCountdowns[cfg.Position] = cfg.Period;
             _iceFreezeIndexes[cfg.Position] = 0;
         }
+
+        OnNextTargetsChanged?.Invoke();
     }
 }

@@ -12,8 +12,104 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5465c63d54240f59ad0d61f1853172b, type: 3}
   m_Name: 1
   m_EditorClassIdentifier: 
-  MapSize: {x: 8, y: 1}
+  MapSize: {x: 8, y: 8}
   Map:
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
   - Terrain: 0
     Item: 0
     IsFragile: 0
@@ -26,13 +122,85 @@ MonoBehaviour:
   - Terrain: 1
     Item: 1
     IsFragile: 1
-  - Terrain: 5
+  - Terrain: 1
     Item: 1
     IsFragile: 1
   - Terrain: 1
     Item: 1
     IsFragile: 1
   - Terrain: 3
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
     Item: 0
     IsFragile: 0
   - Terrain: 0
@@ -53,18 +221,18 @@ MonoBehaviour:
   VolcanoConfigs: []
   IceSourceConfigs: []
   cachedSolution:
-  - Position: {x: 2, y: 0}
+  - Position: {x: 2, y: 4}
     State: 0
     StarsCollected: 0
-  - Position: {x: 3, y: 0}
+  - Position: {x: 3, y: 4}
     State: 1
     StarsCollected: 1
-  - Position: {x: 4, y: 0}
+  - Position: {x: 4, y: 4}
     State: 1
     StarsCollected: 2
-  - Position: {x: 5, y: 0}
+  - Position: {x: 5, y: 4}
     State: 1
     StarsCollected: 3
-  - Position: {x: 6, y: 0}
+  - Position: {x: 6, y: 4}
     State: 1
     StarsCollected: 3

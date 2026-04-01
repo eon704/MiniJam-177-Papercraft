@@ -12,8 +12,65 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5465c63d54240f59ad0d61f1853172b, type: 3}
   m_Name: 4
   m_EditorClassIdentifier: 
-  MapSize: {x: 3, y: 4}
+  MapSize: {x: 8, y: 8}
   Map:
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
   - Terrain: 1
     Item: 1
     IsFragile: 0
@@ -22,6 +79,21 @@ MonoBehaviour:
     IsFragile: 0
   - Terrain: 1
     Item: 1
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
     IsFragile: 0
   - Terrain: 4
     Item: 0
@@ -30,6 +102,21 @@ MonoBehaviour:
     Item: 0
     IsFragile: 0
   - Terrain: 4
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
     Item: 0
     IsFragile: 0
   - Terrain: 3
@@ -41,6 +128,21 @@ MonoBehaviour:
   - Terrain: 4
     Item: 0
     IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
   - Terrain: 2
     Item: 0
     IsFragile: 0
@@ -49,6 +151,60 @@ MonoBehaviour:
     IsFragile: 0
   - Terrain: 1
     Item: 1
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
+    IsFragile: 0
+  - Terrain: 0
+    Item: 0
     IsFragile: 0
   StartMovesPerForm:
   - State: 0

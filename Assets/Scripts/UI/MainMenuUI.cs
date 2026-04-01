@@ -11,8 +11,7 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private CanvasGroup levelsPanel;
     [SerializeField] private Image foreground;
 
-    [Header("Debug")]
-    [SerializeField] private GameObject debugUnlockButton;
+    [SerializeField] private GameObject exitButton;
 
     private float startPosY;
 
@@ -81,16 +80,21 @@ public class MainMenuUI : MonoBehaviour
         StartCoroutine(LoadGame());
     }
 
-    public void DebugUnlockAllLevels()
+    public void ExitGame()
     {
-        LevelManager.Instance.UnlockAllLevels();
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        Application.Quit();
     }
 
     private IEnumerator Start()
     {
         startPosY = title.anchoredPosition.y;
         Application.targetFrameRate = 60;
+
+#if UNITY_STANDALONE || UNITY_EDITOR
+        if (exitButton != null) exitButton.SetActive(true);
+#else
+        if (exitButton != null) exitButton.SetActive(false);
+#endif
 
         if (shouldShowLevelsPanel)
         {

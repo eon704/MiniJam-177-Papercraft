@@ -113,6 +113,8 @@ public class BoardPiecePrefab : MonoBehaviour
                 .OnComplete(() => hopDone = true);
 
             yield return new WaitUntil(() => hopDone);
+            if (cell.Cell.Terrain == TerrainType.Water)
+                cell.ActivateSplash();
         }
 
         _boatCoroutine = null;

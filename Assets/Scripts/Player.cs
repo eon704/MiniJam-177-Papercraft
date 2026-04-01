@@ -47,6 +47,27 @@ public class Player : MonoBehaviour
 
     public Action<int> OnUndoHistoryChange;
 
+    private int _pendingEruptions;
+    private bool _unlockAfterEruption;
+
+    public void StartEruption() => _pendingEruptions++;
+
+    public void EndEruption()
+    {
+        _pendingEruptions = Mathf.Max(0, _pendingEruptions - 1);
+        if (_pendingEruptions == 0 && _unlockAfterEruption)
+        {
+            _unlockAfterEruption = false;
+            isMovementLocked = false;
+        }
+    }
+
+    public void CancelPendingEruptions()
+    {
+        _pendingEruptions = 0;
+        _unlockAfterEruption = false;
+    }
+
     public enum StateType
     {
         Default,
@@ -389,8 +410,14 @@ public class Player : MonoBehaviour
         }
         else if (targetCell.Terrain == TerrainType.Fire || targetCell.Terrain == TerrainType.Lava)
         {
+            BoardPiecePrefab.CurrentCell.ActivateFireSplash();
             OnPlayerDied?.Invoke();
             // keep locked — player died
+        }
+        else if (_pendingEruptions > 0)
+        {
+            _unlockAfterEruption = true;
+            // stay locked until eruption visual finishes
         }
         else
         {
