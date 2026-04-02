@@ -18,7 +18,7 @@ public class Singleton<T> : MonoBehaviour where T : Component
             Instance = this as T;
 
             if (persistent)
-                DontDestroyOnLoad(gameObject);
+                DontDestroyOnLoad(transform.root.gameObject);
         }
     }
 }

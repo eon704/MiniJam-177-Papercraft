@@ -23,7 +23,5 @@ public class BiomeManager : Singleton<BiomeManager>
         yield return op;
         _loadedBiomeScene = sceneName;
 
-        if (!biome.AmbientEvent.IsNull)
-            GlobalSoundManager.Instance.PlaySoundtrack(biome.AmbientEvent);
     }
 }

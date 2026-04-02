@@ -4,8 +4,7 @@ using UnityEngine;
 
 public class BiomeCellSystem
 {
-    // Raised when a volcano erupts. Lava is already applied to the board at this point.
-    // Subscribers play visuals (projectile, explosion) — non-blocking, no callback needed.
+ 
     public event Action<Vector2Int, Vector2Int> OnEruptionVisual;
     public event Action OnNextTargetsChanged;
     private readonly Board _board;

@@ -28,7 +28,6 @@ public class BoardPrefab : MonoBehaviour
 
         ComputeBoardCenterPosition();
         InstantiateBoard();
-        if (!FMODEvents.Instance.boardSpawn.IsNull) FMODUnity.RuntimeManager.PlayOneShot(FMODEvents.Instance.boardSpawn);
     }
 
     public List<CellPrefab> GetCellPrefabs(List<Cell> cells)
@@ -98,6 +97,7 @@ public class BoardPrefab : MonoBehaviour
             }
         }
 
+        FMODAudioManager.Instance.PlayBoardSpawn();
         Invoke(nameof(SetAnimationComplete), longestDelay + 0.5f);
     }
 

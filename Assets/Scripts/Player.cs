@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
-using FMODUnity;
 using PlayerStateMachine;
 using UnityEngine;
 using UnityEngine.Events;
@@ -247,20 +246,22 @@ public class Player : MonoBehaviour
                 boatPath.Add(_boardPrefab.GetCellPrefab(c));
         }
 
-        float arcHeight = 1.5f;
+        // Для самолёта строим путь по диагонали для пошаговой анимации
+        List<CellPrefab> planePath = null;
         if (type == StateType.Plane && !forceFailMovement)
         {
-            Vector3 from = BoardPiecePrefab.transform.position;
-            Vector3 to = targetCell.transform.position;
-            float dist = Vector3.Distance(new Vector3(from.x, 0, from.z), new Vector3(to.x, 0, to.z));
-            arcHeight = Mathf.Max(1.25f, dist * 0.3f);
+            var pathCells = BoardPiecePrefab.BoardPiece.GetPlanePathCells(targetCell.Cell);
+            planePath = new List<CellPrefab>(pathCells.Count);
+            foreach (var c in pathCells)
+                planePath.Add(_boardPrefab.GetCellPrefab(c));
         }
 
-        bool success = BoardPiecePrefab.Move(targetCell, OnMove, forceFailMovement, boatPath, arcHeight);
+        bool success = BoardPiecePrefab.Move(targetCell, OnMove, forceFailMovement, boatPath, planePath: planePath);
 
         if (success)
         {
             isMovementLocked = true;
+            FMODAudioManager.Instance.PlayMove();
             targetCell.ShakeCell();
             _movesPerForm[type]--;
             OnMovesLeftChanged?.Invoke(type, _movesPerForm[type]);
@@ -357,7 +358,6 @@ public class Player : MonoBehaviour
 
     private void SetState(IState state)
     {
-        if (!FMODEvents.Instance.changeState.IsNull) RuntimeManager.PlayOneShot(FMODEvents.Instance.changeState);
         _stateMachine.SetState(state);
         BoardPiecePrefab.BoardPiece.SetState(state);
         OnTransformation?.Invoke(GetStateType(state));

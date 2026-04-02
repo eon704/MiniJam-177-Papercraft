@@ -53,7 +53,7 @@ public class BoardPiecePrefab : MonoBehaviour
     }
 
     public bool Move(CellPrefab targetCell, UnityAction onComplete = null, bool forceFailMovement = false,
-        List<CellPrefab> boatPath = null, float arcHeight = 1.5f)
+        List<CellPrefab> boatPath = null, float arcHeight = 1.5f, List<CellPrefab> planePath = null)
     {
         transform.DOKill();
         if (_boatCoroutine != null)
@@ -71,6 +71,10 @@ public class BoardPiecePrefab : MonoBehaviour
             if (boatPath != null && boatPath.Count > 0)
             {
                 _boatCoroutine = StartCoroutine(AnimateBoatPath(boatPath, onComplete));
+            }
+            else if (planePath != null && planePath.Count > 0)
+            {
+                _boatCoroutine = StartCoroutine(AnimatePlanePath(planePath, onComplete));
             }
             else
             {
@@ -114,7 +118,32 @@ public class BoardPiecePrefab : MonoBehaviour
 
             yield return new WaitUntil(() => hopDone);
             if (cell.Cell.Terrain == TerrainType.Water)
+            {
                 cell.ActivateSplash();
+                FMODAudioManager.Instance.PlayBubble();
+            }
+        }
+
+        _boatCoroutine = null;
+        onComplete?.Invoke();
+    }
+
+    private IEnumerator AnimatePlanePath(List<CellPrefab> path, UnityAction onComplete)
+    {
+        const float hopDuration = 0.22f;
+        foreach (var cell in path)
+        {
+            Vector3 from = transform.position;
+            Vector3 to = cell.transform.position + Vector3.up * heightOffset;
+            Vector3 mid = (from + to) / 2f + Vector3.up * 0.6f;
+
+            bool hopDone = false;
+            transform
+                .DOPath(new[] { from, mid, to }, hopDuration, PathType.CatmullRom)
+                .SetEase(Ease.InOutQuad)
+                .OnComplete(() => hopDone = true);
+
+            yield return new WaitUntil(() => hopDone);
         }
 
         _boatCoroutine = null;

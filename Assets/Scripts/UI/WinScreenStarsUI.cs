@@ -25,7 +25,6 @@ public class WinScreenStarsUI : MonoBehaviour
             {
                 if (star == null || star.transform == null)
                     return;
-                if (!FMODEvents.Instance.ding.IsNull) FMODUnity.RuntimeManager.PlayOneShot(FMODEvents.Instance.ding);
                 star.sprite = fullStar;
                 star.transform.DOScale(Vector3.one * 1.25f, 0.5f).SetLoops(2, LoopType.Yoyo);
             });

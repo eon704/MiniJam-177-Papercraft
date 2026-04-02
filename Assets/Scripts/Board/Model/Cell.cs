@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using FMODUnity;
-
 public class Cell
 {
     public bool IsFree => Piece == null;
@@ -59,8 +57,20 @@ public class Cell
     public void CollectStar()
     {
         Item.Value = CellItem.None;
-        if (!FMODEvents.Instance.ding.IsNull) RuntimeManager.PlayOneShot(FMODEvents.Instance.ding);
         Piece?.OnCollectedStar?.Invoke();
+    }
+
+    // Called when a flying/sliding piece passes through without occupying the cell.
+    public void Touch(BoardPiece piece)
+    {
+        if (Item.Value == CellItem.Star)
+        {
+            Item.Value = CellItem.None;
+                piece?.OnCollectedStar?.Invoke();
+        }
+
+        if (IsFragile && !IsCollapsed)
+            Collapse();
     }
 
     public void AssignPiece(BoardPiece piece)

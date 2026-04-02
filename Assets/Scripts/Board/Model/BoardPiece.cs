@@ -39,12 +39,32 @@ public class BoardPiece
         previousCell.FreePiece();
         OccupiedCell.Value = targetCell;
         OccupiedCell.Value.AssignPiece(this);
-        if (!FMODEvents.Instance.move.IsNull) FMODUnity.RuntimeManager.PlayOneShot(FMODEvents.Instance.move);
 
         if (previousCell.IsFragile)
             previousCell.Collapse();
 
+        if (moveMode == MoveMode.PlaneSlide)
+        {
+            foreach (Cell cell in GetPlaneIntermediateCells(previousCell, targetCell))
+                cell.Touch(this);
+        }
+
         return true;
+    }
+
+    private List<Cell> GetPlaneIntermediateCells(Cell from, Cell to)
+    {
+        Vector2Int motion = to.Position - from.Position;
+        Vector2Int dir = new Vector2Int(motion.x > 0 ? 1 : -1, motion.y > 0 ? 1 : -1);
+        var cells = new List<Cell>();
+        Vector2Int pos = from.Position + dir;
+        while (pos != to.Position)
+        {
+            Cell c = board.GetCell(pos);
+            if (c != null) cells.Add(c);
+            pos += dir;
+        }
+        return cells;
     }
 
     public List<(Cell, bool)> GetMoveOptionCells()
@@ -237,6 +257,26 @@ public class BoardPiece
     {
         Vector2Int motion = target.Position - OccupiedCell.Value.Position;
         Vector2Int dir = new Vector2Int(Math.Sign(motion.x), Math.Sign(motion.y));
+        var path = new List<Cell>();
+        Vector2Int pos = OccupiedCell.Value.Position + dir;
+        while (pos != target.Position)
+        {
+            Cell c = board.GetCell(pos);
+            if (c != null) path.Add(c);
+            pos += dir;
+        }
+        path.Add(target);
+        return path;
+    }
+
+    /// <summary>
+    /// Возвращает все клетки пути самолёта от текущей позиции до target (диагональ),
+    /// включая промежуточные клетки и саму целевую клетку.
+    /// </summary>
+    public List<Cell> GetPlanePathCells(Cell target)
+    {
+        Vector2Int motion = target.Position - OccupiedCell.Value.Position;
+        Vector2Int dir = new Vector2Int(motion.x > 0 ? 1 : -1, motion.y > 0 ? 1 : -1);
         var path = new List<Cell>();
         Vector2Int pos = OccupiedCell.Value.Position + dir;
         while (pos != target.Position)

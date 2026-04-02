@@ -19,6 +19,7 @@ public class GameUI : MonoBehaviour
 
     public void FinishGame()
     {
+        FMODAudioManager.Instance.PlayClick();
         DOTween.KillAll();
         gameController.OnLoadingMainMenu();
         StartCoroutine(LoadMainMenu());
@@ -32,6 +33,7 @@ public class GameUI : MonoBehaviour
 
     public void OnNextLevelButtonPressed()
     {
+        FMODAudioManager.Instance.PlayClick();
         if (LevelManager.Instance.IsLastLevel())
             ShowFinalScreen();
         else

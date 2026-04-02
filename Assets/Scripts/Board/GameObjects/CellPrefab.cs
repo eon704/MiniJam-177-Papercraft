@@ -173,7 +173,6 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if (!FMODEvents.Instance.click.IsNull) FMODUnity.RuntimeManager.PlayOneShot(FMODEvents.Instance.click);
 
         if (highlightSprite == null || player == null || player.isMovementLocked) return;
 
@@ -214,6 +213,7 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     public void ShakeCell()
     {
+        FMODAudioManager.Instance.PlayCellShake();
         var shakeSequence = DOTween.Sequence();
         shakeSequence.AppendInterval(0.5f);
         shakeSequence.Append(transform.DOShakePosition(0.3f,
@@ -251,6 +251,7 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     {
         if (oldValue == CellItem.Star && newValue == CellItem.None)
         {
+            FMODAudioManager.Instance.PlayPop();
             starGrowTween?.Kill();
             starShrinkTween = star.transform.DOScale(Vector3.zero, 0.5f)
                 .OnComplete(() => star.SetActive(false));
@@ -301,6 +302,7 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     }
 
     [SerializeField] private float explosionDuration = 1f;
+    [SerializeField] private float fireSplashDuration = 1.5f;
 
     public void ActivateSplash()
     {
@@ -310,15 +312,24 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     public void ActivateFireSplash()
     {
-        if (fireSplash != null)
-            fireSplash.SetActive(true);
+        if (fireSplash == null) return;
+        fireSplash.SetActive(true);
+        FMODAudioManager.Instance.PlayFireSplash();
+        DOVirtual.DelayedCall(fireSplashDuration, () =>
+        {
+            if (fireSplash != null)
+                fireSplash.SetActive(false);
+        });
     }
 
     // Called by GameController when the projectile lands on this cell
     public void ActivateExplosion(System.Action onComplete)
     {
         if (explosionEffect != null)
+        {
             explosionEffect.SetActive(true);
+            FMODAudioManager.Instance.PlayExplosion();
+        }
 
         DOVirtual.DelayedCall(explosionDuration, () =>
         {

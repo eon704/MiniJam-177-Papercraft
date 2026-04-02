@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
-using FMODUnity;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
@@ -40,7 +39,6 @@ public class GameController : MonoBehaviour
 
     public void ResetMap()
     {
-        if (!FMODEvents.Instance.lose.IsNull) RuntimeManager.PlayOneShot(FMODEvents.Instance.lose);
         PlayerPrefab.CancelPendingEruptions();
         BoardPrefab.ResetFragileCells();
         _biomeCellSystem?.Reset();
@@ -99,6 +97,7 @@ public class GameController : MonoBehaviour
 
         BiomeType biome = LevelManager.Instance.CurrentLevel.Biome;
         yield return BiomeManager.Instance.LoadBiome(biome);
+        FMODAudioManager.Instance.PlayMusicForBiome(biome);
         cameraObject = Camera.main;
 
         BoardPrefab.Initialize(LevelManager.Instance.CurrentLevel);
@@ -114,6 +113,9 @@ public class GameController : MonoBehaviour
         PlayerPrefab.SetBiomeCellSystem(_biomeCellSystem);
         PlayerPrefab.OnPlayerWon.AddListener(OnWin);
         PlayerPrefab.OnPlayerDied.AddListener(ResetMap);
+        PlayerPrefab.OnTransformation.AddListener(_ => FMODAudioManager.Instance.PlayChangeState());
+        PlayerPrefab.OnPlayerWon.AddListener(_ => { FMODAudioManager.Instance.PlayWin(); FMODAudioManager.Instance.StopMusic(); });
+        PlayerPrefab.OnPlayerDied.AddListener(FMODAudioManager.Instance.PlayLose);
         PlayerPrefab.transform.localScale = Vector3.zero;
 
         yield return null;
@@ -182,6 +184,5 @@ public class GameController : MonoBehaviour
     {
         wasLevelWon = true;
         LevelManager.Instance.SetCurrentLevelComplete(stars);
-        if (!FMODEvents.Instance.win.IsNull) FMODUnity.RuntimeManager.PlayOneShot(FMODEvents.Instance.win);
     }
 }

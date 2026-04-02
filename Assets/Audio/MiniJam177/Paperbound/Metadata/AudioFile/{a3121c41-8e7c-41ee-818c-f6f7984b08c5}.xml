@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="AudioFile" id="{a3121c41-8e7c-41ee-818c-f6f7984b08c5}">
+		<property name="assetPath">
+			<value>WaterSteps/WaterStep 3.mp3</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>44.0999985</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>0.67918367346938779</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{7b029feb-62aa-41d7-8887-e2a5b3aa3ec2}</destination>
+		</relationship>
+	</object>
+</objects>

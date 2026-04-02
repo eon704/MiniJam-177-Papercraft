@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find 'D:\\\\Мои игры\\\\MiniJam-177-Papercraft/Assets/Scripts' -type f -name *.cs)",
+      "Bash(xargs grep:*)",
+      "Bash(for f:*)",
+      "Bash(do echo:*)",
+      "Read(//d/Мои игры/MiniJam-177-Papercraft/**)",
+      "Bash(done)",
+      "Bash(cd:*)",
+      "Bash(find Assets/Plugins/FMOD -name *.dll)",
+      "Bash(find 'D:\\\\Мои игры\\\\MiniJam-177-Papercraft/Assets' -name *Sound* -o -name *Audio* -o -name *Music*)",
+      "Bash(find 'D:\\\\Мои игры\\\\MiniJam-177-Papercraft/Assets' -name *.unity -type f)",
+      "Bash(python3 -c \":*)"
+    ]
+  }
+}

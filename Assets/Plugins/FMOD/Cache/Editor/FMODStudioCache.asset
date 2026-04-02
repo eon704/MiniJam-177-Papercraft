@@ -1,6 +1,26 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-8284763008860450047
+--- !u!114 &-9160933220243936811
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
+  m_Name: bank:/Music.bank
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorBankRef
+  Path: Assets/Audio/MiniJam177/Paperbound/Build/Desktop/Music.bank
+  Name: Music
+  StudioPath: bank:/Music
+  lastModified: 639107387782877028
+  FileSizes:
+  - Name: Desktop
+    Value: 717216
+  Exists: 1
+--- !u!114 &-6270697098122477695
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -10,51 +30,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Ding
+  m_Name: event:/SFX/Click
   m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/Ding
+  Path: event:/SFX/Click
   Guid:
-    Data1: 2126212905
-    Data2: 1251890476
-    Data3: -731587142
-    Data4: 1179182922
+    Data1: -1004935983
+    Data2: 1195615630
+    Data3: -1383614828
+    Data4: 1762392758
   Banks:
-  - {fileID: -2297656602720144700}
+  - {fileID: -3401605974714665752}
   IsStream: 0
-  Is3D: 1
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 1854
---- !u!114 &-5503334483219696769
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: "event:/\u0421lick"
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: "event:/\u0421lick"
-  Guid:
-    Data1: -227741725
-    Data2: 1223686353
-    Data3: 1495617957
-    Data4: 1649283802
-  Banks:
-  - {fileID: -2297656602720144700}
-  IsStream: 0
-  Is3D: 1
+  Is3D: 0
   IsOneShot: 1
   Parameters: []
   MinDistance: 1
   MaxDistance: 20
   Length: 235
---- !u!114 &-3282099350868918813
+--- !u!114 &-5918169276352794300
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -66,15 +59,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
   m_Name: bank:/Master.strings.bank
   m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorBankRef
-  Path: Assets/Audio/MyGameAudio/FMOD_PROJECT/Build/Desktop/Master.strings.bank
+  Path: Assets/Audio/MiniJam177/Paperbound/Build/Desktop/Master.strings.bank
   Name: Master.strings
   StudioPath: bank:/Master.strings
-  lastModified: 639098111205934339
+  lastModified: 639107387771869432
   FileSizes:
   - Name: Desktop
-    Value: 926
+    Value: 1006
   Exists: 1
---- !u!114 &-2828612022319970928
+--- !u!114 &-3401605974714665752
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -83,25 +76,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/BoardSpawn
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/BoardSpawn
-  Guid:
-    Data1: -1504489162
-    Data2: 1201535357
-    Data3: -724678483
-    Data4: -1399393048
-  Banks:
-  - {fileID: -2297656602720144700}
-  IsStream: 0
-  Is3D: 0
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 3056
---- !u!114 &-2297656602720144700
+  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
+  m_Name: bank:/SFX.bank
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorBankRef
+  Path: Assets/Audio/MiniJam177/Paperbound/Build/Desktop/SFX.bank
+  Name: SFX
+  StudioPath: bank:/SFX
+  lastModified: 639107385975370025
+  FileSizes:
+  - Name: Desktop
+    Value: 3424
+  Exists: 1
+--- !u!114 &-1143309927678050552
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -113,13 +99,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
   m_Name: bank:/Master.bank
   m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorBankRef
-  Path: Assets/Audio/MyGameAudio/FMOD_PROJECT/Build/Desktop/Master.bank
+  Path: Assets/Audio/MiniJam177/Paperbound/Build/Desktop/Master.bank
   Name: Master
   StudioPath: bank:/Master
-  lastModified: 639098111205918791
+  lastModified: 639107387771859426
   FileSizes:
   - Name: Desktop
-    Value: 43648
+    Value: 1352
   Exists: 1
 --- !u!114 &11400000
 MonoBehaviour:
@@ -134,21 +120,47 @@ MonoBehaviour:
   m_Name: FMODStudioCache
   m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EventCache
   EditorBanks:
-  - {fileID: -3282099350868918813}
-  - {fileID: -2297656602720144700}
+  - {fileID: -5918169276352794300}
+  - {fileID: -1143309927678050552}
+  - {fileID: -9160933220243936811}
+  - {fileID: -3401605974714665752}
   EditorEvents:
-  - {fileID: -2828612022319970928}
-  - {fileID: -5503334483219696769}
-  - {fileID: -8284763008860450047}
+  - {fileID: -6270697098122477695}
+  - {fileID: 5623603171213395579}
   EditorParameters: []
   MasterBanks:
-  - {fileID: -2297656602720144700}
+  - {fileID: -1143309927678050552}
   StringsBanks:
-  - {fileID: -3282099350868918813}
+  - {fileID: -5918169276352794300}
   cacheVersion: 131858
-  cacheTime: 639098111205934339
+  cacheTime: 639107387782877028
   SerializableEventsDict:
-  - key: event:/BoardSpawn
+  - key: event:/SFX/Click
     index: 0
-  - key: "event:/\u0421lick"
-    index: 1
+--- !u!114 &5623603171213395579
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Music/Forest
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/Music/Forest
+  Guid:
+    Data1: 2000701200
+    Data2: 1181606768
+    Data3: -726402414
+    Data4: 49862930
+  Banks:
+  - {fileID: -9160933220243936811}
+  IsStream: 1
+  Is3D: 0
+  IsOneShot: 0
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 60024

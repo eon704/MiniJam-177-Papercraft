@@ -15,4 +15,14 @@ MonoBehaviour:
   Type: 1
   SceneNames:
   - Forest_1
-  AmbientClip: {fileID: 8300000, guid: 69196ae9c2a93bf42b4184076f1e7972, type: 3}
+  - Forest_2
+  - Forest_3
+  - Forest_4
+  - Forest_5
+  AmbientEvent:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 

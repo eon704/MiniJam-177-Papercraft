@@ -101,6 +101,7 @@ public class StateCardUI : MonoBehaviour,
             PlayErrorAnim();
             return;
         }
+        FMODAudioManager.Instance.PlayCard();
         _stretchLocked = true;
         SnapBackQuiet();
     }

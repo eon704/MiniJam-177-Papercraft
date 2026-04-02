@@ -12,7 +12,6 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private Image foreground;
 
     [SerializeField] private GameObject exitButton;
-
     private float startPosY;
 
     private static bool shouldShowLevelsPanel = false;
@@ -25,6 +24,7 @@ public class MainMenuUI : MonoBehaviour
 
     public void ShowLevels()
     {
+        FMODAudioManager.Instance.PlayClick();
         if (LevelManager.Instance.NextLevelIndex == 1)
         {
             LevelManager.Instance.SetCurrentLevel(1);
@@ -54,6 +54,7 @@ public class MainMenuUI : MonoBehaviour
 
     public void HideLevels()
     {
+        FMODAudioManager.Instance.PlayClick();
         shouldShowLevelsPanel = false;
         levelsPanel.interactable = false;
 
@@ -77,12 +78,19 @@ public class MainMenuUI : MonoBehaviour
 
     public void StartGame()
     {
+        FMODAudioManager.Instance.PlayClick();
         StartCoroutine(LoadGame());
     }
 
     public void ExitGame()
     {
         Application.Quit();
+    }
+
+    public void ResetProgress()
+    {
+        LevelManager.Instance.ResetProgress();
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     private IEnumerator Start()
@@ -114,7 +122,6 @@ public class MainMenuUI : MonoBehaviour
         AsyncOperation loadSceneAsync = SceneManager.LoadSceneAsync("Game");
         yield return new WaitUntil(() => loadSceneAsync!.isDone);
 
-        GlobalSoundManager.Instance.PlaySoundtrack(FMODEvents.Instance.game);
     }
 
     private IEnumerator ForegroundFadeIn()

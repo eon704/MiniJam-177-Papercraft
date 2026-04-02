@@ -13,17 +13,12 @@ public class SettingsManager : Singleton<SettingsManager>
             LoadSettings();
     }
 
-    private void Start()
-    {
-        GlobalSoundManager.Instance.PlaySoundtrack(FMODEvents.Instance.mainMenu);
-    }
-
     public void SetSFXVolume(float volume)
     {
         SFXVolume = volume;
         PlayerPrefs.SetFloat("SFXVolume", volume);
         PlayerPrefs.Save();
-        GlobalSoundManager.Instance.UpdateSFXVolume();
+        FMODAudioManager.Instance.SetVCAVolume("vca:/SFX", volume);
     }
 
     public void SetSoundtrackVolume(float volume)
@@ -31,7 +26,7 @@ public class SettingsManager : Singleton<SettingsManager>
         SoundtrackVolume = volume;
         PlayerPrefs.SetFloat("SoundtrackVolume", volume);
         PlayerPrefs.Save();
-        GlobalSoundManager.Instance.UpdateSoundtrackVolume();
+        FMODAudioManager.Instance.SetVCAVolume("vca:/Music", volume);
     }
 
     private void LoadSettings()

@@ -3720,7 +3720,6 @@ GameObject:
   - component: {fileID: 3508639644662756043}
   - component: {fileID: 6522989159988566788}
   - component: {fileID: 5867472760676016365}
-  - component: {fileID: 4982589416736380152}
   - component: {fileID: 446742428399969255}
   m_Layer: 5
   m_Name: Close Button
@@ -3775,7 +3774,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 2
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
@@ -3788,7 +3787,7 @@ MonoBehaviour:
     m_HighlightedSprite: {fileID: 0}
     m_PressedSprite: {fileID: 0}
     m_SelectedSprite: {fileID: 0}
-    m_DisabledSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 21300000, guid: a583bbbbbd90d1d41a7401ad05eeb143, type: 3}
   m_AnimationTriggers:
     m_NormalTrigger: Normal
     m_HighlightedTrigger: Highlighted
@@ -3854,19 +3853,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 15c214dd1ecb81846932b7e41f3751d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &4982589416736380152
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7344750823986838173}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cb5fd5085159415287106807fc1a7a3a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  isCard: 0
 --- !u!114 &446742428399969255
 MonoBehaviour:
   m_ObjectHideFlags: 0

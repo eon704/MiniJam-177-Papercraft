@@ -79,6 +79,17 @@ public class LevelManager : Singleton<LevelManager>
         PlayerPrefs.SetInt("NextLevelIndex", NextLevelIndex);
     }
 
+    public void ResetProgress()
+    {
+        for (int i = 1; i < levels.Count; i++)
+            PlayerPrefs.DeleteKey("level" + i + "_stars");
+
+        NextLevelIndex = 1;
+        CurrentLevelIndex = 1;
+        PlayerPrefs.SetInt("NextLevelIndex", 1);
+        PlayerPrefs.Save();
+    }
+
     public void SetCurrentLevelComplete(int stars)
     {
         string key = "level" + Instance.CurrentLevelIndex + "_stars";
