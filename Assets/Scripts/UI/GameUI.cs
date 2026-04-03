@@ -19,7 +19,7 @@ public class GameUI : MonoBehaviour
 
     public void FinishGame()
     {
-        FMODAudioManager.Instance.PlayClick();
+        FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxClick);
         DOTween.KillAll();
         gameController.OnLoadingMainMenu();
         StartCoroutine(LoadMainMenu());
@@ -33,7 +33,7 @@ public class GameUI : MonoBehaviour
 
     public void OnNextLevelButtonPressed()
     {
-        FMODAudioManager.Instance.PlayClick();
+        FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxClick);
         if (LevelManager.Instance.IsLastLevel())
             ShowFinalScreen();
         else
@@ -64,6 +64,7 @@ public class GameUI : MonoBehaviour
 
     private void OnWin(int stars)
     {
+        FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxWinScreen);
         winScreen.gameObject.SetActive(true);
         winScreen.alpha = 1;
 

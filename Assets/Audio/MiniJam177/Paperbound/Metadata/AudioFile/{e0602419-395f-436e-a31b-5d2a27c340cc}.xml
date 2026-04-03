@@ -2,7 +2,7 @@
 <objects serializationModel="Studio.02.03.00">
 	<object class="AudioFile" id="{e0602419-395f-436e-a31b-5d2a27c340cc}">
 		<property name="assetPath">
-			<value>BoardSpawn.mp3</value>
+			<value>SFX/Board/BoardSpawn.mp3</value>
 		</property>
 		<property name="frequencyInKHz">
 			<value>44.0999985</value>

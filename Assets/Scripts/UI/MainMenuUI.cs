@@ -24,7 +24,7 @@ public class MainMenuUI : MonoBehaviour
 
     public void ShowLevels()
     {
-        FMODAudioManager.Instance.PlayClick();
+        FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxClick);
         if (LevelManager.Instance.NextLevelIndex == 1)
         {
             LevelManager.Instance.SetCurrentLevel(1);
@@ -44,6 +44,7 @@ public class MainMenuUI : MonoBehaviour
             startPanel.gameObject.SetActive(false);
             levelsPanel.gameObject.SetActive(true);
             levelsPanel.alpha = 0;
+            FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxPanelShow);
         });
         sequence.AppendInterval(0.2f);
         sequence.Append(levelsPanel.DOFade(1, 0.25f).SetEase(Ease.InOutCubic));
@@ -54,7 +55,7 @@ public class MainMenuUI : MonoBehaviour
 
     public void HideLevels()
     {
-        FMODAudioManager.Instance.PlayClick();
+        FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxClick);
         shouldShowLevelsPanel = false;
         levelsPanel.interactable = false;
 
@@ -68,6 +69,7 @@ public class MainMenuUI : MonoBehaviour
             levelsPanel.gameObject.SetActive(false);
             startPanel.gameObject.SetActive(true);
             startPanel.alpha = 0;
+            FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxPanelHide);
         });
         sequence.AppendInterval(0.2f);
         sequence.Append(startPanel.DOFade(1, 0.3f).SetEase(Ease.InOutCubic));
@@ -78,7 +80,7 @@ public class MainMenuUI : MonoBehaviour
 
     public void StartGame()
     {
-        FMODAudioManager.Instance.PlayClick();
+        FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxClick);
         StartCoroutine(LoadGame());
     }
 

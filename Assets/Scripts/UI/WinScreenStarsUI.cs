@@ -26,7 +26,11 @@ public class WinScreenStarsUI : MonoBehaviour
                 if (star == null || star.transform == null)
                     return;
                 star.sprite = fullStar;
-                star.transform.DOScale(Vector3.one * 1.25f, 0.5f).SetLoops(2, LoopType.Yoyo);
+                var seq = DOTween.Sequence();
+                seq.Append(star.transform.DOScale(1.35f, 0.1f).SetEase(Ease.OutQuad));
+                seq.Append(star.transform.DORotate(new Vector3(0f, 0f, -720f), 0.5f, RotateMode.FastBeyond360).SetEase(Ease.InOutQuad));
+                seq.Append(star.transform.DOScale(1f, 0.1f).SetEase(Ease.InQuad));
+                FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxStarReveal);
             });
             initialStarSequence.AppendInterval(0.5f);
         }

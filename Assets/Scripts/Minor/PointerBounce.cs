@@ -20,6 +20,7 @@ public class PointerBounce : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
 
     public void OnPointerEnter(PointerEventData eventData)
     {
+        FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxHover);
         transform.DOKill();
         transform.DOScale(originalScale * 1.1f, 0.2f).SetEase(Ease.OutQuad);
     }

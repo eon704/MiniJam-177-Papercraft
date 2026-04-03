@@ -756,14 +756,70 @@ PrefabInstance:
       propertyPath: m_Name
       value: GameUI
       objectReference: {fileID: 0}
+    - target: {fileID: 4240561990677308994, guid: e6a05bcc319f249cc9c8a4b9299d92e9, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4240561990677308994, guid: e6a05bcc319f249cc9c8a4b9299d92e9, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4240561990677308994, guid: e6a05bcc319f249cc9c8a4b9299d92e9, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4240561990677308994, guid: e6a05bcc319f249cc9c8a4b9299d92e9, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4624429571059139239, guid: e6a05bcc319f249cc9c8a4b9299d92e9, type: 3}
       propertyPath: boardPrefab
       value: 
       objectReference: {fileID: 1189492192}
+    - target: {fileID: 4746367856406454258, guid: e6a05bcc319f249cc9c8a4b9299d92e9, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4746367856406454258, guid: e6a05bcc319f249cc9c8a4b9299d92e9, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4746367856406454258, guid: e6a05bcc319f249cc9c8a4b9299d92e9, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4746367856406454258, guid: e6a05bcc319f249cc9c8a4b9299d92e9, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5086779018085956818, guid: e6a05bcc319f249cc9c8a4b9299d92e9, type: 3}
+      propertyPath: starsUI
+      value: 
+      objectReference: {fileID: 1780332646}
     - target: {fileID: 5086779018085956818, guid: e6a05bcc319f249cc9c8a4b9299d92e9, type: 3}
       propertyPath: gameController
       value: 
       objectReference: {fileID: 244730296}
+    - target: {fileID: 5086779018085956818, guid: e6a05bcc319f249cc9c8a4b9299d92e9, type: 3}
+      propertyPath: winScreenAnimator
+      value: 
+      objectReference: {fileID: 1780332645}
+    - target: {fileID: 5243236667655946537, guid: e6a05bcc319f249cc9c8a4b9299d92e9, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5243236667655946537, guid: e6a05bcc319f249cc9c8a4b9299d92e9, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5243236667655946537, guid: e6a05bcc319f249cc9c8a4b9299d92e9, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5243236667655946537, guid: e6a05bcc319f249cc9c8a4b9299d92e9, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5305330951975479453, guid: e6a05bcc319f249cc9c8a4b9299d92e9, type: 3}
       propertyPath: player
       value: 
@@ -872,6 +928,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8659866087509486613, guid: e6a05bcc319f249cc9c8a4b9299d92e9, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 32.7
+      objectReference: {fileID: 0}
     - target: {fileID: 9001489259320094774, guid: e6a05bcc319f249cc9c8a4b9299d92e9, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -898,6 +958,28 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 4967558254387036338, guid: e6a05bcc319f249cc9c8a4b9299d92e9, type: 3}
   m_PrefabInstance: {fileID: 1780332643}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1780332645 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4582853134919137453, guid: e6a05bcc319f249cc9c8a4b9299d92e9, type: 3}
+  m_PrefabInstance: {fileID: 1780332643}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1780332644}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c46cce4dbe0bda47b05d4b6a9f6f6f1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DropInAnimator
+--- !u!114 &1780332646 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1650975551301986638, guid: e6a05bcc319f249cc9c8a4b9299d92e9, type: 3}
+  m_PrefabInstance: {fileID: 1780332643}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 06ba6e50a1d24325ac761767d58421eb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1857053164
 GameObject:
   m_ObjectHideFlags: 0

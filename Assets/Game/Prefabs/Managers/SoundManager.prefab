@@ -45,20 +45,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FMODAudioManager
   persistent: 0
-  sfxMove:
-    Guid:
-      Data1: -1004935983
-      Data2: 1195615630
-      Data3: -1383614828
-      Data4: 1762392758
-    Path: event:/SFX/Click
   sfxChangeState:
     Guid:
-      Data1: -1004935983
-      Data2: 1195615630
-      Data3: -1383614828
-      Data4: 1762392758
-    Path: event:/SFX/Click
+      Data1: 657192335
+      Data2: 1274150138
+      Data3: 2046224271
+      Data4: 517663168
+    Path: event:/SFX/ChangeState
   sfxClick:
     Guid:
       Data1: -1004935983
@@ -66,69 +59,209 @@ MonoBehaviour:
       Data3: -1383614828
       Data4: 1762392758
     Path: event:/SFX/Click
-  sfxCard:
+  sfxUndo:
     Guid:
-      Data1: -1004935983
-      Data2: 1195615630
-      Data3: -1383614828
-      Data4: 1762392758
-    Path: event:/SFX/Click
-  sfxBubble:
+      Data1: 517259216
+      Data2: 1131594813
+      Data3: -416454725
+      Data4: 1416806092
+    Path: event:/SFX/sfxUndo
+  sfxReset:
     Guid:
-      Data1: -1004935983
-      Data2: 1195615630
-      Data3: -1383614828
-      Data4: 1762392758
-    Path: event:/SFX/Click
+      Data1: -1044882863
+      Data2: 1287949843
+      Data3: -1721976177
+      Data4: -656040664
+    Path: event:/SFX/sfxRestarMap
+  sfxError:
+    Guid:
+      Data1: 2133599963
+      Data2: 1272525076
+      Data3: 188011167
+      Data4: 129308037
+    Path: event:/SFX/UI/Error
+  sfxHover:
+    Guid:
+      Data1: 1272376760
+      Data2: 1122546474
+      Data3: -1478451548
+      Data4: 103377506
+    Path: event:/SFX/UI/sfxHovwer
+  sfxStateCardUnselected:
+    Guid:
+      Data1: 1500497840
+      Data2: 1285274569
+      Data3: 32487052
+      Data4: -631353653
+    Path: event:/SFX/UI/sfxStateCardUnselect
+  sfxStepDefault:
+    Guid:
+      Data1: 164827692
+      Data2: 1301394399
+      Data3: -963761791
+      Data4: 1810572300
+    Path: event:/SFX/Steps/sfxStepDefault
+  sfxStepFragile:
+    Guid:
+      Data1: -1710043101
+      Data2: 1298851411
+      Data3: 757475221
+      Data4: 527362772
+    Path: event:/SFX/Steps/sfxFragileCell
+  sfxStepWater:
+    Guid:
+      Data1: 1228400486
+      Data2: 1225947346
+      Data3: -422741073
+      Data4: 688077490
+    Path: event:/SFX/Steps/sfxStepWater
+  sfxStepStone:
+    Guid:
+      Data1: 338048540
+      Data2: 1267406579
+      Data3: 388031897
+      Data4: 1569180161
+    Path: event:/SFX/Steps/sfxStepStone
+  sfxStepFire:
+    Guid:
+      Data1: 1587450459
+      Data2: 1104143323
+      Data3: 920780423
+      Data4: 583557379
+    Path: event:/SFX/Steps/sfxStepFire
+  sfxStepLava:
+    Guid:
+      Data1: -215432904
+      Data2: 1296043451
+      Data3: 1201778336
+      Data4: 296746622
+    Path: event:/SFX/Steps/sfxStepLava
+  sfxStepIce:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
+  sfxCellCollapse:
+    Guid:
+      Data1: 1941014572
+      Data2: 1335333903
+      Data3: 1186570923
+      Data4: -107169071
+    Path: event:/SFX/SfxCellCollapse
+  sfxStarPickUp:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
   sfxPop:
     Guid:
-      Data1: -1004935983
-      Data2: 1195615630
-      Data3: -1383614828
-      Data4: 1762392758
-    Path: event:/SFX/Click
-  sfxWin:
-    Guid:
-      Data1: -1004935983
-      Data2: 1195615630
-      Data3: -1383614828
-      Data4: 1762392758
-    Path: event:/SFX/Click
-  sfxLose:
-    Guid:
-      Data1: -1004935983
-      Data2: 1195615630
-      Data3: -1383614828
-      Data4: 1762392758
-    Path: event:/SFX/Click
-  sfxBoardSpawn:
-    Guid:
-      Data1: -1004935983
-      Data2: 1195615630
-      Data3: -1383614828
-      Data4: 1762392758
-    Path: event:/SFX/Click
-  sfxExplosion:
-    Guid:
-      Data1: -1004935983
-      Data2: 1195615630
-      Data3: -1383614828
-      Data4: 1762392758
-    Path: event:/SFX/Click
+      Data1: 1332055772
+      Data2: 1338711196
+      Data3: 129771140
+      Data4: 1688830561
+    Path: event:/SFX/SfxStarPickUp
   sfxFireSplash:
     Guid:
-      Data1: -1004935983
-      Data2: 1195615630
-      Data3: -1383614828
-      Data4: 1762392758
-    Path: event:/SFX/Click
-  sfxCellShake:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
+  sfxExplosion:
     Guid:
-      Data1: -1004935983
-      Data2: 1195615630
-      Data3: -1383614828
-      Data4: 1762392758
-    Path: event:/SFX/Click
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
+  sfxVolcanoLaunch:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
+  sfxIceFreeze:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
+  sfxBoardSpawn:
+    Guid:
+      Data1: -352540389
+      Data2: 1125059932
+      Data3: 1509143979
+      Data4: 165450360
+    Path: event:/SFX/sfxBoardSpawn
+  sfxUIEntrance:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
+  sfxPanelShow:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
+  sfxPanelHide:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
+  sfxCardPunch:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
+  sfxMovesDecrease:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
+  sfxStarReveal:
+    Guid:
+      Data1: -15587120
+      Data2: 1278367697
+      Data3: 1473650111
+      Data4: -1848607222
+    Path: event:/SFX/SfxStarCollected
+  sfxWinScreen:
+    Guid:
+      Data1: 1278670038
+      Data2: 1182424839
+      Data3: -1582340476
+      Data4: 586858903
+    Path: event:/SFX/UI/WinScreen
+  sfxWin:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
+  sfxLose:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
   musicForest:
     Guid:
       Data1: 2000701200

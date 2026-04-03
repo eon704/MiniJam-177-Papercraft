@@ -55,6 +55,7 @@ public class FormsUIAnimator : MonoBehaviour
 
     public void PlayEntrance()
     {
+        FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxUIEntrance);
         var seq = DOTween.Sequence();
 
         // 1. InfoPanel falls first — "hanging sign" bounce

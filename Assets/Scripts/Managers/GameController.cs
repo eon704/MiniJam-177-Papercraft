@@ -52,6 +52,7 @@ public class GameController : MonoBehaviour
         PlayerPrefab.StarAmount.Value = 0;
 
         BoardPrefab.Board.BoardHistory.Reset();
+        FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxReset);
         OnMapReset?.Invoke();
 
         PlayerPrefab.isMovementLocked = true;
@@ -113,9 +114,8 @@ public class GameController : MonoBehaviour
         PlayerPrefab.SetBiomeCellSystem(_biomeCellSystem);
         PlayerPrefab.OnPlayerWon.AddListener(OnWin);
         PlayerPrefab.OnPlayerDied.AddListener(ResetMap);
-        PlayerPrefab.OnTransformation.AddListener(_ => FMODAudioManager.Instance.PlayChangeState());
-        PlayerPrefab.OnPlayerWon.AddListener(_ => { FMODAudioManager.Instance.PlayWin(); FMODAudioManager.Instance.StopMusic(); });
-        PlayerPrefab.OnPlayerDied.AddListener(FMODAudioManager.Instance.PlayLose);
+        PlayerPrefab.OnPlayerWon.AddListener(_ => { FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxWin); FMODAudioManager.Instance.StopMusic(); });
+        PlayerPrefab.OnPlayerDied.AddListener(() => FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxLose));
         PlayerPrefab.transform.localScale = Vector3.zero;
 
         yield return null;
@@ -175,6 +175,7 @@ public class GameController : MonoBehaviour
             VolcanoProjectile projectile = Instantiate(
                 volcanoProjectilePrefab, from, Quaternion.identity);
 
+            FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxVolcanoLaunch);
             projectile.Launch(from, to, volcanoArcHeight, volcanoProjectileDuration,
                 onLanded: () => targetCell.ActivateExplosion(() => PlayerPrefab.EndEruption()));
         });

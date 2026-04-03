@@ -128,6 +128,7 @@ public class BiomeCellSystem
         {
             _currentDynamicTerrain[targetPos] = TerrainType.Ice;
             targetCell.SetTerrain(TerrainType.Ice);
+            FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxIceFreeze);
         }
 
         _iceFreezeIndexes[cfg.Position] = index + 1;

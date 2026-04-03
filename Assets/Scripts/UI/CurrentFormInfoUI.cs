@@ -163,6 +163,7 @@ public class CurrentFormInfoUI : MonoBehaviour
     private void PunchPreview()
     {
         if (previewImage == null) return;
+        FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxCardPunch);
         DOTween.Kill(previewImage.transform);
         previewImage.transform.localScale = Vector3.one;
         previewImage.transform.DOPunchScale(Vector3.one * 0.2f, 0.35f, 5, 0.4f);
@@ -171,6 +172,7 @@ public class CurrentFormInfoUI : MonoBehaviour
     private void PunchMovesText()
     {
         if (movesText == null) return;
+        FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxMovesDecrease);
         DOTween.Kill(movesText.transform);
         movesText.transform.localScale = Vector3.one;
         movesText.transform.DOPunchScale(Vector3.one * 0.25f, 0.3f, 4, 0.3f);

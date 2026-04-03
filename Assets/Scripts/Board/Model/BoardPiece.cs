@@ -257,6 +257,8 @@ public class BoardPiece
     {
         Vector2Int motion = target.Position - OccupiedCell.Value.Position;
         Vector2Int dir = new Vector2Int(Math.Sign(motion.x), Math.Sign(motion.y));
+        // Guard: boat moves only along cardinal axes — diagonal dir would loop forever
+        if (dir.x != 0 && dir.y != 0) return new List<Cell>();
         var path = new List<Cell>();
         Vector2Int pos = OccupiedCell.Value.Position + dir;
         while (pos != target.Position)
@@ -276,6 +278,8 @@ public class BoardPiece
     public List<Cell> GetPlanePathCells(Cell target)
     {
         Vector2Int motion = target.Position - OccupiedCell.Value.Position;
+        // Guard: plane moves only along diagonals — non-diagonal target would loop forever
+        if (motion.x == 0 || Mathf.Abs(motion.x) != Mathf.Abs(motion.y)) return new List<Cell>();
         Vector2Int dir = new Vector2Int(motion.x > 0 ? 1 : -1, motion.y > 0 ? 1 : -1);
         var path = new List<Cell>();
         Vector2Int pos = OccupiedCell.Value.Position + dir;

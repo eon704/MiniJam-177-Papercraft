@@ -21,6 +21,7 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     [SerializeField] private GameObject explosionEffect;
     [SerializeField] private GameObject splash;
     [SerializeField] private GameObject fireSplash;
+    [SerializeField] private ParticleSystem fragileStepDust;
 
     public Transform VolcanoTop => volcanoTop;
 
@@ -38,6 +39,8 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     private bool _isReachable;
     private bool _isHovered;
+    private bool _starPendingVisual;
+    private System.Action _onStarCollected;
     private bool _hasVolcanoWarning;
     private Tween _pulseTween;
 
@@ -51,6 +54,7 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     private Sequence rippleSequence;
     private Sequence collapseSequence;
+    private bool _collapseVisualDeferred;
     private Tween starGrowTween;
     private Tween starShrinkTween;
 
@@ -87,7 +91,8 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         transform.localScale = Vector3.zero;
         rippleSequence = DOTween.Sequence();
         rippleSequence.AppendInterval(delay);
-        rippleSequence.Append(transform.DOScale(1f, 0.5f).SetEase(Ease.OutQuad));
+        rippleSequence.Append(transform.DOScale(1f, 1.6f).SetEase(Ease.OutBack));
+        rippleSequence.Join(transform.DOShakeRotation(1.6f, new Vector3(0f, 8f, 0f), 12, 90f, true));
         rippleSequence.Play();
     }
 
@@ -211,14 +216,32 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         player.Move(this);
     }
 
-    public void ShakeCell()
+    public void ShakeCell(float initialDelay = 0.5f)
     {
-        FMODAudioManager.Instance.PlayCellShake();
         var shakeSequence = DOTween.Sequence();
-        shakeSequence.AppendInterval(0.5f);
-        shakeSequence.Append(transform.DOShakePosition(0.3f,
-            strength: new Vector3(0.05f, 0f, 0.05f),
-            vibrato: 20, randomness: 90, snapping: false, fadeOut: true));
+        shakeSequence.AppendInterval(initialDelay);
+        if (Cell.IsFragile)
+        {
+            shakeSequence.AppendCallback(() =>
+            {
+                if (fragileStepDust != null)
+                {
+                    fragileStepDust.gameObject.SetActive(true);
+                    fragileStepDust.Play();
+                    DOVirtual.DelayedCall(fragileStepDust.main.duration, () =>
+                    {
+                        if (fragileStepDust != null) fragileStepDust.gameObject.SetActive(false);
+                    });
+                }
+            });
+            shakeSequence.Append(transform.DOShakePosition(0.6f,
+                strength: new Vector3(0.09f, 0f, 0.09f),
+                vibrato: 20, randomness: 90, snapping: false, fadeOut: true));
+        }
+        else
+            shakeSequence.Append(transform.DOShakePosition(0.3f,
+                strength: new Vector3(0.05f, 0f, 0.05f),
+                vibrato: 20, randomness: 90, snapping: false, fadeOut: true));
     }
 
     private void ApplyTerrainVisuals(TerrainType terrain)
@@ -247,11 +270,37 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         ApplyTerrainVisuals(newTerrain);
     }
 
+    public void SetStarVisualDeferred(System.Action onCollected = null)
+    {
+        _starPendingVisual = true;
+        _onStarCollected = onCollected;
+    }
+
+    public void ResetStarVisualDeferred()
+    {
+        _starPendingVisual = false;
+        _onStarCollected = null;
+    }
+
+    public void TriggerStarPickupVisual()
+    {
+        if (!_starPendingVisual) return;
+        _starPendingVisual = false;
+        _onStarCollected?.Invoke();
+        _onStarCollected = null;
+        FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxStarPickUp);
+        FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxPop);
+        starGrowTween?.Kill();
+        starShrinkTween = star.transform.DOScale(Vector3.zero, 0.5f)
+            .OnComplete(() => star.SetActive(false));
+    }
+
     private void OnCellItemChange(Observable<CellItem> item, CellItem oldValue, CellItem newValue)
     {
         if (oldValue == CellItem.Star && newValue == CellItem.None)
         {
-            FMODAudioManager.Instance.PlayPop();
+            if (_starPendingVisual) return;
+            FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxPop);
             starGrowTween?.Kill();
             starShrinkTween = star.transform.DOScale(Vector3.zero, 0.5f)
                 .OnComplete(() => star.SetActive(false));
@@ -264,8 +313,31 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         }
     }
 
+    public void PlayStepDust()
+    {
+        if (fragileStepDust == null) return;
+        if (Cell.Terrain != TerrainType.Default && Cell.Terrain != TerrainType.Stone && Cell.Terrain != TerrainType.Start) return;
+        fragileStepDust.gameObject.SetActive(true);
+        fragileStepDust.Play();
+        DOVirtual.DelayedCall(fragileStepDust.main.duration, () =>
+        {
+            if (fragileStepDust != null) fragileStepDust.gameObject.SetActive(false);
+        });
+    }
+
+    public void DeferCollapseVisual() => _collapseVisualDeferred = true;
+
+    public void TriggerDeferredCollapseVisual()
+    {
+        if (!_collapseVisualDeferred) return;
+        _collapseVisualDeferred = false;
+        OnCellCollapsed();
+    }
+
     private void OnCellCollapsed()
     {
+        if (_collapseVisualDeferred) return;
+        FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxCellCollapse);
         collapseSequence?.Kill();
         collapseSequence = DOTween.Sequence();
         // Небольшое дрожание — клетка "трещит" перед падением
@@ -291,6 +363,7 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     private void OnCellCollapseReset()
     {
+        
         collapseSequence?.Kill();
         collapseSequence = null;
         DOTween.Kill(transform);
@@ -304,6 +377,7 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     [SerializeField] private float explosionDuration = 1f;
     [SerializeField] private float fireSplashDuration = 1.5f;
 
+    
     public void ActivateSplash()
     {
         if (splash != null)
@@ -314,7 +388,7 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     {
         if (fireSplash == null) return;
         fireSplash.SetActive(true);
-        FMODAudioManager.Instance.PlayFireSplash();
+        FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxFireSplash);
         DOVirtual.DelayedCall(fireSplashDuration, () =>
         {
             if (fireSplash != null)
@@ -328,7 +402,7 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         if (explosionEffect != null)
         {
             explosionEffect.SetActive(true);
-            FMODAudioManager.Instance.PlayExplosion();
+            FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxExplosion);
         }
 
         DOVirtual.DelayedCall(explosionDuration, () =>

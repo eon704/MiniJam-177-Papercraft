@@ -53,16 +53,55 @@ public class BoardPiecePrefab : MonoBehaviour
     }
 
     public bool Move(CellPrefab targetCell, UnityAction onComplete = null, bool forceFailMovement = false,
-        List<CellPrefab> boatPath = null, float arcHeight = 1.5f, List<CellPrefab> planePath = null)
+        List<CellPrefab> boatPath = null, float arcHeight = 1.5f, List<CellPrefab> planePath = null,
+        System.Action onStarCollected = null)
     {
         transform.DOKill();
+        // Snap back to current cell in case a previous fail-shake was interrupted mid-animation
+        if (CurrentCell != null)
+            transform.position = CurrentCell.transform.position + Vector3.up * heightOffset;
         if (_boatCoroutine != null)
         {
             StopCoroutine(_boatCoroutine);
             _boatCoroutine = null;
         }
 
+        CellPrefab startCell = CurrentCell;
+
+        // Defer star visuals BEFORE model update consumes them
+        if (targetCell.Cell.Item.Value == CellItem.Star) targetCell.SetStarVisualDeferred(onStarCollected);
+        if (boatPath != null)
+            foreach (var c in boatPath)
+                if (c.Cell.Item.Value == CellItem.Star) c.SetStarVisualDeferred(onStarCollected);
+        if (planePath != null)
+            foreach (var c in planePath)
+                if (c.Cell.Item.Value == CellItem.Star) c.SetStarVisualDeferred(onStarCollected);
+
+        // Defer collapse visuals for multi-hop moves so they sync with the animation
+        if (boatPath != null && boatPath.Count > 0)
+        {
+            if (startCell != null && startCell.Cell.IsFragile && !startCell.Cell.IsCollapsed)
+                startCell.DeferCollapseVisual();
+        }
+        if (planePath != null && planePath.Count > 0)
+        {
+            if (startCell != null && startCell.Cell.IsFragile && !startCell.Cell.IsCollapsed)
+                startCell.DeferCollapseVisual();
+            for (int i = 0; i < planePath.Count - 1; i++)
+                if (planePath[i].Cell.IsFragile && !planePath[i].Cell.IsCollapsed)
+                    planePath[i].DeferCollapseVisual();
+        }
+
         bool success = !forceFailMovement && BoardPiece.MoveTo(targetCell.Cell);
+
+        if (!success)
+        {
+            targetCell.ResetStarVisualDeferred();
+            if (boatPath != null)
+                foreach (var c in boatPath) c.ResetStarVisualDeferred();
+            if (planePath != null)
+                foreach (var c in planePath) c.ResetStarVisualDeferred();
+        }
 
         Vector3 targetPos = targetCell.transform.position + Vector3.up * heightOffset;
 
@@ -70,14 +109,16 @@ public class BoardPiecePrefab : MonoBehaviour
         {
             if (boatPath != null && boatPath.Count > 0)
             {
-                _boatCoroutine = StartCoroutine(AnimateBoatPath(boatPath, onComplete));
+                _boatCoroutine = StartCoroutine(AnimateBoatPath(boatPath, onComplete, startCell));
             }
             else if (planePath != null && planePath.Count > 0)
             {
-                _boatCoroutine = StartCoroutine(AnimatePlanePath(planePath, onComplete));
+                _boatCoroutine = StartCoroutine(AnimatePlanePath(planePath, onComplete, startCell));
             }
             else
             {
+                startCell?.PlayStepDust();
+
                 var path = new[]
                 {
                     transform.position,
@@ -88,7 +129,12 @@ public class BoardPiecePrefab : MonoBehaviour
                 transform
                     .DOPath(path, 0.5f, PathType.CatmullRom)
                     .SetEase(Ease.InOutQuad)
-                    .OnComplete(() => onComplete?.Invoke());
+                    .OnComplete(() =>
+                    {
+                        targetCell.TriggerStarPickupVisual();
+                        targetCell.PlayStepDust();
+                        onComplete?.Invoke();
+                    });
             }
         }
         else
@@ -101,15 +147,25 @@ public class BoardPiecePrefab : MonoBehaviour
         return success;
     }
 
-    private IEnumerator AnimateBoatPath(List<CellPrefab> path, UnityAction onComplete)
+    private IEnumerator AnimateBoatPath(List<CellPrefab> path, UnityAction onComplete, CellPrefab startCell)
     {
-        const float hopDuration = 0.22f;
+        const float hopDuration = 0.44f;
+        bool isFirstHop = true;
         foreach (var cell in path)
         {
+            // Start cell: collapse and dust as the player jumps off it
+            if (isFirstHop)
+            {
+                startCell?.TriggerDeferredCollapseVisual();
+                startCell?.PlayStepDust();
+                isFirstHop = false;
+            }
+
             Vector3 from = transform.position;
             Vector3 to = cell.transform.position + Vector3.up * heightOffset;
             Vector3 mid = (from + to) / 2f + Vector3.up * 0.6f;
 
+            FMODAudioManager.Instance.PlayStepSound(cell.Cell.Terrain, cell.Cell.IsFragile);
             bool hopDone = false;
             transform
                 .DOPath(new[] { from, mid, to }, hopDuration, PathType.CatmullRom)
@@ -118,25 +174,35 @@ public class BoardPiecePrefab : MonoBehaviour
 
             yield return new WaitUntil(() => hopDone);
             if (cell.Cell.Terrain == TerrainType.Water)
-            {
                 cell.ActivateSplash();
-                FMODAudioManager.Instance.PlayBubble();
-            }
+            cell.TriggerStarPickupVisual();
+            cell.PlayStepDust();
         }
 
         _boatCoroutine = null;
         onComplete?.Invoke();
     }
 
-    private IEnumerator AnimatePlanePath(List<CellPrefab> path, UnityAction onComplete)
+    private IEnumerator AnimatePlanePath(List<CellPrefab> path, UnityAction onComplete, CellPrefab startCell)
     {
-        const float hopDuration = 0.22f;
+        const float hopDuration = 0.44f;
+        bool isFirstHop = true;
+        CellPrefab lastCell = path[path.Count - 1];
         foreach (var cell in path)
         {
+            // Start cell: collapse and dust as the player jumps off it
+            if (isFirstHop)
+            {
+                startCell?.TriggerDeferredCollapseVisual();
+                startCell?.PlayStepDust();
+                isFirstHop = false;
+            }
+
             Vector3 from = transform.position;
             Vector3 to = cell.transform.position + Vector3.up * heightOffset;
             Vector3 mid = (from + to) / 2f + Vector3.up * 0.6f;
 
+            FMODAudioManager.Instance.PlayStepSound(cell.Cell.Terrain, cell.Cell.IsFragile);
             bool hopDone = false;
             transform
                 .DOPath(new[] { from, mid, to }, hopDuration, PathType.CatmullRom)
@@ -144,6 +210,11 @@ public class BoardPiecePrefab : MonoBehaviour
                 .OnComplete(() => hopDone = true);
 
             yield return new WaitUntil(() => hopDone);
+            // Intermediate cells collapse after the player passes through them
+            if (cell != lastCell)
+                cell.TriggerDeferredCollapseVisual();
+            cell.TriggerStarPickupVisual();
+            cell.PlayStepDust();
         }
 
         _boatCoroutine = null;

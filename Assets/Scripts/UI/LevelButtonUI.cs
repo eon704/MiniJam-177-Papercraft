@@ -48,6 +48,7 @@ public class LevelButtonUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
 
     public void OnPointerEnter(PointerEventData eventData)
     {
+        FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxHover);
         transform.DOScale(1.1f, 0.2f).SetEase(Ease.OutQuad);
     }
 

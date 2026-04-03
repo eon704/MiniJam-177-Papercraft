@@ -84,20 +84,19 @@ public class BoardPrefab : MonoBehaviour
             {
                 Cell cell = Board.CellArray[x, y];
                 Vector3 cellPosition = new Vector3(x * cellSize, 0f, y * cellSize);
-                int distanceFromCenter = Mathf.Abs(centerX - x) + Mathf.Abs(centerY - y);
-                float delay = distanceFromCenter * 0.1f + 0.5f;
+                const float delay = 0.3f;
                 Quaternion randomRotation = Quaternion.Euler(0, Random.Range(0, 4) * 90f, 0);
                 cellPrefabs[x, y] = Instantiate(cellPrefab, cellPosition, randomRotation, transform);
                 cellPrefabs[x, y].Initialize(cell, player, delay);
 
-                if (cell.Terrain == TerrainType.Empty || delay < longestDelay)
+                if (cell.Terrain == TerrainType.Empty)
                     continue;
 
                 longestDelay = delay;
             }
         }
 
-        FMODAudioManager.Instance.PlayBoardSpawn();
+        FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxBoardSpawn);
         Invoke(nameof(SetAnimationComplete), longestDelay + 0.5f);
     }
 

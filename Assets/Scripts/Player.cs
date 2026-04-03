@@ -200,21 +200,25 @@ public class Player : MonoBehaviour
 
     public void SetCraneState()
     {
+        FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxChangeState);
         SetState(_craneState);
     }
 
     public void SetFrogState()
     {
+        FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxChangeState);
         SetState(_frogState);
     }
 
     public void SetPlaneState()
     {
+        FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxChangeState);
         SetState(_planeState);
     }
 
     public void SetBoatState()
     {
+        FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxChangeState);
         SetState(_boatState);
     }
 
@@ -256,13 +260,19 @@ public class Player : MonoBehaviour
                 planePath.Add(_boardPrefab.GetCellPrefab(c));
         }
 
-        bool success = BoardPiecePrefab.Move(targetCell, OnMove, forceFailMovement, boatPath, planePath: planePath);
+        bool success = BoardPiecePrefab.Move(targetCell, OnMove, forceFailMovement, boatPath, planePath: planePath,
+            onStarCollected: () => StarAmount.Value += 1);
 
         if (success)
         {
             isMovementLocked = true;
-            FMODAudioManager.Instance.PlayMove();
-            targetCell.ShakeCell();
+            if (boatPath == null && planePath == null)
+                FMODAudioManager.Instance.PlayStepSound(targetCell.Cell.Terrain, targetCell.Cell.IsFragile);
+            const float hopDuration = 0.44f;
+            float shakeDelay = boatPath != null ? boatPath.Count * hopDuration
+                             : planePath != null ? planePath.Count * hopDuration
+                             : 0.5f;
+            targetCell.ShakeCell(shakeDelay);
             _movesPerForm[type]--;
             OnMovesLeftChanged?.Invoke(type, _movesPerForm[type]);
 
@@ -283,6 +293,7 @@ public class Player : MonoBehaviour
         if (!lastRecord.HasValue)
             return;
 
+        FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxUndo);
         OnUndoHistoryChange?.Invoke(_boardPrefab.Board.BoardHistory.Count);
         BoardPiecePrefab.CancelMove();
         BoardPiecePrefab.BoardPiece.OccupiedCell.Value.FreePiece();
@@ -395,10 +406,7 @@ public class Player : MonoBehaviour
         _pulseSequence.Play();
     }
 
-    private void OnCollectStar()
-    {
-        StarAmount.Value += 1;
-    }
+    private void OnCollectStar() { }
 
     private void OnMove()
     {

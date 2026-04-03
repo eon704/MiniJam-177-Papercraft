@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class StateCardUI : MonoBehaviour,
     IPointerEnterHandler, IPointerExitHandler,
-    IPointerDownHandler, IPointerUpHandler
+    IPointerDownHandler
 {
     [SerializeField] private Player.StateType stateType;
     [SerializeField] private Player player;
@@ -34,6 +34,7 @@ public class StateCardUI : MonoBehaviour,
     private Tween _moveTween;
     private Tween _idleTween;
     private bool _stretchLocked; // true after click — no re-stretch until pointer exits
+    private bool _isStretched;
 
     private void Awake()
     {
@@ -91,6 +92,7 @@ public class StateCardUI : MonoBehaviour,
     public void OnPointerExit(PointerEventData eventData)
     {
         _stretchLocked = false;
+       
         SnapBack();
     }
 
@@ -101,18 +103,17 @@ public class StateCardUI : MonoBehaviour,
             PlayErrorAnim();
             return;
         }
-        FMODAudioManager.Instance.PlayCard();
         _stretchLocked = true;
         SnapBackQuiet();
     }
-
-    public void OnPointerUp(PointerEventData eventData) { }
+    
 
     // ── Rubber band ────────────────────────────────────────────────────────
 
     private void StretchDown()
     {
         ResetToRest();
+        _isStretched = true;
         _scaleTween = transform.DOScale(stretchScale, stretchDuration).SetEase(Ease.OutCubic);
         _moveTween  = _rectTransform.DOAnchorPos(_restPos + Vector2.down * stretchDown, stretchDuration)
                                     .SetEase(Ease.OutCubic);
@@ -125,11 +126,15 @@ public class StateCardUI : MonoBehaviour,
         _moveTween?.Kill();
         _scaleTween = transform.DOScale(1f, snapDuration).SetEase(Ease.OutElastic);
         _moveTween  = _rectTransform.DOAnchorPos(_restPos, snapDuration).SetEase(Ease.OutElastic);
+        if (_isStretched)
+            FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxStateCardUnselected);
+        _isStretched = false;
     }
 
     // Click — quiet return, no bounce
     private void SnapBackQuiet()
     {
+        _isStretched = false;
         _scaleTween?.Kill();
         _moveTween?.Kill();
         _scaleTween = transform.DOScale(1f, 0.18f).SetEase(Ease.OutQuad);
@@ -151,6 +156,7 @@ public class StateCardUI : MonoBehaviour,
 
     private void PlayErrorAnim()
     {
+        FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxError);
         DOTween.Kill(_rectTransform);
         _rectTransform.DOShakeAnchorPos(0.35f, new Vector2(12f, 0f), 22, 0, false, true);
     }

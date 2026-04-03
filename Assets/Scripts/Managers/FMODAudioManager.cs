@@ -7,18 +7,40 @@ using VCA = FMOD.Studio.VCA;
 public class FMODAudioManager : Singleton<FMODAudioManager>
 {
     [Header("SFX Events")]
-    [SerializeField] private EventReference sfxMove;
-    [SerializeField] private EventReference sfxChangeState;
-    [SerializeField] private EventReference sfxClick;
-    [SerializeField] private EventReference sfxCard;
-    [SerializeField] private EventReference sfxBubble;
-    [SerializeField] private EventReference sfxPop;
-    [SerializeField] private EventReference sfxWin;
-    [SerializeField] private EventReference sfxLose;
-    [SerializeField] private EventReference sfxBoardSpawn;
-    [SerializeField] private EventReference sfxExplosion;
-    [SerializeField] private EventReference sfxFireSplash;
-    [SerializeField] private EventReference sfxCellShake;
+    [SerializeField] public EventReference sfxChangeState;
+    [SerializeField] public EventReference sfxClick;
+    [SerializeField] public EventReference sfxUndo;
+    [SerializeField] public EventReference sfxReset;
+    [SerializeField] public EventReference sfxError;
+    [SerializeField] public EventReference sfxHover;
+    [SerializeField] public EventReference sfxStateCardUnselected;
+    
+
+    [Header("Step Sounds (per terrain)")]
+    [SerializeField] public EventReference sfxStepDefault;
+    [SerializeField] public EventReference sfxStepFragile;
+    [SerializeField] public EventReference sfxStepWater;
+    [SerializeField] public EventReference sfxStepStone;
+    [SerializeField] public EventReference sfxStepFire;
+    [SerializeField] public EventReference sfxStepLava;
+    [SerializeField] public EventReference sfxStepIce;
+    [SerializeField] public EventReference sfxCellCollapse;
+    [SerializeField] public EventReference sfxStarPickUp;
+    [SerializeField] public EventReference sfxPop;
+    [SerializeField] public EventReference sfxFireSplash;
+    [SerializeField] public EventReference sfxExplosion;
+    [SerializeField] public EventReference sfxVolcanoLaunch;
+    [SerializeField] public EventReference sfxIceFreeze;
+    [SerializeField] public EventReference sfxBoardSpawn;
+    [SerializeField] public EventReference sfxUIEntrance;
+    [SerializeField] public EventReference sfxPanelShow;
+    [SerializeField] public EventReference sfxPanelHide;
+    [SerializeField] public EventReference sfxCardPunch;
+    [SerializeField] public EventReference sfxMovesDecrease;
+    [SerializeField] public EventReference sfxStarReveal;
+    [SerializeField] public EventReference sfxWinScreen;
+    [SerializeField] public EventReference sfxWin;
+    [SerializeField] public EventReference sfxLose;
 
     [Header("Music Events")]
     [SerializeField] private EventReference musicForest;
@@ -26,17 +48,14 @@ public class FMODAudioManager : Singleton<FMODAudioManager>
     [SerializeField] private EventReference musicSnow;
     [SerializeField] private EventReference musicCave;
     [SerializeField] private EventReference musicOcean;
+    
 
     private EventInstance _currentMusicInstance;
     private BiomeType _currentBiome = BiomeType.None;
 
     private const string VcaSfx   = "vca:/SFX";
     private const string VcaMusic = "vca:/Music";
-
-    protected override void Awake()
-    {
-        base.Awake();
-    }
+    
 
     private void Start()
     {
@@ -57,24 +76,31 @@ public class FMODAudioManager : Singleton<FMODAudioManager>
 
     // ── SFX ───────────────────────────────────────────────────────────────
 
-    public void PlayMove()        => PlayOneShot(sfxMove);
-    public void PlayChangeState() => PlayOneShot(sfxChangeState);
-    public void PlayClick()       => PlayOneShot(sfxClick);
-    public void PlayCard()        => PlayOneShot(sfxCard);
-    public void PlayBubble()      => PlayOneShot(sfxBubble);
-    public void PlayPop()         => PlayOneShot(sfxPop);
-    public void PlayWin()         => PlayOneShot(sfxWin);
-    public void PlayLose()        => PlayOneShot(sfxLose);
-    public void PlayBoardSpawn()  => PlayOneShot(sfxBoardSpawn);
-    public void PlayExplosion()   => PlayOneShot(sfxExplosion);
-    public void PlayFireSplash()  => PlayOneShot(sfxFireSplash);
-    public void PlayCellShake()   => PlayOneShot(sfxCellShake);
-
-    private void PlayOneShot(EventReference eventRef)
+    public void PlayOneShot(EventReference eventRef)
     {
         if (eventRef.IsNull) return;
         RuntimeManager.PlayOneShot(eventRef);
     }
+
+    public void PlayStepSound(TerrainType terrain, bool isFragile = false)
+    {
+        if (isFragile)
+        {
+            PlayOneShot(sfxStepFragile);
+            return;
+        }
+        EventReference sfx = terrain switch
+        {
+            TerrainType.Water => sfxStepWater,
+            TerrainType.Stone => sfxStepStone,
+            TerrainType.Fire  => sfxStepFire,
+            TerrainType.Lava  => sfxStepLava,
+            TerrainType.Ice   => sfxStepIce,
+            _                 => sfxStepDefault,
+        };
+        PlayOneShot(sfx);
+    }
+
 
     // ── Music ─────────────────────────────────────────────────────────────
 
