@@ -297,6 +297,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26cf8ac4992ca0d4ab8b17bea5a6afab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &1845708679236002911
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5367758904030782743}
+  m_Layer: 0
+  m_Name: X+
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5367758904030782743
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1845708679236002911}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.5, y: -2.3649998, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4618305834201929693}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2066598238264051354
 GameObject:
   m_ObjectHideFlags: 0
@@ -329,7 +360,42 @@ Transform:
   - {fileID: 5609416308973543323}
   - {fileID: 4490474917808769769}
   - {fileID: 1509365581679558259}
+  - {fileID: 5876250760036943835}
+  - {fileID: 936173773736839821}
+  - {fileID: 7484053406670133247}
+  - {fileID: 5367758904030782743}
   m_Father: {fileID: 4111734587096593915}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &3011790048391246389
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7484053406670133247}
+  m_Layer: 0
+  m_Name: X-
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7484053406670133247
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3011790048391246389}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.5, y: -2.3649998, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4618305834201929693}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3856250747123353752
 GameObject:
@@ -601,6 +667,37 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 1
   m_SpriteSortPoint: 0
+--- !u!1 &4412245435567221552
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 936173773736839821}
+  m_Layer: 0
+  m_Name: Z-
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &936173773736839821
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4412245435567221552}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -2.3649998, z: -0.5}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4618305834201929693}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5017350256644248335
 GameObject:
   m_ObjectHideFlags: 0
@@ -1097,6 +1194,37 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!1 &8682900102393840126
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5876250760036943835}
+  m_Layer: 0
+  m_Name: Z+
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5876250760036943835
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8682900102393840126}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -2.365, z: 0.5}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4618305834201929693}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &9064440686004666796
 GameObject:
   m_ObjectHideFlags: 0
@@ -6445,7 +6573,23 @@ PrefabInstance:
     - target: {fileID: 4340151347088592933, guid: e5124ad561cc1224f92845093cc1d859, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 008541be8ad8b3f42a5318e1c4a73d1c, type: 2}
+      objectReference: {fileID: 2100000, guid: a59b1d4f7f107bd4fbb1af92ec3f97c8, type: 2}
+    - target: {fileID: 4564353555719446423, guid: e5124ad561cc1224f92845093cc1d859, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4858523512526984459, guid: e5124ad561cc1224f92845093cc1d859, type: 3}
+      propertyPath: ShowDebug
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4858523512526984459, guid: e5124ad561cc1224f92845093cc1d859, type: 3}
+      propertyPath: IncludeFaces
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4858523512526984459, guid: e5124ad561cc1224f92845093cc1d859, type: 3}
+      propertyPath: RealtimeUpdates
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8025858088868960061, guid: e5124ad561cc1224f92845093cc1d859, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -6489,8 +6633,70 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1867870862658196772, guid: e5124ad561cc1224f92845093cc1d859, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5174910404600311660}
+    - targetCorrespondingSourceObject: {fileID: 1867870862658196772, guid: e5124ad561cc1224f92845093cc1d859, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1408967254130309302}
   m_SourcePrefab: {fileID: 100100000, guid: e5124ad561cc1224f92845093cc1d859, type: 3}
+--- !u!1 &4275384608403955074 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1867870862658196772, guid: e5124ad561cc1224f92845093cc1d859, type: 3}
+  m_PrefabInstance: {fileID: 2502089346545109158}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &5174910404600311660
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4275384608403955074}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 735c111b4651ae542871c43e41ee7f8e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.VFX.WaterfallVolume
+  WaterfallFaces: -1
+  TopFoam: 15
+  BottomFoam: 0
+  SubdivisionsHeight: 6
+  SubdivisionsWidth: 1
+  FaceOffset: 0.005
+  WaterfallMaterial: {fileID: 2100000, guid: cb1f86752b3b7844a82fe8050b6ec005, type: 2}
+  AutoSyncFromWater: 0
+  WaterAlpha: 0.559
+  WaterColorOverride: {r: 0, g: 0.5921569, b: 0.69803923, a: 0.75}
+  FoamColorOverride: {r: 1, g: 1, b: 1, a: 1}
+  FlowSpeed: 0.4
+  NormalStrength: 0.07
+  TileX: 0.25
+  TileY: 1
+  FoamWidth: 0.074
+  FoamNoise: 1.19
+  FoamThreshold: 0.217
+  FoamSharpness: 0.01
+  FoamSpeed: 0.4
+  BodyFoam: 0.081
+  Turbulence: 0.276
+--- !u!114 &1408967254130309302
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4275384608403955074}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a431f65a228f5446a767f8fe4920a1d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.VFX.WaterfallSplash
+  SplashPrefab: {fileID: 2331263943377526953, guid: 35eefddf52f548a4c8a1981e007a6818, type: 3}
+  PointNegX: {fileID: 7484053406670133247}
+  PointPosX: {fileID: 5367758904030782743}
+  PointNegZ: {fileID: 936173773736839821}
+  PointPosZ: {fileID: 5876250760036943835}
 --- !u!4 &5609416308973543323 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8025858088868960061, guid: e5124ad561cc1224f92845093cc1d859, type: 3}
