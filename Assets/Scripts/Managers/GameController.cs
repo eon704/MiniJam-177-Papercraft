@@ -149,23 +149,31 @@ public class GameController : MonoBehaviour
         foreach (var (volcanoPos, targetPos, countdown) in _biomeCellSystem.GetNextLavaData())
         {
             _volcanoWarningCells.Add(targetPos);
-            BoardPrefab.GetCellPrefab(targetPos)?.SetVolcanoWarning(true, countdown);
+            CellPrefab targetCell = BoardPrefab.GetCellPrefab(targetPos);
+            targetCell?.SetVolcanoWarning(true, countdown);
 
-            if (volcanoArcMaterial == null) continue;
-            CellPrefab volcanoCell = BoardPrefab.GetCellPrefab(volcanoPos);
-            CellPrefab targetCell  = BoardPrefab.GetCellPrefab(targetPos);
-            if (volcanoCell == null || targetCell == null) continue;
+            if (volcanoArcMaterial != null)
+            {
+                CellPrefab volcanoCell = BoardPrefab.GetCellPrefab(volcanoPos);
+                if (volcanoCell != null && targetCell != null)
+                {
+                    Vector3 from = volcanoCell.VolcanoTop != null
+                        ? volcanoCell.VolcanoTop.position
+                        : volcanoCell.transform.position + Vector3.up;
+                    Vector3 to = targetCell.ExplosionWorldPosition;
 
-            Vector3 from = volcanoCell.VolcanoTop != null
-                ? volcanoCell.VolcanoTop.position
-                : volcanoCell.transform.position + Vector3.up;
-            Vector3 to = targetCell.ExplosionWorldPosition;
+                    var go = new GameObject("VolcanoArcPreview");
+                    var preview = go.AddComponent<VolcanoArcPreview>();
+                    preview.Draw(from, to, volcanoArcHeight, countdown, volcanoArcMaterial);
+                    if (_eruptionActive) go.SetActive(false);
+                    _arcPreviews.Add(preview);
+                }
+            }
 
-            var go = new GameObject("VolcanoArcPreview");
-            var preview = go.AddComponent<VolcanoArcPreview>();
-            preview.Draw(from, to, volcanoArcHeight, countdown, volcanoArcMaterial);
-            if (_eruptionActive) go.SetActive(false);
-            _arcPreviews.Add(preview);
+            // Border is enabled AFTER the arc is drawn so they appear together.
+            // Skipped during active eruption — re-enabled once projectile lands.
+            if (!_eruptionActive)
+                targetCell?.EnableVolcanoBorder(countdown);
         }
     }
 
@@ -175,6 +183,8 @@ public class GameController : MonoBehaviour
         _eruptionActive = true;
         foreach (var p in _arcPreviews)
             if (p != null) p.gameObject.SetActive(false);
+        foreach (var pos in _volcanoWarningCells)
+            BoardPrefab.GetCellPrefab(pos)?.DisableVolcanoBorder();
 
         PlayerPrefab.StartEruption();
 
@@ -236,6 +246,9 @@ public class GameController : MonoBehaviour
         _eruptionActive = false;
         foreach (var p in _arcPreviews)
             if (p != null) p.gameObject.SetActive(true);
+        if (_biomeCellSystem != null)
+            foreach (var (_, wPos, cd) in _biomeCellSystem.GetNextLavaData())
+                BoardPrefab.GetCellPrefab(wPos)?.EnableVolcanoBorder(cd);
         PlayerPrefab.EndEruption();
     }
 

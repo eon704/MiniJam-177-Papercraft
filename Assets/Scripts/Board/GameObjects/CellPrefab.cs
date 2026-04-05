@@ -23,6 +23,7 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     [SerializeField] private GameObject splash;
     [SerializeField] private GameObject fireSplash;
     [SerializeField] private ParticleSystem fragileStepDust;
+    [SerializeField] private SpriteRenderer volcanoBorderSprite;
 
     public Transform VolcanoTop => volcanoTop;
 
@@ -39,6 +40,11 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     private static readonly Color ColorWarning = new Color(1.0f, 0.25f, 0.0f, 1.0f);
     private static readonly Color ColorPath    = new Color(0.9f, 0.85f, 0.2f, 0.65f);
 
+    // Matches VolcanoArcPreview CoreNormal/CoreUrgent colours and PulsePeriod
+    private static readonly Color BorderNormal = new Color(1.00f, 0.60f, 0.00f, 1.00f);
+    private static readonly Color BorderUrgent = new Color(1.00f, 0.15f, 0.00f, 1.00f);
+    private const float BorderHalfPeriod = 0.325f; // half of arc PulsePeriod (0.65f)
+
     private bool _isReachable;
     private bool _isHovered;
     private bool _isPathPreview;
@@ -47,6 +53,7 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     private System.Action _onStarCollected;
     private bool _hasVolcanoWarning;
     private Tween _pulseTween;
+    private Tween _borderPulseTween;
 
     private float starDefaultScale;
     private Vector3 _originalLocalPosition;
@@ -79,6 +86,7 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         _originalLocalPosition = transform.localPosition;
 
         if (highlightSprite != null) highlightSprite.enabled = false;
+        if (volcanoBorderSprite != null) volcanoBorderSprite.enabled = false;
 
         Cell.Item.OnChanged += OnCellItemChange;
         player = newPlayer;
@@ -138,15 +146,44 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     {
         _hasVolcanoWarning = active;
         _volcanoCountdown = countdown;
-        if (_isHovered) return;
         if (active)
-            StartWarningPulse();
-        else if (!_isReachable && !_isPathPreview)
         {
-            _pulseTween?.Kill();
-            _pulseTween = null;
-            if (highlightSprite != null) highlightSprite.enabled = false;
+            if (!_isHovered) StartWarningPulse();
         }
+        else
+        {
+            DisableVolcanoBorder();
+            if (!_isHovered && !_isReachable && !_isPathPreview)
+            {
+                _pulseTween?.Kill();
+                _pulseTween = null;
+                if (highlightSprite != null) highlightSprite.enabled = false;
+            }
+        }
+    }
+
+    /// <summary>Call after the arc line has been drawn to this cell.</summary>
+    public void EnableVolcanoBorder(int countdown)
+    {
+        if (volcanoBorderSprite == null) return;
+        bool urgent    = countdown <= 1;
+        Color bright   = urgent ? BorderUrgent : BorderNormal;
+        float minAlpha = urgent ? 0.10f : 0.15f;
+        _borderPulseTween?.Kill();
+        volcanoBorderSprite.enabled = true;
+        volcanoBorderSprite.color = bright;
+        _borderPulseTween = volcanoBorderSprite
+            .DOFade(minAlpha, BorderHalfPeriod)
+            .SetEase(Ease.InOutSine)
+            .SetLoops(-1, LoopType.Yoyo);
+    }
+
+    public void DisableVolcanoBorder()
+    {
+        if (volcanoBorderSprite == null) return;
+        _borderPulseTween?.Kill();
+        _borderPulseTween = null;
+        volcanoBorderSprite.enabled = false;
     }
 
     public void SetIsPathPreview(bool isPreview)
@@ -177,15 +214,19 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     public void ResetPulse()
     {
-        if (highlightSprite == null) return;
         _isHovered = false;
         _isPathPreview = false;
         _pulseTween?.Kill();
         _pulseTween = null;
         if (_hasVolcanoWarning)
-            StartWarningPulse();
+        {
+            if (highlightSprite != null) StartWarningPulse();
+            // border is managed externally — don't touch it here
+        }
         else
-            highlightSprite.enabled = false;
+        {
+            if (highlightSprite != null) highlightSprite.enabled = false;
+        }
     }
 
     private void StartLocalPulse(Color color, float duration)
@@ -410,11 +451,11 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     private void OnCellCollapseReset()
     {
-        
         collapseSequence?.Kill();
         collapseSequence = null;
         DOTween.Kill(transform);
         transform.localRotation = Quaternion.identity;
+        transform.localScale = Vector3.one;
         transform.localPosition = _originalLocalPosition + Vector3.down * 3f;
         collapseSequence = DOTween.Sequence();
         collapseSequence.Append(transform.DOLocalMoveY(_originalLocalPosition.y, 0.3f).SetEase(Ease.OutBack));
@@ -471,6 +512,7 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
                 Cell.OnCollapseReset -= OnCellCollapseReset;
             }
         }
+        _borderPulseTween?.Kill();
         rippleSequence?.Kill();
         collapseSequence?.Kill();
         DOTween.Kill(this);

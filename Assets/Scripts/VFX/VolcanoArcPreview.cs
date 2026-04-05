@@ -68,16 +68,6 @@ public class VolcanoArcPreview : MonoBehaviour
             lr.SetPositions(pts);
             lr.startColor = lr.endColor = bright;
 
-            DOTween.To(
-                    () => lr.startColor,
-                    col => { lr.startColor = col; lr.endColor = col; },
-                    dim,
-                    PulsePeriod * 0.5f)
-                .SetDelay(delay)
-                .SetLoops(-1, LoopType.Yoyo)
-                .SetEase(Ease.InOutSine)
-                .SetLink(go);
-
             _dashObjects.Add(go);
         }
     }
