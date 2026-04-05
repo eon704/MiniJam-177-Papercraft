@@ -60,7 +60,7 @@ public class BoardPiecePrefab : MonoBehaviour
         transform.DOKill();
         // Snap back to current cell in case a previous fail-shake was interrupted mid-animation
         if (CurrentCell != null)
-            transform.position = CurrentCell.transform.position + Vector3.up * heightOffset;
+            transform.position = CurrentCell.FinalWorldPosition + Vector3.up * heightOffset;
         if (_boatCoroutine != null)
         {
             StopCoroutine(_boatCoroutine);
@@ -104,7 +104,7 @@ public class BoardPiecePrefab : MonoBehaviour
                 foreach (var c in planePath) c.ResetStarVisualDeferred();
         }
 
-        Vector3 targetPos = targetCell.transform.position + Vector3.up * heightOffset;
+        Vector3 targetPos = targetCell.FinalWorldPosition + Vector3.up * heightOffset;
 
         if (success)
         {
@@ -168,7 +168,7 @@ public class BoardPiecePrefab : MonoBehaviour
                 onLastHopStart?.Invoke();
 
             Vector3 from = transform.position;
-            Vector3 to = cell.transform.position + Vector3.up * heightOffset;
+            Vector3 to = cell.FinalWorldPosition + Vector3.up * heightOffset;
             Vector3 mid = (from + to) / 2f + Vector3.up * 0.6f;
 
             FMODAudioManager.Instance.PlayStepSound(cell.Cell.Terrain, cell.Cell.IsFragile);
@@ -208,7 +208,7 @@ public class BoardPiecePrefab : MonoBehaviour
                 onLastHopStart?.Invoke();
 
             Vector3 from = transform.position;
-            Vector3 to = cell.transform.position + Vector3.up * heightOffset;
+            Vector3 to = cell.FinalWorldPosition + Vector3.up * heightOffset;
             Vector3 mid = (from + to) / 2f + Vector3.up * 0.6f;
 
             FMODAudioManager.Instance.PlayStepSound(cell.Cell.Terrain, cell.Cell.IsFragile);
@@ -250,7 +250,7 @@ public class BoardPiecePrefab : MonoBehaviour
             return;
         }
 
-        Vector3 targetPos = targetCell.transform.position + Vector3.up * heightOffset;
+        Vector3 targetPos = targetCell.FinalWorldPosition + Vector3.up * heightOffset;
 
         if (tweenMovement)
         {

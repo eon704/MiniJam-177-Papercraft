@@ -56,6 +56,11 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     public Cell Cell { get; private set; }
     private Player player;
 
+    /// <summary>World position the cell will occupy when fully spawned (ignores spawn animation offset).</summary>
+    public Vector3 FinalWorldPosition => transform.parent != null
+        ? transform.parent.TransformPoint(_originalLocalPosition)
+        : _originalLocalPosition;
+
     private Sequence rippleSequence;
     private Sequence collapseSequence;
     private bool _collapseVisualDeferred;
