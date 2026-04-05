@@ -8,6 +8,7 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     IPointerUpHandler
 {
     [SerializeField] public List<GameObject> hintObjects;
+    [SerializeField] private GameObject mainModel;
     [SerializeField] private GameObject fire;
     [SerializeField] private GameObject water;
     [SerializeField] private GameObject stone;
@@ -36,9 +37,12 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     private static readonly Color ColorRed     = new Color(1.0f, 0.2f, 0.2f, 0.85f);
     private static readonly Color ColorOrange  = new Color(1.0f, 0.6f, 0.0f, 0.8f);
     private static readonly Color ColorWarning = new Color(1.0f, 0.25f, 0.0f, 1.0f);
+    private static readonly Color ColorPath    = new Color(0.9f, 0.85f, 0.2f, 0.65f);
 
     private bool _isReachable;
     private bool _isHovered;
+    private bool _isPathPreview;
+    private int  _volcanoCountdown = 1;
     private bool _starPendingVisual;
     private System.Action _onStarCollected;
     private bool _hasVolcanoWarning;
@@ -88,11 +92,10 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         star.SetActive(Cell.Item == CellItem.Star);
         starDefaultScale = star.transform.localScale.x;
 
-        transform.localScale = Vector3.zero;
+        transform.localPosition = _originalLocalPosition + Vector3.down * 3f;
         rippleSequence = DOTween.Sequence();
         rippleSequence.AppendInterval(delay);
-        rippleSequence.Append(transform.DOScale(1f, 1.6f).SetEase(Ease.OutBack));
-        rippleSequence.Join(transform.DOShakeRotation(1.6f, new Vector3(0f, 8f, 0f), 12, 90f, true));
+        rippleSequence.Append(transform.DOLocalMoveY(_originalLocalPosition.y, 1.6f).SetEase(Ease.OutBack));
         rippleSequence.Play();
     }
 
@@ -126,13 +129,14 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         return trigger;
     }
 
-    public void SetVolcanoWarning(bool active)
+    public void SetVolcanoWarning(bool active, int countdown = 1)
     {
         _hasVolcanoWarning = active;
+        _volcanoCountdown = countdown;
         if (_isHovered) return;
         if (active)
             StartWarningPulse();
-        else if (!_isReachable)
+        else if (!_isReachable && !_isPathPreview)
         {
             _pulseTween?.Kill();
             _pulseTween = null;
@@ -140,10 +144,37 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         }
     }
 
+    public void SetIsPathPreview(bool isPreview)
+    {
+        _isPathPreview = isPreview;
+        if (highlightSprite == null || _isHovered || _isReachable) return;
+
+        if (isPreview)
+        {
+            _pulseTween?.Kill();
+            highlightSprite.enabled = true;
+            highlightSprite.color = ColorPath;
+            _pulseTween = highlightSprite
+                .DOFade(0.1f, 0.3f)
+                .SetEase(Ease.InOutSine)
+                .SetLoops(-1, LoopType.Yoyo);
+        }
+        else
+        {
+            _pulseTween?.Kill();
+            _pulseTween = null;
+            if (_hasVolcanoWarning)
+                StartWarningPulse();
+            else
+                highlightSprite.enabled = false;
+        }
+    }
+
     public void ResetPulse()
     {
         if (highlightSprite == null) return;
         _isHovered = false;
+        _isPathPreview = false;
         _pulseTween?.Kill();
         _pulseTween = null;
         if (_hasVolcanoWarning)
@@ -167,18 +198,20 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     private void StartWarningPulse()
     {
         if (_isHovered) return;
+        // Faster pulse = fewer moves until eruption; smoother fade range
+        float speed   = _volcanoCountdown <= 1 ? 0.38f : _volcanoCountdown == 2 ? 0.58f : 0.80f;
+        float minAlpha = _volcanoCountdown <= 1 ? 0.30f : 0.42f;
         _pulseTween?.Kill();
         highlightSprite.enabled = true;
         highlightSprite.color = ColorWarning;
         _pulseTween = highlightSprite
-            .DOFade(0.25f, 0.4f)
-            .SetEase(Ease.InOutSine)
+            .DOFade(minAlpha, speed)
+            .SetEase(Ease.InOutQuad)
             .SetLoops(-1, LoopType.Yoyo);
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-
         if (highlightSprite == null || player == null || player.isMovementLocked) return;
 
         _isHovered = true;
@@ -186,6 +219,8 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         _pulseTween = null;
         highlightSprite.color = _isReachable ? ColorGreen : ColorRed;
         highlightSprite.enabled = true;
+
+        player.ShowHoverPath(this);
     }
 
     public void OnPointerExit(PointerEventData eventData)
@@ -193,11 +228,16 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         if (highlightSprite == null) return;
 
         _isHovered = false;
+        player?.HideHoverPath();
 
         if (_isReachable)
         {
             highlightSprite.color = ColorBlue;
             highlightSprite.enabled = true;
+        }
+        else if (_isPathPreview)
+        {
+            SetIsPathPreview(true);
         }
         else if (_hasVolcanoWarning)
         {
@@ -246,6 +286,8 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     private void ApplyTerrainVisuals(TerrainType terrain)
     {
+        bool isWater = terrain == TerrainType.Water;
+        if (mainModel != null) mainModel.SetActive(!isWater);
         if (start != null) start.SetActive(terrain == TerrainType.Start);
         if (end != null) end.SetActive(terrain == TerrainType.End);
         // If a dedicated lava object is assigned use it; otherwise fall back to fire visuals
@@ -368,10 +410,9 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         collapseSequence = null;
         DOTween.Kill(transform);
         transform.localRotation = Quaternion.identity;
-        transform.localPosition = _originalLocalPosition;
-        transform.localScale = Vector3.zero;
+        transform.localPosition = _originalLocalPosition + Vector3.down * 3f;
         collapseSequence = DOTween.Sequence();
-        collapseSequence.Append(transform.DOScale(1f, 0.3f).SetEase(Ease.OutBack));
+        collapseSequence.Append(transform.DOLocalMoveY(_originalLocalPosition.y, 0.3f).SetEase(Ease.OutBack));
     }
 
     [SerializeField] private float explosionDuration = 1f;

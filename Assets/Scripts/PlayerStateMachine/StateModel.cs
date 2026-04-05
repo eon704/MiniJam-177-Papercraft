@@ -75,6 +75,8 @@ public static class StateModelInfo
                 new List<TerrainType>
                 {
                     TerrainType.Default,
+                    TerrainType.Fire,
+                    TerrainType.Lava,
                     TerrainType.Start,
                     TerrainType.End
                 },

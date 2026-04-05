@@ -773,6 +773,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4624429571059139239, guid: e6a05bcc319f249cc9c8a4b9299d92e9, type: 3}
+      propertyPath: starsPanel
+      value: 
+      objectReference: {fileID: 1780332647}
+    - target: {fileID: 4624429571059139239, guid: e6a05bcc319f249cc9c8a4b9299d92e9, type: 3}
       propertyPath: boardPrefab
       value: 
       objectReference: {fileID: 1189492192}
@@ -980,6 +984,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06ba6e50a1d24325ac761767d58421eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!224 &1780332647 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 8659866087509486613, guid: e6a05bcc319f249cc9c8a4b9299d92e9, type: 3}
+  m_PrefabInstance: {fileID: 1780332643}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1857053164
 GameObject:
   m_ObjectHideFlags: 0
@@ -1193,6 +1202,10 @@ PrefabInstance:
       propertyPath: winScreen
       value: 
       objectReference: {fileID: 1780332644}
+    - target: {fileID: 5853703254329433214, guid: 9b91cb75ffea040578771d321da2431e, type: 3}
+      propertyPath: volcanoArcMaterial
+      value: 
+      objectReference: {fileID: 2100000, guid: 598c3939cadf3584f972acdf34e08e54, type: 2}
     - target: {fileID: 5853703254329433214, guid: 9b91cb75ffea040578771d321da2431e, type: 3}
       propertyPath: <BoardPrefab>k__BackingField
       value: 

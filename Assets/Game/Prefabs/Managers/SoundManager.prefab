@@ -103,11 +103,11 @@ MonoBehaviour:
     Path: event:/SFX/Steps/sfxStepDefault
   sfxStepFragile:
     Guid:
-      Data1: -1710043101
-      Data2: 1298851411
-      Data3: 757475221
-      Data4: 527362772
-    Path: event:/SFX/Steps/sfxFragileCell
+      Data1: 338048540
+      Data2: 1267406579
+      Data3: 388031897
+      Data4: 1569180161
+    Path: event:/SFX/steps/sfxStepStone
   sfxStepWater:
     Guid:
       Data1: 1228400486
@@ -173,18 +173,18 @@ MonoBehaviour:
     Path: 
   sfxExplosion:
     Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
+      Data1: -729047451
+      Data2: 1170566520
+      Data3: 507027840
+      Data4: -684028656
+    Path: event:/SFX/UI/VolcanoExplosion
   sfxVolcanoLaunch:
     Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
+      Data1: 221243504
+      Data2: 1196754527
+      Data3: 1630815139
+      Data4: -741514910
+    Path: event:/SFX/VolcanoLaunch
   sfxIceFreeze:
     Guid:
       Data1: 0

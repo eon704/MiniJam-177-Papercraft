@@ -59,6 +59,34 @@ public class BiomeCellSystem
         }
     }
 
+    /// <summary>Returns (targetCell, movesUntilEruption) for each active volcano.</summary>
+    public IEnumerable<(Vector2Int target, int countdown)> GetNextLavaTargetsWithCountdown()
+    {
+        foreach (var cfg in _volcanoConfigs)
+        {
+            if (cfg.LavaSequence == null || cfg.LavaSequence.Count == 0)
+                continue;
+            int index = _volcanoLavaIndexes[cfg.Position];
+            if (index >= cfg.LavaSequence.Count)
+                continue;
+            yield return (cfg.LavaSequence[index], _volcanoCountdowns[cfg.Position]);
+        }
+    }
+
+    /// <summary>Returns (volcanoPos, targetCell, movesUntilEruption) for each active volcano.</summary>
+    public IEnumerable<(Vector2Int volcanoPos, Vector2Int target, int countdown)> GetNextLavaData()
+    {
+        foreach (var cfg in _volcanoConfigs)
+        {
+            if (cfg.LavaSequence == null || cfg.LavaSequence.Count == 0)
+                continue;
+            int index = _volcanoLavaIndexes[cfg.Position];
+            if (index >= cfg.LavaSequence.Count)
+                continue;
+            yield return (cfg.Position, cfg.LavaSequence[index], _volcanoCountdowns[cfg.Position]);
+        }
+    }
+
     // ── Volcano ────────────────────────────────────────────────────────────
 
     private void TickVolcanoes()
@@ -90,12 +118,17 @@ public class BiomeCellSystem
         if (targetCell == null || targetCell.Terrain == TerrainType.Volcano || targetCell.Terrain == TerrainType.Lava)
             return;
 
-        // Apply lava immediately — no waiting for visuals
+        // Lava is applied later, when the projectile visually lands (via ApplyLava)
+        OnEruptionVisual?.Invoke(cfg.Position, targetPos);
+    }
+
+    /// <summary>Called by GameController when the projectile lands to apply lava to the model.</summary>
+    public void ApplyLava(Vector2Int targetPos)
+    {
+        Cell targetCell = _board.GetCell(targetPos);
+        if (targetCell == null || targetCell.Terrain == TerrainType.Lava) return;
         _currentDynamicTerrain[targetPos] = TerrainType.Lava;
         targetCell.SetTerrain(TerrainType.Lava);
-
-        // Notify subscribers to play the visual (non-blocking)
-        OnEruptionVisual?.Invoke(cfg.Position, targetPos);
     }
 
     // ── Ice sources ────────────────────────────────────────────────────────

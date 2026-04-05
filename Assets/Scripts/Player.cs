@@ -17,6 +17,8 @@ public class Player : MonoBehaviour
     public readonly UnityEvent OnPlayerDied = new();
     public readonly UnityEvent<StateType> OnTransformation = new();
     public readonly UnityEvent<StateType, int> OnMovesLeftChanged = new();
+    public readonly UnityEvent OnAllMovesExhausted = new();
+    public readonly UnityEvent OnNoMovesAvailable = new();
 
     private int MovesLeftForCurrentState => _movesPerForm[(_stateMachine.CurrentState as IState)!.StateType];
 
@@ -40,6 +42,7 @@ public class Player : MonoBehaviour
     private Sequence _pulseSequence;
     private Tween _spinTween;
     public bool isMovementLocked;
+    public bool isStateChangeLocked;
 
     private BoardPrefab _boardPrefab;
     private BiomeCellSystem _biomeCellSystem;
@@ -58,6 +61,7 @@ public class Player : MonoBehaviour
         {
             _unlockAfterEruption = false;
             isMovementLocked = false;
+            isStateChangeLocked = false;
         }
     }
 
@@ -78,6 +82,7 @@ public class Player : MonoBehaviour
 
     private Dictionary<StateType, int> _movesPerForm;
     private List<CellPrefab> _moveOptionCells;
+    private List<CellPrefab> _hoverPathCells = new();
     private bool _isInitialized;
 
     public void Initialize(BoardPiece boardPiece, CellPrefab startCell, BoardPrefab boardPrefab)
@@ -178,6 +183,12 @@ public class Player : MonoBehaviour
             reachableCellsByDistance[distance].Add(cellPrefab);
         }
 
+        if (_moveOptionCells.Count == 0)
+        {
+            OnNoMovesAvailable?.Invoke();
+            return;
+        }
+
         var duration = 1f;
         var delay = duration / 4;
         _pulseSequence?.Kill();
@@ -200,24 +211,28 @@ public class Player : MonoBehaviour
 
     public void SetCraneState()
     {
+        if (isStateChangeLocked) return;
         FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxChangeState);
         SetState(_craneState);
     }
 
     public void SetFrogState()
     {
+        if (isStateChangeLocked) return;
         FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxChangeState);
         SetState(_frogState);
     }
 
     public void SetPlaneState()
     {
+        if (isStateChangeLocked) return;
         FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxChangeState);
         SetState(_planeState);
     }
 
     public void SetBoatState()
     {
+        if (isStateChangeLocked) return;
         FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxChangeState);
         SetState(_boatState);
     }
@@ -261,11 +276,14 @@ public class Player : MonoBehaviour
         }
 
         bool success = BoardPiecePrefab.Move(targetCell, OnMove, forceFailMovement, boatPath, planePath: planePath,
-            onStarCollected: () => StarAmount.Value += 1);
+            onStarCollected: () => StarAmount.Value += 1,
+            onFireCell: cell => { cell.ActivateFireSplash(); OnPlayerDied?.Invoke(); },
+            onLastHopStart: () => isStateChangeLocked = false);
 
         if (success)
         {
             isMovementLocked = true;
+            isStateChangeLocked = true;
             if (boatPath == null && planePath == null)
                 FMODAudioManager.Instance.PlayStepSound(targetCell.Cell.Terrain, targetCell.Cell.IsFragile);
             const float hopDuration = 0.44f;
@@ -279,8 +297,12 @@ public class Player : MonoBehaviour
             if (_movesPerForm[type] <= 0)
                 OnOutOfMoves();
 
-            _biomeCellSystem?.OnPlayerMoved();
-            AddHistoryRecord();
+            bool allExhausted = true;
+            foreach (var kvp in _movesPerForm)
+                if (kvp.Value > 0) { allExhausted = false; break; }
+            if (allExhausted)
+                OnAllMovesExhausted?.Invoke();
+
         }
     }
 
@@ -315,7 +337,7 @@ public class Player : MonoBehaviour
 
         isMovementLocked = true;
         BoardPiecePrefab.Teleport(_boardPrefab.GetCellPrefab(playerPosition), tweenMovement: true,
-            onComplete: () => isMovementLocked = false);
+            onComplete: () => { isMovementLocked = false; isStateChangeLocked = false; });
         SetState(GetState(playerState));
 
         foreach (var cell in starsRemaining)
@@ -362,9 +384,51 @@ public class Player : MonoBehaviour
         _stateMachine.Tick();
     }
 
+    public void ShowHoverPath(CellPrefab hoveredCell)
+    {
+        HideHoverPath();
+
+        IState currentState = (_stateMachine.CurrentState as IState)!;
+        StateType type = currentState.StateType;
+
+        List<CellPrefab> pathCells = new();
+
+        if (type == StateType.Boat && hoveredCell.Cell.Terrain == TerrainType.Water)
+        {
+            Cell landing = BoardPiecePrefab.BoardPiece.FindBoatLandingCell(hoveredCell.Cell);
+            if (landing != null)
+            {
+                var boatPath = BoardPiecePrefab.BoardPiece.GetBoatPathCells(landing);
+                foreach (var c in boatPath)
+                    pathCells.Add(_boardPrefab.GetCellPrefab(c));
+            }
+        }
+        else if (type == StateType.Plane)
+        {
+            var planePath = BoardPiecePrefab.BoardPiece.GetPlanePathCells(hoveredCell.Cell);
+            foreach (var c in planePath)
+                pathCells.Add(_boardPrefab.GetCellPrefab(c));
+        }
+
+        foreach (var cell in pathCells)
+        {
+            if (cell == hoveredCell) continue;
+            cell.SetIsPathPreview(true);
+            _hoverPathCells.Add(cell);
+        }
+    }
+
+    public void HideHoverPath()
+    {
+        foreach (var cell in _hoverPathCells)
+            cell.SetIsPathPreview(false);
+        _hoverPathCells.Clear();
+    }
+
     private void OnDisable()
     {
         _pulseSequence?.Kill();
+        HideHoverPath();
     }
 
     private void SetState(IState state)
@@ -410,6 +474,10 @@ public class Player : MonoBehaviour
 
     private void OnMove()
     {
+        // Tick biome (volcano/ice) only after the player's movement animation completes
+        _biomeCellSystem?.OnPlayerMoved();
+        AddHistoryRecord();
+
         Cell targetCell = BoardPiecePrefab.CurrentCell.Cell;
         if (targetCell.Terrain == TerrainType.End)
         {
@@ -430,6 +498,7 @@ public class Player : MonoBehaviour
         else
         {
             isMovementLocked = false;
+            isStateChangeLocked = false;
         }
     }
 }

@@ -54,7 +54,8 @@ public class BoardPiecePrefab : MonoBehaviour
 
     public bool Move(CellPrefab targetCell, UnityAction onComplete = null, bool forceFailMovement = false,
         List<CellPrefab> boatPath = null, float arcHeight = 1.5f, List<CellPrefab> planePath = null,
-        System.Action onStarCollected = null)
+        System.Action onStarCollected = null, System.Action<CellPrefab> onFireCell = null,
+        System.Action onLastHopStart = null)
     {
         transform.DOKill();
         // Snap back to current cell in case a previous fail-shake was interrupted mid-animation
@@ -109,11 +110,11 @@ public class BoardPiecePrefab : MonoBehaviour
         {
             if (boatPath != null && boatPath.Count > 0)
             {
-                _boatCoroutine = StartCoroutine(AnimateBoatPath(boatPath, onComplete, startCell));
+                _boatCoroutine = StartCoroutine(AnimateBoatPath(boatPath, onComplete, startCell, onLastHopStart));
             }
             else if (planePath != null && planePath.Count > 0)
             {
-                _boatCoroutine = StartCoroutine(AnimatePlanePath(planePath, onComplete, startCell));
+                _boatCoroutine = StartCoroutine(AnimatePlanePath(planePath, onComplete, startCell, onFireCell, onLastHopStart));
             }
             else
             {
@@ -147,10 +148,12 @@ public class BoardPiecePrefab : MonoBehaviour
         return success;
     }
 
-    private IEnumerator AnimateBoatPath(List<CellPrefab> path, UnityAction onComplete, CellPrefab startCell)
+    private IEnumerator AnimateBoatPath(List<CellPrefab> path, UnityAction onComplete, CellPrefab startCell,
+        System.Action onLastHopStart = null)
     {
         const float hopDuration = 0.44f;
         bool isFirstHop = true;
+        CellPrefab lastCell = path[path.Count - 1];
         foreach (var cell in path)
         {
             // Start cell: collapse and dust as the player jumps off it
@@ -160,6 +163,9 @@ public class BoardPiecePrefab : MonoBehaviour
                 startCell?.PlayStepDust();
                 isFirstHop = false;
             }
+
+            if (cell == lastCell && path.Count > 1)
+                onLastHopStart?.Invoke();
 
             Vector3 from = transform.position;
             Vector3 to = cell.transform.position + Vector3.up * heightOffset;
@@ -183,20 +189,23 @@ public class BoardPiecePrefab : MonoBehaviour
         onComplete?.Invoke();
     }
 
-    private IEnumerator AnimatePlanePath(List<CellPrefab> path, UnityAction onComplete, CellPrefab startCell)
+    private IEnumerator AnimatePlanePath(List<CellPrefab> path, UnityAction onComplete, CellPrefab startCell,
+        System.Action<CellPrefab> onFireCell = null, System.Action onLastHopStart = null)
     {
         const float hopDuration = 0.44f;
         bool isFirstHop = true;
         CellPrefab lastCell = path[path.Count - 1];
         foreach (var cell in path)
         {
-            // Start cell: collapse and dust as the player jumps off it
             if (isFirstHop)
             {
                 startCell?.TriggerDeferredCollapseVisual();
                 startCell?.PlayStepDust();
                 isFirstHop = false;
             }
+
+            if (cell == lastCell && path.Count > 1)
+                onLastHopStart?.Invoke();
 
             Vector3 from = transform.position;
             Vector3 to = cell.transform.position + Vector3.up * heightOffset;
@@ -210,11 +219,20 @@ public class BoardPiecePrefab : MonoBehaviour
                 .OnComplete(() => hopDone = true);
 
             yield return new WaitUntil(() => hopDone);
-            // Intermediate cells collapse after the player passes through them
+
             if (cell != lastCell)
                 cell.TriggerDeferredCollapseVisual();
             cell.TriggerStarPickupVisual();
             cell.PlayStepDust();
+
+            // Промежуточная клетка с огнём/лавой — убиваем игрока и прерываем путь
+            if (cell != lastCell &&
+                (cell.Cell.Terrain == TerrainType.Fire || cell.Cell.Terrain == TerrainType.Lava))
+            {
+                _boatCoroutine = null;
+                onFireCell?.Invoke(cell);
+                yield break;
+            }
         }
 
         _boatCoroutine = null;

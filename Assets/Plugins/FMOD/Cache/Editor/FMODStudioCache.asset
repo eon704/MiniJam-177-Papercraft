@@ -74,6 +74,60 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 1671
+--- !u!114 &-8226095340980411656
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/SFX/VolcanoLaunch
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/SFX/VolcanoLaunch
+  Guid:
+    Data1: 221243504
+    Data2: 1196754527
+    Data3: 1630815139
+    Data4: -741514910
+  Banks:
+  - {fileID: -3401605974714665752}
+  IsStream: 0
+  Is3D: 0
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 2352
+--- !u!114 &-7393031791358818792
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/SFX/UI/VolcanoExplosion
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/SFX/UI/VolcanoExplosion
+  Guid:
+    Data1: -729047451
+    Data2: 1170566520
+    Data3: 507027840
+    Data4: -684028656
+  Banks:
+  - {fileID: -3401605974714665752}
+  IsStream: 0
+  Is3D: 0
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 1704
 --- !u!114 &-7206949750979360924
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -197,10 +251,10 @@ MonoBehaviour:
   Path: Assets/Audio/MiniJam177/Paperbound/Build/Desktop/Master.strings.bank
   Name: Master.strings
   StudioPath: bank:/Master.strings
-  lastModified: 639108081548857167
+  lastModified: 639108457983450451
   FileSizes:
   - Name: Desktop
-    Value: 1900
+    Value: 1990
   Exists: 1
 --- !u!114 &-3401605974714665752
 MonoBehaviour:
@@ -217,10 +271,10 @@ MonoBehaviour:
   Path: Assets/Audio/MiniJam177/Paperbound/Build/Desktop/SFX.bank
   Name: SFX
   StudioPath: bank:/SFX
-  lastModified: 639108082607846571
+  lastModified: 639108457984584321
   FileSizes:
   - Name: Desktop
-    Value: 422336
+    Value: 478240
   Exists: 1
 --- !u!114 &-3336651331967939158
 MonoBehaviour:
@@ -318,7 +372,7 @@ MonoBehaviour:
   Path: Assets/Audio/MiniJam177/Paperbound/Build/Desktop/Master.bank
   Name: Master
   StudioPath: bank:/Master
-  lastModified: 639108081548847090
+  lastModified: 639108457983435240
   FileSizes:
   - Name: Desktop
     Value: 1352
@@ -362,13 +416,15 @@ MonoBehaviour:
   - {fileID: 524238685690478067}
   - {fileID: -8585809271232345067}
   - {fileID: -6358840350168866826}
+  - {fileID: -7393031791358818792}
+  - {fileID: -8226095340980411656}
   EditorParameters: []
   MasterBanks:
   - {fileID: -1143309927678050552}
   StringsBanks:
   - {fileID: -5918169276352794300}
   cacheVersion: 131858
-  cacheTime: 639108082607846571
+  cacheTime: 639108457984584321
   SerializableEventsDict:
   - key: event:/SFX/Click
     index: 0
@@ -412,6 +468,10 @@ MonoBehaviour:
     index: 19
   - key: event:/SFX/UI/Error
     index: 20
+  - key: event:/SFX/UI/VolcanoExplosion
+    index: 21
+  - key: event:/SFX/VolcanoLaunch
+    index: 22
 --- !u!114 &257023826720464898
 MonoBehaviour:
   m_ObjectHideFlags: 0

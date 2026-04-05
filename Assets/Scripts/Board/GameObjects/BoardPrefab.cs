@@ -19,6 +19,8 @@ public class BoardPrefab : MonoBehaviour
 
     private CellPrefab[,] cellPrefabs;
 
+    private const int GridSize = 8;
+
     public void Initialize(LevelData levelData)
     {
         LevelData = levelData;
@@ -74,25 +76,35 @@ public class BoardPrefab : MonoBehaviour
 
     private void InstantiateBoard()
     {
-        int centerX = Size.x / 2;
-        int centerY = Size.y / 2;
+        int offsetX = (GridSize - Size.x) / 2;
+        int offsetY = (GridSize - Size.y) / 2;
         float longestDelay = 0f;
 
-        for (int x = 0; x < Size.x; x++)
+        for (int gx = 0; gx < GridSize; gx++)
         {
-            for (int y = 0; y < Size.y; y++)
+            for (int gy = 0; gy < GridSize; gy++)
             {
-                Cell cell = Board.CellArray[x, y];
-                Vector3 cellPosition = new Vector3(x * cellSize, 0f, y * cellSize);
-                const float delay = 0.3f;
+                Vector3 cellPosition = new Vector3(gx * cellSize, 0f, gy * cellSize);
                 Quaternion randomRotation = Quaternion.Euler(0, Random.Range(0, 4) * 90f, 0);
-                cellPrefabs[x, y] = Instantiate(cellPrefab, cellPosition, randomRotation, transform);
-                cellPrefabs[x, y].Initialize(cell, player, delay);
+                CellPrefab cp = Instantiate(cellPrefab, cellPosition, randomRotation, transform);
 
-                if (cell.Terrain == TerrainType.Empty)
-                    continue;
+                int bx = gx - offsetX;
+                int by = gy - offsetY;
 
-                longestDelay = delay;
+                if (bx >= 0 && bx < Size.x && by >= 0 && by < Size.y)
+                {
+                    Cell cell = Board.CellArray[bx, by];
+                    const float delay = 0.3f;
+                    cp.Initialize(cell, player, delay);
+                    cellPrefabs[bx, by] = cp;
+
+                    if (cell.Terrain != TerrainType.Empty)
+                        longestDelay = delay;
+                }
+                else
+                {
+                    cp.gameObject.SetActive(false);
+                }
             }
         }
 
@@ -107,8 +119,7 @@ public class BoardPrefab : MonoBehaviour
 
     private void ComputeBoardCenterPosition()
     {
-        float centerX = (Size.x - 1) * cellSize / 2f;
-        float centerZ = (Size.y - 1) * cellSize / 2f;
-        WorldCenter = new Vector3(centerX, 0f, centerZ);
+        float center = (GridSize - 1) * cellSize / 2f;
+        WorldCenter = new Vector3(center, 0f, center);
     }
 }

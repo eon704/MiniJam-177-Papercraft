@@ -11,6 +11,7 @@ public class FormsUIAnimator : MonoBehaviour
 
     [Header("Panels (top to bottom drop order)")]
     [SerializeField] private RectTransform infoPanel;
+    [SerializeField] private RectTransform starsPanel;
     [SerializeField] private RectTransform previewPanel;
     [SerializeField] private List<RectTransform> formCards; // L to R order
 
@@ -25,12 +26,15 @@ public class FormsUIAnimator : MonoBehaviour
     [SerializeField] private float dropDistance = 220f;
 
     private Vector2 _infoPanelOrigin;
+    private Vector2 _starsPanelOrigin;
     private Vector2 _previewOrigin;
     private readonly List<Vector2> _cardOrigins = new();
 
     private void Awake()
     {
         _infoPanelOrigin = infoPanel.anchoredPosition;
+        if (starsPanel != null)
+            _starsPanelOrigin = starsPanel.anchoredPosition;
         _previewOrigin = previewPanel.anchoredPosition;
         foreach (var card in formCards)
             _cardOrigins.Add(card.anchoredPosition);
@@ -48,6 +52,8 @@ public class FormsUIAnimator : MonoBehaviour
     private void HideAll()
     {
         infoPanel.anchoredPosition = _infoPanelOrigin + Vector2.up * dropDistance;
+        if (starsPanel != null)
+            starsPanel.anchoredPosition = _starsPanelOrigin + Vector2.up * dropDistance;
         previewPanel.anchoredPosition = _previewOrigin + Vector2.up * dropDistance;
         for (int i = 0; i < formCards.Count; i++)
             formCards[i].anchoredPosition = _cardOrigins[i] + Vector2.up * dropDistance;
@@ -58,10 +64,15 @@ public class FormsUIAnimator : MonoBehaviour
         FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxUIEntrance);
         var seq = DOTween.Sequence();
 
-        // 1. InfoPanel falls first — "hanging sign" bounce
+        // 1. InfoPanel + StarsPanel fall simultaneously — "hanging sign" bounce
         seq.Append(
             infoPanel.DOAnchorPos(_infoPanelOrigin, panelDropDuration)
                      .SetEase(Ease.OutBounce));
+
+        if (starsPanel != null)
+            seq.Insert(0f,
+                starsPanel.DOAnchorPos(_starsPanelOrigin, panelDropDuration)
+                          .SetEase(Ease.OutBounce));
 
         // 2. Cards fall L to R, overlapping with panel settle
         float cardsStart = panelDropDuration * 0.45f;

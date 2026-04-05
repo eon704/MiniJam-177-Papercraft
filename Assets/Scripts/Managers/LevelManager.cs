@@ -102,5 +102,6 @@ public class LevelManager : Singleton<LevelManager>
 
         NextLevelIndex = CurrentLevelIndex + 1;
         PlayerPrefs.SetInt("NextLevelIndex", NextLevelIndex);
+        PlayerPrefs.Save();
     }
 }

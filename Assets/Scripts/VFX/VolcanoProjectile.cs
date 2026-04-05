@@ -12,7 +12,7 @@ public class VolcanoProjectile : MonoBehaviour
     {
         transform.position = from;
 
-        Vector3 mid = Vector3.Lerp(from, to, 0.5f) + Vector3.up * overrideArcHeight;
+        Vector3 mid = Vector3.Lerp(from, to, 0.15f) + Vector3.up * overrideArcHeight;
 
         transform
             .DOPath(new[] { mid, to }, overrideDuration, PathType.CatmullRom)
