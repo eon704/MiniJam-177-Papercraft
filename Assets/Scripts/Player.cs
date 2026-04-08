@@ -328,8 +328,13 @@ public class Player : MonoBehaviour
         foreach (var kvp in _movesPerForm)
             OnMovesLeftChanged?.Invoke(kvp.Key, kvp.Value);
 
-        // Restore fragile cells BEFORE teleporting so the target cell exists
-        _boardPrefab.Board.ResetFragileCells();
+        // Restore fragile cells BEFORE teleporting so the target cell exists.
+        // Only reset cells NOT in the target collapsed list — cells that stay collapsed
+        // must not be animated (reset → instant-collapse would trigger two animations).
+        var targetCollapsed = new System.Collections.Generic.HashSet<Vector2Int>(lastRecord.Value.CollapsedCells);
+        foreach (var cell in _boardPrefab.Board.FragileCells)
+            if (!targetCollapsed.Contains(cell.Position))
+                cell.ResetCollapse();
         foreach (var pos in lastRecord.Value.CollapsedCells)
             _boardPrefab.Board.GetCell(pos)?.CollapseInstant();
 

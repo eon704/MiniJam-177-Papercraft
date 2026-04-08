@@ -819,7 +819,7 @@ PlayerSettings:
     PS5: DOTWEEN
     QNX: DOTWEEN
     ReservedCFE: DOTWEEN
-    Standalone: DOTWEEN
+    Standalone: DOTWEEN;ALLIN13DSHADER_URP
     VisionOS: DOTWEEN
     WebGL: DOTWEEN;LEVELPLAY_DEPENDENCIES_INSTALLED
     Windows Store Apps: DOTWEEN

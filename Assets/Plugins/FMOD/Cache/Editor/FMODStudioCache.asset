@@ -15,10 +15,10 @@ MonoBehaviour:
   Path: Assets/Audio/MiniJam177/Paperbound/Build/Desktop/Music.bank
   Name: Music
   StudioPath: bank:/Music
-  lastModified: 639107679177583900
+  lastModified: 639111870928884989
   FileSizes:
   - Name: Desktop
-    Value: 752288
+    Value: 752320
   Exists: 1
 --- !u!114 &-8585809271232345067
 MonoBehaviour:
@@ -251,7 +251,7 @@ MonoBehaviour:
   Path: Assets/Audio/MiniJam177/Paperbound/Build/Desktop/Master.strings.bank
   Name: Master.strings
   StudioPath: bank:/Master.strings
-  lastModified: 639108457983450451
+  lastModified: 639111864486105090
   FileSizes:
   - Name: Desktop
     Value: 1990
@@ -271,10 +271,10 @@ MonoBehaviour:
   Path: Assets/Audio/MiniJam177/Paperbound/Build/Desktop/SFX.bank
   Name: SFX
   StudioPath: bank:/SFX
-  lastModified: 639108457984584321
+  lastModified: 639111870929433221
   FileSizes:
   - Name: Desktop
-    Value: 478240
+    Value: 478624
   Exists: 1
 --- !u!114 &-3336651331967939158
 MonoBehaviour:
@@ -372,10 +372,10 @@ MonoBehaviour:
   Path: Assets/Audio/MiniJam177/Paperbound/Build/Desktop/Master.bank
   Name: Master
   StudioPath: bank:/Master
-  lastModified: 639108457983435240
+  lastModified: 639111864486095061
   FileSizes:
   - Name: Desktop
-    Value: 1352
+    Value: 1704
   Exists: 1
 --- !u!114 &11400000
 MonoBehaviour:
@@ -424,7 +424,7 @@ MonoBehaviour:
   StringsBanks:
   - {fileID: -5918169276352794300}
   cacheVersion: 131858
-  cacheTime: 639108457984584321
+  cacheTime: 639111870929433221
   SerializableEventsDict:
   - key: event:/SFX/Click
     index: 0

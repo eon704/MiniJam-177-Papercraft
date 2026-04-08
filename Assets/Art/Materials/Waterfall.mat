@@ -30,7 +30,12 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _BodyFoam: 0
     - _FlowSpeed: 0.09
+    - _FoamNoise: 2
+    - _FoamSharpness: 0.3
+    - _FoamSpeed: 0.3
+    - _FoamThreshold: 0.15
     - _FoamWidth: 0.073
     - _NormalStrength: 0.6
     - _TileX: 0.26

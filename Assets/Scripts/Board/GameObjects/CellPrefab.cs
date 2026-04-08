@@ -24,6 +24,7 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     [SerializeField] private GameObject fireSplash;
     [SerializeField] private ParticleSystem fragileStepDust;
     [SerializeField] private SpriteRenderer volcanoBorderSprite;
+    [SerializeField] private CellFragmentGroup fragmentGroup;
 
     public Transform VolcanoTop => volcanoTop;
 
@@ -48,6 +49,7 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     private bool _isReachable;
     private bool _isHovered;
     private bool _isPathPreview;
+    private bool _isCollapsed;
     private int  _volcanoCountdown = 1;
     private bool _starPendingVisual;
     private System.Action _onStarCollected;
@@ -101,6 +103,12 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         Cell.OnTerrainChanged += HandleTerrainChanged;
 
         ApplyTerrainVisuals(Cell.Terrain);
+
+        if (Cell.IsFragile && fragmentGroup != null)
+        {
+            mainModel.SetActive(false);
+            fragmentGroup.gameObject.SetActive(true);
+        }
 
         star.SetActive(Cell.Item == CellItem.Star);
         starDefaultScale = star.transform.localScale.x;
@@ -258,7 +266,7 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if (highlightSprite == null || player == null || player.isMovementLocked) return;
+        if (_isCollapsed || highlightSprite == null || player == null || player.isMovementLocked) return;
 
         _isHovered = true;
         _pulseTween?.Kill();
@@ -299,6 +307,7 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     public void OnPointerUp(PointerEventData eventData)
     {
+        if (_isCollapsed) return;
         player.Move(this);
     }
 
@@ -355,6 +364,9 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     private void HandleTerrainChanged(TerrainType oldTerrain, TerrainType newTerrain)
     {
+        // Если клетка обрушена и использует фрагменты — terrain вернётся в OnCellCollapseReset,
+        // иначе получим спрайт поверх рассыпавшейся колонны
+        if (fragmentGroup != null && Cell.IsCollapsed) return;
         ApplyTerrainVisuals(newTerrain);
     }
 
@@ -434,31 +446,79 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
             vibrato: 18, randomness: 60, snapping: false, fadeOut: true));
         // Пауза на краю
         collapseSequence.AppendInterval(0.1f);
-        // Падение вниз + уменьшение + лёгкий завал
-        collapseSequence.Append(transform.DOLocalMoveY(_originalLocalPosition.y - 3.5f, 0.7f).SetEase(Ease.InCubic));
-        collapseSequence.Join(transform.DOScale(Vector3.zero, 0.65f).SetEase(Ease.InQuad));
-        collapseSequence.Join(transform.DOLocalRotate(
-            new Vector3(Random.Range(-25f, 25f), Random.Range(-20f, 20f), Random.Range(-25f, 25f)),
-            0.65f, RotateMode.LocalAxisAdd).SetEase(Ease.InCubic));
+        if (fragmentGroup != null)
+        {
+            // Скрыть все оверлеи — transform не скалируется, поэтому прячем вручную
+            collapseSequence.AppendCallback(() =>
+            {
+                _isCollapsed = true;
+                if (_isHovered) { _isHovered = false; player?.HideHoverPath(); }
+                _pulseTween?.Kill();
+                _pulseTween = null;
+                _borderPulseTween?.Kill();
+                _borderPulseTween = null;
+                if (highlightSprite != null)     highlightSprite.enabled     = false;
+                if (volcanoBorderSprite != null)  volcanoBorderSprite.enabled  = false;
+                if (star != null)    star.SetActive(false);
+                if (fire != null)    fire.SetActive(false);
+                if (water != null)   water.SetActive(false);
+                if (stone != null)   stone.SetActive(false);
+                if (lava != null)    lava.SetActive(false);
+                if (ice != null)     ice.SetActive(false);
+                if (volcano != null) volcano.SetActive(false);
+                if (start != null)   start.SetActive(false);
+                if (end != null)     end.SetActive(false);
+                fragmentGroup.PlayCollapse();
+            });
+        }
+        else
+        {
+            // Падение вниз + уменьшение + лёгкий завал
+            collapseSequence.Append(transform.DOLocalMoveY(_originalLocalPosition.y - 3.5f, 0.7f).SetEase(Ease.InCubic));
+            collapseSequence.Join(transform.DOScale(Vector3.zero, 0.65f).SetEase(Ease.InQuad));
+            collapseSequence.Join(transform.DOLocalRotate(
+                new Vector3(Random.Range(-25f, 25f), Random.Range(-20f, 20f), Random.Range(-25f, 25f)),
+                0.65f, RotateMode.LocalAxisAdd).SetEase(Ease.InCubic));
+        }
     }
 
     private void OnCellCollapsedInstant()
     {
+        _isCollapsed = true;
+        if (_isHovered) { _isHovered = false; player?.HideHoverPath(); }
         collapseSequence?.Kill();
         collapseSequence = null;
-        transform.localScale = Vector3.zero;
+        if (fragmentGroup != null)
+            fragmentGroup.PlayCollapse();
+        else
+            transform.localScale = Vector3.zero;
+        // _collapseDelays при instant тоже сохранятся внутри PlayCollapse — undo отработает корректно
     }
 
     private void OnCellCollapseReset()
     {
+        _isCollapsed = false;
         collapseSequence?.Kill();
         collapseSequence = null;
         DOTween.Kill(transform);
         transform.localRotation = Quaternion.identity;
         transform.localScale = Vector3.one;
         transform.localPosition = _originalLocalPosition + Vector3.down * 3f;
-        collapseSequence = DOTween.Sequence();
-        collapseSequence.Append(transform.DOLocalMoveY(_originalLocalPosition.y, 0.3f).SetEase(Ease.OutBack));
+        if (fragmentGroup != null)
+        {
+            transform.localPosition = _originalLocalPosition;
+            // terrain показываем только после того как фрагменты долетели на место
+            fragmentGroup.ResetFragments(animated: true, onComplete: () =>
+            {
+                ApplyTerrainVisuals(Cell.Terrain);
+                mainModel.SetActive(false);
+            });
+        }
+        else
+        {
+            collapseSequence = DOTween.Sequence();
+            collapseSequence.Append(transform.DOLocalMoveY(_originalLocalPosition.y, 0.3f).SetEase(Ease.OutBack));
+        }
     }
 
     [SerializeField] private float explosionDuration = 1f;
