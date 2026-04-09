@@ -35,14 +35,14 @@ Material:
     - _FoamNoise: 2
     - _FoamSharpness: 0.3
     - _FoamSpeed: 0.3
-    - _FoamThreshold: 0.15
+    - _FoamThreshold: 0.32
     - _FoamWidth: 0.073
     - _NormalStrength: 0.6
     - _TileX: 0.26
     - _TileY: 0.41
     - _Turbulence: 0.125
     m_Colors:
-    - _FoamColor: {r: 1, g: 1, b: 1, a: 1}
+    - _FoamColor: {r: 0.8490566, g: 0.8490566, b: 0.8490566, a: 1}
     - _WaterColor: {r: 0.14117648, g: 0.8980393, b: 0.9960785, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
