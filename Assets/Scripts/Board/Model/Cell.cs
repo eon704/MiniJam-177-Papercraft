@@ -54,6 +54,12 @@ public class Cell
         Item.Value = CellItem.Star;
     }
 
+    /// <summary>Убрать звезду без события сбора (синхронизация с состоянием ядра).</summary>
+    public void RemoveStar()
+    {
+        Item.Value = CellItem.None;
+    }
+
     public void CollectStar()
     {
         Item.Value = CellItem.None;
@@ -71,6 +77,12 @@ public class Cell
 
         if (IsFragile && !IsCollapsed)
             Collapse();
+    }
+
+    /// <summary>Поставить фигурку без сбора звезды: звёзды собирает ядро правил, клетки лишь синхронизируются.</summary>
+    public void AssignPieceSilently(BoardPiece piece)
+    {
+        Piece = piece;
     }
 
     public void AssignPiece(BoardPiece piece)

@@ -1,110 +1,38 @@
 using System.Collections.Generic;
+using System.Linq;
+using Paperbound.Core;
 using UnityEngine;
 
+/// <summary>
+/// Направления и проходимые клетки форм для UI и генератора уровней.
+/// Источник — таблица Paperbound.Core.Forms; сами правила хода живут в Paperbound.Core.Rules.
+/// </summary>
 public static class StateModelInfo
 {
-    public static Dictionary<Player.StateType, StateModel> StateModels = new()
+    public static readonly Dictionary<Player.StateType, StateModel> StateModels = Build();
+
+    private static Dictionary<Player.StateType, StateModel> Build()
     {
+        var models = new Dictionary<Player.StateType, StateModel>();
+        for (int i = 0; i < Forms.Count; i++)
         {
-            Player.StateType.Default,
-            new StateModel(
-                Player.StateType.Default,
-                new List<Vector2Int>(),
-                new List<TerrainType>(),
-                MoveMode.Normal
-            )
-        },
-        {
-            Player.StateType.Crane,
-            new StateModel(
-                Player.StateType.Crane,
-                new List<Vector2Int>
-                {
-                    new Vector2Int(0, 1),
-                    new Vector2Int(0, -1),
-                    new Vector2Int(1, 0),
-                    new Vector2Int(-1, 0)
-                },
-                new List<TerrainType>
-                {
-                    TerrainType.Default,
-                    TerrainType.Stone,
-                    TerrainType.Fire,
-                    TerrainType.Lava,
-                    TerrainType.Ice,
-                    TerrainType.Start,
-                    TerrainType.End
-                },
-                MoveMode.Normal
-            )
-        },
-        {
-            Player.StateType.Frog,
-            new StateModel(
-                Player.StateType.Frog,
-                new List<Vector2Int>
-                {
-                    new Vector2Int(0, 2),
-                    new Vector2Int(0, -2),
-                    new Vector2Int(2, 0),
-                    new Vector2Int(-2, 0)
-                },
-                new List<TerrainType>
-                {
-                    TerrainType.Default,
-                    TerrainType.Fire,
-                    TerrainType.Lava,
-                    TerrainType.Ice,
-                    TerrainType.Start,
-                    TerrainType.End
-                },
-                MoveMode.FrogJump
-            )
-        },
-        {
-            Player.StateType.Plane,
-            new StateModel(
-                Player.StateType.Plane,
-                new List<Vector2Int>
-                {
-                    new Vector2Int(-1, 1),
-                    new Vector2Int(-1, -1),
-                    new Vector2Int(1, 1),
-                    new Vector2Int(1, -1)
-                },
-                new List<TerrainType>
-                {
-                    TerrainType.Default,
-                    TerrainType.Fire,
-                    TerrainType.Lava,
-                    TerrainType.Start,
-                    TerrainType.End
-                },
-                MoveMode.PlaneSlide
-            )
-        },
-        {
-            Player.StateType.Boat,
-            new StateModel(
-                Player.StateType.Boat,
-                new List<Vector2Int>
-                {
-                    new Vector2Int(-1, 0),
-                    new Vector2Int(1, 0),
-                    new Vector2Int(0, -1),
-                    new Vector2Int(0, 1)
-                },
-                new List<TerrainType>
-                {
-                    TerrainType.Default,
-                    TerrainType.Start,
-                    TerrainType.End,
-                    TerrainType.Fire,
-                    TerrainType.Lava
-                },
-                MoveMode.BoatSlide
-            )
+            FormDef def = Forms.Get((Form)i);
+            var type = (Player.StateType)i;
+            models[type] = new StateModel(
+                type,
+                def.Directions.Select(d => new Vector2Int(d.X, d.Y)).ToList(),
+                def.WalkableTerrain.ToList(),
+                ToMoveMode(def.Kind));
         }
+        return models;
+    }
+
+    private static MoveMode ToMoveMode(MoveKind kind) => kind switch
+    {
+        MoveKind.Jump => MoveMode.FrogJump,
+        MoveKind.Slide => MoveMode.PlaneSlide,
+        MoveKind.Sail => MoveMode.BoatSlide,
+        _ => MoveMode.Normal,
     };
 }
 

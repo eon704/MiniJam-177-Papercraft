@@ -41,11 +41,11 @@ public class LevelData : ScriptableObject
 
             defaultLevel.StartMovesPerForm = new List<MovePerFormEntry>()
             {
-                new() { State = Player.StateType.Default, Moves = -1 },
-                new() { State = Player.StateType.Crane,   Moves = -1 },
-                new() { State = Player.StateType.Plane,   Moves = -1 },
-                new() { State = Player.StateType.Boat,    Moves = -1 },
-                new() { State = Player.StateType.Frog,    Moves = -1 }
+                new() { State = Player.StateType.Default, Moves = 0 },
+                new() { State = Player.StateType.Crane,   Moves = 0 },
+                new() { State = Player.StateType.Plane,   Moves = 0 },
+                new() { State = Player.StateType.Boat,    Moves = 0 },
+                new() { State = Player.StateType.Frog,    Moves = 0 }
             };
             defaultLevel.cachedSolution = new List<SolutionStep>();
             return defaultLevel;
@@ -107,11 +107,20 @@ public class LevelData : ScriptableObject
                 return false;
             }
 
-            if (entry.Moves < -1)
+            if (entry.Moves < 0)
             {
-                Debug.LogError($"Invalid moves count for state {entry.State}: {entry.Moves}. Must be either -1 or a non-negative integer.");
+                Debug.LogError($"Invalid moves count for state {entry.State}: {entry.Moves}. Must be a non-negative integer (-1 is no longer supported).");
                 return false;
             }
+        }
+
+        // Общий валидатор ядра (размер поля, расписания и т.д.).
+        List<string> coreErrors = Paperbound.Core.LevelValidator.Validate(this.ToLevelDef());
+        if (coreErrors.Count > 0)
+        {
+            foreach (string error in coreErrors)
+                Debug.LogError(error);
+            return false;
         }
 
         return true;

@@ -1,0 +1,167 @@
+using System;
+using System.Collections.Generic;
+
+namespace Paperbound.Core
+{
+    /// <summary>Переключаемые правила. Значения по умолчанию — решения по плану дизайна от 2026-11-10.</summary>
+    public sealed class RuleSet
+    {
+        /// <summary>Журавль, зайдя на лёд, едет в том же направлении до первой нелёдяной клетки. Лягушка не скользит.</summary>
+        public bool SlipperyIce = true;
+
+        /// <summary>Лодка собирает звёзды на воде по пути.</summary>
+        public bool BoatCollectsStars = true;
+
+        /// <summary>Гипотеза: самолёт пролетает над водой и пустотой (и обрушенными клетками), садится только на сушу.</summary>
+        public bool PlaneFliesOverWaterAndEmpty = false;
+
+        public static RuleSet Default => new();
+
+        /// <summary>Правила игры до переработки ядра (для сверки старых уровней).</summary>
+        public static RuleSet Legacy => new() { SlipperyIce = false, BoatCollectsStars = false, PlaneFliesOverWaterAndEmpty = false };
+
+        public RuleSet Clone() => (RuleSet)MemberwiseClone();
+    }
+
+    /// <summary>
+    /// Расписание общего вида: каждые Period ходов игрока источник меняет следующую клетку очереди на Result.
+    /// Вулкан: Result = Lava, Lethal = true. Источник льда: Result = Ice.
+    /// Прилив, ветер и т.п. добавляются как новые расписания без изменения состояния.
+    /// </summary>
+    public sealed class ScheduleDef
+    {
+        public string Kind = "generic";
+        public Pos Source;
+        public int Period = 1;
+        public List<Pos> Targets = new();
+        public TerrainType Result;
+        /// <summary>Игрок на клетке в момент срабатывания погибает.</summary>
+        public bool Lethal;
+        /// <summary>Очередь начинается заново после последней цели.</summary>
+        public bool Loop;
+        /// <summary>Клетки с этим террейном не меняются (индекс очереди всё равно сдвигается).</summary>
+        public List<TerrainType> Immune = new();
+
+        public static ScheduleDef Volcano(Pos source, int period, IEnumerable<Pos> targets) => new()
+        {
+            Kind = "volcano", Source = source, Period = period, Targets = new List<Pos>(targets),
+            Result = TerrainType.Lava, Lethal = true,
+            Immune = new List<TerrainType> { TerrainType.Volcano, TerrainType.Lava },
+        };
+
+        public static ScheduleDef IceSource(Pos source, int period, IEnumerable<Pos> targets) => new()
+        {
+            Kind = "ice", Source = source, Period = period, Targets = new List<Pos>(targets),
+            Result = TerrainType.Ice, Lethal = false,
+            Immune = new List<TerrainType> { TerrainType.Ice },
+        };
+    }
+
+    /// <summary>Движущаяся сущность на поле (короб, плот, страж). Типы появятся вместе с механиками биомов.</summary>
+    public sealed class EntityDef
+    {
+        public int Kind;
+        public Pos Position;
+        public Pos Direction;
+        public int Data;
+    }
+
+    /// <summary>Неизменяемое описание уровня для ядра. Строится из LevelData (Unity) или из текста (тесты).</summary>
+    public sealed class LevelDef
+    {
+        public readonly int Width;
+        public readonly int Height;
+        public readonly TerrainType[] Terrain;
+        public readonly bool[] Fragile;
+        /// <summary>Позиции звёзд; индекс в списке — бит в GameState.StarMask.</summary>
+        public readonly List<Pos> Stars = new();
+        /// <summary>Бюджет ходов по формам, индекс — (int)Form.</summary>
+        public readonly int[] Budget = new int[Forms.Count];
+        public readonly List<ScheduleDef> Schedules = new();
+        public readonly List<EntityDef> Entities = new();
+        public RuleSet Rules = RuleSet.Default;
+        public string Name = "";
+
+        public LevelDef(int width, int height)
+        {
+            if (width <= 0 || height <= 0) throw new ArgumentException("Level size must be positive");
+            Width = width;
+            Height = height;
+            Terrain = new TerrainType[width * height];
+            Fragile = new bool[width * height];
+        }
+
+        public int CellCount => Width * Height;
+        public bool InBounds(Pos p) => p.X >= 0 && p.X < Width && p.Y >= 0 && p.Y < Height;
+        public int Index(Pos p) => p.Y * Width + p.X;
+        public Pos PosOf(int index) => new(index % Width, index / Width);
+
+        public int StarIndex(Pos p)
+        {
+            for (int i = 0; i < Stars.Count; i++)
+                if (Stars[i] == p) return i;
+            return -1;
+        }
+
+        public int TotalBudget
+        {
+            get
+            {
+                int sum = 0;
+                for (int i = 1; i < Forms.Count; i++)
+                    if (Budget[i] > 0) sum += Budget[i];
+                return sum;
+            }
+        }
+
+        public Pos? Find(TerrainType t)
+        {
+            for (int i = 0; i < Terrain.Length; i++)
+                if (Terrain[i] == t) return PosOf(i);
+            return null;
+        }
+
+        public Pos Start => Find(TerrainType.Start) ?? throw new InvalidOperationException("Level has no Start cell");
+
+        public void SetBudget(Form form, int moves) => Budget[(int)form] = moves;
+
+        /// <summary>
+        /// Текстовая карта для тестов. Строка 0 — y = 0. Символы:
+        /// '.' Default, '#' Empty, 'S' Start, 'E' End, '~' Water, 'R' Stone, 'F' Fire, 'V' Volcano, 'L' Lava, 'I' Ice,
+        /// '*' звезда на Default, 'f' хрупкая Default, 'x' хрупкая со звездой, 'w' звезда на воде.
+        /// </summary>
+        public static LevelDef FromRows(params string[] rows)
+        {
+            int h = rows.Length;
+            int w = rows[0].Length;
+            var level = new LevelDef(w, h);
+            for (int y = 0; y < h; y++)
+            {
+                if (rows[y].Length != w) throw new ArgumentException($"Row {y} has length {rows[y].Length}, expected {w}");
+                for (int x = 0; x < w; x++)
+                {
+                    char c = rows[y][x];
+                    int i = y * w + x;
+                    TerrainType t = c switch
+                    {
+                        '#' => TerrainType.Empty,
+                        'S' => TerrainType.Start,
+                        'E' => TerrainType.End,
+                        '~' or 'w' => TerrainType.Water,
+                        'R' => TerrainType.Stone,
+                        'F' => TerrainType.Fire,
+                        'V' => TerrainType.Volcano,
+                        'L' => TerrainType.Lava,
+                        'I' => TerrainType.Ice,
+                        _ => TerrainType.Default,
+                    };
+                    level.Terrain[i] = t;
+                    level.Fragile[i] = c == 'f' || c == 'x';
+                    if (c == '*' || c == 'x' || c == 'w')
+                        level.Stars.Add(new Pos(x, y));
+                }
+            }
+            return level;
+        }
+    }
+}
