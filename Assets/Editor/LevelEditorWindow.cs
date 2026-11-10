@@ -77,7 +77,8 @@ public class LevelEditorWindow : EditorWindow
         TerrainType.Stone,
         TerrainType.Fire,
         TerrainType.Volcano,
-        TerrainType.Ice
+        TerrainType.Ice,
+        TerrainType.LilyPad
     };
 
     private List<CellItem> toolItemTypes = new() {
@@ -128,7 +129,8 @@ public class LevelEditorWindow : EditorWindow
     {
         { TerrainType.Volcano, new Color(0.4f, 0.1f, 0.1f) },
         { TerrainType.Lava,    new Color(1f,   0.3f, 0f) },
-        { TerrainType.Ice,     new Color(0.6f, 0.85f, 1f) }
+        { TerrainType.Ice,     new Color(0.6f, 0.85f, 1f) },
+        { TerrainType.LilyPad, new Color(0.35f, 0.7f, 0.35f) }
     };
 
     // Colors for different player states

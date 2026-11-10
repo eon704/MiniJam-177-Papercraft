@@ -27,7 +27,11 @@ namespace Paperbound.Core
         /// <summary>Фигурка оказалась на клетке пути (Index — номер клетки в Path).</summary>
         Enter,
         StarCollected,
+        /// <summary>Подобран предмет (ItemIndex), например листок +1 ход.</summary>
+        ItemCollected,
         Collapsed,
+        /// <summary>Кувшинка утонула и стала водой.</summary>
+        Sank,
         Died,
         Won,
         /// <summary>Расписание изменило клетку (Source — источник, Pos — цель).</summary>
@@ -41,6 +45,7 @@ namespace Paperbound.Core
         /// <summary>Номер клетки пути, на которой произошло событие; -1 — до первого шага (обрушение старта), Path.Count — после хода (расписания).</summary>
         public int PathIndex;
         public int StarIndex;
+        public int ItemIndex;
         public int ScheduleIndex;
         public Pos Source;
         public TerrainType OldTerrain;
@@ -136,7 +141,7 @@ namespace Paperbound.Core
                 {
                     TerrainType terrain = s.TerrainAt(level, c);
                     bool hole = IsHole(level, s, c);
-                    if (hole || terrain == TerrainType.Water)
+                    if (hole || TerrainInfo.IsWaterLike(terrain))
                     {
                         if (!overWater) break;
                         path.Add(c);
@@ -226,8 +231,9 @@ namespace Paperbound.Core
 
             MoveKind kind = Forms.Get(form).Kind;
 
-            // Уход с клетки: хрупкая рушится.
+            // Уход с клетки: хрупкая рушится, кувшинка тонет.
             Collapse(level, n, s.Player, -1, r);
+            Sink(level, n, s.Player, r);
 
             for (int i = 0; i < option.Path.Count; i++)
             {
@@ -239,7 +245,7 @@ namespace Paperbound.Core
 
                 if (!last)
                 {
-                    bool overHole = terrain == TerrainType.Empty || terrain == TerrainType.Water || n.Collapsed[idx];
+                    bool overHole = terrain == TerrainType.Empty || TerrainInfo.IsWaterLike(terrain) || n.Collapsed[idx];
                     switch (kind)
                     {
                         case MoveKind.Slide:
@@ -251,14 +257,17 @@ namespace Paperbound.Core
                                 return r;
                             }
                             CollectStar(level, n, c, i, r);
+                            CollectItem(level, n, c, i, r);
                             Collapse(level, n, c, i, r);
                             break;
                         case MoveKind.Sail:
                             if (level.Rules.BoatCollectsStars) CollectStar(level, n, c, i, r);
+                            CollectItem(level, n, c, i, r);
                             break;
                         case MoveKind.Step:
                             // Скольжение по льду: фигурка проходит клетку целиком.
                             CollectStar(level, n, c, i, r);
+                            CollectItem(level, n, c, i, r);
                             Collapse(level, n, c, i, r);
                             break;
                     }
@@ -267,6 +276,7 @@ namespace Paperbound.Core
 
                 n.Player = c;
                 CollectStar(level, n, c, i, r);
+                CollectItem(level, n, c, i, r);
                 if (terrain == TerrainType.End)
                 {
                     n.Status = GameStatus.Won;
@@ -305,6 +315,31 @@ namespace Paperbound.Core
             if (star < 0 || n.HasStar(star)) return;
             n.StarMask |= 1 << star;
             r.Events.Add(new MoveEvent { Type = MoveEventType.StarCollected, Pos = c, PathIndex = pathIndex, StarIndex = star });
+        }
+
+        private static void CollectItem(LevelDef level, GameState n, Pos c, int pathIndex, MoveResult r)
+        {
+            for (int k = 0; k < level.Items.Count; k++)
+            {
+                ItemDef item = level.Items[k];
+                if (item.Position != c || n.HasItem(k)) continue;
+                n.ItemMask |= 1 << k;
+                if (item.Kind == ItemKind.Leaf)
+                    n.Budget[(int)item.Form] += item.Amount;
+                r.Events.Add(new MoveEvent { Type = MoveEventType.ItemCollected, Pos = c, PathIndex = pathIndex, ItemIndex = k });
+            }
+        }
+
+        private static void Sink(LevelDef level, GameState n, Pos c, MoveResult r)
+        {
+            int idx = level.Index(c);
+            if (n.Terrain[idx] != TerrainType.LilyPad) return;
+            n.Terrain[idx] = TerrainType.Water;
+            r.Events.Add(new MoveEvent
+            {
+                Type = MoveEventType.Sank, Pos = c, PathIndex = -1,
+                OldTerrain = TerrainType.LilyPad, NewTerrain = TerrainType.Water,
+            });
         }
 
         private static void Collapse(LevelDef level, GameState n, Pos c, int pathIndex, MoveResult r)

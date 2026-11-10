@@ -297,6 +297,9 @@ public class Player : MonoBehaviour
         // Модель: новое состояние, клетки (без террейна расписаний — его покажет BiomeCellSystem), фигурка.
         Board.Commit(result.After);
         Board.SyncCells(result.After, syncTerrain: false, animateCollapse: true);
+        foreach (MoveEvent e in result.Events)
+            if (e.Type == MoveEventType.Sank)
+                Board.GetCell(e.Pos.ToVector())?.SetTerrain(e.NewTerrain); // кувшинка утонула
         BoardPiecePrefab.BoardPiece.TeleportTo(endCell.Cell);
         OnUndoHistoryChange?.Invoke(Board.BoardHistory.Count);
 

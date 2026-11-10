@@ -46,6 +46,8 @@ namespace Paperbound.Core
         public TerrainType[] Terrain;
         public bool[] Collapsed;
         public int StarMask;
+        /// <summary>Подобранные предметы (биты по индексу LevelDef.Items).</summary>
+        public int ItemMask;
         public int[] ScheduleCountdown;
         public int[] ScheduleIndex;
         public EntityState[] Entities;
@@ -67,6 +69,8 @@ namespace Paperbound.Core
         }
 
         public bool HasStar(int starIndex) => (StarMask & (1 << starIndex)) != 0;
+
+        public bool HasItem(int itemIndex) => (ItemMask & (1 << itemIndex)) != 0;
 
         public int BudgetOf(Form f) => Budget[(int)f];
 
@@ -123,7 +127,7 @@ namespace Paperbound.Core
         /// <summary>Равенство без учёта складок и счётчика ходов. includeForm — учитывать текущую форму.</summary>
         public bool SameAs(GameState o, bool includeForm)
         {
-            if (Player != o.Player || StarMask != o.StarMask || Status != o.Status) return false;
+            if (Player != o.Player || StarMask != o.StarMask || ItemMask != o.ItemMask || Status != o.Status) return false;
             if (includeForm && Form != o.Form) return false;
             return SeqEq(Budget, o.Budget) && SeqEq(Terrain, o.Terrain) && SeqEq(Collapsed, o.Collapsed)
                 && SeqEq(ScheduleCountdown, o.ScheduleCountdown) && SeqEq(ScheduleIndex, o.ScheduleIndex)
@@ -135,6 +139,7 @@ namespace Paperbound.Core
             var h = new HashCode();
             h.Add(Player);
             h.Add(StarMask);
+            h.Add(ItemMask);
             h.Add(Status);
             if (includeForm) h.Add(Form);
             foreach (int b in Budget) h.Add(b);

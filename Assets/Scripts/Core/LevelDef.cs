@@ -57,6 +57,21 @@ namespace Paperbound.Core
         };
     }
 
+    public enum ItemKind
+    {
+        /// <summary>Листок: +Amount ходов форме Form. Подбирается как звезда, самолёт и лодка берут на пролёте.</summary>
+        Leaf,
+    }
+
+    /// <summary>Предмет на клетке (кроме звёзд). Индекс в LevelDef.Items — бит в GameState.ItemMask.</summary>
+    public sealed class ItemDef
+    {
+        public ItemKind Kind = ItemKind.Leaf;
+        public Pos Position;
+        public Form Form = Form.Crane;
+        public int Amount = 1;
+    }
+
     /// <summary>Движущаяся сущность на поле (короб, плот, страж). Типы появятся вместе с механиками биомов.</summary>
     public sealed class EntityDef
     {
@@ -79,6 +94,7 @@ namespace Paperbound.Core
         public readonly int[] Budget = new int[Forms.Count];
         public readonly List<ScheduleDef> Schedules = new();
         public readonly List<EntityDef> Entities = new();
+        public readonly List<ItemDef> Items = new();
         public RuleSet Rules = RuleSet.Default;
         public string Name = "";
 
@@ -100,6 +116,13 @@ namespace Paperbound.Core
         {
             for (int i = 0; i < Stars.Count; i++)
                 if (Stars[i] == p) return i;
+            return -1;
+        }
+
+        public int ItemIndex(Pos p)
+        {
+            for (int i = 0; i < Items.Count; i++)
+                if (Items[i].Position == p) return i;
             return -1;
         }
 
@@ -153,6 +176,7 @@ namespace Paperbound.Core
                         'V' => TerrainType.Volcano,
                         'L' => TerrainType.Lava,
                         'I' => TerrainType.Ice,
+                        'P' => TerrainType.LilyPad,
                         _ => TerrainType.Default,
                     };
                     level.Terrain[i] = t;

@@ -52,6 +52,7 @@ namespace Paperbound.Core
             int allStars = level.Stars.Count;
             int allMask = allStars >= 31 ? -1 : (1 << allStars) - 1;
             var report = new SolveReport { TotalBudget = level.TotalBudget };
+            if (level.Find(TerrainType.Start) == null) return report;
             GameState start = GameState.Initial(level);
 
             // 1) BFS по числу ходов (форма не важна: складка бесплатна по бюджету).
@@ -201,6 +202,7 @@ namespace Paperbound.Core
         /// <summary>Кратчайшая (по ходам) последовательность до состояния, удовлетворяющего goal. null — нет.</summary>
         public static List<SolverStep> FindShortest(LevelDef level, System.Func<GameState, bool> goal, int stateLimit = DefaultStateLimit)
         {
+            if (level.Find(TerrainType.Start) == null) return null;
             GameState start = GameState.Initial(level);
             var parent = new Dictionary<GameState, (GameState prev, SolverStep step)>(StateComparer.IgnoreForm);
             var queue = new Queue<GameState>();

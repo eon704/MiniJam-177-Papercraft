@@ -13,8 +13,27 @@
 ```bash
 # .NET 8 SDK (в облачном контейнере: apt-get install -y dotnet-sdk-8.0)
 dotnet test Tools/Paperbound.Core.Tests
-dotnet run --project Tools/LevelReport -- Assets/Data/Levels level-report.md
+dotnet run --project Tools/LevelReport -- report Assets/Data/Levels level-report.md   # отчёт по уровням игры
+dotnet run --project Tools/LevelReport -- check path/to/level.pbl                     # проверить уровень (.pbl или .asset)
+dotnet run --project Tools/LevelReport -- export Assets/Data/Levels Assets/Data/Levels/Json out/   # экспорт в .pbl + сводка
 ```
+
+## Текстовый формат уровня (.pbl)
+
+Уровни проектируются в тексте и проверяются решателем; в .asset импортируются уже в Unity. Описание формата —
+в шапке `Assets/Scripts/Core/LevelText.cs`. Коротко: `size`, `budget`, блок `map` (символы старого формата Json:
+`0 + W S F x y V I`, плюс `L` лава и `P` кувшинка; верхняя строка — наибольший y), необязательный блок `marks`
+(`*` звезда, `f` хрупкая, `x` хрупкая со звездой), строки `leaf`, `volcano`, `ice`, `entity`, `rules`.
+
+Флаги качества (`LevelQuality`): «финиш слишком дешёвый» — финиш короче трети маршрута на 3★ или запас больше 3;
+«запаса нет» — бюджет ровно на кратчайший финиш. Запас считается без листков.
+
+## Механики Леса
+
+- Кувшинка (`TerrainType.LilyPad`): журавль и лягушка встают, лодка причаливает как к суше, самолёт не садится;
+  когда с неё уходят, становится водой.
+- Листок (`ItemDef`, `ItemKind.Leaf`): +N ходов указанной форме, подбирается как звезда; самолёт и лодка берут на пролёте.
+  В `LevelData` (Unity) листков пока нет — нужен импорт .pbl → .asset.
 
 `LangVersion` зафиксирован на 9.0, чтобы ядро не использовало синтаксис, которого нет в Unity.
 

@@ -65,14 +65,15 @@ namespace Paperbound.Core
             new(Form.Default, MoveKind.None, new Pos[0]),
             new(Form.Crane, MoveKind.Step, Orthogonal,
                 TerrainType.Default, TerrainType.Stone, TerrainType.Fire, TerrainType.Lava,
-                TerrainType.Ice, TerrainType.Start, TerrainType.End),
+                TerrainType.Ice, TerrainType.Start, TerrainType.End, TerrainType.LilyPad),
             new(Form.Plane, MoveKind.Slide, Diagonal,
                 TerrainType.Default, TerrainType.Fire, TerrainType.Lava, TerrainType.Start, TerrainType.End),
             new(Form.Boat, MoveKind.Sail, Orthogonal,
-                TerrainType.Default, TerrainType.Start, TerrainType.End, TerrainType.Fire, TerrainType.Lava),
+                TerrainType.Default, TerrainType.Start, TerrainType.End, TerrainType.Fire, TerrainType.Lava,
+                TerrainType.LilyPad),
             new(Form.Frog, MoveKind.Jump, OrthogonalTwo,
                 TerrainType.Default, TerrainType.Fire, TerrainType.Lava, TerrainType.Ice,
-                TerrainType.Start, TerrainType.End),
+                TerrainType.Start, TerrainType.End, TerrainType.LilyPad),
         };
 
         public static FormDef Get(Form form) => Table[(int)form];
@@ -90,8 +91,11 @@ namespace Paperbound.Core
 
     public static class TerrainInfo
     {
-        public const int Count = 10;
+        public const int Count = 11;
 
         public static bool IsDeadly(TerrainType t) => t == TerrainType.Fire || t == TerrainType.Lava;
+
+        /// <summary>Над этим самолёт пролетает только при RuleSet.PlaneFliesOverWaterAndEmpty.</summary>
+        public static bool IsWaterLike(TerrainType t) => t == TerrainType.Water || t == TerrainType.LilyPad;
     }
 }

@@ -9,5 +9,7 @@ public enum TerrainType
     Fire,
     Volcano,
     Lava,
-    Ice
+    Ice,
+    /// <summary>Кувшинка: островок на воде. Журавль и лягушка встают, лодка причаливает; тонет (становится водой), когда с неё уходят.</summary>
+    LilyPad
 }

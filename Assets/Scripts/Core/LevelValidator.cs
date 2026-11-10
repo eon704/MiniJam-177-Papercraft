@@ -41,6 +41,16 @@ namespace Paperbound.Core
             if (level.TotalBudget == 0)
                 errors.Add("Нет ни одного хода в бюджете.");
 
+            if (level.Stars.Count > 31) errors.Add("Больше 31 звезды не поддерживается.");
+            if (level.Items.Count > 31) errors.Add("Больше 31 предмета не поддерживается.");
+            foreach (ItemDef item in level.Items)
+            {
+                if (!level.InBounds(item.Position)) { errors.Add($"Предмет {item.Kind} {item.Position} за пределами поля."); continue; }
+                if (level.Terrain[level.Index(item.Position)] == TerrainType.Empty) errors.Add($"Предмет {item.Kind} {item.Position} лежит на пустой клетке.");
+                if (item.Kind == ItemKind.Leaf && (item.Form == Form.Default || item.Amount <= 0))
+                    errors.Add($"Листок {item.Position}: нужна форма (не лист) и положительное число ходов.");
+            }
+
             for (int i = 0; i < level.Schedules.Count; i++)
             {
                 ScheduleDef s = level.Schedules[i];
