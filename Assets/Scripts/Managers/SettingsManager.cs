@@ -1,5 +1,9 @@
 using UnityEngine;
 
+/// <summary>
+/// Audio settings. Values are stored in the file save (<see cref="SaveSystem.Settings"/>);
+/// display settings live in <see cref="DisplaySettings"/>.
+/// </summary>
 public class SettingsManager : Singleton<SettingsManager>
 {
     public float SFXVolume        { get; private set; }
@@ -15,23 +19,23 @@ public class SettingsManager : Singleton<SettingsManager>
 
     public void SetSFXVolume(float volume)
     {
-        SFXVolume = volume;
-        PlayerPrefs.SetFloat("SFXVolume", volume);
-        PlayerPrefs.Save();
-        FMODAudioManager.Instance.SetVCAVolume("vca:/SFX", volume);
+        SFXVolume = Mathf.Clamp01(volume);
+        SaveSystem.Settings.sfxVolume = SFXVolume;
+        SaveSystem.RequestSave();
+        FMODAudioManager.Instance.SetVCAVolume("vca:/SFX", SFXVolume);
     }
 
     public void SetSoundtrackVolume(float volume)
     {
-        SoundtrackVolume = volume;
-        PlayerPrefs.SetFloat("SoundtrackVolume", volume);
-        PlayerPrefs.Save();
-        FMODAudioManager.Instance.SetVCAVolume("vca:/Music", volume);
+        SoundtrackVolume = Mathf.Clamp01(volume);
+        SaveSystem.Settings.musicVolume = SoundtrackVolume;
+        SaveSystem.RequestSave();
+        FMODAudioManager.Instance.SetVCAVolume("vca:/Music", SoundtrackVolume);
     }
 
     private void LoadSettings()
     {
-        SFXVolume        = PlayerPrefs.GetFloat("SFXVolume",        1.0f);
-        SoundtrackVolume = PlayerPrefs.GetFloat("SoundtrackVolume", 1.0f);
+        SFXVolume        = SaveSystem.Settings.sfxVolume;
+        SoundtrackVolume = SaveSystem.Settings.musicVolume;
     }
 }

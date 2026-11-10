@@ -36,7 +36,7 @@ public class LevelManager : Singleton<LevelManager>
 
         if (Instance == this)
         {
-            NextLevelIndex = PlayerPrefs.GetInt("NextLevelIndex", 1);
+            NextLevelIndex = SaveSystem.Progress.nextLevelIndex;
             CurrentLevelIndex = NextLevelIndex;
 
 #if UNITY_EDITOR
@@ -69,39 +69,36 @@ public class LevelManager : Singleton<LevelManager>
 
     public int GetLevelStars(int levelIndex)
     {
-        string key = "level" + levelIndex + "_stars";
-        return PlayerPrefs.GetInt(key, 0);
+        return SaveSystem.Progress.GetStars(levelIndex);
     }
 
     public void UnlockAllLevels()
     {
         NextLevelIndex = levels.Count - 1;
-        PlayerPrefs.SetInt("NextLevelIndex", NextLevelIndex);
+        SaveSystem.Progress.nextLevelIndex = NextLevelIndex;
+        SaveSystem.SaveNow();
     }
 
     public void ResetProgress()
     {
-        for (int i = 1; i < levels.Count; i++)
-            PlayerPrefs.DeleteKey("level" + i + "_stars");
-
+        SaveSystem.Progress.Reset();
         NextLevelIndex = 1;
         CurrentLevelIndex = 1;
-        PlayerPrefs.SetInt("NextLevelIndex", 1);
-        PlayerPrefs.Save();
+        SaveSystem.SaveNow();
     }
 
     public void SetCurrentLevelComplete(int stars)
     {
-        string key = "level" + Instance.CurrentLevelIndex + "_stars";
-        int bestStars = PlayerPrefs.GetInt(key, 0);
-        if (stars > bestStars)
-            PlayerPrefs.SetInt(key, stars);
+        bool changed = SaveSystem.Progress.SetBestStars(CurrentLevelIndex, stars);
 
-        if (CurrentLevelIndex + 1 <= NextLevelIndex)
-            return;
+        if (CurrentLevelIndex + 1 > NextLevelIndex)
+        {
+            NextLevelIndex = CurrentLevelIndex + 1;
+            SaveSystem.Progress.nextLevelIndex = NextLevelIndex;
+            changed = true;
+        }
 
-        NextLevelIndex = CurrentLevelIndex + 1;
-        PlayerPrefs.SetInt("NextLevelIndex", NextLevelIndex);
-        PlayerPrefs.Save();
+        if (changed)
+            SaveSystem.SaveNow();
     }
 }

@@ -30,7 +30,8 @@ public class Tutorial : MonoBehaviour
     {
         bool isClickedMouse = Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame;
         bool isClickedTap = Touchscreen.current != null && Touchscreen.current.primaryTouch.press.wasPressedThisFrame;
-        if (_tutorialStarted && _tutorialEnabled && (isClickedMouse || isClickedTap))
+        bool isConfirmed = PcInputController.ConfirmPressedThisFrame;
+        if (_tutorialStarted && _tutorialEnabled && (isClickedMouse || isClickedTap || isConfirmed))
             CompleteStep();
     }
 

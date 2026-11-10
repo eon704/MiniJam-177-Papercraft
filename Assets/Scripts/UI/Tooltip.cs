@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 
 public class Tooltip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
@@ -11,8 +12,10 @@ public class Tooltip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         if (tooltipPrefab == null) return;
         _tooltipInstance = Instantiate(tooltipPrefab, transform.root);
         _tooltipInstance.transform.SetAsLastSibling();
-        var mousePosition = Input.mousePosition;
-        _tooltipInstance.transform.position = mousePosition;
+        // Project uses the new Input System only; UnityEngine.Input would throw here.
+        Vector2 pointerPosition = eventData != null ? eventData.position
+            : Mouse.current != null ? Mouse.current.position.ReadValue() : Vector2.zero;
+        _tooltipInstance.transform.position = pointerPosition;
 
     }
 
