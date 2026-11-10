@@ -203,8 +203,8 @@ entity: kind=7 at=3,0 dir=1,0 data=4
         [Fact]
         public void Parse_ReportsLineOfError()
         {
-            var e = Assert.Throws<System.FormatException>(() => LevelText.Parse("size: 2 1\nmap:\nxQ\n"));
-            Assert.Contains("Q", e.Message);
+            var e = Assert.Throws<System.FormatException>(() => LevelText.Parse("size: 2 1\nmap:\nxX\n"));
+            Assert.Contains("X", e.Message);
         }
 
         [Fact]

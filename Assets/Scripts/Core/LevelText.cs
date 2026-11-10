@@ -354,6 +354,7 @@ namespace Paperbound.Core
             TerrainType.Gate => 'H',
             TerrainType.ThinIce => 'N',
             TerrainType.CrackedIce => 'K',
+            TerrainType.Quicksand => 'Q',
             TerrainType.Bamboo => 'Z',
             _ => '+',
         };
@@ -383,6 +384,7 @@ namespace Paperbound.Core
             'H' => (TerrainType.Gate, false),
             'N' => (TerrainType.ThinIce, false),
             'K' => (TerrainType.CrackedIce, false),
+            'Q' => (TerrainType.Quicksand, false),
             'Z' => (TerrainType.Bamboo, false),
             _ => throw new FormatException($"map: неизвестный символ «{c}» в строке {row + 1}"),
         };

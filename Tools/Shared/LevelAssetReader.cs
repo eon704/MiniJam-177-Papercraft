@@ -150,12 +150,13 @@ namespace Paperbound.Tools
                     {
                         TerrainType.Empty => '#', TerrainType.Start => 'S', TerrainType.End => 'E',
                         TerrainType.Water => '~', TerrainType.Stone => 'R', TerrainType.Fire => 'F',
-                        TerrainType.Volcano => 'V', TerrainType.Lava => 'L', TerrainType.Ice => 'I', TerrainType.LilyPad => 'P', TerrainType.Sand => 'D', TerrainType.BoxFloor => 'B', TerrainType.Plate => 'T', TerrainType.Gate => 'H', TerrainType.ThinIce => 'n', TerrainType.CrackedIce => 'k', TerrainType.Bamboo => 'Z', _ => '.',
+                        TerrainType.Volcano => 'V', TerrainType.Lava => 'L', TerrainType.Ice => 'I', TerrainType.LilyPad => 'P', TerrainType.Sand => 'D', TerrainType.BoxFloor => 'B', TerrainType.Plate => 'T', TerrainType.Gate => 'H', TerrainType.ThinIce => 'n', TerrainType.CrackedIce => 'k', TerrainType.Quicksand => 'q', TerrainType.Bamboo => 'Z', _ => '.',
                     };
                     int star = level.StarIndex(p);
                     if (star >= 0 && (s == null || !s.HasStar(star))) c = t == TerrainType.Water ? 'w' : '*';
                     else if (level.Fragile[i] && c == '.') c = 'f';
                     if (c == '~' && level.Flow[i] != Pos.Zero) c = LevelText.FlowChar(level.Flow[i]);
+                    else if (c == '.' && level.Flow[i] != Pos.Zero) c = WindChar(level.Flow[i]); // ветер на суше
                     if (s != null && s.Collapsed[i]) c = '#';
                     var ents = s != null ? s.Entities : null;
                     if (ents == null)
@@ -170,5 +171,6 @@ namespace Paperbound.Tools
             }
             return sb.ToString();
         }
-    }
+        private static char WindChar(Pos f) => f == Pos.Up ? '↑' : f == Pos.Down ? '↓' : f == Pos.Left ? '←' : '→';
+}
 }

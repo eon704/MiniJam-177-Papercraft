@@ -96,8 +96,22 @@ namespace Paperbound.Core
                 case MoveKind.Slide: SlideOptions(level, s, def, result); break;
                 case MoveKind.Sail: SailOptions(level, s, def, result); break;
                 case MoveKind.Rush: RushOptions(level, s, def, result); break;
+                case MoveKind.Flutter: FlutterOptions(level, s, def, result); break;
             }
+            // Зыбучий песок: стоящий на нём (кроме бабочки) не может сложиться — уходит той же формой.
+            if (form != s.Form && s.Form != Form.Butterfly && s.Status == GameStatus.Playing
+                && level.InBounds(s.Player) && s.TerrainAt(level, s.Player) == TerrainType.Quicksand)
+                foreach (MoveOption o in result) o.Legal = false;
             return result;
+        }
+
+        /// <summary>Ветер (Пустыня): направление слоя Flow на клетке суши. На воде тот же слой — течение.</summary>
+        public static Pos WindAt(LevelDef level, GameState s, Pos p)
+        {
+            Pos f = level.FlowAt(p);
+            if (f == Pos.Zero) return f;
+            TerrainType t = s.TerrainAt(level, p);
+            return t == TerrainType.Water || t == TerrainType.LilyPad || t == TerrainType.Empty ? Pos.Zero : f;
         }
 
         private static bool IsHole(LevelDef level, GameState s, Pos p) =>
@@ -211,10 +225,22 @@ namespace Paperbound.Core
             foreach (Pos dir in def.Directions)
             {
                 var path = new List<Pos>();
+                var gusts = new HashSet<Pos>();
                 Pos c = s.Player + dir;
                 while (level.InBounds(c))
                 {
                     if (Walled(level, s, c)) break; // короб и закрытые ворота останавливают самолёт
+                    // Ветер: каждая клетка ветра на пути сносит самолёт на 1 клетку по ветру; на ней не сесть.
+                    Pos wind = WindAt(level, s, c);
+                    if (wind != Pos.Zero)
+                    {
+                        if (!gusts.Add(c)) break; // кольцо ветра
+                        Pos to = c + wind;
+                        if (!level.InBounds(to) || Walled(level, s, to)) break; // сносит в стену или за край — полёта нет
+                        path.Add(c);
+                        c = to;
+                        continue;
+                    }
                     TerrainType terrain = s.TerrainAt(level, c);
                     bool hole = IsHole(level, s, c);
                     if (hole || TerrainInfo.IsWaterLike(terrain))
@@ -253,6 +279,34 @@ namespace Paperbound.Core
                 result.Add(new MoveOption { Form = def.Form, Target = path[path.Count - 1], Legal = true, Path = path });
             }
         }
+
+        /// <summary>
+        /// Бабочка: 1 клетка по диагонали на сушу. Если клетка с ветром, ветер несёт бабочку по стрелкам до конца потока
+        /// (пока следующая клетка — суша, на которую бабочка может сесть). Невесомая: не рушит, не топит, не жмёт.
+        /// </summary>
+        private static void FlutterOptions(LevelDef level, GameState s, FormDef def, List<MoveOption> result)
+        {
+            foreach (Pos dir in def.Directions)
+            {
+                Pos c = s.Player + dir;
+                if (!ButterflyCanLand(level, s, def, c)) continue;
+                var path = new List<Pos> { c };
+                var seen = new HashSet<Pos> { c };
+                while (true)
+                {
+                    Pos wind = WindAt(level, s, c);
+                    if (wind == Pos.Zero) break;
+                    Pos to = c + wind;
+                    if (!ButterflyCanLand(level, s, def, to) || !seen.Add(to)) break;
+                    c = to;
+                    path.Add(c);
+                }
+                result.Add(new MoveOption { Form = def.Form, Target = c, Legal = true, Path = path });
+            }
+        }
+
+        private static bool ButterflyCanLand(LevelDef level, GameState s, FormDef def, Pos p) =>
+            level.InBounds(p) && !IsHole(level, s, p) && !Walled(level, s, p) && s.EntityAt(p) < 0 && def.CanStandOn(s.TerrainAt(level, p));
 
         private static bool OpenWater(LevelDef level, GameState s, Pos p) =>
             level.InBounds(p) && s.TerrainAt(level, p) == TerrainType.Water && !s.IsCollapsed(level, p) && s.EntityAt(p) < 0;
@@ -357,9 +411,12 @@ namespace Paperbound.Core
 
             MoveKind kind = Forms.Get(form).Kind;
 
-            // Уход с клетки: хрупкая рушится, кувшинка тонет.
-            Collapse(level, n, s.Player, -1, r);
-            Sink(level, n, s.Player, r);
+            // Уход с клетки: хрупкая рушится, кувшинка тонет. Бабочка невесома и клетку не трогает.
+            if (!(s.Form == Form.Butterfly && form == Form.Butterfly))
+            {
+                Collapse(level, n, s.Player, -1, r);
+                Sink(level, n, s.Player, r);
+            }
 
             if (option.Push) PushBox(level, n, option.Target, option.PushTo, r);
 
@@ -387,6 +444,11 @@ namespace Paperbound.Core
                             CollectStar(level, n, c, i, r);
                             CollectItem(level, n, c, i, r);
                             Collapse(level, n, c, i, r);
+                            break;
+                        case MoveKind.Flutter:
+                            // Ветер несёт бабочку: звёзды и предметы по пути подбираются, клетки не рушатся.
+                            CollectStar(level, n, c, i, r);
+                            CollectItem(level, n, c, i, r);
                             break;
                         case MoveKind.Sail:
                             if (level.Rules.BoatCollectsStars) CollectStar(level, n, c, i, r);
@@ -420,6 +482,11 @@ namespace Paperbound.Core
                     TerrainType now = level.Rules.FrogSwims ? TerrainType.Water : TerrainType.CrackedIce;
                     n.Terrain[idx] = now;
                     r.Events.Add(new MoveEvent { Type = MoveEventType.TerrainChanged, Pos = c, PathIndex = i, Source = c, OldTerrain = TerrainType.ThinIce, NewTerrain = now });
+                }
+                if (form == Form.Frog && terrain == TerrainType.Quicksand)
+                {
+                    Die(n, r, c, i, DeathCause.Quicksand);
+                    return r;
                 }
                 if (terrain == TerrainType.End)
                 {

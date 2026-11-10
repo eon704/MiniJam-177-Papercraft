@@ -20,6 +20,8 @@ namespace Paperbound.Core
         Drowned,
         /// <summary>Расписание с Lethal (снаряд вулкана) сработало на клетке игрока.</summary>
         Schedule,
+        /// <summary>Лягушка приземлилась на зыбучий песок.</summary>
+        Quicksand,
     }
 
     /// <summary>Состояние сущности на поле. Входит в снимок для Undo и в ключ решателя.</summary>

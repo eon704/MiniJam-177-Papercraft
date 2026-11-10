@@ -179,7 +179,7 @@ if (opt.ContainsKey("clean"))
     }
     // 3) шум
     bool land = Get("land", "0") == "1";
-    var removable = new HashSet<TerrainType> { TerrainType.Stone, TerrainType.LilyPad, TerrainType.Water, TerrainType.ThinIce, TerrainType.Bamboo, TerrainType.Ice };
+    var removable = new HashSet<TerrainType> { TerrainType.Stone, TerrainType.LilyPad, TerrainType.Water, TerrainType.ThinIce, TerrainType.Bamboo, TerrainType.Ice, TerrainType.Quicksand };
     if (land) removable.Add(TerrainType.Default);
     bool changed = true;
     while (changed)
@@ -296,7 +296,9 @@ if (opt.ContainsKey("tighten"))
 int w = I("w", 5), h = I("h", 5);
 Form[] forms = Get("forms", "crane").Split(',').Select(f => Enum.Parse<Form>(f, true)).ToArray();
 double pEmpty = D("empty", 0.25), pWater = D("water", 0), pStone = D("stone", 0), pLily = D("lily", 0), pFire = D("fire", 0), pFragile = D("fragile", 0);
-double pThinIce = D("thinice", 0), pBamboo = D("bamboo", 0), pIce = D("ice", 0);
+double pThinIce = D("thinice", 0), pBamboo = D("bamboo", 0), pIce = D("ice", 0), pQuick = D("quicksand", 0);
+int winds = I("winds", 0);
+bool needWind = Get("needwind", "0") == "1", needQuick = Get("needquick", "0") == "1";
 bool needThinIce = Get("needthinice", "0") == "1", needBamboo = Get("needbamboo", "0") == "1";
 int leaves = I("leaves", 0);
 (int lMin, int lMax) = R("L", "4-6");
@@ -339,6 +341,7 @@ for (int it = 0; it < iters && found < want; it++)
         else if ((r -= pThinIce) < 0) t = TerrainType.ThinIce;
         else if ((r -= pBamboo) < 0) t = TerrainType.Bamboo;
         else if ((r -= pIce) < 0) t = TerrainType.Ice;
+        else if ((r -= pQuick) < 0) t = TerrainType.Quicksand;
         level.Terrain[i] = t;
         level.Fragile[i] = t == TerrainType.Default && rng.NextDouble() < pFragile;
     }
@@ -371,6 +374,19 @@ for (int it = 0; it < iters && found < want; it++)
         for (int step = 0; step < len && level.InBounds(c) && level.Terrain[level.Index(c)] == TerrainType.Water; step++)
         {
             if (rng.NextDouble() < 0.3) d = Dirs[rng.Next(4)];
+            level.Flow[level.Index(c)] = d;
+            c += d;
+        }
+    }
+    // Пустыня: ветер — прямые полосы по суше.
+    var plain = Enumerable.Range(0, level.CellCount).Where(i => level.Terrain[i] == TerrainType.Default).ToList();
+    for (int k = 0; k < winds && plain.Count > 0; k++)
+    {
+        Pos c = level.PosOf(plain[rng.Next(plain.Count)]);
+        Pos d = Dirs[rng.Next(4)];
+        int len = 2 + rng.Next(3);
+        for (int step = 0; step < len && level.InBounds(c) && level.Terrain[level.Index(c)] == TerrainType.Default; step++)
+        {
             level.Flow[level.Index(c)] = d;
             c += d;
         }
@@ -455,6 +471,8 @@ for (int it = 0; it < iters && found < want; it++)
         return !(r2.CanThreeStar && r2.MinMovesThreeStars == rep.MinMovesThreeStars && r2.ThreeStarSolutionCount == rep.ThreeStarSolutionCount && r2.MinMovesToFinish == rep.MinMovesToFinish);
     }
     if (needFlow && !Matters(c => Array.Clear(c.Flow, 0, c.Flow.Length))) continue;
+    if (needWind && !Matters(c => Array.Clear(c.Flow, 0, c.Flow.Length))) continue;
+    if (needQuick && !Matters(c => { for (int i = 0; i < c.CellCount; i++) if (c.Terrain[i] == TerrainType.Quicksand) c.Terrain[i] = TerrainType.Default; })) continue;
     if (needThinIce && !Matters(c => { for (int i = 0; i < c.CellCount; i++) if (c.Terrain[i] == TerrainType.ThinIce) c.Terrain[i] = TerrainType.Default; })) continue;
     if (needBamboo && !Matters(c => { for (int i = 0; i < c.CellCount; i++) if (c.Terrain[i] == TerrainType.Bamboo) c.Terrain[i] = TerrainType.Stone; })) continue;
     if (needRaft && (level.Entities.Count == 0 || !Matters(c => c.Entities.Clear()))) continue;
