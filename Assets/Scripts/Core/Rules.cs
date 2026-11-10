@@ -415,14 +415,11 @@ namespace Paperbound.Core
                 CollectItem(level, n, c, i, r);
                 if (form == Form.Frog && terrain == TerrainType.ThinIce)
                 {
-                    // Лягушка пробивает тонкий лёд и тонет в полынье (с RuleSet.FrogSwims — плавает и выпрыгивает следующим ходом).
-                    n.Terrain[idx] = TerrainType.Water;
-                    r.Events.Add(new MoveEvent { Type = MoveEventType.TerrainChanged, Pos = c, PathIndex = i, Source = c, OldTerrain = TerrainType.ThinIce, NewTerrain = TerrainType.Water });
-                    if (!level.Rules.FrogSwims)
-                    {
-                        Die(n, r, c, i, DeathCause.Drowned);
-                        return r;
-                    }
+                    // Под лягушкой тонкий лёд трескается; когда с клетки уйдут, она станет водой (Sink).
+                    // Гипотеза RuleSet.FrogSwims (выключена): лёд сразу проламывается, лягушка плавает в полынье.
+                    TerrainType now = level.Rules.FrogSwims ? TerrainType.Water : TerrainType.CrackedIce;
+                    n.Terrain[idx] = now;
+                    r.Events.Add(new MoveEvent { Type = MoveEventType.TerrainChanged, Pos = c, PathIndex = i, Source = c, OldTerrain = TerrainType.ThinIce, NewTerrain = now });
                 }
                 if (terrain == TerrainType.End)
                 {
@@ -518,12 +515,13 @@ namespace Paperbound.Core
         private static void Sink(LevelDef level, GameState n, Pos c, MoveResult r)
         {
             int idx = level.Index(c);
-            if (n.Terrain[idx] != TerrainType.LilyPad) return;
+            TerrainType was = n.Terrain[idx];
+            if (was != TerrainType.LilyPad && was != TerrainType.CrackedIce) return;
             n.Terrain[idx] = TerrainType.Water;
             r.Events.Add(new MoveEvent
             {
                 Type = MoveEventType.Sank, Pos = c, PathIndex = -1,
-                OldTerrain = TerrainType.LilyPad, NewTerrain = TerrainType.Water,
+                OldTerrain = was, NewTerrain = TerrainType.Water,
             });
         }
 

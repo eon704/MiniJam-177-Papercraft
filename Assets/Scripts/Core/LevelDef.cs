@@ -226,6 +226,7 @@ namespace Paperbound.Core
                         'T' => TerrainType.Plate,
                         'H' => TerrainType.Gate,
                         'n' => TerrainType.ThinIce,
+                        'k' => TerrainType.CrackedIce,
                         'Z' => TerrainType.Bamboo,
                         _ => TerrainType.Default,
                     };

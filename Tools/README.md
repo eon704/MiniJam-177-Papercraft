@@ -67,9 +67,11 @@ dotnet run --project Tools/LevelReport -- export Assets/Data/Levels Assets/Data/
 - Ключи генератора: `boxes=N plates=N gates=N needbox needpush needpress needgatepass needboxpress`.
 - Подробности и вердикт — `Levels/cave/cave-summary.md`.
 
-## Механики Снегов (прототип, уровни в работе)
+## Механики Снегов (прототип, без игрового вида)
 
-- Тонкий лёд (`N`): держит всех, кроме лягушки; лягушка пробивает его и тонет. Гипотеза `frog_swims` (не утверждена): лягушка плавает в полынье и выпрыгивает следующим ходом.
+- Тонкий лёд (`N`): держит всех; под лягушкой трескается (`K`), уходя с трещины, клетка становится водой. Гипотеза `frog_swims` (отклонена, выключена).
+- Ключи генератора: `thinice=p bamboo=p ice=p needthinice needbamboo`, форма `shuriken`.
+- Подробности и вердикт — `Levels/snow/snow-summary.md`.
 - Бамбук (`Z`): стена; сюрикен (`Form.Shuriken`, `shuriken=N` в бюджете) летит по прямой до препятствия и срезает бамбук на пути.
 
 ## Правила (RuleSet)

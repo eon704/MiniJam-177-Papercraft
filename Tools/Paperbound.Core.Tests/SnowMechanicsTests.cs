@@ -8,35 +8,61 @@ namespace Paperbound.Core.Tests
         private static MoveResult Move(LevelDef level, GameState s, Form f, int x, int y) => Rules.Apply(level, s, f, new Pos(x, y));
 
         [Fact]
-        public void ThinIce_HoldsCrane_FrogBreaksItAndDrowns()
+        public void ThinIce_HoldsCrane_CracksUnderFrog_BecomesWaterWhenLeft()
         {
             var level = LevelDef.FromRows("SnnE");
             level.SetBudget(Form.Crane, 3);
             var crane = Move(level, GameState.Initial(level), Form.Crane, 1, 0);
             Assert.True(crane.Success);
             Assert.Equal(TerrainType.ThinIce, crane.After.TerrainAt(level, new Pos(1, 0)));
+            var crane2 = Move(level, crane.After, Form.Crane, 2, 0);
+            Assert.Equal(TerrainType.ThinIce, crane2.After.TerrainAt(level, new Pos(1, 0))); // журавль лёд не ломает
 
             var frogLevel = LevelDef.FromRows("S.n.E");
             frogLevel.SetBudget(Form.Frog, 2);
             var frog = Move(frogLevel, GameState.Initial(frogLevel), Form.Frog, 2, 0);
             Assert.True(frog.Success);
-            Assert.Equal(GameStatus.Dead, frog.After.Status);
-            Assert.Equal(DeathCause.Drowned, frog.After.Death);
+            Assert.Equal(GameStatus.Playing, frog.After.Status);
+            Assert.Equal(TerrainType.CrackedIce, frog.After.TerrainAt(frogLevel, new Pos(2, 0)));
+            var away = Move(frogLevel, frog.After, Form.Frog, 4, 0);
+            Assert.True(away.Success);
+            Assert.Equal(TerrainType.Water, away.After.TerrainAt(frogLevel, new Pos(2, 0)));
         }
 
         [Fact]
-        public void ThinIce_FrogSwimsHypothesis_OpensWaterForBoat()
+        public void ThinIce_BrokenByFrog_OpensWaterForBoat()
         {
-            // Гипотеза RuleSet.FrogSwims: лягушка плавает в полынье, лодка плывёт по ней.
-            var level = LevelDef.FromRows("S.n.E");
-            level.Rules.FrogSwims = true;
+            // Лягушка трескает лёд и уходит — полынья становится протокой для лодки.
+            var level = LevelDef.FromRows("S~n~E");
             level.SetBudget(Form.Frog, 2);
             level.SetBudget(Form.Boat, 1);
             var s = Move(level, GameState.Initial(level), Form.Frog, 2, 0).After;
+            s = Move(level, s, Form.Frog, 0, 0).After; // назад на старт, лёд за спиной стал водой
+            Assert.Equal(TerrainType.Water, s.TerrainAt(level, new Pos(2, 0)));
+            Assert.Contains(Rules.GetOptions(level, s, Form.Boat), o => o.Target == new Pos(4, 0));
+        }
+
+        [Fact]
+        public void CrackedIce_ShurikenStopsBeforeHole()
+        {
+            var level = LevelDef.FromRows("S.n..E");
+            level.SetBudget(Form.Frog, 2);
+            level.SetBudget(Form.Shuriken, 1);
+            var s = Move(level, GameState.Initial(level), Form.Frog, 2, 0).After;
+            s = Move(level, s, Form.Frog, 0, 0).After;
+            var o = Assert.Single(Rules.GetOptions(level, s, Form.Shuriken));
+            Assert.Equal(new Pos(1, 0), o.Target); // упор перед полыньёй
+        }
+
+        [Fact]
+        public void ThinIce_FrogSwimsHypothesis_BreaksAtOnce()
+        {
+            var level = LevelDef.FromRows("S.n.E");
+            level.Rules.FrogSwims = true;
+            level.SetBudget(Form.Frog, 2);
+            var s = Move(level, GameState.Initial(level), Form.Frog, 2, 0).After;
             Assert.Equal(GameStatus.Playing, s.Status);
             Assert.Equal(TerrainType.Water, s.TerrainAt(level, new Pos(2, 0)));
-            Assert.Contains(Rules.GetOptions(level, s, Form.Boat), o => o.Target == new Pos(3, 0));
-            Assert.True(Move(level, s, Form.Frog, 4, 0).Success); // выпрыгнула из полыньи
         }
 
         [Fact]

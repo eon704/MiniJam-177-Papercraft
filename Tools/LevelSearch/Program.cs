@@ -179,7 +179,7 @@ if (opt.ContainsKey("clean"))
     }
     // 3) шум
     bool land = Get("land", "0") == "1";
-    var removable = new HashSet<TerrainType> { TerrainType.Stone, TerrainType.LilyPad, TerrainType.Water };
+    var removable = new HashSet<TerrainType> { TerrainType.Stone, TerrainType.LilyPad, TerrainType.Water, TerrainType.ThinIce, TerrainType.Bamboo, TerrainType.Ice };
     if (land) removable.Add(TerrainType.Default);
     bool changed = true;
     while (changed)
@@ -296,6 +296,8 @@ if (opt.ContainsKey("tighten"))
 int w = I("w", 5), h = I("h", 5);
 Form[] forms = Get("forms", "crane").Split(',').Select(f => Enum.Parse<Form>(f, true)).ToArray();
 double pEmpty = D("empty", 0.25), pWater = D("water", 0), pStone = D("stone", 0), pLily = D("lily", 0), pFire = D("fire", 0), pFragile = D("fragile", 0);
+double pThinIce = D("thinice", 0), pBamboo = D("bamboo", 0), pIce = D("ice", 0);
+bool needThinIce = Get("needthinice", "0") == "1", needBamboo = Get("needbamboo", "0") == "1";
 int leaves = I("leaves", 0);
 (int lMin, int lMax) = R("L", "4-6");
 (int sMin, int sMax) = R("slack", "1-3");
@@ -334,6 +336,9 @@ for (int it = 0; it < iters && found < want; it++)
         else if ((r -= pStone) < 0) t = TerrainType.Stone;
         else if ((r -= pLily) < 0) t = TerrainType.LilyPad;
         else if ((r -= pFire) < 0) t = TerrainType.Fire;
+        else if ((r -= pThinIce) < 0) t = TerrainType.ThinIce;
+        else if ((r -= pBamboo) < 0) t = TerrainType.Bamboo;
+        else if ((r -= pIce) < 0) t = TerrainType.Ice;
         level.Terrain[i] = t;
         level.Fragile[i] = t == TerrainType.Default && rng.NextDouble() < pFragile;
     }
@@ -450,6 +455,8 @@ for (int it = 0; it < iters && found < want; it++)
         return !(r2.CanThreeStar && r2.MinMovesThreeStars == rep.MinMovesThreeStars && r2.ThreeStarSolutionCount == rep.ThreeStarSolutionCount && r2.MinMovesToFinish == rep.MinMovesToFinish);
     }
     if (needFlow && !Matters(c => Array.Clear(c.Flow, 0, c.Flow.Length))) continue;
+    if (needThinIce && !Matters(c => { for (int i = 0; i < c.CellCount; i++) if (c.Terrain[i] == TerrainType.ThinIce) c.Terrain[i] = TerrainType.Default; })) continue;
+    if (needBamboo && !Matters(c => { for (int i = 0; i < c.CellCount; i++) if (c.Terrain[i] == TerrainType.Bamboo) c.Terrain[i] = TerrainType.Stone; })) continue;
     if (needRaft && (level.Entities.Count == 0 || !Matters(c => c.Entities.Clear()))) continue;
     if (needBox && !Matters(c => c.Entities.RemoveAll(e => e.Kind == EntityKind.Box))) continue;
     if (needGate && !Matters(c => { for (int i = 0; i < c.CellCount; i++) if (c.Terrain[i] == TerrainType.Gate) c.Terrain[i] = TerrainType.Default; })) continue;

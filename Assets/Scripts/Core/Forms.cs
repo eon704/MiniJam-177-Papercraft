@@ -74,25 +74,25 @@ namespace Paperbound.Core
             new(Form.Crane, MoveKind.Step, Orthogonal,
                 TerrainType.Default, TerrainType.Stone, TerrainType.Fire, TerrainType.Lava,
                 TerrainType.Ice, TerrainType.Start, TerrainType.End, TerrainType.LilyPad, TerrainType.Sand, TerrainType.BoxFloor, TerrainType.Plate, TerrainType.Gate,
-                TerrainType.ThinIce, TerrainType.Quicksand),
+                TerrainType.ThinIce, TerrainType.CrackedIce, TerrainType.Quicksand),
             new(Form.Plane, MoveKind.Slide, Diagonal,
                 TerrainType.Default, TerrainType.Fire, TerrainType.Lava, TerrainType.Start, TerrainType.End, TerrainType.Sand, TerrainType.BoxFloor, TerrainType.Plate, TerrainType.Gate,
-                TerrainType.ThinIce, TerrainType.Quicksand),
+                TerrainType.ThinIce, TerrainType.CrackedIce, TerrainType.Quicksand),
             new(Form.Boat, MoveKind.Sail, Orthogonal,
                 TerrainType.Default, TerrainType.Start, TerrainType.End, TerrainType.Fire, TerrainType.Lava,
-                TerrainType.LilyPad, TerrainType.Sand, TerrainType.BoxFloor, TerrainType.Plate, TerrainType.Gate, TerrainType.ThinIce, TerrainType.Quicksand),
+                TerrainType.LilyPad, TerrainType.Sand, TerrainType.BoxFloor, TerrainType.Plate, TerrainType.Gate, TerrainType.ThinIce, TerrainType.CrackedIce, TerrainType.Quicksand),
             new(Form.Frog, MoveKind.Jump, OrthogonalTwo,
                 TerrainType.Default, TerrainType.Fire, TerrainType.Lava, TerrainType.Ice,
                 TerrainType.Start, TerrainType.End, TerrainType.LilyPad, TerrainType.Sand, TerrainType.BoxFloor, TerrainType.Plate, TerrainType.Gate,
-                TerrainType.ThinIce, TerrainType.Quicksand),
+                TerrainType.ThinIce, TerrainType.CrackedIce, TerrainType.Quicksand),
             new(Form.Shuriken, MoveKind.Rush, Orthogonal,
                 TerrainType.Default, TerrainType.Fire, TerrainType.Lava, TerrainType.Ice, TerrainType.Start, TerrainType.End,
-                TerrainType.LilyPad, TerrainType.Sand, TerrainType.BoxFloor, TerrainType.Plate, TerrainType.Gate, TerrainType.ThinIce,
+                TerrainType.LilyPad, TerrainType.Sand, TerrainType.BoxFloor, TerrainType.Plate, TerrainType.Gate, TerrainType.ThinIce, TerrainType.CrackedIce,
                 TerrainType.Quicksand),
             new(Form.Butterfly, MoveKind.Flutter, Diagonal,
                 TerrainType.Default, TerrainType.Fire, TerrainType.Lava, TerrainType.Ice, TerrainType.Start, TerrainType.End,
-                TerrainType.LilyPad, TerrainType.Sand, TerrainType.BoxFloor, TerrainType.Plate, TerrainType.Gate, TerrainType.ThinIce,
-                TerrainType.Quicksand, TerrainType.Stone),
+                TerrainType.LilyPad, TerrainType.Sand, TerrainType.BoxFloor, TerrainType.Plate, TerrainType.Gate, TerrainType.ThinIce, TerrainType.CrackedIce,
+                TerrainType.Quicksand),
         };
 
         public static FormDef Get(Form form) => Table[(int)form];
@@ -110,7 +110,7 @@ namespace Paperbound.Core
 
     public static class TerrainInfo
     {
-        public const int Count = 18;
+        public const int Count = 19;
 
         public static bool IsDeadly(TerrainType t) => t == TerrainType.Fire || t == TerrainType.Lava;
 

@@ -150,7 +150,7 @@ namespace Paperbound.Tools
                     {
                         TerrainType.Empty => '#', TerrainType.Start => 'S', TerrainType.End => 'E',
                         TerrainType.Water => '~', TerrainType.Stone => 'R', TerrainType.Fire => 'F',
-                        TerrainType.Volcano => 'V', TerrainType.Lava => 'L', TerrainType.Ice => 'I', TerrainType.LilyPad => 'P', TerrainType.Sand => 'D', TerrainType.BoxFloor => 'B', TerrainType.Plate => 'T', TerrainType.Gate => 'H', TerrainType.ThinIce => 'n', TerrainType.Bamboo => 'Z', _ => '.',
+                        TerrainType.Volcano => 'V', TerrainType.Lava => 'L', TerrainType.Ice => 'I', TerrainType.LilyPad => 'P', TerrainType.Sand => 'D', TerrainType.BoxFloor => 'B', TerrainType.Plate => 'T', TerrainType.Gate => 'H', TerrainType.ThinIce => 'n', TerrainType.CrackedIce => 'k', TerrainType.Bamboo => 'Z', _ => '.',
                     };
                     int star = level.StarIndex(p);
                     if (star >= 0 && (s == null || !s.HasStar(star))) c = t == TerrainType.Water ? 'w' : '*';
