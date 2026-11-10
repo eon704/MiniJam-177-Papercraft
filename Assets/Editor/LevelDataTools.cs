@@ -106,7 +106,7 @@ public class LevelDataTools
         Debug.Log($"Solution computation finished. Success: {successCount}, Failed: {failCount}");
     }
 
-    private static List<SolutionStep> ConvertToSolutionSteps(List<LevelEditorWindow.TurnInfo> solution)
+    internal static List<SolutionStep> ConvertToSolutionSteps(List<LevelEditorWindow.TurnInfo> solution)
     {
         List<SolutionStep> solutionSteps = new List<SolutionStep>();
         

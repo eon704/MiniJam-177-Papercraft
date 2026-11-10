@@ -13,6 +13,190 @@ double D(string k, double d) => double.Parse(Get(k, d.ToString(System.Globalizat
 int I(string k, int d) => int.Parse(Get(k, d.ToString()));
 (int, int) R(string k, string d) { var p = Get(k, d).Split('-'); return (int.Parse(p[0]), int.Parse(p[^1])); }
 
+if (opt.ContainsKey("evolve"))
+{
+    // Эволюция уровня к набору ограничений: случайные правки клеток, бюджет заново по маршруту на 3★,
+    // принимается правка, не уменьшающая число выполненных ограничений. Ключи: L, slack, maxsol, minfolds, needlily, needfragile.
+    var lvl = LevelText.Parse(File.ReadAllText(opt["evolve"]));
+    var erng = new Random(I("seed", 1));
+    (int lo, int hi) = R("L", "7-9");
+    (int s0, int s1) = R("slack", "1-3");
+    int maxS = I("maxsol", 2), minF = I("minfolds", 4);
+    bool wantLily = Get("needlily", "0") == "1", wantFragile = Get("needfragile", "0") == "1";
+    var eforms = Get("forms", "crane,frog,plane,boat").Split(',').Select(f => Enum.Parse<Form>(f, true)).ToArray();
+    int Score(LevelDef l, out SolveReport rep)
+    {
+        rep = null;
+        foreach (Form f in eforms) l.SetBudget(f, 6);
+        var st = Solver.FindShortest(l, g => g.Status == GameStatus.Won && g.StarsCollected == 3, 60000);
+        if (st == null || st.Count > hi + 2) return 0;
+        for (int i = 1; i < Forms.Count; i++) l.Budget[i] = 0;
+        foreach (SolverStep x in st) l.Budget[(int)x.Form]++;
+        GameState end = Solver.Replay(l, st);
+        for (int k = 0; k < l.Items.Count; k++) if (end.HasItem(k)) l.Budget[(int)l.Items[k].Form] -= l.Items[k].Amount;
+        if (l.Budget.Any(b => b < 0)) return 0;
+        rep = Solver.Solve(l, 300000);
+        if (rep.Truncated || !rep.CanThreeStar) return 0;
+        int sc = 1;
+        if (LevelValidator.Validate(l).Count == 0) sc++;
+        if (rep.MinMovesThreeStars >= lo && rep.MinMovesThreeStars <= hi) sc++;
+        if (rep.FinishSlack >= s0 && rep.FinishSlack <= s1) sc++;
+        if (rep.ThreeStarSolutionCount <= maxS) sc++;
+        if (rep.MinFoldsThreeStars >= minF) sc++;
+        if (LevelQuality.Flags(rep).Count == 0 || s0 == 0) sc++;
+        SolveReport r0 = rep;
+        bool Changes(Action<LevelDef> strip)
+        {
+            var c = LevelText.Parse(LevelText.Write(l));
+            strip(c);
+            var r = Solver.Solve(c, 300000);
+            return !(r.CanThreeStar && r.MinMovesThreeStars == r0.MinMovesThreeStars && r.ThreeStarSolutionCount == r0.ThreeStarSolutionCount && r.MinMovesToFinish == r0.MinMovesToFinish);
+        }
+        if (l.Items.Count == 0 || Changes(c => c.Items.Clear())) sc++;
+        if (!wantLily || (l.Terrain.Contains(TerrainType.LilyPad) && Changes(c => { for (int i = 0; i < c.CellCount; i++) if (c.Terrain[i] == TerrainType.LilyPad) c.Terrain[i] = TerrainType.Water; }))) sc++;
+        if (!wantFragile || (l.Fragile.Any(b => b) && Changes(c => Array.Clear(c.Fragile, 0, c.Fragile.Length)))) sc++;
+        return sc;
+    }
+    const int MaxScore = 10;
+    int cur = Score(lvl, out SolveReport curRep);
+    var pal = new[] { TerrainType.Empty, TerrainType.Default, TerrainType.Water, TerrainType.LilyPad, TerrainType.Stone };
+    int steps = I("steps", 4000);
+    for (int step = 0; step < steps && cur < MaxScore; step++)
+    {
+        var c = LevelText.Parse(LevelText.Write(lvl));
+        int idx = erng.Next(c.CellCount);
+        Pos p = c.PosOf(idx);
+        double r = erng.NextDouble();
+        bool special = c.Terrain[idx] == TerrainType.Start || c.Terrain[idx] == TerrainType.End || c.Stars.Contains(p) || c.Items.Any(x => x.Position == p);
+        if (r < 0.1 && c.Terrain[idx] == TerrainType.Default && !special)
+        {
+            int k = erng.Next(c.Stars.Count); c.Stars[k] = p;
+        }
+        else if (r < 0.15 && c.Items.Count > 0 && c.Terrain[idx] != TerrainType.Empty && !special)
+            c.Items[0].Position = p;
+        else if (r < 0.3 && c.Terrain[idx] == TerrainType.Default && !special)
+            c.Fragile[idx] = !c.Fragile[idx];
+        else if (!special)
+        {
+            c.Terrain[idx] = pal[erng.Next(pal.Length)];
+            c.Fragile[idx] = false;
+        }
+        else continue;
+        int sc = Score(c, out SolveReport rep);
+        if (sc > cur || (sc == cur && sc > 0 && erng.NextDouble() < 0.5))
+        {
+            if (sc > cur) Console.WriteLine($"  step {step}: score {sc}/{MaxScore} F={rep.MinMovesToFinish} slack={rep.FinishSlack} L={rep.MinMovesThreeStars} sol={rep.ThreeStarSolutionCount}");
+            lvl = c; cur = sc; curRep = rep;
+        }
+    }
+    Console.WriteLine($"result: score {cur}/{MaxScore}");
+    if (cur == MaxScore && opt.ContainsKey("out"))
+        File.WriteAllText(opt["out"], LevelText.Write(lvl, $"эволюция: финиш {curRep.MinMovesToFinish}, запас {curRep.FinishSlack}, 3★ {curRep.MinMovesThreeStars}, решений {curRep.ThreeStarSolutionCount}, складок {curRep.MinFoldsThreeStars}"));
+    return;
+}
+
+if (opt.ContainsKey("enum"))
+{
+    // Все маршруты на 3★ (до max штук): для проверки обходов.
+    var lvl = LevelText.Parse(File.ReadAllText(opt["enum"]));
+    int max = I("max", 50);
+    int allMask = (1 << lvl.Stars.Count) - 1;
+    var path = new List<SolverStep>();
+    int n = 0;
+    void Dfs(GameState s)
+    {
+        if (n >= max) return;
+        if (s.Status == GameStatus.Won) { if ((s.StarMask & allMask) == allMask) { n++; Console.WriteLine(string.Join(", ", path)); } return; }
+        if (s.Status != GameStatus.Playing) return;
+        foreach (MoveOption o in Rules.LegalMoves(lvl, s))
+        {
+            MoveResult r = Rules.Apply(lvl, s, o.Form, o.Target);
+            if (!r.Success) continue;
+            path.Add(new SolverStep { Form = o.Form, Target = o.Target });
+            Dfs(r.After);
+            path.RemoveAt(path.Count - 1);
+        }
+    }
+    Dfs(GameState.Initial(lvl));
+    Console.WriteLine($"routes: {n}");
+    return;
+}
+
+if (opt.ContainsKey("clean"))
+{
+    // Чистка: кувшинки без воды чинятся, мёртвые клетки убираются, затем по одной убираются клетки (камень, кувшинка, вода,
+    // с land=1 и суша), без которых метрики не меняются: финиш, 3★, число решений на 3★, складки.
+    var lvl = LevelText.Parse(File.ReadAllText(opt["clean"]));
+    string header = string.Join("\n", File.ReadAllLines(opt["clean"]).Where(l => l.StartsWith("# идея:")));
+    SolveReport baseRep = Solver.Solve(lvl, 300000);
+    bool Same(LevelDef l, SolveReport r) => !r.Truncated && r.CanThreeStar && r.MinMovesThreeStars == baseRep.MinMovesThreeStars
+        && r.MinMovesToFinish == baseRep.MinMovesToFinish && r.ThreeStarSolutionCount == baseRep.ThreeStarSolutionCount
+        && r.MinFoldsThreeStars == baseRep.MinFoldsThreeStars;
+    // 1) кувшинки без воды
+    for (int i = 0; i < lvl.CellCount; i++)
+    {
+        if (lvl.Terrain[i] != TerrainType.LilyPad || !LilyInvalid(lvl, i)) continue;
+        Pos p = lvl.PosOf(i);
+        bool done = false;
+        var tries = new List<Action<LevelDef>>();
+        foreach (Pos d in new[] { Pos.Up, Pos.Down, Pos.Left, Pos.Right })
+        {
+            Pos n = p + d;
+            if (lvl.InBounds(n) && lvl.Terrain[lvl.Index(n)] == TerrainType.Empty) tries.Add(l => l.Terrain[l.Index(n)] = TerrainType.Water);
+        }
+        tries.Add(l => l.Terrain[i] = TerrainType.Default);
+        tries.Add(l => l.Terrain[i] = TerrainType.Empty);
+        tries.Add(l => l.Terrain[i] = TerrainType.Water);
+        foreach (var t in tries)
+        {
+            var copy = LevelText.Parse(LevelText.Write(lvl));
+            t(copy);
+            if (LilyInvalid(copy, i) && copy.Terrain[i] == TerrainType.LilyPad) continue;
+            var r = Solver.Solve(copy, 300000);
+            if (Same(copy, r)) { lvl = copy; done = true; Console.WriteLine($"  кувшинка {p}: исправлена"); break; }
+        }
+        if (!done) Console.WriteLine($"  кувшинка {p}: не исправить без смены метрик");
+    }
+    // 3) шум
+    bool land = Get("land", "0") == "1";
+    var removable = new HashSet<TerrainType> { TerrainType.Stone, TerrainType.LilyPad, TerrainType.Water };
+    if (land) removable.Add(TerrainType.Default);
+    bool changed = true;
+    while (changed)
+    {
+        changed = false;
+        for (int i = 0; i < lvl.CellCount; i++)
+        {
+            Pos p = lvl.PosOf(i);
+            if (!removable.Contains(lvl.Terrain[i]) || lvl.Stars.Contains(p) || lvl.Items.Any(x => x.Position == p)) continue;
+            var copy = LevelText.Parse(LevelText.Write(lvl));
+            copy.Terrain[i] = TerrainType.Empty; copy.Fragile[i] = false;
+            if (LevelValidator.Validate(copy).Count > LevelValidator.Validate(lvl).Count) continue;
+            if (!Same(copy, Solver.Solve(copy, 300000))) continue;
+            Console.WriteLine($"  убрана {lvl.Terrain[i]} {p}");
+            lvl = copy; changed = true;
+        }
+        // мёртвые клетки (после чистки могли появиться новые)
+        foreach (Pos p in LevelMetrics.DeadCells(lvl))
+        {
+            var copy = LevelText.Parse(LevelText.Write(lvl));
+            int i = copy.Index(p);
+            copy.Terrain[i] = TerrainType.Empty; copy.Fragile[i] = false;
+            if (copy.Stars.Contains(p) || copy.Items.Any(x => x.Position == p)) continue;
+            if (Same(copy, Solver.Solve(copy, 300000)) && LevelValidator.Validate(copy).Count <= LevelValidator.Validate(lvl).Count) { lvl = copy; changed = true; }
+        }
+    }
+    if (lvl.Schedules.Count == 0 && lvl.Entities.Count == 0)
+    {
+        var cropped = Crop(lvl);
+        if (Same(cropped, Solver.Solve(cropped, 300000)) && LevelValidator.Validate(cropped).Count == 0) lvl = cropped;
+    }
+    var fin = Solver.Solve(lvl, 300000);
+    Console.WriteLine($"result: F={fin.MinMovesToFinish} slack={fin.FinishSlack} L={fin.MinMovesThreeStars} sol={fin.ThreeStarSolutionCount} dead={LevelMetrics.DeadCells(lvl).Count} forg={LevelMetrics.Forgiveness(lvl):P0} errors={string.Join(" ", LevelValidator.Validate(lvl))}");
+    if (opt.ContainsKey("out")) File.WriteAllText(opt["out"], (header.Length > 0 ? header + "\n" : "") + LevelText.Write(lvl));
+    return;
+}
+
 if (opt.ContainsKey("tighten"))
 {
     // Доводка до нулевого запаса: случайные правки клеток (тип, хрупкость, перенос End), пока кратчайший финиш не сравняется с бюджетом.
@@ -103,6 +287,7 @@ int searchBudget = I("fb", Math.Min(lMax, lMax / forms.Length + 3));
 int stateLimit = I("limit", 60000);
 string prefix = Get("name", "cand");
 bool waterStars = Get("waterstars", "0") == "1";
+double minForg = D("forg", 0), maxForg = D("forgmax", 1);
 Directory.CreateDirectory(outDir);
 var rng = new Random(seed);
 int found = 0;
@@ -137,6 +322,8 @@ for (int it = 0; it < iters && found < want; it++)
         if (level.Stars.Contains(p)) continue;
         level.Items.Add(new ItemDef { Position = p, Form = forms[rng.Next(forms.Length)] });
     }
+    for (int i = 0; i < level.CellCount; i++)
+        if (level.Terrain[i] == TerrainType.LilyPad && LilyInvalid(level, i)) level.Terrain[i] = TerrainType.Default;
     if (needLily && !level.Terrain.Contains(TerrainType.LilyPad)) continue;
 
     foreach (Form f in forms) level.SetBudget(f, searchBudget);
@@ -181,12 +368,61 @@ for (int it = 0; it < iters && found < want; it++)
             && rp.ThreeStarSolutionCount == rep.ThreeStarSolutionCount && rp.MinFoldsThreeStars == rep.MinFoldsThreeStars)
         { level = pruned; rep = rp; }
     }
+    if (LevelValidator.Validate(level).Count > 0) continue;
+    if (minForg > 0 || maxForg < 1)
+    {
+        double fg = LevelMetrics.Forgiveness(level);
+        if (fg < minForg || fg > maxForg) continue;
+    }
+    if (needLily)
+    {
+        var copy = LevelText.Parse(LevelText.Write(level));
+        for (int i = 0; i < copy.CellCount; i++) if (copy.Terrain[i] == TerrainType.LilyPad) copy.Terrain[i] = TerrainType.Water;
+        var r2 = Solver.Solve(copy, 300000);
+        if (r2.CanThreeStar && r2.MinMovesThreeStars == rep.MinMovesThreeStars && r2.ThreeStarSolutionCount == rep.ThreeStarSolutionCount && r2.MinMovesToFinish == rep.MinMovesToFinish) continue; // кувшинки ничего не меняют
+    }
     found++;
     string comment = $"кандидат: финиш {rep.MinMovesToFinish}, запас {rep.FinishSlack}, 3★ {rep.MinMovesThreeStars}, решений {rep.ThreeStarSolutionCount}, складок {rep.MinFoldsThreeStars}\n3★: {string.Join(", ", rep.ThreeStarPath)}";
     File.WriteAllText(Path.Combine(outDir, level.Name + LevelText.Extension), LevelText.Write(level, comment));
     Console.WriteLine($"{level.Name}: it={it} F={rep.MinMovesToFinish} slack={rep.FinishSlack} L={rep.MinMovesThreeStars} sol={rep.ThreeStarSolutionCount} folds={rep.MinFoldsThreeStars}");
 }
 Console.WriteLine($"found {found}");
+
+// Обрезка поля до прямоугольника непустых клеток.
+static LevelDef Crop(LevelDef l)
+{
+    int x0 = l.Width, y0 = l.Height, x1 = -1, y1 = -1;
+    for (int i = 0; i < l.CellCount; i++)
+    {
+        if (l.Terrain[i] == TerrainType.Empty) continue;
+        Pos p = l.PosOf(i);
+        x0 = Math.Min(x0, p.X); y0 = Math.Min(y0, p.Y); x1 = Math.Max(x1, p.X); y1 = Math.Max(y1, p.Y);
+    }
+    if (x1 < 0) return l;
+    var c = new LevelDef(x1 - x0 + 1, y1 - y0 + 1) { Name = l.Name, Rules = l.Rules };
+    var off = new Pos(x0, y0);
+    for (int i = 0; i < c.CellCount; i++)
+    {
+        Pos p = c.PosOf(i) + off;
+        c.Terrain[i] = l.Terrain[l.Index(p)];
+        c.Fragile[i] = l.Fragile[l.Index(p)];
+    }
+    foreach (Pos s in l.Stars) c.Stars.Add(s - off);
+    foreach (ItemDef it in l.Items) c.Items.Add(new ItemDef { Kind = it.Kind, Position = it.Position - off, Form = it.Form, Amount = it.Amount });
+    for (int i = 0; i < l.Budget.Length; i++) c.Budget[i] = l.Budget[i];
+    return c;
+}
+
+static bool LilyInvalid(LevelDef l, int i)
+{
+    Pos p = l.PosOf(i);
+    foreach (Pos d in new[] { Pos.Up, Pos.Down, Pos.Left, Pos.Right })
+    {
+        Pos n = p + d;
+        if (l.InBounds(n) && l.Terrain[l.Index(n)] == TerrainType.Water) return false;
+    }
+    return true;
+}
 
 // Клетки, на которые фигурка не попадает ни в одном достижимом состоянии, делаются пустыми.
 static LevelDef Prune(LevelDef level)

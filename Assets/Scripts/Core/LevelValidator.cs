@@ -41,6 +41,20 @@ namespace Paperbound.Core
             if (level.TotalBudget == 0)
                 errors.Add("Нет ни одного хода в бюджете.");
 
+            // Кувшинка — островок на воде: без соседней воды правило не читается.
+            for (int i = 0; i < level.CellCount; i++)
+            {
+                if (level.Terrain[i] != TerrainType.LilyPad) continue;
+                Pos p = level.PosOf(i);
+                bool water = false;
+                foreach (Pos d in new[] { Pos.Up, Pos.Down, Pos.Left, Pos.Right })
+                {
+                    Pos n = p + d;
+                    if (level.InBounds(n) && level.Terrain[level.Index(n)] == TerrainType.Water) water = true;
+                }
+                if (!water) errors.Add($"Кувшинка {p} не граничит с водой.");
+            }
+
             if (level.Stars.Count > 31) errors.Add("Больше 31 звезды не поддерживается.");
             if (level.Items.Count > 31) errors.Add("Больше 31 предмета не поддерживается.");
             foreach (ItemDef item in level.Items)

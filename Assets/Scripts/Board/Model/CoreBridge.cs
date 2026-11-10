@@ -44,6 +44,10 @@ public static class CoreBridge
             foreach (IceSourceConfig c in data.IceSourceConfigs)
                 level.Schedules.Add(ScheduleDef.IceSource(c.Position.ToPos(), c.Period, ToPositions(c.FreezeSequence)));
 
+        if (data.Leaves != null)
+            foreach (LeafConfig leaf in data.Leaves)
+                level.Items.Add(new ItemDef { Kind = ItemKind.Leaf, Position = leaf.Position.ToPos(), Form = leaf.Form.ToForm(), Amount = leaf.Amount });
+
         return level;
     }
 

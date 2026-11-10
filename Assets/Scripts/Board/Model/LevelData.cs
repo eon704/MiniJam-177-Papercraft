@@ -18,6 +18,10 @@ public class LevelData : ScriptableObject
     public List<VolcanoConfig> VolcanoConfigs = new();
     public List<IceSourceConfig> IceSourceConfigs = new();
 
+    [Header("Items")]
+    [Tooltip("Листки: +Amount ходов форме Form, подбираются как звезда (самолёт и лодка — на пролёте).")]
+    public List<LeafConfig> Leaves = new();
+
     [Header("Solution Data")]
     [SerializeField] private List<SolutionStep> cachedSolution;
 
@@ -141,6 +145,14 @@ public class IceSourceConfig
     public Vector2Int Position;
     public int Period = 3;
     public List<Vector2Int> FreezeSequence = new();
+}
+
+[Serializable]
+public class LeafConfig
+{
+    public Vector2Int Position;
+    public Player.StateType Form = Player.StateType.Crane;
+    public int Amount = 1;
 }
 
 [Serializable]

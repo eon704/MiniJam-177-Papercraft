@@ -68,6 +68,10 @@ static bool Check(string path)
     if (r.MinFoldsPath != null) Console.WriteLine("  меньше всего складок: " + string.Join(", ", r.MinFoldsPath));
     List<string> flags = LevelQuality.Flags(r);
     Console.WriteLine(flags.Count == 0 ? "  качество: ок" : "  качество: " + string.Join("; ", flags));
+    List<Pos> dead = LevelMetrics.DeadCells(level);
+    Console.WriteLine($"  мёртвые клетки: {dead.Count} ({LevelMetrics.DeadShare(level):P0}){(dead.Count > 0 ? " " + string.Join(" ", dead) : "")}");
+    double forg = LevelMetrics.Forgiveness(level, out int good, out int total);
+    Console.WriteLine($"  прощение (первые два хода): {forg:P0} ({good}/{total})");
     Console.WriteLine($"  состояний: {r.StatesExplored}");
     return errors.Count == 0 && r.CanThreeStar;
 }
@@ -189,8 +193,8 @@ void Export(string assetsDir, string jsonDir, string outDir)
 static void Summary(string dir, string output)
 {
     var sb = new StringBuilder();
-    sb.AppendLine("| Уровень | Поле | Бюджет C/P/B/F | Финиш | Запас | 3★ | Финиш/3★ | Решений 3★ | Складок | Хрупкие | Кувшинки | Листки | Качество |");
-    sb.AppendLine("| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |");
+    sb.AppendLine("| Уровень | Поле | Бюджет C/P/B/F | Финиш | Запас | 3★ | Финиш/3★ | Решений 3★ | Складок | Хрупкие | Кувшинки | Листки | Мёртвые | Прощение | Качество |");
+    sb.AppendLine("| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |");
     var cards = new StringBuilder();
     foreach (string file in Directory.GetFiles(dir, "*" + LevelText.Extension).OrderBy(f => f))
     {
@@ -198,12 +202,13 @@ static void Summary(string dir, string output)
         LevelDef level = LevelText.Parse(text);
         SolveReport r = Solver.Solve(level);
         List<string> flags = LevelQuality.Flags(r);
-        if (LevelValidator.Validate(level).Count > 0) flags.Insert(0, "невалиден");
+        List<string> errs = LevelValidator.Validate(level);
+        if (errs.Count > 0) flags.Insert(0, "невалиден: " + string.Join(" ", errs));
         string budget = string.Join("/", new[] { Form.Crane, Form.Plane, Form.Boat, Form.Frog }.Select(f => level.Budget[(int)f]));
         int fragile = level.Fragile.Count(b => b);
         int lily = level.Terrain.Count(t => t == TerrainType.LilyPad);
         string ratio = r.CanThreeStar && r.CanFinish ? $"{(double)r.MinMovesToFinish / r.MinMovesThreeStars:0.00}" : "—";
-        sb.AppendLine($"| {level.Name} | {level.Width}x{level.Height} | {budget} | {(r.CanFinish ? r.MinMovesToFinish : -1)} | {r.FinishSlack} | {(r.CanThreeStar ? r.MinMovesThreeStars : -1)} | {ratio} | {r.ThreeStarSolutionCount} | {r.MinFoldsThreeStars} | {fragile} | {lily} | {level.Items.Count} | {(flags.Count == 0 ? "ок" : string.Join("; ", flags))} |");
+        sb.AppendLine($"| {level.Name} | {level.Width}x{level.Height} | {budget} | {(r.CanFinish ? r.MinMovesToFinish : -1)} | {r.FinishSlack} | {(r.CanThreeStar ? r.MinMovesThreeStars : -1)} | {ratio} | {r.ThreeStarSolutionCount} | {r.MinFoldsThreeStars} | {fragile} | {lily} | {level.Items.Count} | {LevelMetrics.DeadCells(level).Count} | {LevelMetrics.Forgiveness(level):P0} | {(flags.Count == 0 ? "ок" : string.Join("; ", flags))} |");
         string idea = text.Split('\n').Select(l => l.Trim()).FirstOrDefault(l => l.StartsWith("# идея:"));
         cards.AppendLine($"### {level.Name}");
         cards.AppendLine();

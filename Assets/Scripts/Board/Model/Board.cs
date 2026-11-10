@@ -69,6 +69,10 @@ public class Board
                 cell.SetNeighbors(neighbours);
             }
         }
+
+        foreach (ItemDef item in Def.Items)
+            if (item.Kind == ItemKind.Leaf && Def.InBounds(item.Position))
+                CellArray[item.Position.X, item.Position.Y].PlaceLeaf(item.Form.ToStateType(), item.Amount);
     }
 
     public Cell GetCell(Vector2Int coord)
@@ -164,6 +168,15 @@ public class Board
                 else if (!starRemains && cell.Item.Value == CellItem.Star)
                     cell.RemoveStar();
             }
+        }
+
+        for (int k = 0; k < Def.Items.Count; k++)
+        {
+            ItemDef item = Def.Items[k];
+            Cell cell = GetCell(item.Position.ToVector());
+            if (cell == null || item.Kind != ItemKind.Leaf) continue;
+            bool remains = !state.HasItem(k);
+            if (cell.HasLeaf.Value != remains) cell.HasLeaf.Value = remains;
         }
     }
 

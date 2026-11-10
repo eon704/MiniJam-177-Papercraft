@@ -25,6 +25,10 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     [SerializeField] private ParticleSystem fragileStepDust;
     [SerializeField] private SpriteRenderer volcanoBorderSprite;
     [SerializeField] private CellFragmentGroup fragmentGroup;
+    [Tooltip("Модель кувшинки. Пусто — на время прототипа создаётся заглушка (зелёный диск на воде).")]
+    [SerializeField] private GameObject lilyPad;
+    [Tooltip("Модель листка (+ход). Пусто — создаётся заглушка (зелёная пластинка над клеткой).")]
+    [SerializeField] private GameObject leaf;
 
     public Transform VolcanoTop => volcanoTop;
 
@@ -112,6 +116,9 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
         star.SetActive(Cell.Item == CellItem.Star);
         starDefaultScale = star.transform.localScale.x;
+
+        Cell.HasLeaf.OnChanged += OnLeafChanged;
+        SetLeafVisual(Cell.HasLeaf.Value);
 
         transform.localPosition = _originalLocalPosition + Vector3.down * 3f;
         rippleSequence = DOTween.Sequence();
@@ -341,7 +348,10 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     private void ApplyTerrainVisuals(TerrainType terrain)
     {
-        bool isWater = terrain == TerrainType.Water;
+        // Кувшинка стоит на воде: показываем воду и поверх неё диск кувшинки.
+        bool isLily = terrain == TerrainType.LilyPad;
+        bool isWater = terrain == TerrainType.Water || isLily;
+        if (isLily || lilyPad != null) GetLilyPadVisual().SetActive(isLily);
         if (mainModel != null) mainModel.SetActive(!isWater);
         if (start != null) start.SetActive(terrain == TerrainType.Start);
         if (end != null) end.SetActive(terrain == TerrainType.End);
@@ -356,7 +366,7 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         {
             if (fire != null) fire.SetActive(terrain == TerrainType.Fire || isLava);
         }
-        if (water != null) water.SetActive(terrain == TerrainType.Water);
+        if (water != null) water.SetActive(isWater);
         if (stone != null) stone.SetActive(terrain == TerrainType.Stone);
         if (volcano != null) volcano.SetActive(terrain == TerrainType.Volcano);
         if (ice != null) ice.SetActive(terrain == TerrainType.Ice);
@@ -368,6 +378,69 @@ public class CellPrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         // иначе получим спрайт поверх рассыпавшейся колонны
         if (fragmentGroup != null && Cell.IsCollapsed) return;
         ApplyTerrainVisuals(newTerrain);
+    }
+
+    // ── Кувшинка и листок: заглушки до появления моделей ───────────────────
+
+    private static readonly Color LilyColor = new Color(0.35f, 0.65f, 0.3f, 1f);
+    private static readonly Color LeafColor = new Color(0.55f, 0.85f, 0.25f, 1f);
+
+    private GameObject GetLilyPadVisual()
+    {
+        if (lilyPad == null)
+        {
+            Vector3 top = water != null ? water.transform.localPosition : Vector3.zero;
+            lilyPad = CreateStub("LilyPad (stub)", PrimitiveType.Cylinder, LilyColor,
+                top + Vector3.up * 0.05f, new Vector3(0.7f, 0.02f, 0.7f));
+        }
+        return lilyPad;
+    }
+
+    private Vector3 _leafScale;
+
+    private GameObject GetLeafVisual()
+    {
+        if (leaf != null && _leafScale == Vector3.zero) _leafScale = leaf.transform.localScale;
+        if (leaf == null)
+        {
+            Vector3 pos = star != null ? star.transform.localPosition : Vector3.up * 0.6f;
+            leaf = CreateStub("Leaf (stub)", PrimitiveType.Cube, LeafColor, pos, new Vector3(0.35f, 0.04f, 0.2f));
+            leaf.transform.localRotation = Quaternion.Euler(0f, 35f, 15f);
+            _leafScale = leaf.transform.localScale;
+        }
+        return leaf;
+    }
+
+    private GameObject CreateStub(string stubName, PrimitiveType shape, Color color, Vector3 localPosition, Vector3 localScale)
+    {
+        GameObject go = GameObject.CreatePrimitive(shape);
+        go.name = stubName;
+        Collider col = go.GetComponent<Collider>();
+        if (col != null) Destroy(col); // клики должны попадать в клетку, а не в заглушку
+        go.transform.SetParent(transform, false);
+        go.transform.localPosition = localPosition;
+        go.transform.localScale = localScale;
+        Renderer r = go.GetComponent<Renderer>();
+        if (r != null) r.material.color = color;
+        return go;
+    }
+
+    private void OnLeafChanged(Observable<bool> value, bool oldValue, bool newValue) => SetLeafVisual(newValue);
+
+    private void SetLeafVisual(bool visible)
+    {
+        if (!visible && leaf == null) return;
+        GameObject go = GetLeafVisual();
+        go.transform.DOKill();
+        if (visible)
+        {
+            go.SetActive(true);
+            go.transform.localScale = _leafScale;
+        }
+        else
+        {
+            go.transform.DOScale(Vector3.zero, 0.3f).OnComplete(() => go.SetActive(false));
+        }
     }
 
     public void SetStarVisualDeferred(System.Action onCollected = null)

@@ -15,6 +15,11 @@ public class Cell
     public Observable<CellItem> Item { get; private set; }
     public Observable<int> IsHintRevealed { get; private set; }
 
+    /// <summary>На клетке лежит неподобранный листок. Форма и число ходов — LeafForm, LeafAmount.</summary>
+    public Observable<bool> HasLeaf { get; private set; } = new(false);
+    public Player.StateType LeafForm { get; private set; }
+    public int LeafAmount { get; private set; }
+
     public List<Cell> Neighbors { get; private set; }
 
     public event Action OnCollapsed;
@@ -37,6 +42,14 @@ public class Cell
         var old = Terrain;
         Terrain = newTerrain;
         OnTerrainChanged?.Invoke(old, newTerrain);
+    }
+
+    /// <summary>Положить листок при построении поля.</summary>
+    public void PlaceLeaf(Player.StateType form, int amount)
+    {
+        LeafForm = form;
+        LeafAmount = amount;
+        HasLeaf.Value = true;
     }
 
     public void SetNeighbors(List<Cell> neighbors)
