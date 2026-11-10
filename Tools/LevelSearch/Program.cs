@@ -246,6 +246,20 @@ if (opt.ContainsKey("tighten"))
         for (int k = 0; k < l.Items.Count; k++) if (end.HasItem(k)) l.Budget[(int)l.Items[k].Form] -= l.Items[k].Amount;
         return l.Budget.All(b => b >= 0);
     }
+    bool keepFlow = Get("keepflow", "0") == "1", keepRaft = Get("keepraft", "0") == "1";
+    bool KeepsMechanics(LevelDef l, SolveReport r)
+    {
+        bool Differs(Action<LevelDef> strip)
+        {
+            var c = LevelText.Parse(LevelText.Write(l));
+            strip(c);
+            var r2 = Solver.Solve(c, 300000);
+            return !(r2.CanThreeStar && r2.MinMovesThreeStars == r.MinMovesThreeStars && r2.ThreeStarSolutionCount == r.ThreeStarSolutionCount && r2.MinMovesToFinish == r.MinMovesToFinish);
+        }
+        if (keepFlow && !Differs(c => Array.Clear(c.Flow, 0, c.Flow.Length))) return false;
+        if (keepRaft && !Differs(c => c.Entities.RemoveAll(e => e.Kind == EntityKind.Raft))) return false;
+        return true;
+    }
     for (int step = 0; step < steps && cur.FinishSlack > 0; step++)
     {
         var backup = LevelText.Parse(LevelText.Write(lvl));
@@ -260,12 +274,14 @@ if (opt.ContainsKey("tighten"))
         }
         else if (trng.NextDouble() < 0.1 && lvl.Terrain[idx] == TerrainType.Default) lvl.Fragile[idx] = !lvl.Fragile[idx];
         else { lvl.Terrain[idx] = palette[trng.Next(palette.Length)]; if (lvl.Terrain[idx] != TerrainType.Default) lvl.Fragile[idx] = false; }
+        if (lvl.Terrain[idx] != TerrainType.Water) lvl.Flow[idx] = Pos.Zero; // течение только на воде, ветер не появляется случайно
         if (free && !Rebudget(lvl)) { lvl = backup; continue; }
         var r = Solver.Solve(lvl, 300000);
         bool lenOk = free ? r.MinMovesThreeStars >= tl.Item1 && r.MinMovesThreeStars <= tl.Item2 : r.MinMovesThreeStars == L0;
         bool ok = !r.Truncated && r.CanThreeStar && lenOk && r.ThreeStarSolutionCount <= maxS && r.MinFoldsThreeStars >= I("minfolds", 0)
             && LevelValidator.Validate(lvl).Count == 0
-            && (r.FinishSlack < cur.FinishSlack || (r.FinishSlack == cur.FinishSlack && trng.NextDouble() < 0.5));
+            && (r.FinishSlack < cur.FinishSlack || (r.FinishSlack == cur.FinishSlack && trng.NextDouble() < 0.5))
+            && KeepsMechanics(lvl, r);
         if (ok)
         {
             if (r.FinishSlack < cur.FinishSlack) Console.WriteLine($"  step {step}: F={r.MinMovesToFinish} slack={r.FinishSlack} sol={r.ThreeStarSolutionCount}");
