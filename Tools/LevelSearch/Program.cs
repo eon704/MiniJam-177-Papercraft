@@ -13,6 +13,26 @@ double D(string k, double d) => double.Parse(Get(k, d.ToString(System.Globalizat
 int I(string k, int d) => int.Parse(Get(k, d.ToString()));
 (int, int) R(string k, string d) { var p = Get(k, d).Split('-'); return (int.Parse(p[0]), int.Parse(p[^1])); }
 
+if (opt.ContainsKey("autobudget"))
+{
+    // Бюджет по кратчайшему маршруту на 3★ (щедрый поиск), листки вычитаются; файл переписывается на месте или в out.
+    string src = opt["autobudget"];
+    var lvl = LevelText.Parse(File.ReadAllText(src));
+    var aforms = Get("forms", "crane,frog,plane,boat").Split(',').Select(f => Enum.Parse<Form>(f, true)).ToArray();
+    foreach (Form f in aforms) lvl.SetBudget(f, I("fb", 8));
+    var st = Solver.FindShortest(lvl, g => g.Status == GameStatus.Won && g.StarsCollected == 3, 2000000);
+    if (st == null) { Console.WriteLine("3★ недостижимы"); return; }
+    for (int i = 1; i < Forms.Count; i++) lvl.Budget[i] = 0;
+    foreach (SolverStep x in st) lvl.Budget[(int)x.Form]++;
+    GameState end = Solver.Replay(lvl, st);
+    for (int k = 0; k < lvl.Items.Count; k++) if (end.HasItem(k)) lvl.Budget[(int)lvl.Items[k].Form] -= lvl.Items[k].Amount;
+    for (int i = 1; i < Forms.Count; i++) lvl.Budget[i] += I("extra" + LevelText.FormName((Form)i), 0);
+    string head = string.Join("\n", File.ReadAllLines(src).Where(l => l.StartsWith("# идея:")));
+    File.WriteAllText(Get("out", src), (head.Length > 0 ? head + "\n" : "") + LevelText.Write(lvl));
+    Console.WriteLine("3★: " + string.Join(", ", st));
+    return;
+}
+
 if (opt.ContainsKey("evolve"))
 {
     // Эволюция уровня к набору ограничений: случайные правки клеток, бюджет заново по маршруту на 3★,
@@ -191,6 +211,8 @@ if (opt.ContainsKey("clean"))
         var cropped = Crop(lvl);
         if (Same(cropped, Solver.Solve(cropped, 300000)) && LevelValidator.Validate(cropped).Count == 0) lvl = cropped;
     }
+    for (int i = 0; i < lvl.CellCount; i++)
+        if (lvl.Terrain[i] == TerrainType.Empty) lvl.Flow[i] = Pos.Zero; // поток над пустотой не нужен
     var fin = Solver.Solve(lvl, 300000);
     Console.WriteLine($"result: F={fin.MinMovesToFinish} slack={fin.FinishSlack} L={fin.MinMovesThreeStars} sol={fin.ThreeStarSolutionCount} dead={LevelMetrics.DeadCells(lvl).Count} forg={LevelMetrics.Forgiveness(lvl):P0} errors={string.Join(" ", LevelValidator.Validate(lvl))}");
     if (opt.ContainsKey("out")) File.WriteAllText(opt["out"], (header.Length > 0 ? header + "\n" : "") + LevelText.Write(lvl));
@@ -288,6 +310,10 @@ int stateLimit = I("limit", 60000);
 string prefix = Get("name", "cand");
 bool waterStars = Get("waterstars", "0") == "1";
 double minForg = D("forg", 0), maxForg = D("forgmax", 1);
+int streams = I("streams", 0), rafts = I("rafts", 0), tideCells = I("tide", 0), tidePeriodMax = I("tideperiod", 3);
+bool needCarry = Get("needcarry", "0") == "1";
+bool needFlow = Get("needflow", "0") == "1", needRaft = Get("needraft", "0") == "1", needTide = Get("needtide", "0") == "1";
+Pos[] Dirs = { Pos.Up, Pos.Down, Pos.Left, Pos.Right };
 Directory.CreateDirectory(outDir);
 var rng = new Random(seed);
 int found = 0;
@@ -325,6 +351,32 @@ for (int it = 0; it < iters && found < want; it++)
     for (int i = 0; i < level.CellCount; i++)
         if (level.Terrain[i] == TerrainType.LilyPad && LilyInvalid(level, i)) level.Terrain[i] = TerrainType.Default;
     if (needLily && !level.Terrain.Contains(TerrainType.LilyPad)) continue;
+
+    // Океан: течения (случайные блуждания по воде), плоты, прилив.
+    var water = Enumerable.Range(0, level.CellCount).Where(i => level.Terrain[i] == TerrainType.Water).ToList();
+    for (int k = 0; k < streams && water.Count > 0; k++)
+    {
+        Pos c = level.PosOf(water[rng.Next(water.Count)]);
+        Pos d = Dirs[rng.Next(4)];
+        int len = 2 + rng.Next(5);
+        for (int step = 0; step < len && level.InBounds(c) && level.Terrain[level.Index(c)] == TerrainType.Water; step++)
+        {
+            if (rng.NextDouble() < 0.3) d = Dirs[rng.Next(4)];
+            level.Flow[level.Index(c)] = d;
+            c += d;
+        }
+    }
+    var freeWater = water.Where(i => level.StarIndex(level.PosOf(i)) < 0).OrderBy(_ => rng.Next()).ToList();
+    if (freeWater.Count < rafts) continue;
+    for (int k = 0; k < rafts; k++) level.Entities.Add(new EntityDef { Kind = EntityKind.Raft, Position = level.PosOf(freeWater[k]) });
+    if (tideCells > 0)
+    {
+        var cand = Enumerable.Range(0, level.CellCount)
+            .Where(i => (level.Terrain[i] == TerrainType.Water || level.Terrain[i] == TerrainType.Default) && level.Items.All(x => x.Position != level.PosOf(i)))
+            .OrderBy(_ => rng.Next()).Take(tideCells).ToList();
+        foreach (int i in cand) level.Terrain[i] = rng.NextDouble() < 0.5 ? TerrainType.Water : TerrainType.Sand;
+        level.Schedules.Add(ScheduleDef.Tide(1 + rng.Next(tidePeriodMax), cand.Select(level.PosOf)));
+    }
 
     foreach (Form f in forms) level.SetBudget(f, searchBudget);
     var steps = Solver.FindShortest(level, s => s.Status == GameStatus.Won && s.StarsCollected == 3, stateLimit);
@@ -374,6 +426,29 @@ for (int it = 0; it < iters && found < want; it++)
         double fg = LevelMetrics.Forgiveness(level);
         if (fg < minForg || fg > maxForg) continue;
     }
+    bool Matters(Action<LevelDef> strip)
+    {
+        var copy = LevelText.Parse(LevelText.Write(level));
+        strip(copy);
+        var r2 = Solver.Solve(copy, 300000);
+        return !(r2.CanThreeStar && r2.MinMovesThreeStars == rep.MinMovesThreeStars && r2.ThreeStarSolutionCount == rep.ThreeStarSolutionCount && r2.MinMovesToFinish == rep.MinMovesToFinish);
+    }
+    if (needFlow && !Matters(c => Array.Clear(c.Flow, 0, c.Flow.Length))) continue;
+    if (needRaft && (level.Entities.Count == 0 || !Matters(c => c.Entities.Clear()))) continue;
+    if (needCarry)
+    {
+        // Маршрут на 3★ должен прокатиться на плоту.
+        bool carried = false;
+        GameState gs = GameState.Initial(level);
+        foreach (SolverStep st in rep.ThreeStarPath)
+        {
+            MoveResult m = Rules.Apply(level, gs, st.Form, st.Target);
+            if (m.Events.Any(e => e.Type == MoveEventType.Carried)) carried = true;
+            gs = m.After;
+        }
+        if (!carried) continue;
+    }
+    if (needTide && (level.Schedules.Count == 0 || !Matters(c => c.Schedules.Clear()))) continue;
     if (needLily)
     {
         var copy = LevelText.Parse(LevelText.Write(level));
@@ -406,6 +481,7 @@ static LevelDef Crop(LevelDef l)
         Pos p = c.PosOf(i) + off;
         c.Terrain[i] = l.Terrain[l.Index(p)];
         c.Fragile[i] = l.Fragile[l.Index(p)];
+        c.Flow[i] = l.Flow[l.Index(p)];
     }
     foreach (Pos s in l.Stars) c.Stars.Add(s - off);
     foreach (ItemDef it in l.Items) c.Items.Add(new ItemDef { Kind = it.Kind, Position = it.Position - off, Form = it.Form, Amount = it.Amount });
@@ -427,21 +503,8 @@ static bool LilyInvalid(LevelDef l, int i)
 // Клетки, на которые фигурка не попадает ни в одном достижимом состоянии, делаются пустыми.
 static LevelDef Prune(LevelDef level)
 {
-    var used = new HashSet<Pos>();
-    var seen = new HashSet<GameState>(StateComparer.IgnoreForm);
-    var q = new Queue<GameState>();
-    var start = GameState.Initial(level);
-    q.Enqueue(start); seen.Add(start); used.Add(start.Player);
-    while (q.Count > 0 && seen.Count < 300000)
-    {
-        var s = q.Dequeue();
-        foreach (var o in Rules.LegalMoves(level, s))
-        {
-            foreach (var p in o.Path) used.Add(p);
-            var r = Rules.Apply(level, s, o.Form, o.Target);
-            if (r.Success && r.After.Status == GameStatus.Playing && seen.Add(r.After)) q.Enqueue(r.After);
-        }
-    }
+    var used = LevelMetrics.UsedCells(level);
+    foreach (ScheduleDef sch in level.Schedules) foreach (Pos t in sch.Targets) used.Add(t);
     var copy = LevelText.Parse(LevelText.Write(level));
     for (int i = 0; i < copy.CellCount; i++)
     {

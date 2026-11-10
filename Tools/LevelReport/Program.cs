@@ -33,8 +33,12 @@ switch (command)
         if (rest.Length < 1) { Console.Error.WriteLine("summary <папка .pbl> [<выход .md>]"); return 2; }
         Summary(rest[0], rest.Length > 1 ? rest[1] : null);
         return 0;
+    case "trace":
+        if (rest.Length < 1) { Console.Error.WriteLine("trace <файл .pbl> — проиграть маршрут на 3★ по шагам"); return 2; }
+        Trace(rest[0]);
+        return 0;
     default:
-        Console.Error.WriteLine($"Неизвестная команда «{command}». Есть: report, check, export, summary.");
+        Console.Error.WriteLine($"Неизвестная команда «{command}». Есть: report, check, export, summary, trace.");
         return 2;
 }
 
@@ -74,6 +78,22 @@ static bool Check(string path)
     Console.WriteLine($"  прощение (первые два хода): {forg:P0} ({good}/{total})");
     Console.WriteLine($"  состояний: {r.StatesExplored}");
     return errors.Count == 0 && r.CanThreeStar;
+}
+
+static void Trace(string path)
+{
+    LevelDef level = Load(path);
+    SolveReport r = Solver.Solve(level);
+    if (r.ThreeStarPath == null) { Console.WriteLine("3★ недостижимы"); return; }
+    GameState s = GameState.Initial(level);
+    Console.Write(LevelAssetReader.Render(level, s));
+    foreach (SolverStep st in r.ThreeStarPath)
+    {
+        MoveResult m = Rules.Apply(level, s, st.Form, st.Target);
+        s = m.After;
+        Console.WriteLine($"-- {st}  [{string.Join(" ", m.Events.Where(e => e.Type != MoveEventType.Enter))}]");
+        Console.Write(LevelAssetReader.Render(level, s));
+    }
 }
 
 static string Row(LevelDef level, SolveReport r, string extra)

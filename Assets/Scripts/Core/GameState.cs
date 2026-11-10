@@ -16,6 +16,8 @@ namespace Paperbound.Core
         Terrain,
         /// <summary>Самолёт пролетел над огнём или лавой.</summary>
         FlewOverFire,
+        /// <summary>Прилив залил клетку под журавлём или лягушкой.</summary>
+        Drowned,
         /// <summary>Расписание с Lethal (снаряд вулкана) сработало на клетке игрока.</summary>
         Schedule,
     }
@@ -83,6 +85,14 @@ namespace Paperbound.Core
         {
             int i = level.StarIndex(p);
             return i >= 0 && !HasStar(i);
+        }
+
+        /// <summary>Индекс сущности вида kind на клетке (-1 — нет). kind &lt; 0 — любого вида.</summary>
+        public int EntityAt(Pos p, int kind = -1)
+        {
+            for (int i = 0; i < Entities.Length; i++)
+                if (Entities[i].Position == p && (kind < 0 || Entities[i].Kind == kind)) return i;
+            return -1;
         }
 
         public GameState Clone()

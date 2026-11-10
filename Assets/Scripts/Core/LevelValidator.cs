@@ -65,13 +65,30 @@ namespace Paperbound.Core
                     errors.Add($"Листок {item.Position}: нужна форма (не лист) и положительное число ходов.");
             }
 
+            foreach (EntityDef e in level.Entities)
+            {
+                if (!level.InBounds(e.Position)) { errors.Add($"Сущность {EntityKind.Name(e.Kind)} {e.Position} за пределами поля."); continue; }
+                TerrainType t = level.Terrain[level.Index(e.Position)];
+                if (e.Kind == EntityKind.Raft && t != TerrainType.Water && t != TerrainType.Sand)
+                    errors.Add($"Плот {e.Position} должен стоять на воде.");
+            }
+            for (int a = 0; a < level.Entities.Count; a++)
+                for (int b = a + 1; b < level.Entities.Count; b++)
+                    if (level.Entities[a].Position == level.Entities[b].Position)
+                        errors.Add($"Две сущности на клетке {level.Entities[a].Position}.");
+
             for (int i = 0; i < level.Schedules.Count; i++)
             {
                 ScheduleDef s = level.Schedules[i];
                 if (s.Period <= 0) errors.Add($"Расписание {i} ({s.Kind}): период {s.Period} должен быть больше 0.");
                 if (!level.InBounds(s.Source)) errors.Add($"Расписание {i} ({s.Kind}): источник {s.Source} за пределами поля.");
                 foreach (Pos t in s.Targets)
-                    if (!level.InBounds(t)) errors.Add($"Расписание {i} ({s.Kind}): цель {t} за пределами поля.");
+                {
+                    if (!level.InBounds(t)) { errors.Add($"Расписание {i} ({s.Kind}): цель {t} за пределами поля."); continue; }
+                    TerrainType tt = level.Terrain[level.Index(t)];
+                    if (s.Toggle && tt != s.Result && tt != s.Alternate)
+                        errors.Add($"Прилив: клетка {t} должна быть водой или песком.");
+                }
             }
 
             return errors;

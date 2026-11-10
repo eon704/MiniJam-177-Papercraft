@@ -26,11 +26,16 @@ namespace Paperbound.Core
     /// leaf: 2,0 crane +1
     /// volcano: 0,2 period=2 -> 1,1 2,1
     /// ice: 4,1 period=1 -> 3,1 3,0
-    /// entity: kind=1 at=2,1 dir=1,0 data=0
+    /// entity: kind=raft at=2,1 dir=0,0 data=0
+    /// flow:                необязательно; течение на воде, ветер на суше: '.' нет, '^' 'v' '<' '>'
+    /// ..>v.
+    /// ..^<.
+    /// ..... 
+    /// tide: period=2 -> 1,0 2,0        клетки вода ↔ песок каждые period ходов
     /// </code>
     ///
     /// Террейн (как в старом формате): 0 пусто, + обычная, W вода, S камень, F огонь, x старт, y финиш,
-    /// V вулкан, I лёд; новое: L лава, P кувшинка. При чтении принимаются и старые символы со звездой:
+    /// V вулкан, I лёд; новое: L лава, P кувшинка, D песок. При чтении принимаются и старые символы со звездой:
     /// G (обычная), 1 (обычная), 2 (вода), 3 (камень).
     /// </summary>
     public static class LevelText
@@ -48,7 +53,7 @@ namespace Paperbound.Core
             int w = -1, h = -1;
             var budget = new int[Forms.Count];
             RuleSet rules = RuleSet.Default;
-            List<string> map = null, marks = null;
+            List<string> map = null, marks = null, flow = null;
             var leaves = new List<ItemDef>();
             var schedules = new List<ScheduleDef>();
             var entities = new List<EntityDef>();
@@ -96,6 +101,7 @@ namespace Paperbound.Core
                         break;
                     case "map":
                     case "marks":
+                    case "flow":
                     {
                         if (h <= 0) throw Error(i, $"{key}: сначала укажите size");
                         var grid = new List<string>();
@@ -107,7 +113,7 @@ namespace Paperbound.Core
                             if (row.Length != w) throw Error(i, $"{key}: строка длины {row.Length}, нужно {w}");
                             grid.Add(row);
                         }
-                        if (key == "map") map = grid; else marks = grid;
+                        if (key == "map") map = grid; else if (key == "marks") marks = grid; else flow = grid;
                         break;
                     }
                     case "leaf":
@@ -145,6 +151,24 @@ namespace Paperbound.Core
                         schedules.Add(s);
                         break;
                     }
+                    case "tide":
+                    {
+                        // tide: period=N -> x,y x,y ...   (клетки вода ↔ песок все разом)
+                        int arrow = value.IndexOf("->", StringComparison.Ordinal);
+                        if (arrow < 0) throw Error(i, "tide: нужно «period=N -> клетки»");
+                        int period = 1;
+                        foreach (string kv in Words(value.Substring(0, arrow)))
+                        {
+                            (string a, string b) = Pair(kv, i);
+                            if (a == "period") period = Int(b, i);
+                            else throw Error(i, $"tide: неизвестный параметр «{a}»");
+                        }
+                        var cells = new List<Pos>();
+                        foreach (string t in Words(value.Substring(arrow + 2)))
+                            cells.Add(ParsePos(t, i));
+                        schedules.Add(ScheduleDef.Tide(period, cells));
+                        break;
+                    }
                     case "entity":
                     {
                         var e = new EntityDef();
@@ -153,7 +177,7 @@ namespace Paperbound.Core
                             (string a, string b) = Pair(kv, i);
                             switch (a)
                             {
-                                case "kind": e.Kind = Int(b, i); break;
+                                case "kind": e.Kind = EntityKind.Parse(b); break;
                                 case "at": e.Position = ParsePos(b, i); break;
                                 case "dir": e.Direction = ParsePos(b, i); break;
                                 case "data": e.Data = Int(b, i); break;
@@ -185,6 +209,15 @@ namespace Paperbound.Core
                         throw new FormatException($"marks: неизвестный символ «{m}» в строке {row + 1}");
                     level.Fragile[idx] = m == 'f' || m == 'x';
                     if (star || m == '*' || m == 'x') level.Stars.Add(new Pos(x, y));
+                    if (flow != null)
+                    {
+                        char f = flow[row][x];
+                        level.Flow[idx] = f switch
+                        {
+                            '.' => Pos.Zero, '^' => Pos.Up, 'v' => Pos.Down, '<' => Pos.Left, '>' => Pos.Right,
+                            _ => throw new FormatException($"flow: неизвестный символ «{f}» в строке {row + 1}"),
+                        };
+                    }
                 }
             }
             level.Stars.Sort((a, b) => a.Y != b.Y ? a.Y.CompareTo(b.Y) : a.X.CompareTo(b.X));
@@ -242,12 +275,32 @@ namespace Paperbound.Core
                 }
             }
 
+            bool anyFlow = false;
+            foreach (Pos f in level.Flow) if (f != Pos.Zero) anyFlow = true;
+            if (anyFlow)
+            {
+                sb.Append("flow:\n");
+                for (int y = level.Height - 1; y >= 0; y--)
+                {
+                    for (int x = 0; x < level.Width; x++)
+                        sb.Append(FlowChar(level.FlowAt(new Pos(x, y))));
+                    sb.Append('\n');
+                }
+            }
+
             foreach (ItemDef item in level.Items)
                 if (item.Kind == ItemKind.Leaf)
                     sb.Append($"leaf: {P(item.Position)} {FormName(item.Form)} +{item.Amount}\n");
 
             foreach (ScheduleDef s in level.Schedules)
             {
+                if (s.Kind == "tide")
+                {
+                    sb.Append($"tide: period={s.Period} ->");
+                    foreach (Pos t in s.Targets) sb.Append(' ').Append(P(t));
+                    sb.Append('\n');
+                    continue;
+                }
                 string kind = s.Kind == "volcano" ? "volcano" : s.Kind == "ice" ? "ice" : null;
                 if (kind == null) continue;
                 sb.Append($"{kind}: {P(s.Source)} period={s.Period}{(s.Loop ? " loop=on" : "")} ->");
@@ -256,7 +309,7 @@ namespace Paperbound.Core
             }
 
             foreach (EntityDef e in level.Entities)
-                sb.Append($"entity: kind={e.Kind} at={P(e.Position)} dir={P(e.Direction)} data={e.Data}\n");
+                sb.Append($"entity: kind={EntityKind.Name(e.Kind)} at={P(e.Position)} dir={P(e.Direction)} data={e.Data}\n");
 
             return sb.ToString();
         }
@@ -292,8 +345,12 @@ namespace Paperbound.Core
             TerrainType.Ice => 'I',
             TerrainType.Lava => 'L',
             TerrainType.LilyPad => 'P',
+            TerrainType.Sand => 'D',
             _ => '+',
         };
+
+        public static char FlowChar(Pos f) =>
+            f == Pos.Up ? '^' : f == Pos.Down ? 'v' : f == Pos.Left ? '<' : f == Pos.Right ? '>' : '.';
 
         private static (TerrainType, bool) ParseTerrain(char c, int row) => c switch
         {
@@ -311,6 +368,7 @@ namespace Paperbound.Core
             'I' => (TerrainType.Ice, false),
             'L' => (TerrainType.Lava, false),
             'P' => (TerrainType.LilyPad, false),
+            'D' => (TerrainType.Sand, false),
             _ => throw new FormatException($"map: неизвестный символ «{c}» в строке {row + 1}"),
         };
 

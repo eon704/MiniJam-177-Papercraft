@@ -150,12 +150,19 @@ namespace Paperbound.Tools
                     {
                         TerrainType.Empty => '#', TerrainType.Start => 'S', TerrainType.End => 'E',
                         TerrainType.Water => '~', TerrainType.Stone => 'R', TerrainType.Fire => 'F',
-                        TerrainType.Volcano => 'V', TerrainType.Lava => 'L', TerrainType.Ice => 'I', TerrainType.LilyPad => 'P', _ => '.',
+                        TerrainType.Volcano => 'V', TerrainType.Lava => 'L', TerrainType.Ice => 'I', TerrainType.LilyPad => 'P', TerrainType.Sand => 'D', _ => '.',
                     };
                     int star = level.StarIndex(p);
                     if (star >= 0 && (s == null || !s.HasStar(star))) c = t == TerrainType.Water ? 'w' : '*';
                     else if (level.Fragile[i] && c == '.') c = 'f';
+                    if (c == '~' && level.Flow[i] != Pos.Zero) c = LevelText.FlowChar(level.Flow[i]);
                     if (s != null && s.Collapsed[i]) c = '#';
+                    var ents = s != null ? s.Entities : null;
+                    if (ents == null)
+                    {
+                        foreach (EntityDef e in level.Entities) if (e.Position == p) c = e.Kind == EntityKind.Raft ? 'r' : 'e';
+                    }
+                    else foreach (EntityState e in ents) if (e.Position == p) c = e.Kind == EntityKind.Raft ? 'r' : 'e';
                     if (s != null && s.Player == p) c = '@';
                     sb.Append(c);
                 }

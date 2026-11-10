@@ -28,9 +28,13 @@ namespace Paperbound.Core
                     foreach (Pos p in o.Path) used.Add(p);
                     used.Add(o.Target);
                     MoveResult r = Rules.Apply(level, s, o.Form, o.Target);
-                    if (r.Success && r.After.Status == GameStatus.Playing && seen.Add(r.After)) queue.Enqueue(r.After);
+                    if (!r.Success) continue;
+                    used.Add(r.After.Player); // плот мог перевезти
+                    foreach (EntityState e in r.After.Entities) used.Add(e.Position);
+                    if (r.After.Status == GameStatus.Playing && seen.Add(r.After)) queue.Enqueue(r.After);
                 }
             }
+            foreach (EntityState e in start.Entities) used.Add(e.Position);
             return used;
         }
 

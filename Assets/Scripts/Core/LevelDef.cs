@@ -41,6 +41,18 @@ namespace Paperbound.Core
         public bool Loop;
         /// <summary>Клетки с этим террейном не меняются (индекс очереди всё равно сдвигается).</summary>
         public List<TerrainType> Immune = new();
+        /// <summary>
+        /// Переключатель (прилив): при срабатывании все цели сразу меняются Result ↔ Alternate. Очередь не используется.
+        /// </summary>
+        public bool Toggle;
+        public TerrainType Alternate;
+
+        /// <summary>Прилив: каждые period ходов клетки targets меняются вода ↔ песок.</summary>
+        public static ScheduleDef Tide(int period, IEnumerable<Pos> targets) => new()
+        {
+            Kind = "tide", Period = period, Targets = new List<Pos>(targets),
+            Result = TerrainType.Sand, Alternate = TerrainType.Water, Toggle = true,
+        };
 
         public static ScheduleDef Volcano(Pos source, int period, IEnumerable<Pos> targets) => new()
         {
@@ -73,6 +85,17 @@ namespace Paperbound.Core
     }
 
     /// <summary>Движущаяся сущность на поле (короб, плот, страж). Типы появятся вместе с механиками биомов.</summary>
+    /// <summary>Виды сущностей (EntityDef.Kind).</summary>
+    public static class EntityKind
+    {
+        /// <summary>Плот (Океан): плывёт по течению на 1 клетку после хода игрока; журавль и лягушка стоят и едут, лодка причаливает.</summary>
+        public const int Raft = 1;
+
+        public static string Name(int kind) => kind switch { Raft => "raft", _ => kind.ToString() };
+
+        public static int Parse(string s) => s switch { "raft" => Raft, _ => int.Parse(s) };
+    }
+
     public sealed class EntityDef
     {
         public int Kind;
@@ -88,6 +111,11 @@ namespace Paperbound.Core
         public readonly int Height;
         public readonly TerrainType[] Terrain;
         public readonly bool[] Fragile;
+        /// <summary>
+        /// Направление потока клетки (Pos.Zero — нет). На воде это течение (лодка поворачивает с ним, плот дрейфует),
+        /// на суше — ветер (Пустыня).
+        /// </summary>
+        public readonly Pos[] Flow;
         /// <summary>Позиции звёзд; индекс в списке — бит в GameState.StarMask.</summary>
         public readonly List<Pos> Stars = new();
         /// <summary>Бюджет ходов по формам, индекс — (int)Form.</summary>
@@ -105,6 +133,7 @@ namespace Paperbound.Core
             Height = height;
             Terrain = new TerrainType[width * height];
             Fragile = new bool[width * height];
+            Flow = new Pos[width * height];
         }
 
         public int CellCount => Width * Height;
@@ -146,6 +175,8 @@ namespace Paperbound.Core
 
         public Pos Start => Find(TerrainType.Start) ?? throw new InvalidOperationException("Level has no Start cell");
 
+        public Pos FlowAt(Pos p) => Flow[Index(p)];
+
         public void SetBudget(Form form, int moves) => Budget[(int)form] = moves;
 
         /// <summary>
@@ -177,6 +208,7 @@ namespace Paperbound.Core
                         'L' => TerrainType.Lava,
                         'I' => TerrainType.Ice,
                         'P' => TerrainType.LilyPad,
+                        'D' => TerrainType.Sand,
                         _ => TerrainType.Default,
                     };
                     level.Terrain[i] = t;

@@ -65,15 +65,15 @@ namespace Paperbound.Core
             new(Form.Default, MoveKind.None, new Pos[0]),
             new(Form.Crane, MoveKind.Step, Orthogonal,
                 TerrainType.Default, TerrainType.Stone, TerrainType.Fire, TerrainType.Lava,
-                TerrainType.Ice, TerrainType.Start, TerrainType.End, TerrainType.LilyPad),
+                TerrainType.Ice, TerrainType.Start, TerrainType.End, TerrainType.LilyPad, TerrainType.Sand),
             new(Form.Plane, MoveKind.Slide, Diagonal,
-                TerrainType.Default, TerrainType.Fire, TerrainType.Lava, TerrainType.Start, TerrainType.End),
+                TerrainType.Default, TerrainType.Fire, TerrainType.Lava, TerrainType.Start, TerrainType.End, TerrainType.Sand),
             new(Form.Boat, MoveKind.Sail, Orthogonal,
                 TerrainType.Default, TerrainType.Start, TerrainType.End, TerrainType.Fire, TerrainType.Lava,
-                TerrainType.LilyPad),
+                TerrainType.LilyPad, TerrainType.Sand),
             new(Form.Frog, MoveKind.Jump, OrthogonalTwo,
                 TerrainType.Default, TerrainType.Fire, TerrainType.Lava, TerrainType.Ice,
-                TerrainType.Start, TerrainType.End, TerrainType.LilyPad),
+                TerrainType.Start, TerrainType.End, TerrainType.LilyPad, TerrainType.Sand),
         };
 
         public static FormDef Get(Form form) => Table[(int)form];
@@ -91,7 +91,7 @@ namespace Paperbound.Core
 
     public static class TerrainInfo
     {
-        public const int Count = 11;
+        public const int Count = 12;
 
         public static bool IsDeadly(TerrainType t) => t == TerrainType.Fire || t == TerrainType.Lava;
 

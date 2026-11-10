@@ -36,6 +36,10 @@ namespace Paperbound.Core
         Won,
         /// <summary>Расписание изменило клетку (Source — источник, Pos — цель).</summary>
         TerrainChanged,
+        /// <summary>Сущность (EntityIndex) переместилась из Source в Pos после хода игрока.</summary>
+        EntityMoved,
+        /// <summary>Фигурку перевезла сущность (плот) из Source в Pos.</summary>
+        Carried,
     }
 
     public struct MoveEvent
@@ -47,6 +51,7 @@ namespace Paperbound.Core
         public int StarIndex;
         public int ItemIndex;
         public int ScheduleIndex;
+        public int EntityIndex;
         public Pos Source;
         public TerrainType OldTerrain;
         public TerrainType NewTerrain;
@@ -92,6 +97,17 @@ namespace Paperbound.Core
         private static bool IsHole(LevelDef level, GameState s, Pos p) =>
             s.Terrain[level.Index(p)] == TerrainType.Empty || s.Collapsed[level.Index(p)];
 
+        /// <summary>Журавль, лягушка и лодка могут стоять на плоту.</summary>
+        private static bool RidesRaft(Form f) => f == Form.Crane || f == Form.Frog || f == Form.Boat;
+
+        /// <summary>Форма может остановиться на клетке: подходящий террейн или плот.</summary>
+        public static bool CanStop(LevelDef level, GameState s, Form form, Pos p)
+        {
+            if (!level.InBounds(p) || IsHole(level, s, p)) return false;
+            if (RidesRaft(form) && s.EntityAt(p, EntityKind.Raft) >= 0) return true;
+            return Forms.Get(form).CanStandOn(s.TerrainAt(level, p));
+        }
+
         private static void StepOptions(LevelDef level, GameState s, FormDef def, List<MoveOption> result)
         {
             foreach (Pos dir in def.Directions)
@@ -99,10 +115,10 @@ namespace Paperbound.Core
                 Pos t = s.Player + dir;
                 if (!level.InBounds(t) || IsHole(level, s, t)) continue;
                 TerrainType terrain = s.TerrainAt(level, t);
-                var option = new MoveOption { Form = def.Form, Target = t, Legal = def.CanStandOn(terrain) };
+                var option = new MoveOption { Form = def.Form, Target = t, Legal = CanStop(level, s, def.Form, t) };
                 option.Path.Add(t);
 
-                if (option.Legal && level.Rules.SlipperyIce && terrain == TerrainType.Ice)
+                if (option.Legal && level.Rules.SlipperyIce && terrain == TerrainType.Ice && s.EntityAt(t, EntityKind.Raft) < 0)
                 {
                     Pos c = t;
                     while (s.TerrainAt(level, c) == TerrainType.Ice)
@@ -124,7 +140,7 @@ namespace Paperbound.Core
             {
                 Pos t = s.Player + offset;
                 if (!level.InBounds(t) || IsHole(level, s, t)) continue;
-                var option = new MoveOption { Form = def.Form, Target = t, Legal = def.CanStandOn(s.TerrainAt(level, t)) };
+                var option = new MoveOption { Form = def.Form, Target = t, Legal = CanStop(level, s, def.Form, t) };
                 option.Path.Add(t);
                 result.Add(option);
             }
@@ -156,19 +172,47 @@ namespace Paperbound.Core
             }
         }
 
+        private static bool OpenWater(LevelDef level, GameState s, Pos p) =>
+            level.InBounds(p) && s.TerrainAt(level, p) == TerrainType.Water && !s.IsCollapsed(level, p) && s.EntityAt(p) < 0;
+
+        /// <summary>
+        /// Лодка: плывёт по воде до первой суши (или плота) и причаливает. Течение (LevelDef.Flow на воде) поворачивает
+        /// лодку по своему направлению; войти в клетку против течения нельзя; кольцо течения без выхода — хода нет.
+        /// Лодка, стоящая на воде (на плоту или на залитой клетке), может причалить к соседней суше одним шагом.
+        /// </summary>
         private static void SailOptions(LevelDef level, GameState s, FormDef def, List<MoveOption> result)
         {
+            bool afloat = s.TerrainAt(level, s.Player) == TerrainType.Water;
             foreach (Pos dir in def.Directions)
             {
                 Pos c = s.Player + dir;
-                if (!level.InBounds(c) || s.TerrainAt(level, c) != TerrainType.Water || s.IsCollapsed(level, c)) continue;
-                var path = new List<Pos>();
-                while (level.InBounds(c) && s.TerrainAt(level, c) == TerrainType.Water && !s.IsCollapsed(level, c))
+                if (!level.InBounds(c) || IsHole(level, s, c)) continue;
+                if (!OpenWater(level, s, c))
                 {
-                    path.Add(c);
-                    c += dir;
+                    // Соседний плот или (если лодка на воде) соседняя суша — причал одним шагом.
+                    bool raft = s.EntityAt(c, EntityKind.Raft) >= 0;
+                    if (raft || (afloat && s.TerrainAt(level, c) != TerrainType.Water && def.CanStandOn(s.TerrainAt(level, c))))
+                        result.Add(new MoveOption { Form = def.Form, Target = c, Legal = true, Path = new List<Pos> { c } });
+                    continue;
                 }
-                if (!level.InBounds(c) || IsHole(level, s, c) || !def.CanStandOn(s.TerrainAt(level, c))) continue;
+                var path = new List<Pos>();
+                var seen = new HashSet<(Pos, Pos)>();
+                Pos d = dir;
+                bool blocked = false;
+                while (OpenWater(level, s, c))
+                {
+                    Pos flow = level.FlowAt(c);
+                    if (flow != Pos.Zero)
+                    {
+                        if (flow == Pos.Zero - d) { blocked = true; break; } // против течения
+                        d = flow;
+                    }
+                    if (!seen.Add((c, d))) { blocked = true; break; } // кольцо течения
+                    path.Add(c);
+                    c += d;
+                }
+                if (blocked || !level.InBounds(c) || !CanStop(level, s, def.Form, c)) continue;
+                if (s.TerrainAt(level, c) == TerrainType.Water && s.EntityAt(c, EntityKind.Raft) < 0) continue;
                 path.Add(c);
                 result.Add(new MoveOption { Form = def.Form, Target = c, Legal = true, Path = path });
             }
@@ -291,6 +335,7 @@ namespace Paperbound.Core
             }
 
             TickSchedules(level, n, r.Path.Count, r);
+            if (n.Status == GameStatus.Playing) TickEntities(level, n, r.Path.Count, r);
             return r;
         }
 
@@ -362,6 +407,29 @@ namespace Paperbound.Core
                 if (n.ScheduleCountdown[i] > 0) continue;
                 n.ScheduleCountdown[i] = sch.Period;
 
+                if (sch.Toggle)
+                {
+                    foreach (Pos tp in sch.Targets)
+                    {
+                        if (!level.InBounds(tp)) continue;
+                        int ti = level.Index(tp);
+                        TerrainType was = n.Terrain[ti];
+                        TerrainType now = was == sch.Result ? sch.Alternate : was == sch.Alternate ? sch.Result : was;
+                        if (now == was) continue;
+                        n.Terrain[ti] = now;
+                        r.Events.Add(new MoveEvent
+                        {
+                            Type = MoveEventType.TerrainChanged, Pos = tp, PathIndex = pathIndex, ScheduleIndex = i,
+                            Source = sch.Source, OldTerrain = was, NewTerrain = now,
+                        });
+                    }
+                    // Прилив залил клетку: на плаву остаются лодка и стоящие на плоту.
+                    if (n.Status == GameStatus.Playing && n.Terrain[level.Index(n.Player)] == TerrainType.Water
+                        && n.Form != Form.Boat && n.EntityAt(n.Player, EntityKind.Raft) < 0)
+                        Die(n, r, n.Player, pathIndex, DeathCause.Drowned);
+                    continue;
+                }
+
                 int q = n.ScheduleIndex[i];
                 if (q >= sch.Targets.Count)
                 {
@@ -388,6 +456,36 @@ namespace Paperbound.Core
             }
         }
 
+        /// <summary>
+        /// Сущности после хода игрока и расписаний. Плот: если стоит на воде с течением и следующая клетка — свободная вода,
+        /// сдвигается на 1; стоящего на нём везёт (звёзды и предметы по пути подбираются).
+        /// </summary>
+        private static void TickEntities(LevelDef level, GameState n, int pathIndex, MoveResult r)
+        {
+            for (int i = 0; i < n.Entities.Length; i++)
+            {
+                EntityState e = n.Entities[i];
+                if (e.Kind != EntityKind.Raft) continue;
+                int idx = level.Index(e.Position);
+                if (n.Terrain[idx] != TerrainType.Water) continue;
+                Pos flow = level.Flow[idx];
+                if (flow == Pos.Zero) continue;
+                Pos t = e.Position + flow;
+                if (!level.InBounds(t) || n.Terrain[level.Index(t)] != TerrainType.Water || n.Collapsed[level.Index(t)] || n.EntityAt(t) >= 0) continue;
+                bool rider = n.Player == e.Position;
+                if (!rider && n.Player == t) continue; // на пути лодка на воде
+                n.Entities[i].Position = t;
+                r.Events.Add(new MoveEvent { Type = MoveEventType.EntityMoved, Pos = t, Source = e.Position, PathIndex = pathIndex, EntityIndex = i });
+                if (rider)
+                {
+                    n.Player = t;
+                    r.Events.Add(new MoveEvent { Type = MoveEventType.Carried, Pos = t, Source = e.Position, PathIndex = pathIndex, EntityIndex = i });
+                    CollectStar(level, n, t, pathIndex, r);
+                    CollectItem(level, n, t, pathIndex, r);
+                }
+            }
+        }
+
         /// <summary>Следующая цель каждого расписания и сколько ходов до срабатывания (для дуг и рамок вулкана).</summary>
         public static List<(int schedule, Pos source, Pos target, int countdown)> UpcomingEffects(LevelDef level, GameState s)
         {
@@ -395,7 +493,7 @@ namespace Paperbound.Core
             for (int i = 0; i < level.Schedules.Count; i++)
             {
                 ScheduleDef sch = level.Schedules[i];
-                if (sch.Targets.Count == 0) continue;
+                if (sch.Targets.Count == 0 || sch.Toggle) continue;
                 int q = s.ScheduleIndex[i];
                 if (q >= sch.Targets.Count)
                 {
