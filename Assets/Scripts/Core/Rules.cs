@@ -415,9 +415,14 @@ namespace Paperbound.Core
                 CollectItem(level, n, c, i, r);
                 if (form == Form.Frog && terrain == TerrainType.ThinIce)
                 {
-                    // Лягушка пробивает тонкий лёд и плавает в полынье; выпрыгнуть можно следующим ходом.
+                    // Лягушка пробивает тонкий лёд и тонет в полынье (с RuleSet.FrogSwims — плавает и выпрыгивает следующим ходом).
                     n.Terrain[idx] = TerrainType.Water;
                     r.Events.Add(new MoveEvent { Type = MoveEventType.TerrainChanged, Pos = c, PathIndex = i, Source = c, OldTerrain = TerrainType.ThinIce, NewTerrain = TerrainType.Water });
+                    if (!level.Rules.FrogSwims)
+                    {
+                        Die(n, r, c, i, DeathCause.Drowned);
+                        return r;
+                    }
                 }
                 if (terrain == TerrainType.End)
                 {
@@ -558,9 +563,9 @@ namespace Paperbound.Core
                             Source = sch.Source, OldTerrain = was, NewTerrain = now,
                         });
                     }
-                    // Прилив залил клетку: на плаву остаются лодка, лягушка (плавает) и стоящие на плоту.
+                    // Прилив залил клетку: на плаву остаются лодка и стоящие на плоту (и лягушка при RuleSet.FrogSwims).
                     if (n.Status == GameStatus.Playing && n.Terrain[level.Index(n.Player)] == TerrainType.Water
-                        && n.Form != Form.Boat && n.Form != Form.Frog && n.EntityAt(n.Player, EntityKind.Raft) < 0)
+                        && n.Form != Form.Boat && !(n.Form == Form.Frog && level.Rules.FrogSwims) && n.EntityAt(n.Player, EntityKind.Raft) < 0)
                         Die(n, r, n.Player, pathIndex, DeathCause.Drowned);
                     continue;
                 }

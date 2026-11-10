@@ -95,6 +95,7 @@ namespace Paperbound.Core
                                 case "slippery_ice": rules.SlipperyIce = on; break;
                                 case "boat_stars": rules.BoatCollectsStars = on; break;
                                 case "plane_over_water": rules.PlaneFliesOverWaterAndEmpty = on; break;
+                                case "frog_swims": rules.FrogSwims = on; break;
                                 default: throw Error(i, $"неизвестное правило «{k}»");
                             }
                         }
@@ -247,8 +248,8 @@ namespace Paperbound.Core
             sb.Append('\n');
 
             RuleSet d = RuleSet.Default, r = level.Rules;
-            if (r.SlipperyIce != d.SlipperyIce || r.BoatCollectsStars != d.BoatCollectsStars || r.PlaneFliesOverWaterAndEmpty != d.PlaneFliesOverWaterAndEmpty)
-                sb.Append($"rules: slippery_ice={OnOff(r.SlipperyIce)} boat_stars={OnOff(r.BoatCollectsStars)} plane_over_water={OnOff(r.PlaneFliesOverWaterAndEmpty)}\n");
+            if (r.SlipperyIce != d.SlipperyIce || r.BoatCollectsStars != d.BoatCollectsStars || r.PlaneFliesOverWaterAndEmpty != d.PlaneFliesOverWaterAndEmpty || r.FrogSwims != d.FrogSwims)
+                sb.Append($"rules: slippery_ice={OnOff(r.SlipperyIce)} boat_stars={OnOff(r.BoatCollectsStars)} plane_over_water={OnOff(r.PlaneFliesOverWaterAndEmpty)} frog_swims={OnOff(r.FrogSwims)}\n");
 
             bool anyMarks = false;
             sb.Append("map:\n");

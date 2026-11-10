@@ -8,7 +8,7 @@ namespace Paperbound.Core.Tests
         private static MoveResult Move(LevelDef level, GameState s, Form f, int x, int y) => Rules.Apply(level, s, f, new Pos(x, y));
 
         [Fact]
-        public void ThinIce_HoldsCrane_FrogBreaksItAndSwims()
+        public void ThinIce_HoldsCrane_FrogBreaksItAndDrowns()
         {
             var level = LevelDef.FromRows("SnnE");
             level.SetBudget(Form.Crane, 3);
@@ -20,21 +20,37 @@ namespace Paperbound.Core.Tests
             frogLevel.SetBudget(Form.Frog, 2);
             var frog = Move(frogLevel, GameState.Initial(frogLevel), Form.Frog, 2, 0);
             Assert.True(frog.Success);
-            Assert.Equal(GameStatus.Playing, frog.After.Status);
-            Assert.Equal(TerrainType.Water, frog.After.TerrainAt(frogLevel, new Pos(2, 0)));
-            Assert.True(Move(frogLevel, frog.After, Form.Frog, 4, 0).Success); // выпрыгнула из полыньи
+            Assert.Equal(GameStatus.Dead, frog.After.Status);
+            Assert.Equal(DeathCause.Drowned, frog.After.Death);
         }
 
         [Fact]
-        public void ThinIce_BrokenByFrog_OpensWaterForBoat()
+        public void ThinIce_FrogSwimsHypothesis_OpensWaterForBoat()
         {
-            // Лягушка пробивает лёд, лодка плывёт по полынье.
+            // Гипотеза RuleSet.FrogSwims: лягушка плавает в полынье, лодка плывёт по ней.
             var level = LevelDef.FromRows("S.n.E");
-            level.SetBudget(Form.Frog, 1);
+            level.Rules.FrogSwims = true;
+            level.SetBudget(Form.Frog, 2);
             level.SetBudget(Form.Boat, 1);
             var s = Move(level, GameState.Initial(level), Form.Frog, 2, 0).After;
-            // Лягушка в воде, сворачивается в лодку и причаливает к соседней суше.
+            Assert.Equal(GameStatus.Playing, s.Status);
+            Assert.Equal(TerrainType.Water, s.TerrainAt(level, new Pos(2, 0)));
             Assert.Contains(Rules.GetOptions(level, s, Form.Boat), o => o.Target == new Pos(3, 0));
+            Assert.True(Move(level, s, Form.Frog, 4, 0).Success); // выпрыгнула из полыньи
+        }
+
+        [Fact]
+        public void Tide_DrownsFrog_UnlessFrogSwims()
+        {
+            string text = "name: t\nsize: 4 1\nbudget: crane=0 plane=0 boat=0 frog=1\nmap:\nx+Dy\nmarks:\n....\ntide: period=1 -> 2,0\n";
+            var level = LevelText.Parse(text);
+            var r = Rules.Apply(level, GameState.Initial(level), Form.Frog, new Pos(2, 0));
+            Assert.Equal(GameStatus.Dead, r.After.Status);
+
+            var swim = LevelText.Parse(text);
+            swim.Rules.FrogSwims = true;
+            Assert.Equal(GameStatus.Playing, Rules.Apply(swim, GameState.Initial(swim), Form.Frog, new Pos(2, 0)).After.Status);
+            Assert.Contains("frog_swims=on", LevelText.Write(swim));
         }
 
         [Fact]
