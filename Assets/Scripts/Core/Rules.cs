@@ -11,6 +11,9 @@ namespace Paperbound.Core
         public bool Legal;
         /// <summary>Клетки пути без стартовой, последняя — Target.</summary>
         public List<Pos> Path = new();
+        /// <summary>Журавль толкает короб, стоящий на Target, на клетку Target + направление.</summary>
+        public bool Push;
+        public Pos PushTo;
     }
 
     public enum MoveFailure
@@ -40,6 +43,8 @@ namespace Paperbound.Core
         EntityMoved,
         /// <summary>Фигурку перевезла сущность (плот) из Source в Pos.</summary>
         Carried,
+        /// <summary>Сущность (EntityIndex) исчезла или сменила вид: короб сгорел, стал полом или плотом (NewTerrain — что стало с клеткой).</summary>
+        EntityChanged,
     }
 
     public struct MoveEvent
@@ -90,6 +95,7 @@ namespace Paperbound.Core
                 case MoveKind.Jump: JumpOptions(level, s, def, result); break;
                 case MoveKind.Slide: SlideOptions(level, s, def, result); break;
                 case MoveKind.Sail: SailOptions(level, s, def, result); break;
+                case MoveKind.Rush: RushOptions(level, s, def, result); break;
             }
             return result;
         }
@@ -97,15 +103,56 @@ namespace Paperbound.Core
         private static bool IsHole(LevelDef level, GameState s, Pos p) =>
             s.Terrain[level.Index(p)] == TerrainType.Empty || s.Collapsed[level.Index(p)];
 
+        // ── Пещера: плиты и ворота ────────────────────────────────────────────
+
+        /// <summary>Плиту жмут журавль, лягушка и короб.</summary>
+        public static bool PlatePressed(LevelDef level, GameState s)
+        {
+            for (int i = 0; i < level.CellCount; i++)
+            {
+                if (s.Terrain[i] != TerrainType.Plate) continue;
+                Pos p = level.PosOf(i);
+                if (s.Player == p && (s.Form == Form.Crane || s.Form == Form.Frog) && s.Status == GameStatus.Playing) return true;
+                if (s.EntityAt(p, EntityKind.Box) >= 0) return true;
+            }
+            return false;
+        }
+
+        /// <summary>Ворота открыты, пока нажата хоть одна плита; занятые ворота не закрываются.</summary>
+        public static bool GateOpen(LevelDef level, GameState s, Pos p) =>
+            PlatePressed(level, s) || s.Player == p || s.EntityAt(p) >= 0;
+
+        /// <summary>Стена для движения: закрытые ворота или короб.</summary>
+        private static bool Walled(LevelDef level, GameState s, Pos p) =>
+            s.EntityAt(p, EntityKind.Box) >= 0 || (s.TerrainAt(level, p) == TerrainType.Gate && !GateOpen(level, s, p));
+
         /// <summary>Журавль, лягушка и лодка могут стоять на плоту.</summary>
         private static bool RidesRaft(Form f) => f == Form.Crane || f == Form.Frog || f == Form.Boat;
 
         /// <summary>Форма может остановиться на клетке: подходящий террейн или плот.</summary>
         public static bool CanStop(LevelDef level, GameState s, Form form, Pos p)
         {
-            if (!level.InBounds(p) || IsHole(level, s, p)) return false;
+            if (!level.InBounds(p) || IsHole(level, s, p) || Walled(level, s, p)) return false;
             if (RidesRaft(form) && s.EntityAt(p, EntityKind.Raft) >= 0) return true;
             return Forms.Get(form).CanStandOn(s.TerrainAt(level, p));
+        }
+
+        /// <summary>Куда можно втолкнуть короб: пол, вода/кувшинка (станет плотом), провал (станет полом), огонь/лава (сгорит).</summary>
+        private static bool CanReceiveBox(LevelDef level, GameState s, Pos p)
+        {
+            if (!level.InBounds(p) || s.EntityAt(p) >= 0 || s.Player == p) return false;
+            if (IsHole(level, s, p)) return true;
+            switch (s.TerrainAt(level, p))
+            {
+                case TerrainType.Default: case TerrainType.Sand: case TerrainType.Ice: case TerrainType.BoxFloor:
+                case TerrainType.Plate: case TerrainType.Water: case TerrainType.LilyPad:
+                case TerrainType.Fire: case TerrainType.Lava:
+                    return true;
+                case TerrainType.Gate:
+                    return GateOpen(level, s, p);
+                default:
+                    return false; // камень, старт, финиш, вулкан
+            }
         }
 
         private static void StepOptions(LevelDef level, GameState s, FormDef def, List<MoveOption> result)
@@ -115,6 +162,18 @@ namespace Paperbound.Core
                 Pos t = s.Player + dir;
                 if (!level.InBounds(t) || IsHole(level, s, t)) continue;
                 TerrainType terrain = s.TerrainAt(level, t);
+                if (s.EntityAt(t, EntityKind.Box) >= 0)
+                {
+                    // Журавль толкает короб; другие шагающие формы — нет.
+                    if (def.Form != Form.Crane) continue;
+                    Pos to = t + dir;
+                    var push = new MoveOption { Form = def.Form, Target = t, Push = true, PushTo = to,
+                        Legal = def.CanStandOn(terrain) && CanReceiveBox(level, s, to) };
+                    push.Path.Add(t);
+                    result.Add(push);
+                    continue;
+                }
+                if (Walled(level, s, t)) continue;
                 var option = new MoveOption { Form = def.Form, Target = t, Legal = CanStop(level, s, def.Form, t) };
                 option.Path.Add(t);
 
@@ -124,7 +183,7 @@ namespace Paperbound.Core
                     while (s.TerrainAt(level, c) == TerrainType.Ice)
                     {
                         Pos n = c + dir;
-                        if (!level.InBounds(n) || IsHole(level, s, n) || !def.CanStandOn(s.TerrainAt(level, n))) break;
+                        if (!level.InBounds(n) || IsHole(level, s, n) || Walled(level, s, n) || !def.CanStandOn(s.TerrainAt(level, n))) break;
                         c = n;
                         option.Path.Add(c);
                     }
@@ -139,7 +198,7 @@ namespace Paperbound.Core
             foreach (Pos offset in def.Directions)
             {
                 Pos t = s.Player + offset;
-                if (!level.InBounds(t) || IsHole(level, s, t)) continue;
+                if (!level.InBounds(t) || IsHole(level, s, t) || Walled(level, s, t)) continue;
                 var option = new MoveOption { Form = def.Form, Target = t, Legal = CanStop(level, s, def.Form, t) };
                 option.Path.Add(t);
                 result.Add(option);
@@ -155,6 +214,7 @@ namespace Paperbound.Core
                 Pos c = s.Player + dir;
                 while (level.InBounds(c))
                 {
+                    if (Walled(level, s, c)) break; // короб и закрытые ворота останавливают самолёт
                     TerrainType terrain = s.TerrainAt(level, c);
                     bool hole = IsHole(level, s, c);
                     if (hole || TerrainInfo.IsWaterLike(terrain))
@@ -169,6 +229,28 @@ namespace Paperbound.Core
                     result.Add(new MoveOption { Form = def.Form, Target = c, Legal = true, Path = new List<Pos>(path) });
                     c += dir;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Сюрикен: летит по прямой, пока следующая клетка проходима (суша, бамбук), и останавливается перед препятствием
+        /// (край, провал, вода, камень, короб, плот, закрытые ворота). Бамбук на пути срезается. Хотя бы одна клетка пути.
+        /// </summary>
+        private static void RushOptions(LevelDef level, GameState s, FormDef def, List<MoveOption> result)
+        {
+            foreach (Pos dir in def.Directions)
+            {
+                var path = new List<Pos>();
+                Pos c = s.Player + dir;
+                while (level.InBounds(c) && !IsHole(level, s, c) && !Walled(level, s, c) && s.EntityAt(c) < 0)
+                {
+                    TerrainType t = s.TerrainAt(level, c);
+                    if (t != TerrainType.Bamboo && !def.CanStandOn(t)) break;
+                    path.Add(c);
+                    c += dir;
+                }
+                if (path.Count == 0) continue;
+                result.Add(new MoveOption { Form = def.Form, Target = path[path.Count - 1], Legal = true, Path = path });
             }
         }
 
@@ -279,6 +361,8 @@ namespace Paperbound.Core
             Collapse(level, n, s.Player, -1, r);
             Sink(level, n, s.Player, r);
 
+            if (option.Push) PushBox(level, n, option.Target, option.PushTo, r);
+
             for (int i = 0; i < option.Path.Count; i++)
             {
                 Pos c = option.Path[i];
@@ -308,6 +392,13 @@ namespace Paperbound.Core
                             if (level.Rules.BoatCollectsStars) CollectStar(level, n, c, i, r);
                             CollectItem(level, n, c, i, r);
                             break;
+                        case MoveKind.Rush:
+                            // Сюрикен проходит огонь, срезает бамбук, собирает звёзды, рушит хрупкие клетки.
+                            CutBamboo(level, n, c, i, r);
+                            CollectStar(level, n, c, i, r);
+                            CollectItem(level, n, c, i, r);
+                            Collapse(level, n, c, i, r);
+                            break;
                         case MoveKind.Step:
                             // Скольжение по льду: фигурка проходит клетку целиком.
                             CollectStar(level, n, c, i, r);
@@ -319,8 +410,15 @@ namespace Paperbound.Core
                 }
 
                 n.Player = c;
+                if (kind == MoveKind.Rush) { CutBamboo(level, n, c, i, r); terrain = n.Terrain[idx]; }
                 CollectStar(level, n, c, i, r);
                 CollectItem(level, n, c, i, r);
+                if (form == Form.Frog && terrain == TerrainType.ThinIce)
+                {
+                    // Лягушка пробивает тонкий лёд и плавает в полынье; выпрыгнуть можно следующим ходом.
+                    n.Terrain[idx] = TerrainType.Water;
+                    r.Events.Add(new MoveEvent { Type = MoveEventType.TerrainChanged, Pos = c, PathIndex = i, Source = c, OldTerrain = TerrainType.ThinIce, NewTerrain = TerrainType.Water });
+                }
                 if (terrain == TerrainType.End)
                 {
                     n.Status = GameStatus.Won;
@@ -375,6 +473,43 @@ namespace Paperbound.Core
             }
         }
 
+        private static void CutBamboo(LevelDef level, GameState n, Pos c, int pathIndex, MoveResult r)
+        {
+            int idx = level.Index(c);
+            if (n.Terrain[idx] != TerrainType.Bamboo) return;
+            n.Terrain[idx] = TerrainType.Default;
+            r.Events.Add(new MoveEvent { Type = MoveEventType.TerrainChanged, Pos = c, PathIndex = pathIndex, Source = c, OldTerrain = TerrainType.Bamboo, NewTerrain = TerrainType.Default });
+        }
+
+        private static void PushBox(LevelDef level, GameState n, Pos from, Pos to, MoveResult r)
+        {
+            int k = n.EntityAt(from, EntityKind.Box);
+            if (k < 0) return;
+            int ti = level.Index(to);
+            n.Entities[k].Position = to;
+            r.Events.Add(new MoveEvent { Type = MoveEventType.EntityMoved, Pos = to, Source = from, PathIndex = 0, EntityIndex = k });
+            TerrainType t = n.Terrain[ti];
+            if (t == TerrainType.Empty || n.Collapsed[ti])
+            {
+                // Короб заполняет провал и становится полом.
+                n.Terrain[ti] = TerrainType.BoxFloor;
+                n.Collapsed[ti] = false;
+                n.Entities[k].Kind = EntityKind.None;
+                r.Events.Add(new MoveEvent { Type = MoveEventType.EntityChanged, Pos = to, PathIndex = 0, EntityIndex = k, OldTerrain = t, NewTerrain = TerrainType.BoxFloor });
+            }
+            else if (t == TerrainType.Water || t == TerrainType.LilyPad)
+            {
+                n.Terrain[ti] = TerrainType.Water;
+                n.Entities[k].Kind = EntityKind.Raft;
+                r.Events.Add(new MoveEvent { Type = MoveEventType.EntityChanged, Pos = to, PathIndex = 0, EntityIndex = k, OldTerrain = t, NewTerrain = TerrainType.Water });
+            }
+            else if (TerrainInfo.IsDeadly(t))
+            {
+                n.Entities[k].Kind = EntityKind.None;
+                r.Events.Add(new MoveEvent { Type = MoveEventType.EntityChanged, Pos = to, PathIndex = 0, EntityIndex = k, OldTerrain = t, NewTerrain = t });
+            }
+        }
+
         private static void Sink(LevelDef level, GameState n, Pos c, MoveResult r)
         {
             int idx = level.Index(c);
@@ -390,7 +525,7 @@ namespace Paperbound.Core
         private static void Collapse(LevelDef level, GameState n, Pos c, int pathIndex, MoveResult r)
         {
             int idx = level.Index(c);
-            if (!level.Fragile[idx] || n.Collapsed[idx]) return;
+            if (!level.Fragile[idx] || n.Collapsed[idx] || n.Terrain[idx] == TerrainType.BoxFloor) return;
             n.Collapsed[idx] = true;
             r.Events.Add(new MoveEvent { Type = MoveEventType.Collapsed, Pos = c, PathIndex = pathIndex });
         }
@@ -423,9 +558,9 @@ namespace Paperbound.Core
                             Source = sch.Source, OldTerrain = was, NewTerrain = now,
                         });
                     }
-                    // Прилив залил клетку: на плаву остаются лодка и стоящие на плоту.
+                    // Прилив залил клетку: на плаву остаются лодка, лягушка (плавает) и стоящие на плоту.
                     if (n.Status == GameStatus.Playing && n.Terrain[level.Index(n.Player)] == TerrainType.Water
-                        && n.Form != Form.Boat && n.EntityAt(n.Player, EntityKind.Raft) < 0)
+                        && n.Form != Form.Boat && n.Form != Form.Frog && n.EntityAt(n.Player, EntityKind.Raft) < 0)
                         Die(n, r, n.Player, pathIndex, DeathCause.Drowned);
                     continue;
                 }

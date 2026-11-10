@@ -71,7 +71,31 @@ namespace Paperbound.Core
                 TerrainType t = level.Terrain[level.Index(e.Position)];
                 if (e.Kind == EntityKind.Raft && t != TerrainType.Water && t != TerrainType.Sand)
                     errors.Add($"Плот {e.Position} должен стоять на воде.");
+                if (e.Kind == EntityKind.Box && t != TerrainType.Default && t != TerrainType.Sand && t != TerrainType.Plate && t != TerrainType.Ice && t != TerrainType.BoxFloor)
+                    errors.Add($"Короб {e.Position} должен стоять на полу.");
             }
+
+            // Два плота не должны спорить за клетку: в одну клетку воды не может вести течение с двух сторон.
+            int rafts = 0;
+            foreach (EntityDef e in level.Entities) if (e.Kind == EntityKind.Raft || e.Kind == EntityKind.Box) rafts++;
+            if (rafts >= 2)
+            {
+                for (int i = 0; i < level.CellCount; i++)
+                {
+                    Pos p = level.PosOf(i);
+                    int into = 0;
+                    foreach (Pos d in new[] { Pos.Up, Pos.Down, Pos.Left, Pos.Right })
+                    {
+                        Pos n = p - d;
+                        if (level.InBounds(n) && level.Flow[level.Index(n)] == d && level.Terrain[level.Index(n)] == TerrainType.Water) into++;
+                    }
+                    if (into >= 2) errors.Add($"В клетку {p} течение ведёт с двух сторон: плоты могут спорить за неё.");
+                }
+            }
+
+            bool hasGate = false, hasPlate = false;
+            foreach (TerrainType t in level.Terrain) { hasGate |= t == TerrainType.Gate; hasPlate |= t == TerrainType.Plate; }
+            if (hasGate && !hasPlate) errors.Add("Есть ворота, но нет ни одной плиты.");
             for (int a = 0; a < level.Entities.Count; a++)
                 for (int b = a + 1; b < level.Entities.Count; b++)
                     if (level.Entities[a].Position == level.Entities[b].Position)

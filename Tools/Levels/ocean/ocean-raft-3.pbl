@@ -1,4 +1,5 @@
 # идея: ловушка: плот в нижнем ряду ходит туда-обратно между встречными течениями, второй плот стоит на месте островком; журавль должен сойти на нижний плот в тот ход, когда тот рядом
+# Paperbound level v1
 name: ocean-raft-3
 size: 6 5
 budget: crane=4 plane=1 boat=0 frog=1
@@ -19,6 +20,6 @@ flow:
 ......
 ......
 ......
-.><<..
+.><...
 entity: kind=raft at=2,2 dir=0,0 data=0
-entity: kind=raft at=3,0 dir=0,0 data=0
+entity: kind=raft at=1,0 dir=0,0 data=0

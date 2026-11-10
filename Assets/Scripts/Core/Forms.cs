@@ -13,6 +13,10 @@ namespace Paperbound.Core
         Plane = 2,
         Boat = 3,
         Frog = 4,
+        /// <summary>Сюрикен (Снега): скользит по прямой до препятствия, срезает бамбук на пути.</summary>
+        Shuriken = 5,
+        /// <summary>Бабочка (Пустыня): 1 клетка по диагонали; невесомая; ветер уносит её до конца потока.</summary>
+        Butterfly = 6,
     }
 
     /// <summary>Как форма перемещается.</summary>
@@ -27,6 +31,10 @@ namespace Paperbound.Core
         Slide,
         /// <summary>Плавание через воду до первой суши (лодка).</summary>
         Sail,
+        /// <summary>Скольжение по прямой до препятствия, остановка только перед ним (сюрикен).</summary>
+        Rush,
+        /// <summary>Шаг по диагонали, после которого ветер может унести (бабочка).</summary>
+        Flutter,
     }
 
     public sealed class FormDef
@@ -54,7 +62,7 @@ namespace Paperbound.Core
 
     public static class Forms
     {
-        public const int Count = 5;
+        public const int Count = 7;
 
         private static readonly Pos[] Orthogonal = { Pos.Up, Pos.Down, Pos.Right, Pos.Left };
         private static readonly Pos[] OrthogonalTwo = { new(0, 2), new(0, -2), new(2, 0), new(-2, 0) };
@@ -65,15 +73,26 @@ namespace Paperbound.Core
             new(Form.Default, MoveKind.None, new Pos[0]),
             new(Form.Crane, MoveKind.Step, Orthogonal,
                 TerrainType.Default, TerrainType.Stone, TerrainType.Fire, TerrainType.Lava,
-                TerrainType.Ice, TerrainType.Start, TerrainType.End, TerrainType.LilyPad, TerrainType.Sand),
+                TerrainType.Ice, TerrainType.Start, TerrainType.End, TerrainType.LilyPad, TerrainType.Sand, TerrainType.BoxFloor, TerrainType.Plate, TerrainType.Gate,
+                TerrainType.ThinIce, TerrainType.Quicksand),
             new(Form.Plane, MoveKind.Slide, Diagonal,
-                TerrainType.Default, TerrainType.Fire, TerrainType.Lava, TerrainType.Start, TerrainType.End, TerrainType.Sand),
+                TerrainType.Default, TerrainType.Fire, TerrainType.Lava, TerrainType.Start, TerrainType.End, TerrainType.Sand, TerrainType.BoxFloor, TerrainType.Plate, TerrainType.Gate,
+                TerrainType.ThinIce, TerrainType.Quicksand),
             new(Form.Boat, MoveKind.Sail, Orthogonal,
                 TerrainType.Default, TerrainType.Start, TerrainType.End, TerrainType.Fire, TerrainType.Lava,
-                TerrainType.LilyPad, TerrainType.Sand),
+                TerrainType.LilyPad, TerrainType.Sand, TerrainType.BoxFloor, TerrainType.Plate, TerrainType.Gate, TerrainType.ThinIce, TerrainType.Quicksand),
             new(Form.Frog, MoveKind.Jump, OrthogonalTwo,
                 TerrainType.Default, TerrainType.Fire, TerrainType.Lava, TerrainType.Ice,
-                TerrainType.Start, TerrainType.End, TerrainType.LilyPad, TerrainType.Sand),
+                TerrainType.Start, TerrainType.End, TerrainType.LilyPad, TerrainType.Sand, TerrainType.BoxFloor, TerrainType.Plate, TerrainType.Gate,
+                TerrainType.ThinIce, TerrainType.Quicksand),
+            new(Form.Shuriken, MoveKind.Rush, Orthogonal,
+                TerrainType.Default, TerrainType.Fire, TerrainType.Lava, TerrainType.Ice, TerrainType.Start, TerrainType.End,
+                TerrainType.LilyPad, TerrainType.Sand, TerrainType.BoxFloor, TerrainType.Plate, TerrainType.Gate, TerrainType.ThinIce,
+                TerrainType.Quicksand),
+            new(Form.Butterfly, MoveKind.Flutter, Diagonal,
+                TerrainType.Default, TerrainType.Fire, TerrainType.Lava, TerrainType.Ice, TerrainType.Start, TerrainType.End,
+                TerrainType.LilyPad, TerrainType.Sand, TerrainType.BoxFloor, TerrainType.Plate, TerrainType.Gate, TerrainType.ThinIce,
+                TerrainType.Quicksand, TerrainType.Stone),
         };
 
         public static FormDef Get(Form form) => Table[(int)form];
@@ -91,7 +110,7 @@ namespace Paperbound.Core
 
     public static class TerrainInfo
     {
-        public const int Count = 12;
+        public const int Count = 18;
 
         public static bool IsDeadly(TerrainType t) => t == TerrainType.Fire || t == TerrainType.Lava;
 

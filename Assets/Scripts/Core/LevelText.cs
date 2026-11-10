@@ -35,7 +35,7 @@ namespace Paperbound.Core
     /// </code>
     ///
     /// Террейн (как в старом формате): 0 пусто, + обычная, W вода, S камень, F огонь, x старт, y финиш,
-    /// V вулкан, I лёд; новое: L лава, P кувшинка, D песок. При чтении принимаются и старые символы со звездой:
+    /// V вулкан, I лёд; новое: L лава, P кувшинка, D песок, B пол из короба, T плита, H ворота, N тонкий лёд, Z бамбук. При чтении принимаются и старые символы со звездой:
     /// G (обычная), 1 (обычная), 2 (вода), 3 (камень).
     /// </summary>
     public static class LevelText
@@ -242,6 +242,8 @@ namespace Paperbound.Core
             sb.Append("budget:");
             foreach (Form f in BudgetOrder)
                 sb.Append(' ').Append(FormName(f)).Append('=').Append(level.Budget[(int)f]);
+            for (int f = (int)Form.Frog + 1; f < Forms.Count; f++)
+                if (level.Budget[f] != 0) sb.Append(' ').Append(FormName((Form)f)).Append('=').Append(level.Budget[f]);
             sb.Append('\n');
 
             RuleSet d = RuleSet.Default, r = level.Rules;
@@ -346,6 +348,11 @@ namespace Paperbound.Core
             TerrainType.Lava => 'L',
             TerrainType.LilyPad => 'P',
             TerrainType.Sand => 'D',
+            TerrainType.BoxFloor => 'B',
+            TerrainType.Plate => 'T',
+            TerrainType.Gate => 'H',
+            TerrainType.ThinIce => 'N',
+            TerrainType.Bamboo => 'Z',
             _ => '+',
         };
 
@@ -369,6 +376,11 @@ namespace Paperbound.Core
             'L' => (TerrainType.Lava, false),
             'P' => (TerrainType.LilyPad, false),
             'D' => (TerrainType.Sand, false),
+            'B' => (TerrainType.BoxFloor, false),
+            'T' => (TerrainType.Plate, false),
+            'H' => (TerrainType.Gate, false),
+            'N' => (TerrainType.ThinIce, false),
+            'Z' => (TerrainType.Bamboo, false),
             _ => throw new FormatException($"map: неизвестный символ «{c}» в строке {row + 1}"),
         };
 

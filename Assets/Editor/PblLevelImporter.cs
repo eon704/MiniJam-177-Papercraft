@@ -66,6 +66,20 @@ public static class PblLevelImporter
             return false;
         }
 
+        foreach (TerrainType t in def.Terrain)
+            if (t > TerrainType.LilyPad)
+            {
+                message = $"✗ {name}: клетки новых миров ({t}) в игре пока не поддерживаются.";
+                return false;
+            }
+
+        foreach (Pos f in def.Flow)
+            if (f.X != 0 || f.Y != 0)
+            {
+                message = $"✗ {name}: течение в игре пока не поддерживается.";
+                return false;
+            }
+
         string assetPath = $"{targetFolder}/{name}.asset";
         LevelData data = AssetDatabase.LoadAssetAtPath<LevelData>(assetPath);
         bool isNew = data == null;
@@ -97,7 +111,11 @@ public static class PblLevelImporter
 
         data.StartMovesPerForm = new List<MovePerFormEntry>();
         for (int f = 0; f < Forms.Count; f++)
+        {
+            // Формы новых миров (сюрикен, бабочка) в игре пока не реализованы.
+            if (!System.Enum.IsDefined(typeof(Player.StateType), f)) continue;
             data.StartMovesPerForm.Add(new MovePerFormEntry { State = ((Form)f).ToStateType(), Moves = def.Budget[f] });
+        }
 
         data.Biome = BiomeType.Forest;
 

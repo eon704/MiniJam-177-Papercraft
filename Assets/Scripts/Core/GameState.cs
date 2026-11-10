@@ -91,7 +91,7 @@ namespace Paperbound.Core
         public int EntityAt(Pos p, int kind = -1)
         {
             for (int i = 0; i < Entities.Length; i++)
-                if (Entities[i].Position == p && (kind < 0 || Entities[i].Kind == kind)) return i;
+                if (Entities[i].Kind != EntityKind.None && Entities[i].Position == p && (kind < 0 || Entities[i].Kind == kind)) return i;
             return -1;
         }
 

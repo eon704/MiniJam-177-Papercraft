@@ -312,6 +312,10 @@ bool waterStars = Get("waterstars", "0") == "1";
 double minForg = D("forg", 0), maxForg = D("forgmax", 1);
 int streams = I("streams", 0), rafts = I("rafts", 0), tideCells = I("tide", 0), tidePeriodMax = I("tideperiod", 3);
 bool needCarry = Get("needcarry", "0") == "1";
+int boxes = I("boxes", 0), plates = I("plates", 0), gates = I("gates", 0);
+bool needGatePass = Get("needgatepass", "0") == "1";
+bool needBox = Get("needbox", "0") == "1", needGate = Get("needgate", "0") == "1", needPush = Get("needpush", "0") == "1", needPress = Get("needpress", "0") == "1";
+bool needBoxPress = Get("needboxpress", "0") == "1"; // короб на плите в момент прохода через ворота
 bool needFlow = Get("needflow", "0") == "1", needRaft = Get("needraft", "0") == "1", needTide = Get("needtide", "0") == "1";
 Pos[] Dirs = { Pos.Up, Pos.Down, Pos.Left, Pos.Right };
 Directory.CreateDirectory(outDir);
@@ -378,6 +382,18 @@ for (int it = 0; it < iters && found < want; it++)
         level.Schedules.Add(ScheduleDef.Tide(1 + rng.Next(tidePeriodMax), cand.Select(level.PosOf)));
     }
 
+    // Пещера: коробы, плиты, ворота на случайной суше.
+    {
+        var landFree = Enumerable.Range(0, level.CellCount)
+            .Where(i => level.Terrain[i] == TerrainType.Default && !level.Fragile[i] && level.StarIndex(level.PosOf(i)) < 0 && level.ItemIndex(level.PosOf(i)) < 0)
+            .OrderBy(_ => rng.Next()).ToList();
+        if (landFree.Count < boxes + plates + gates) continue;
+        int q = 0;
+        for (int k = 0; k < boxes; k++) level.Entities.Add(new EntityDef { Kind = EntityKind.Box, Position = level.PosOf(landFree[q++]) });
+        for (int k = 0; k < plates; k++) level.Terrain[landFree[q++]] = TerrainType.Plate;
+        for (int k = 0; k < gates; k++) level.Terrain[landFree[q++]] = TerrainType.Gate;
+    }
+
     foreach (Form f in forms) level.SetBudget(f, searchBudget);
     var steps = Solver.FindShortest(level, s => s.Status == GameStatus.Won && s.StarsCollected == 3, stateLimit);
     if (steps == null || steps.Count < lMin || steps.Count > lMax) continue;
@@ -435,6 +451,30 @@ for (int it = 0; it < iters && found < want; it++)
     }
     if (needFlow && !Matters(c => Array.Clear(c.Flow, 0, c.Flow.Length))) continue;
     if (needRaft && (level.Entities.Count == 0 || !Matters(c => c.Entities.Clear()))) continue;
+    if (needBox && !Matters(c => c.Entities.RemoveAll(e => e.Kind == EntityKind.Box))) continue;
+    if (needGate && !Matters(c => { for (int i = 0; i < c.CellCount; i++) if (c.Terrain[i] == TerrainType.Gate) c.Terrain[i] = TerrainType.Default; })) continue;
+    if (needPush || needPress || needGatePass || needBoxPress)
+    {
+        bool pushed = false, pressed = false, passedGate = false, boxPass = false;
+        GameState gs = GameState.Initial(level);
+        foreach (SolverStep st in rep.ThreeStarPath)
+        {
+            MoveResult m = Rules.Apply(level, gs, st.Form, st.Target);
+            foreach (MoveEvent e in m.Events)
+                if (e.Type == MoveEventType.EntityMoved && gs.Entities[e.EntityIndex].Kind == EntityKind.Box) pushed = true;
+            bool boxHeld = false;
+            foreach (EntityState be in gs.Entities)
+                if (be.Kind == EntityKind.Box && level.Terrain[level.Index(be.Position)] == TerrainType.Plate) boxHeld = true;
+            foreach (Pos pp in m.Path)
+                if (level.Terrain[level.Index(pp)] == TerrainType.Gate) { passedGate = true; if (boxHeld) boxPass = true; }
+            gs = m.After;
+            if (Rules.PlatePressed(level, gs)) pressed = true;
+        }
+        if (needPush && !pushed) continue;
+        if (needPress && !pressed) continue;
+        if (needGatePass && !passedGate) continue;
+        if (needBoxPress && !boxPass) continue;
+    }
     if (needCarry)
     {
         // Маршрут на 3★ должен прокатиться на плоту.

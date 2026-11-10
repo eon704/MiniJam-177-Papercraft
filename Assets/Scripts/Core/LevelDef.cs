@@ -90,10 +90,17 @@ namespace Paperbound.Core
     {
         /// <summary>Плот (Океан): плывёт по течению на 1 клетку после хода игрока; журавль и лягушка стоят и едут, лодка причаливает.</summary>
         public const int Raft = 1;
+        /// <summary>
+        /// Короб (Пещера): журавль толкает на 1. В воде становится плотом-причалом, в провале — полом (BoxFloor),
+        /// в огне и лаве сгорает. Останавливает самолёт, жмёт плиты. Нельзя втолкнуть в камень, старт, финиш, закрытые ворота, другую сущность.
+        /// </summary>
+        public const int Box = 2;
+        /// <summary>Убранная сущность (сгоревший короб, короб, ставший полом). Не участвует в правилах.</summary>
+        public const int None = 0;
 
-        public static string Name(int kind) => kind switch { Raft => "raft", _ => kind.ToString() };
+        public static string Name(int kind) => kind switch { Raft => "raft", Box => "box", None => "none", _ => kind.ToString() };
 
-        public static int Parse(string s) => s switch { "raft" => Raft, _ => int.Parse(s) };
+        public static int Parse(string s) => s switch { "raft" => Raft, "box" => Box, _ => int.Parse(s) };
     }
 
     public sealed class EntityDef
@@ -209,10 +216,16 @@ namespace Paperbound.Core
                         'I' => TerrainType.Ice,
                         'P' => TerrainType.LilyPad,
                         'D' => TerrainType.Sand,
+                        'B' => TerrainType.BoxFloor,
+                        'T' => TerrainType.Plate,
+                        'H' => TerrainType.Gate,
+                        'n' => TerrainType.ThinIce,
+                        'Z' => TerrainType.Bamboo,
                         _ => TerrainType.Default,
                     };
                     level.Terrain[i] = t;
                     level.Fragile[i] = c == 'f' || c == 'x';
+                    if (c == 'b') level.Entities.Add(new EntityDef { Kind = EntityKind.Box, Position = new Pos(x, y) });
                     if (c == '*' || c == 'x' || c == 'w')
                         level.Stars.Add(new Pos(x, y));
                 }

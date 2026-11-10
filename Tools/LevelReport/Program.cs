@@ -68,6 +68,7 @@ static bool Check(string path)
         : "  3★: невозможно");
     if (r.CanFinish)
         Console.WriteLine($"  решений: {r.FinishSolutionCount} до финиша, {r.ThreeStarSolutionCount} на 3★{(r.CountSaturated ? " (больше лимита)" : "")}");
+    if (r.FinishPath != null) Console.WriteLine("  кратчайшее до финиша: " + string.Join(", ", r.FinishPath));
     if (r.ThreeStarPath != null) Console.WriteLine("  кратчайшее на 3★: " + string.Join(", ", r.ThreeStarPath));
     if (r.MinFoldsPath != null) Console.WriteLine("  меньше всего складок: " + string.Join(", ", r.MinFoldsPath));
     List<string> flags = LevelQuality.Flags(r);
