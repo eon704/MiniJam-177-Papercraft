@@ -11,7 +11,8 @@ using UnityEngine.UI;
 /// On the board (Game scene, level in progress, settings closed):
 ///   move cursor  — WASD / arrows / D-pad / left stick (direction follows the camera)
 ///   move there   — Enter / Space / gamepad A
-///   form 1..4    — keys 1-4 (cards in on-screen order, left to right); LB / RB cycle forms
+///   form N       — keys 1-9: N-th form card of the level, in on-screen order left to right;
+///                  Q / E and LB / RB cycle through the same list
 ///   undo         — Z / Backspace / gamepad X
 ///   restart      — R / gamepad Y
 /// In menus the regular uGUI navigation is used; this component only gives focus to the first
@@ -36,7 +37,8 @@ public class PcInputController : MonoBehaviour
     private InputAction _restart;
     private InputAction _prevForm;
     private InputAction _nextForm;
-    private readonly InputAction[] _formKeys = new InputAction[4];
+    private const int MaxFormKeys = 9;
+    private readonly InputAction[] _formKeys = new InputAction[MaxFormKeys];
 
     // Bound game objects (Game scene only).
     private GameController _game;
@@ -140,12 +142,12 @@ public class PcInputController : MonoBehaviour
         _nextForm.AddBinding("<Keyboard>/e");
         _nextForm.AddBinding("<Gamepad>/rightShoulder");
 
-        string[] digitKeys = { "1", "2", "3", "4" };
         for (int i = 0; i < _formKeys.Length; i++)
         {
-            _formKeys[i] = new InputAction("Form" + (i + 1), InputActionType.Button);
-            _formKeys[i].AddBinding("<Keyboard>/" + digitKeys[i]);
-            _formKeys[i].AddBinding("<Keyboard>/numpad" + digitKeys[i]);
+            string digit = (i + 1).ToString();
+            _formKeys[i] = new InputAction("Form" + digit, InputActionType.Button);
+            _formKeys[i].AddBinding("<Keyboard>/" + digit);
+            _formKeys[i].AddBinding("<Keyboard>/numpad" + digit);
         }
     }
 
@@ -308,10 +310,12 @@ public class PcInputController : MonoBehaviour
                 CellAt(_cursor)?.OnPointerUp(null);
         }
 
+        // Undo and restart are not gated here: after a death the player is locked, and undoing the
+        // fatal move must still work. Player/GameController decide whether the request is valid.
         if (_undo.WasPressedThisFrame())
             _player.UndoMove();
 
-        if (_restart.WasPressedThisFrame() && !locked)
+        if (_restart.WasPressedThisFrame())
             _game.ResetMap();
 
         for (int i = 0; i < _formKeys.Length; i++)
@@ -454,17 +458,17 @@ public class PcInputController : MonoBehaviour
 
     // ── Forms ──────────────────────────────────────────────────────────────
 
+    /// <summary>
+    /// Form cards shown for this level, in on-screen order (left to right). Rebuilt on every use so
+    /// it follows levels that show a different set or number of forms.
+    /// </summary>
     private List<StateCardUI> Cards()
     {
-        _cards.RemoveAll(c => c == null);
-        if (_cards.Count == 0)
-        {
-            foreach (var card in FindObjectsByType<StateCardUI>(FindObjectsSortMode.None))
-                if (card.isActiveAndEnabled)
-                    _cards.Add(card);
-            // On-screen order, left to right.
-            _cards.Sort((a, b) => a.transform.position.x.CompareTo(b.transform.position.x));
-        }
+        _cards.Clear();
+        foreach (var card in FindObjectsByType<StateCardUI>(FindObjectsSortMode.None))
+            if (card.isActiveAndEnabled)
+                _cards.Add(card);
+        _cards.Sort((a, b) => a.transform.position.x.CompareTo(b.transform.position.x));
         return _cards;
     }
 
