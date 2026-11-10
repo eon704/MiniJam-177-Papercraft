@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 
 namespace Paperbound.Core
@@ -32,6 +33,8 @@ namespace Paperbound.Core
     /// ..^<.
     /// ..... 
     /// tide: period=2 -> 1,0 2,0        клетки вода ↔ песок каждые period ходов
+    /// route: 1,1 2,1 2,2 1,2          маршрут стража (entity kind=guard data=номер маршрута dir=±1,0)
+    /// torii: 0,0 3,2                   пара тории
     /// </code>
     ///
     /// Террейн (как в старом формате): 0 пусто, + обычная, W вода, S камень, F огонь, x старт, y финиш,
@@ -57,6 +60,8 @@ namespace Paperbound.Core
             var leaves = new List<ItemDef>();
             var schedules = new List<ScheduleDef>();
             var entities = new List<EntityDef>();
+            var routes = new List<List<Pos>>();
+            var torii = new List<(Pos, Pos)>();
 
             for (int i = 0; i < lines.Length; i++)
             {
@@ -170,6 +175,22 @@ namespace Paperbound.Core
                         schedules.Add(ScheduleDef.Tide(period, cells));
                         break;
                     }
+                    case "route":
+                    {
+                        // route: x,y x,y ...   маршрут стража по соседним клеткам
+                        var route = new List<Pos>();
+                        foreach (string rw in Words(value)) route.Add(ParsePos(rw, i));
+                        routes.Add(route);
+                        break;
+                    }
+                    case "torii":
+                    {
+                        // torii: x,y x,y   пара врат
+                        var ws = Words(value).ToList();
+                        if (ws.Count != 2) throw Error(i, "torii: нужны две клетки");
+                        torii.Add((ParsePos(ws[0], i), ParsePos(ws[1], i)));
+                        break;
+                    }
                     case "entity":
                     {
                         var e = new EntityDef();
@@ -226,6 +247,8 @@ namespace Paperbound.Core
             level.Items.AddRange(leaves);
             level.Schedules.AddRange(schedules);
             level.Entities.AddRange(entities);
+            level.Routes.AddRange(routes);
+            level.ToriiPairs.AddRange(torii);
             return level;
         }
 
@@ -311,6 +334,10 @@ namespace Paperbound.Core
                 sb.Append('\n');
             }
 
+            foreach (List<Pos> route in level.Routes)
+                sb.Append("route: ").Append(string.Join(" ", route.Select(P))).Append('\n');
+            foreach ((Pos a, Pos b) in level.ToriiPairs)
+                sb.Append($"torii: {P(a)} {P(b)}\n");
             foreach (EntityDef e in level.Entities)
                 sb.Append($"entity: kind={EntityKind.Name(e.Kind)} at={P(e.Position)} dir={P(e.Direction)} data={e.Data}\n");
 
@@ -355,6 +382,7 @@ namespace Paperbound.Core
             TerrainType.ThinIce => 'N',
             TerrainType.CrackedIce => 'K',
             TerrainType.Quicksand => 'Q',
+            TerrainType.Torii => 'O',
             TerrainType.Bamboo => 'Z',
             _ => '+',
         };
@@ -385,6 +413,7 @@ namespace Paperbound.Core
             'N' => (TerrainType.ThinIce, false),
             'K' => (TerrainType.CrackedIce, false),
             'Q' => (TerrainType.Quicksand, false),
+            'O' => (TerrainType.Torii, false),
             'Z' => (TerrainType.Bamboo, false),
             _ => throw new FormatException($"map: неизвестный символ «{c}» в строке {row + 1}"),
         };

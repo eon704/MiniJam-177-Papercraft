@@ -317,6 +317,8 @@ double minForg = D("forg", 0), maxForg = D("forgmax", 1);
 int streams = I("streams", 0), rafts = I("rafts", 0), tideCells = I("tide", 0), tidePeriodMax = I("tideperiod", 3);
 bool needCarry = Get("needcarry", "0") == "1";
 int boxes = I("boxes", 0), plates = I("plates", 0), gates = I("gates", 0);
+int guards = I("guards", 0), toriiPairs = I("torii", 0);
+bool needGuard = Get("needguard", "0") == "1", needTorii = Get("needtorii", "0") == "1";
 bool needGatePass = Get("needgatepass", "0") == "1";
 bool needBox = Get("needbox", "0") == "1", needGate = Get("needgate", "0") == "1", needPush = Get("needpush", "0") == "1", needPress = Get("needpress", "0") == "1";
 bool needBoxPress = Get("needboxpress", "0") == "1"; // короб на плите в момент прохода через ворота
@@ -415,6 +417,37 @@ for (int it = 0; it < iters && found < want; it++)
         for (int k = 0; k < gates; k++) level.Terrain[landFree[q++]] = TerrainType.Gate;
     }
 
+    // Храм: стражи на маршрутах (квадрат 2x2 или отрезок) и пары тории.
+    {
+        bool Free(Pos p) => level.InBounds(p) && level.Terrain[level.Index(p)] == TerrainType.Default && !level.Fragile[level.Index(p)]
+            && level.StarIndex(p) < 0 && level.Entities.All(e => e.Position != p) && level.Routes.All(rt => !rt.Contains(p));
+        bool okTemple = true;
+        for (int k = 0; k < guards && okTemple; k++)
+        {
+            List<Pos> route = null;
+            for (int tries = 0; tries < 30 && route == null; tries++)
+            {
+                var o = new Pos(rng.Next(w), rng.Next(h));
+                List<Pos> cand;
+                if (rng.NextDouble() < 0.5) cand = new List<Pos> { o, o + Pos.Right, o + Pos.Right + Pos.Up, o + Pos.Up };
+                else { Pos d = Dirs[rng.Next(4)]; int len = 2 + rng.Next(3); cand = Enumerable.Range(0, len).Select(j => new Pos(o.X + d.X * j, o.Y + d.Y * j)).ToList(); }
+                if (cand.All(Free)) route = cand;
+            }
+            if (route == null) { okTemple = false; break; }
+            level.Routes.Add(route);
+            level.Entities.Add(new EntityDef { Kind = EntityKind.Guard, Position = route[0], Direction = new Pos(rng.Next(2) == 0 ? 1 : -1, 0), Data = level.Routes.Count - 1 });
+        }
+        if (!okTemple) continue;
+        var tc = Enumerable.Range(0, level.CellCount).Select(level.PosOf).Where(Free).OrderBy(_ => rng.Next()).ToList();
+        if (tc.Count < toriiPairs * 2) continue;
+        for (int k = 0; k < toriiPairs; k++)
+        {
+            level.Terrain[level.Index(tc[2 * k])] = TerrainType.Torii;
+            level.Terrain[level.Index(tc[2 * k + 1])] = TerrainType.Torii;
+            level.ToriiPairs.Add((tc[2 * k], tc[2 * k + 1]));
+        }
+    }
+
     foreach (Form f in forms) level.SetBudget(f, searchBudget);
     var steps = Solver.FindShortest(level, s => s.Status == GameStatus.Won && s.StarsCollected == 3, stateLimit);
     if (steps == null || steps.Count < lMin || steps.Count > lMax) continue;
@@ -471,6 +504,8 @@ for (int it = 0; it < iters && found < want; it++)
         return !(r2.CanThreeStar && r2.MinMovesThreeStars == rep.MinMovesThreeStars && r2.ThreeStarSolutionCount == rep.ThreeStarSolutionCount && r2.MinMovesToFinish == rep.MinMovesToFinish);
     }
     if (needFlow && !Matters(c => Array.Clear(c.Flow, 0, c.Flow.Length))) continue;
+    if (needGuard && !Matters(c => c.Entities.RemoveAll(e => e.Kind == EntityKind.Guard))) continue;
+    if (needTorii && !Matters(c => { for (int i = 0; i < c.CellCount; i++) if (c.Terrain[i] == TerrainType.Torii) c.Terrain[i] = TerrainType.Default; c.ToriiPairs.Clear(); })) continue;
     if (needWind && !Matters(c => Array.Clear(c.Flow, 0, c.Flow.Length))) continue;
     if (needQuick && !Matters(c => { for (int i = 0; i < c.CellCount; i++) if (c.Terrain[i] == TerrainType.Quicksand) c.Terrain[i] = TerrainType.Default; })) continue;
     if (needThinIce && !Matters(c => { for (int i = 0; i < c.CellCount; i++) if (c.Terrain[i] == TerrainType.ThinIce) c.Terrain[i] = TerrainType.Default; })) continue;
@@ -538,7 +573,7 @@ static LevelDef Crop(LevelDef l)
         Pos p = l.PosOf(i);
         x0 = Math.Min(x0, p.X); y0 = Math.Min(y0, p.Y); x1 = Math.Max(x1, p.X); y1 = Math.Max(y1, p.Y);
     }
-    if (x1 < 0) return l;
+    if (x1 < 0 || l.Schedules.Count > 0) return l; // расписания не переносим — без обрезки
     var c = new LevelDef(x1 - x0 + 1, y1 - y0 + 1) { Name = l.Name, Rules = l.Rules };
     var off = new Pos(x0, y0);
     for (int i = 0; i < c.CellCount; i++)
@@ -551,6 +586,9 @@ static LevelDef Crop(LevelDef l)
     foreach (Pos s in l.Stars) c.Stars.Add(s - off);
     foreach (ItemDef it in l.Items) c.Items.Add(new ItemDef { Kind = it.Kind, Position = it.Position - off, Form = it.Form, Amount = it.Amount });
     for (int i = 0; i < l.Budget.Length; i++) c.Budget[i] = l.Budget[i];
+    foreach (EntityDef e in l.Entities) c.Entities.Add(new EntityDef { Kind = e.Kind, Position = e.Position - off, Direction = e.Direction, Data = e.Data });
+    foreach (List<Pos> rt in l.Routes) c.Routes.Add(rt.Select(p => p - off).ToList());
+    foreach ((Pos a, Pos b) in l.ToriiPairs) c.ToriiPairs.Add((a - off, b - off));
     return c;
 }
 

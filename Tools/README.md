@@ -82,6 +82,13 @@ dotnet run --project Tools/LevelReport -- export Assets/Data/Levels Assets/Data/
 - Ключи генератора: `winds=N quicksand=p needwind needquick`, форма `butterfly`.
 - Подробности и вердикт — `Levels/desert/desert-summary.md`.
 
+## Механики Храма (прототип, без игрового вида)
+
+- Страж — сущность `guard` на маршруте `route: x,y ...` (замкнутый — по кругу, иначе туда-обратно); шагает после хода игрока; встреча — гибель; короб разворачивает; жмёт плиты.
+- Тории (`O`, пары `torii: a b`): вошедший выходит из парных врат, полёт и сюрикен продолжаются в том же направлении.
+- Ключи генератора: `guards=N torii=N needguard needtorii`.
+- Подробности и вердикт — `Levels/temple/temple-summary.md`.
+
 ## Правила (RuleSet)
 
 | Флаг | По умолчанию | Смысл |

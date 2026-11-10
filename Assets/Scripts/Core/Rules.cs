@@ -98,11 +98,26 @@ namespace Paperbound.Core
                 case MoveKind.Rush: RushOptions(level, s, def, result); break;
                 case MoveKind.Flutter: FlutterOptions(level, s, def, result); break;
             }
+            if (def.Kind == MoveKind.Step || def.Kind == MoveKind.Jump || def.Kind == MoveKind.Flutter)
+                foreach (MoveOption o in result) ThroughTorii(level, s, def, o);
             // Зыбучий песок: стоящий на нём (кроме бабочки) не может сложиться — уходит той же формой.
             if (form != s.Form && s.Form != Form.Butterfly && s.Status == GameStatus.Playing
                 && level.InBounds(s.Player) && s.TerrainAt(level, s.Player) == TerrainType.Quicksand)
                 foreach (MoveOption o in result) o.Legal = false;
             return result;
+        }
+
+        /// <summary>
+        /// Тории (Храм): ход, кончившийся в тории, продолжается из парных врат — фигурка выходит из них и встаёт там же.
+        /// Если парные врата заняты (короб, закрытые ворота), войти нельзя.
+        /// </summary>
+        private static void ThroughTorii(LevelDef level, GameState s, FormDef def, MoveOption o)
+        {
+            if (o.Path.Count == 0 || o.Push) return;
+            Pos end = o.Path[o.Path.Count - 1];
+            if (s.TerrainAt(level, end) != TerrainType.Torii || !level.ToriiPartner(end, out Pos exit)) return;
+            o.Path.Add(exit);
+            if (Walled(level, s, exit) || s.EntityAt(exit, EntityKind.Box) >= 0) o.Legal = false;
         }
 
         /// <summary>Ветер (Пустыня): направление слоя Flow на клетке суши. На воде тот же слой — течение.</summary>
@@ -127,7 +142,7 @@ namespace Paperbound.Core
                 if (s.Terrain[i] != TerrainType.Plate) continue;
                 Pos p = level.PosOf(i);
                 if (s.Player == p && (s.Form == Form.Crane || s.Form == Form.Frog) && s.Status == GameStatus.Playing) return true;
-                if (s.EntityAt(p, EntityKind.Box) >= 0) return true;
+                if (s.EntityAt(p, EntityKind.Box) >= 0 || s.EntityAt(p, EntityKind.Guard) >= 0) return true;
             }
             return false;
         }
@@ -227,9 +242,19 @@ namespace Paperbound.Core
                 var path = new List<Pos>();
                 var gusts = new HashSet<Pos>();
                 Pos c = s.Player + dir;
+                bool arrived = false; // только что вышли из тории — эти врата не срабатывают
                 while (level.InBounds(c))
                 {
                     if (Walled(level, s, c)) break; // короб и закрытые ворота останавливают самолёт
+                    if (!arrived && s.TerrainAt(level, c) == TerrainType.Torii && level.ToriiPartner(c, out Pos exit))
+                    {
+                        if (!gusts.Add(c) || Walled(level, s, exit)) break;
+                        path.Add(c);
+                        c = exit;
+                        arrived = true;
+                        continue;
+                    }
+                    arrived = false;
                     // Ветер: каждая клетка ветра на пути сносит самолёт на 1 клетку по ветру; на ней не сесть.
                     Pos wind = WindAt(level, s, c);
                     if (wind != Pos.Zero)
@@ -267,12 +292,22 @@ namespace Paperbound.Core
             foreach (Pos dir in def.Directions)
             {
                 var path = new List<Pos>();
+                var gates = new HashSet<Pos>();
                 Pos c = s.Player + dir;
                 while (level.InBounds(c) && !IsHole(level, s, c) && !Walled(level, s, c) && s.EntityAt(c) < 0)
                 {
                     TerrainType t = s.TerrainAt(level, c);
                     if (t != TerrainType.Bamboo && !def.CanStandOn(t)) break;
                     path.Add(c);
+                    if (t == TerrainType.Torii && level.ToriiPartner(c, out Pos exit) && gates.Add(c))
+                    {
+                        // Сквозь тории: выход из парных врат и дальше в том же направлении.
+                        if (Walled(level, s, exit) || s.EntityAt(exit) >= 0) break;
+                        path.Add(exit);
+                        gates.Add(exit);
+                        c = exit + dir;
+                        continue;
+                    }
                     c += dir;
                 }
                 if (path.Count == 0) continue;
@@ -483,6 +518,11 @@ namespace Paperbound.Core
                     n.Terrain[idx] = now;
                     r.Events.Add(new MoveEvent { Type = MoveEventType.TerrainChanged, Pos = c, PathIndex = i, Source = c, OldTerrain = TerrainType.ThinIce, NewTerrain = now });
                 }
+                if (n.EntityAt(c, EntityKind.Guard) >= 0)
+                {
+                    Die(n, r, c, i, DeathCause.Guard);
+                    return r;
+                }
                 if (form == Form.Frog && terrain == TerrainType.Quicksand)
                 {
                     Die(n, r, c, i, DeathCause.Quicksand);
@@ -503,6 +543,7 @@ namespace Paperbound.Core
 
             TickSchedules(level, n, r.Path.Count, r);
             if (n.Status == GameStatus.Playing) TickEntities(level, n, r.Path.Count, r);
+            if (n.Status == GameStatus.Playing) TickGuards(level, n, r.Path.Count, r);
             return r;
         }
 
@@ -665,6 +706,46 @@ namespace Paperbound.Core
         /// Сущности после хода игрока и расписаний. Плот: если стоит на воде с течением и следующая клетка — свободная вода,
         /// сдвигается на 1; стоящего на нём везёт (звёзды и предметы по пути подбираются).
         /// </summary>
+        /// <summary>
+        /// Стражи делают по шагу вдоль маршрута. Короб, закрытые ворота или другой страж впереди разворачивают стража
+        /// (в тот же ход он шагает в обратную сторону, если там свободно). Шаг на клетку игрока — гибель.
+        /// </summary>
+        private static void TickGuards(LevelDef level, GameState n, int pathIndex, MoveResult r)
+        {
+            for (int i = 0; i < n.Entities.Length; i++)
+            {
+                EntityState e = n.Entities[i];
+                if (e.Kind != EntityKind.Guard || e.Data < 0 || e.Data >= level.Routes.Count) continue;
+                List<Pos> route = level.Routes[e.Data];
+                int at = route.IndexOf(e.Position);
+                if (at < 0) continue;
+                int dir = e.Direction.X >= 0 ? 1 : -1;
+                if (!GuardNext(level, n, route, at, dir, out Pos next))
+                {
+                    dir = -dir;
+                    n.Entities[i].Direction = new Pos(dir, 0);
+                    if (!GuardNext(level, n, route, at, dir, out next)) continue;
+                }
+                n.Entities[i].Position = next;
+                r.Events.Add(new MoveEvent { Type = MoveEventType.EntityMoved, Pos = next, Source = e.Position, PathIndex = pathIndex, EntityIndex = i });
+                if (n.Player == next)
+                {
+                    Die(n, r, next, pathIndex, DeathCause.Guard);
+                    return;
+                }
+            }
+        }
+
+        private static bool GuardNext(LevelDef level, GameState n, List<Pos> route, int at, int dir, out Pos next)
+        {
+            bool closed = route.Count > 2 && System.Math.Abs(route[0].X - route[route.Count - 1].X) + System.Math.Abs(route[0].Y - route[route.Count - 1].Y) == 1;
+            int k = at + dir;
+            if (closed) k = (k + route.Count) % route.Count;
+            next = k >= 0 && k < route.Count ? route[k] : route[at];
+            if (k < 0 || k >= route.Count) return false; // конец открытого маршрута — разворот
+            return !Walled(level, n, next) && n.EntityAt(next) < 0;
+        }
+
         private static void TickEntities(LevelDef level, GameState n, int pathIndex, MoveResult r)
         {
             for (int i = 0; i < n.Entities.Length; i++)

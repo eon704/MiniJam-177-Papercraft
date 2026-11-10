@@ -101,12 +101,17 @@ namespace Paperbound.Core
         /// в огне и лаве сгорает. Останавливает самолёт, жмёт плиты. Нельзя втолкнуть в камень, старт, финиш, закрытые ворота, другую сущность.
         /// </summary>
         public const int Box = 2;
+        /// <summary>
+        /// Страж (Храм): ходит по маршруту LevelDef.Routes[Data] на 1 клетку после хода игрока, Direction.X — ±1 по маршруту.
+        /// Встреча с ним — гибель. Короб или закрытые ворота разворачивают его. Жмёт плиты.
+        /// </summary>
+        public const int Guard = 3;
         /// <summary>Убранная сущность (сгоревший короб, короб, ставший полом). Не участвует в правилах.</summary>
         public const int None = 0;
 
-        public static string Name(int kind) => kind switch { Raft => "raft", Box => "box", None => "none", _ => kind.ToString() };
+        public static string Name(int kind) => kind switch { Raft => "raft", Box => "box", Guard => "guard", None => "none", _ => kind.ToString() };
 
-        public static int Parse(string s) => s switch { "raft" => Raft, "box" => Box, _ => int.Parse(s) };
+        public static int Parse(string s) => s switch { "raft" => Raft, "box" => Box, "guard" => Guard, _ => int.Parse(s) };
     }
 
     public sealed class EntityDef
@@ -136,6 +141,22 @@ namespace Paperbound.Core
         public readonly List<ScheduleDef> Schedules = new();
         public readonly List<EntityDef> Entities = new();
         public readonly List<ItemDef> Items = new();
+        /// <summary>Маршруты стражей (Храм): соседние клетки по порядку. Замкнутый — последняя клетка соседняя с первой; иначе страж ходит туда-обратно.</summary>
+        public readonly List<List<Pos>> Routes = new();
+        /// <summary>Пары тории (Храм).</summary>
+        public readonly List<(Pos A, Pos B)> ToriiPairs = new();
+
+        /// <summary>Парные тории для клетки p.</summary>
+        public bool ToriiPartner(Pos p, out Pos partner)
+        {
+            foreach ((Pos a, Pos b) in ToriiPairs)
+            {
+                if (a == p) { partner = b; return true; }
+                if (b == p) { partner = a; return true; }
+            }
+            partner = p;
+            return false;
+        }
         public RuleSet Rules = RuleSet.Default;
         public string Name = "";
 
@@ -228,6 +249,7 @@ namespace Paperbound.Core
                         'n' => TerrainType.ThinIce,
                         'k' => TerrainType.CrackedIce,
                         'q' => TerrainType.Quicksand,
+                        'o' => TerrainType.Torii,
                         'Z' => TerrainType.Bamboo,
                         _ => TerrainType.Default,
                     };

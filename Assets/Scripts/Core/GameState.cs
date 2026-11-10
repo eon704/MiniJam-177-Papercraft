@@ -22,6 +22,8 @@ namespace Paperbound.Core
         Schedule,
         /// <summary>Лягушка приземлилась на зыбучий песок.</summary>
         Quicksand,
+        /// <summary>Встреча со стражем (Храм).</summary>
+        Guard,
     }
 
     /// <summary>Состояние сущности на поле. Входит в снимок для Undo и в ключ решателя.</summary>

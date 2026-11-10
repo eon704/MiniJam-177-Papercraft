@@ -115,7 +115,42 @@ namespace Paperbound.Core
                 }
             }
 
+            // Храм: маршруты стражей и тории.
+            for (int r = 0; r < level.Routes.Count; r++)
+            {
+                List<Pos> route = level.Routes[r];
+                if (route.Count < 2) { errors.Add($"Маршрут {r}: нужно хотя бы 2 клетки."); continue; }
+                for (int k = 0; k < route.Count; k++)
+                {
+                    Pos p = route[k];
+                    if (!level.InBounds(p)) { errors.Add($"Маршрут {r}: клетка {p} за пределами поля."); continue; }
+                    TerrainType t = level.Terrain[level.Index(p)];
+                    if (t == TerrainType.Empty || t == TerrainType.Water || t == TerrainType.Stone || t == TerrainType.Start || t == TerrainType.End || t == TerrainType.Torii)
+                        errors.Add($"Маршрут {r}: страж не может ходить по клетке {p} ({t}).");
+                    if (k > 0 && !Adjacent(route[k - 1], p)) errors.Add($"Маршрут {r}: клетки {route[k - 1]} и {p} не соседние.");
+                }
+            }
+            foreach (EntityDef e in level.Entities)
+            {
+                if (e.Kind != EntityKind.Guard) continue;
+                if (e.Data < 0 || e.Data >= level.Routes.Count) { errors.Add($"Страж {e.Position}: нет маршрута {e.Data}."); continue; }
+                if (!level.Routes[e.Data].Contains(e.Position)) errors.Add($"Страж {e.Position} стоит не на своём маршруте.");
+                if (e.Direction.X != 1 && e.Direction.X != -1) errors.Add($"Страж {e.Position}: dir должен быть 1,0 или -1,0.");
+            }
+            int toriiCells = 0;
+            foreach (TerrainType t in level.Terrain) if (t == TerrainType.Torii) toriiCells++;
+            var paired = new HashSet<Pos>();
+            foreach ((Pos a, Pos b) in level.ToriiPairs)
+                foreach (Pos p in new[] { a, b })
+                {
+                    if (!level.InBounds(p) || level.Terrain[level.Index(p)] != TerrainType.Torii) errors.Add($"Тории {p}: клетка не тории.");
+                    else if (!paired.Add(p)) errors.Add($"Тории {p} входят в две пары.");
+                }
+            if (paired.Count != toriiCells) errors.Add("Есть тории без пары.");
+
             return errors;
         }
+
+        private static bool Adjacent(Pos a, Pos b) => System.Math.Abs(a.X - b.X) + System.Math.Abs(a.Y - b.Y) == 1;
     }
 }

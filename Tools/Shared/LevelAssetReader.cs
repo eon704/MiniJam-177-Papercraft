@@ -150,7 +150,7 @@ namespace Paperbound.Tools
                     {
                         TerrainType.Empty => '#', TerrainType.Start => 'S', TerrainType.End => 'E',
                         TerrainType.Water => '~', TerrainType.Stone => 'R', TerrainType.Fire => 'F',
-                        TerrainType.Volcano => 'V', TerrainType.Lava => 'L', TerrainType.Ice => 'I', TerrainType.LilyPad => 'P', TerrainType.Sand => 'D', TerrainType.BoxFloor => 'B', TerrainType.Plate => 'T', TerrainType.Gate => 'H', TerrainType.ThinIce => 'n', TerrainType.CrackedIce => 'k', TerrainType.Quicksand => 'q', TerrainType.Bamboo => 'Z', _ => '.',
+                        TerrainType.Volcano => 'V', TerrainType.Lava => 'L', TerrainType.Ice => 'I', TerrainType.LilyPad => 'P', TerrainType.Sand => 'D', TerrainType.BoxFloor => 'B', TerrainType.Plate => 'T', TerrainType.Gate => 'H', TerrainType.ThinIce => 'n', TerrainType.CrackedIce => 'k', TerrainType.Quicksand => 'q', TerrainType.Torii => 'O', TerrainType.Bamboo => 'Z', _ => '.',
                     };
                     int star = level.StarIndex(p);
                     if (star >= 0 && (s == null || !s.HasStar(star))) c = t == TerrainType.Water ? 'w' : '*';
@@ -161,9 +161,9 @@ namespace Paperbound.Tools
                     var ents = s != null ? s.Entities : null;
                     if (ents == null)
                     {
-                        foreach (EntityDef e in level.Entities) if (e.Position == p) c = e.Kind == EntityKind.Raft ? 'r' : e.Kind == EntityKind.Box ? 'b' : e.Kind == EntityKind.None ? c : 'e';
+                        foreach (EntityDef e in level.Entities) if (e.Position == p) c = e.Kind == EntityKind.Raft ? 'r' : e.Kind == EntityKind.Box ? 'b' : e.Kind == EntityKind.Guard ? 'g' : e.Kind == EntityKind.None ? c : 'e';
                     }
-                    else foreach (EntityState e in ents) if (e.Position == p) c = e.Kind == EntityKind.Raft ? 'r' : e.Kind == EntityKind.Box ? 'b' : e.Kind == EntityKind.None ? c : 'e';
+                    else foreach (EntityState e in ents) if (e.Position == p) c = e.Kind == EntityKind.Raft ? 'r' : e.Kind == EntityKind.Box ? 'b' : e.Kind == EntityKind.Guard ? 'g' : e.Kind == EntityKind.None ? c : 'e';
                     if (s != null && s.Player == p) c = '@';
                     sb.Append(c);
                 }
