@@ -13,6 +13,80 @@ double D(string k, double d) => double.Parse(Get(k, d.ToString(System.Globalizat
 int I(string k, int d) => int.Parse(Get(k, d.ToString()));
 (int, int) R(string k, string d) { var p = Get(k, d).Split('-'); return (int.Parse(p[0]), int.Parse(p[^1])); }
 
+if (opt.ContainsKey("tighten"))
+{
+    // Доводка до нулевого запаса: случайные правки клеток (тип, хрупкость, перенос End), пока кратчайший финиш не сравняется с бюджетом.
+    // free=1 — бюджет пересчитывается после каждой правки, длина 3★ держится в L=a-b; nofragile=1 — убрать хрупкость, если она не нужна.
+    var lvl = LevelText.Parse(File.ReadAllText(opt["tighten"]));
+    var trng = new Random(I("seed", 1));
+    int maxS = I("maxsol", 2);
+    SolveReport cur = Solver.Solve(lvl, 300000);
+    int L0 = cur.MinMovesThreeStars;
+    var palette = new[] { TerrainType.Empty, TerrainType.Default, TerrainType.Water, TerrainType.Stone, TerrainType.LilyPad };
+    int steps = I("steps", 3000);
+    bool free = Get("free", "0") == "1";
+    (int, int) tl = R("L", "10-12");
+    var tforms = Get("forms", "crane,frog,plane,boat").Split(',').Select(f => Enum.Parse<Form>(f, true)).ToArray();
+    // Бюджет заново по кратчайшему маршруту на 3★ (как в генераторе), листки вычитаются.
+    bool Rebudget(LevelDef l)
+    {
+        foreach (Form f in tforms) l.SetBudget(f, 8);
+        var st = Solver.FindShortest(l, g => g.Status == GameStatus.Won && g.StarsCollected == 3, 60000);
+        if (st == null) return false;
+        for (int i = 1; i < Forms.Count; i++) l.Budget[i] = 0;
+        foreach (SolverStep x in st) l.Budget[(int)x.Form]++;
+        GameState end = Solver.Replay(l, st);
+        if (end == null) return false;
+        for (int k = 0; k < l.Items.Count; k++) if (end.HasItem(k)) l.Budget[(int)l.Items[k].Form] -= l.Items[k].Amount;
+        return l.Budget.All(b => b >= 0);
+    }
+    for (int step = 0; step < steps && cur.FinishSlack > 0; step++)
+    {
+        var backup = LevelText.Parse(LevelText.Write(lvl));
+        int idx = trng.Next(lvl.CellCount);
+        Pos p = lvl.PosOf(idx);
+        if (lvl.Terrain[idx] == TerrainType.Start || lvl.Stars.Contains(p) || lvl.Items.Any(x => x.Position == p)) continue;
+        if (lvl.Terrain[idx] == TerrainType.End) continue;
+        if (trng.NextDouble() < 0.15 && lvl.Terrain[idx] == TerrainType.Default)
+        {
+            int e = Array.IndexOf(lvl.Terrain, TerrainType.End);
+            lvl.Terrain[e] = TerrainType.Default; lvl.Terrain[idx] = TerrainType.End; lvl.Fragile[idx] = false;
+        }
+        else if (trng.NextDouble() < 0.1 && lvl.Terrain[idx] == TerrainType.Default) lvl.Fragile[idx] = !lvl.Fragile[idx];
+        else { lvl.Terrain[idx] = palette[trng.Next(palette.Length)]; if (lvl.Terrain[idx] != TerrainType.Default) lvl.Fragile[idx] = false; }
+        if (free && !Rebudget(lvl)) { lvl = backup; continue; }
+        var r = Solver.Solve(lvl, 300000);
+        bool lenOk = free ? r.MinMovesThreeStars >= tl.Item1 && r.MinMovesThreeStars <= tl.Item2 : r.MinMovesThreeStars == L0;
+        bool ok = !r.Truncated && r.CanThreeStar && lenOk && r.ThreeStarSolutionCount <= maxS && r.MinFoldsThreeStars >= I("minfolds", 0)
+            && LevelValidator.Validate(lvl).Count == 0
+            && (r.FinishSlack < cur.FinishSlack || (r.FinishSlack == cur.FinishSlack && trng.NextDouble() < 0.5));
+        if (ok)
+        {
+            if (r.FinishSlack < cur.FinishSlack) Console.WriteLine($"  step {step}: F={r.MinMovesToFinish} slack={r.FinishSlack} sol={r.ThreeStarSolutionCount}");
+            cur = r;
+        }
+        else lvl = backup;
+    }
+    Console.WriteLine($"result: F={cur.MinMovesToFinish} slack={cur.FinishSlack} L={cur.MinMovesThreeStars} sol={cur.ThreeStarSolutionCount} folds={cur.MinFoldsThreeStars}");
+    {
+        var pruned = Prune(lvl);
+        var rp = Solver.Solve(pruned, 300000);
+        if (rp.MinMovesThreeStars == cur.MinMovesThreeStars && rp.MinMovesToFinish == cur.MinMovesToFinish && rp.ThreeStarSolutionCount == cur.ThreeStarSolutionCount)
+        { lvl = pruned; cur = rp; Console.WriteLine("pruned"); }
+    }
+    if (Get("nofragile", "0") == "1")
+    {
+        var nf = LevelText.Parse(LevelText.Write(lvl));
+        Array.Clear(nf.Fragile, 0, nf.Fragile.Length);
+        var rn = Solver.Solve(nf, 300000);
+        Console.WriteLine($"without fragile: F={rn.MinMovesToFinish} slack={rn.FinishSlack} L={rn.MinMovesThreeStars} sol={rn.ThreeStarSolutionCount}");
+        if (rn.CanThreeStar && rn.MinMovesThreeStars == cur.MinMovesThreeStars && rn.FinishSlack == 0 && rn.ThreeStarSolutionCount <= maxS) { lvl = nf; cur = rn; }
+    }
+    if (cur.FinishSlack == 0 && opt.ContainsKey("out"))
+        File.WriteAllText(opt["out"], LevelText.Write(lvl, $"доводка до нулевого запаса: финиш {cur.MinMovesToFinish}, 3★ {cur.MinMovesThreeStars}, решений {cur.ThreeStarSolutionCount}\n3★: {string.Join(", ", cur.ThreeStarPath)}"));
+    return;
+}
+
 int w = I("w", 5), h = I("h", 5);
 Form[] forms = Get("forms", "crane").Split(',').Select(f => Enum.Parse<Form>(f, true)).ToArray();
 double pEmpty = D("empty", 0.25), pWater = D("water", 0), pStone = D("stone", 0), pLily = D("lily", 0), pFire = D("fire", 0), pFragile = D("fragile", 0);
@@ -25,6 +99,8 @@ int iters = I("iters", 200000), want = I("count", 5), seed = I("seed", 1);
 bool needLily = Get("needlily", "0") == "1", needFragile = Get("needfragile", "0") == "1";
 int minFolds = I("minfolds", forms.Length);
 string outDir = Get("out", "candidates");
+int searchBudget = I("fb", Math.Min(lMax, lMax / forms.Length + 3));
+int stateLimit = I("limit", 60000);
 string prefix = Get("name", "cand");
 bool waterStars = Get("waterstars", "0") == "1";
 Directory.CreateDirectory(outDir);
@@ -63,8 +139,8 @@ for (int it = 0; it < iters && found < want; it++)
     }
     if (needLily && !level.Terrain.Contains(TerrainType.LilyPad)) continue;
 
-    foreach (Form f in forms) level.SetBudget(f, lMax);
-    var steps = Solver.FindShortest(level, s => s.Status == GameStatus.Won && s.StarsCollected == 3, 300000);
+    foreach (Form f in forms) level.SetBudget(f, searchBudget);
+    var steps = Solver.FindShortest(level, s => s.Status == GameStatus.Won && s.StarsCollected == 3, stateLimit);
     if (steps == null || steps.Count < lMin || steps.Count > lMax) continue;
     for (int i = 1; i < Forms.Count; i++) level.Budget[i] = 0;
     foreach (SolverStep st in steps) level.Budget[(int)st.Form]++;
