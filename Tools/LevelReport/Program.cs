@@ -29,8 +29,12 @@ switch (command)
         if (rest.Length < 3) { Console.Error.WriteLine("export <папка .asset> <папка Json> <выход>"); return 2; }
         Export(rest[0], rest[1], rest[2]);
         return 0;
+    case "summary":
+        if (rest.Length < 1) { Console.Error.WriteLine("summary <папка .pbl> [<выход .md>]"); return 2; }
+        Summary(rest[0], rest.Length > 1 ? rest[1] : null);
+        return 0;
     default:
-        Console.Error.WriteLine($"Неизвестная команда «{command}». Есть: report, check, export.");
+        Console.Error.WriteLine($"Неизвестная команда «{command}». Есть: report, check, export, summary.");
         return 2;
 }
 
@@ -179,6 +183,40 @@ void Export(string assetsDir, string jsonDir, string outDir)
     }
 
     File.WriteAllText(Path.Combine(outDir, "summary.md"), sb.ToString());
+    Console.Write(sb.ToString());
+}
+
+static void Summary(string dir, string output)
+{
+    var sb = new StringBuilder();
+    sb.AppendLine("| Уровень | Поле | Бюджет C/P/B/F | Финиш | Запас | 3★ | Финиш/3★ | Решений 3★ | Складок | Хрупкие | Кувшинки | Листки | Качество |");
+    sb.AppendLine("| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |");
+    var cards = new StringBuilder();
+    foreach (string file in Directory.GetFiles(dir, "*" + LevelText.Extension).OrderBy(f => f))
+    {
+        string text = File.ReadAllText(file);
+        LevelDef level = LevelText.Parse(text);
+        SolveReport r = Solver.Solve(level);
+        List<string> flags = LevelQuality.Flags(r);
+        if (LevelValidator.Validate(level).Count > 0) flags.Insert(0, "невалиден");
+        string budget = string.Join("/", new[] { Form.Crane, Form.Plane, Form.Boat, Form.Frog }.Select(f => level.Budget[(int)f]));
+        int fragile = level.Fragile.Count(b => b);
+        int lily = level.Terrain.Count(t => t == TerrainType.LilyPad);
+        string ratio = r.CanThreeStar && r.CanFinish ? $"{(double)r.MinMovesToFinish / r.MinMovesThreeStars:0.00}" : "—";
+        sb.AppendLine($"| {level.Name} | {level.Width}x{level.Height} | {budget} | {(r.CanFinish ? r.MinMovesToFinish : -1)} | {r.FinishSlack} | {(r.CanThreeStar ? r.MinMovesThreeStars : -1)} | {ratio} | {r.ThreeStarSolutionCount} | {r.MinFoldsThreeStars} | {fragile} | {lily} | {level.Items.Count} | {(flags.Count == 0 ? "ок" : string.Join("; ", flags))} |");
+        string idea = text.Split('\n').Select(l => l.Trim()).FirstOrDefault(l => l.StartsWith("# идея:"));
+        cards.AppendLine($"### {level.Name}");
+        cards.AppendLine();
+        if (idea != null) cards.AppendLine(idea.Substring(2).Trim());
+        cards.AppendLine();
+        cards.AppendLine("```");
+        cards.Append(LevelAssetReader.Render(level));
+        cards.AppendLine("```");
+        if (r.ThreeStarPath != null) cards.AppendLine("Решение на 3★: " + string.Join(", ", r.ThreeStarPath));
+        cards.AppendLine();
+    }
+    string result = sb + "\n" + cards;
+    if (output != null) File.WriteAllText(output, result);
     Console.Write(sb.ToString());
 }
 
