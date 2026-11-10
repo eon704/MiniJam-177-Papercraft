@@ -58,6 +58,8 @@ dotnet run --project Tools/LevelReport -- export Assets/Data/Levels Assets/Data/
 - Прилив — `ScheduleDef.Tide`, в `.pbl` строка `tide: period=N -> клетки`: клетки разом меняются вода ↔ песок (`D`). Журавль и лягушка на залитой клетке тонут.
 - Плот — сущность `raft` (`entity: kind=raft at=x,y`): после хода сдвигается на 1 по течению; журавль, лягушка и лодка стоят и едут.
 - `LevelReport trace <pbl>` — проиграть маршрут на 3★ по шагам с событиями.
+- `LevelReport play <pbl> crane:1,0 frog:3,2 …` — проиграть свои ходы; на нелегальном ходе показывает, куда этой формой можно.
+- В `check` для уровней с плотом: сколько ходов решения фигурку везёт движущийся плот, обязательна ли поездка (без неё 3★ нет) и сколько плотов не сдвигаются никогда. В LevelSearch то же требование — `needride=1` (вместе с `raftonflow=1`: плоты только на течение), в `tighten` — `keepride=1`.
 - Пробные уровни и вердикт — `Levels/ocean/probes/ocean-probes-summary.md`; мир 10+3 — `Levels/ocean/ocean-summary.md`.
 
 ## Механики Пещеры (прототип, без игрового вида)

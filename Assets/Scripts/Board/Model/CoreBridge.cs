@@ -48,6 +48,17 @@ public static class CoreBridge
             foreach (LeafConfig leaf in data.Leaves)
                 level.Items.Add(new ItemDef { Kind = ItemKind.Leaf, Position = leaf.Position.ToPos(), Form = leaf.Form.ToForm(), Amount = leaf.Amount });
 
+        if (data.Flow != null)
+            foreach (FlowConfig f in data.Flow)
+            {
+                var pos = f.Position.ToPos();
+                if (level.InBounds(pos)) level.Flow[level.Index(pos)] = f.Direction.ToPos();
+            }
+
+        if (data.Rafts != null)
+            foreach (RaftConfig raft in data.Rafts)
+                level.Entities.Add(new EntityDef { Kind = EntityKind.Raft, Position = raft.Position.ToPos() });
+
         return level;
     }
 

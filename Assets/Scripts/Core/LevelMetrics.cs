@@ -135,5 +135,75 @@ namespace Paperbound.Core
             if (memo != null) memo[from] = found;
             return found;
         }
+
+        /// <summary>Сколько ходов маршрута фигурку везёт плот (событие Carried).</summary>
+        public static int RidesInPath(LevelDef level, IEnumerable<SolverStep> path)
+        {
+            int rides = 0;
+            GameState s = GameState.Initial(level);
+            foreach (SolverStep st in path)
+            {
+                MoveResult r = Rules.Apply(level, s, st.Form, st.Target);
+                if (!r.Success) break;
+                foreach (MoveEvent e in r.Events)
+                    if (e.Type == MoveEventType.Carried) { rides++; break; }
+                s = r.After;
+            }
+            return rides;
+        }
+
+        /// <summary>
+        /// Обязательна ли поездка на плоту: нет ни одного маршрута на 3★ в пределах бюджета, где фигурку ни разу не везёт плот.
+        /// Для уровня без плотов и без 3★ — false.
+        /// </summary>
+        public static bool RideRequired(LevelDef level, int stateLimit = DefaultStateLimit)
+        {
+            if (level.Find(TerrainType.Start) == null || !level.Entities.Exists(e => e.Kind == EntityKind.Raft)) return false;
+            int allMask = level.Stars.Count >= 31 ? -1 : (1 << level.Stars.Count) - 1;
+            var start = GameState.Initial(level);
+            var seen = new HashSet<GameState>(StateComparer.IgnoreForm) { start };
+            var queue = new Queue<GameState>();
+            queue.Enqueue(start);
+            while (queue.Count > 0 && seen.Count < stateLimit)
+            {
+                GameState s = queue.Dequeue();
+                foreach (MoveOption o in Rules.LegalMoves(level, s))
+                {
+                    MoveResult r = Rules.Apply(level, s, o.Form, o.Target);
+                    if (!r.Success || r.Events.Exists(e => e.Type == MoveEventType.Carried)) continue;
+                    GameState n = r.After;
+                    if (n.Status == GameStatus.Won && (n.StarMask & allMask) == allMask) return false;
+                    if (n.Status == GameStatus.Playing && seen.Add(n)) queue.Enqueue(n);
+                }
+            }
+            return Solver.Solve(level, stateLimit, false).CanThreeStar;
+        }
+
+        /// <summary>Плоты, которые не сдвигаются ни в одном достижимом состоянии: для игрока это обманчивый островок.</summary>
+        public static List<int> StaticRafts(LevelDef level, int stateLimit = DefaultStateLimit)
+        {
+            var moved = new HashSet<int>();
+            var result = new List<int>();
+            if (level.Find(TerrainType.Start) == null) return result;
+            var start = GameState.Initial(level);
+            var seen = new HashSet<GameState>(StateComparer.IgnoreForm) { start };
+            var queue = new Queue<GameState>();
+            queue.Enqueue(start);
+            while (queue.Count > 0 && seen.Count < stateLimit)
+            {
+                GameState s = queue.Dequeue();
+                foreach (MoveOption o in Rules.LegalMoves(level, s))
+                {
+                    MoveResult r = Rules.Apply(level, s, o.Form, o.Target);
+                    if (!r.Success) continue;
+                    foreach (MoveEvent e in r.Events)
+                        if (e.Type == MoveEventType.EntityMoved && level.Entities[e.EntityIndex].Kind == EntityKind.Raft) moved.Add(e.EntityIndex);
+                    if (r.After.Status == GameStatus.Playing && seen.Add(r.After)) queue.Enqueue(r.After);
+                }
+            }
+            for (int i = 0; i < level.Entities.Count; i++)
+                if (level.Entities[i].Kind == EntityKind.Raft && !moved.Contains(i)) result.Add(i);
+            return result;
+        }
     }
 }

@@ -14,6 +14,18 @@ namespace Paperbound.Core
         /// <summary>Журавль толкает короб, стоящий на Target, на клетку Target + направление.</summary>
         public bool Push;
         public Pos PushTo;
+        /// <summary>Почему лодка не может так плыть (для серого пути с подсказкой). None — ход не заблокирован течением.</summary>
+        public SailBlock Blocked;
+    }
+
+    /// <summary>Причина, по которой течение не пускает лодку.</summary>
+    public enum SailBlock
+    {
+        None,
+        /// <summary>Впереди течение навстречу.</summary>
+        AgainstFlow,
+        /// <summary>Течение замыкается в кольцо без выхода.</summary>
+        FlowLoop,
     }
 
     public enum MoveFailure
@@ -370,19 +382,27 @@ namespace Paperbound.Core
                 var seen = new HashSet<(Pos, Pos)>();
                 Pos d = dir;
                 bool blocked = false;
+                SailBlock why = SailBlock.None;
                 while (OpenWater(level, s, c))
                 {
                     Pos flow = level.FlowAt(c);
                     if (flow != Pos.Zero)
                     {
-                        if (flow == Pos.Zero - d) { blocked = true; break; } // против течения
+                        if (flow == Pos.Zero - d) { blocked = true; why = SailBlock.AgainstFlow; path.Add(c); break; } // против течения
                         d = flow;
                     }
-                    if (!seen.Add((c, d))) { blocked = true; break; } // кольцо течения
+                    if (!seen.Add((c, d))) { blocked = true; why = SailBlock.FlowLoop; break; } // кольцо течения
                     path.Add(c);
                     c += d;
                 }
-                if (blocked || !level.InBounds(c) || !CanStop(level, s, def.Form, c)) continue;
+                if (blocked)
+                {
+                    // Серый вариант для вида: путь до места, где течение не пускает.
+                    if (path.Count > 0)
+                        result.Add(new MoveOption { Form = def.Form, Target = path[path.Count - 1], Legal = false, Path = path, Blocked = why });
+                    continue;
+                }
+                if (!level.InBounds(c) || !CanStop(level, s, def.Form, c)) continue;
                 if (s.TerrainAt(level, c) == TerrainType.Water && s.EntityAt(c, EntityKind.Raft) < 0) continue;
                 path.Add(c);
                 result.Add(new MoveOption { Form = def.Form, Target = c, Legal = true, Path = path });
@@ -397,9 +417,14 @@ namespace Paperbound.Core
         {
             List<MoveOption> options = GetOptions(level, s, form);
             foreach (MoveOption o in options)
-                if (o.Target == clicked) return o;
+                if (o.Legal && o.Target == clicked) return o;
             foreach (MoveOption o in options)
                 if (o.Legal && o.Path.Contains(clicked)) return o;
+            // Недопустимый вариант — для серой подсветки и подсказки, почему нельзя.
+            foreach (MoveOption o in options)
+                if (o.Target == clicked) return o;
+            foreach (MoveOption o in options)
+                if (o.Blocked != SailBlock.None && o.Path.Contains(clicked)) return o;
             return null;
         }
 
@@ -746,20 +771,35 @@ namespace Paperbound.Core
             return !Walled(level, n, next) && n.EntityAt(next) < 0;
         }
 
+        /// <summary>
+        /// Куда плот i сдвинется после следующего хода, если фигурка останется там, где она в состоянии s:
+        /// стоит на воде с течением, впереди свободная вода без другой сущности и без лодки. false — плот стоит.
+        /// Вид рисует по этому стрелку следующего шага плота.
+        /// </summary>
+        public static bool RaftStep(LevelDef level, GameState s, int i, out Pos to)
+        {
+            to = default;
+            if (i < 0 || i >= s.Entities.Length) return false;
+            EntityState e = s.Entities[i];
+            if (e.Kind != EntityKind.Raft) return false;
+            int idx = level.Index(e.Position);
+            if (s.Terrain[idx] != TerrainType.Water) return false;
+            Pos flow = level.Flow[idx];
+            if (flow == Pos.Zero) return false;
+            Pos t = e.Position + flow;
+            if (!level.InBounds(t) || s.Terrain[level.Index(t)] != TerrainType.Water || s.Collapsed[level.Index(t)] || s.EntityAt(t) >= 0) return false;
+            if (s.Player != e.Position && s.Player == t) return false; // на пути лодка на воде
+            to = t;
+            return true;
+        }
+
         private static void TickEntities(LevelDef level, GameState n, int pathIndex, MoveResult r)
         {
             for (int i = 0; i < n.Entities.Length; i++)
             {
                 EntityState e = n.Entities[i];
-                if (e.Kind != EntityKind.Raft) continue;
-                int idx = level.Index(e.Position);
-                if (n.Terrain[idx] != TerrainType.Water) continue;
-                Pos flow = level.Flow[idx];
-                if (flow == Pos.Zero) continue;
-                Pos t = e.Position + flow;
-                if (!level.InBounds(t) || n.Terrain[level.Index(t)] != TerrainType.Water || n.Collapsed[level.Index(t)] || n.EntityAt(t) >= 0) continue;
+                if (!RaftStep(level, n, i, out Pos t)) continue;
                 bool rider = n.Player == e.Position;
-                if (!rider && n.Player == t) continue; // на пути лодка на воде
                 n.Entities[i].Position = t;
                 r.Events.Add(new MoveEvent { Type = MoveEventType.EntityMoved, Pos = t, Source = e.Position, PathIndex = pathIndex, EntityIndex = i });
                 if (rider)

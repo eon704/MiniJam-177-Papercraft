@@ -32,7 +32,14 @@ namespace Paperbound.Core.Tests
             var level = LevelDef.FromRows("S~~.E");
             SetFlow(level, 1, 0, Pos.Left);
             level.SetBudget(Form.Boat, 1);
-            Assert.DoesNotContain(Rules.GetOptions(level, GameState.Initial(level), Form.Boat), o => o.Target == new Pos(3, 0));
+            var options = Rules.GetOptions(level, GameState.Initial(level), Form.Boat);
+            Assert.DoesNotContain(options, o => o.Legal);
+            // Для вида: серый вариант с причиной.
+            var blocked = Assert.Single(options);
+            Assert.Equal(SailBlock.AgainstFlow, blocked.Blocked);
+            Assert.Equal(new Pos(1, 0), blocked.Target);
+            Assert.Equal(SailBlock.AgainstFlow, Rules.ResolveClick(level, GameState.Initial(level), Form.Boat, new Pos(1, 0)).Blocked);
+            Assert.False(Move(level, GameState.Initial(level), Form.Boat, 1, 0).Success);
         }
 
         [Fact]
@@ -43,7 +50,25 @@ namespace Paperbound.Core.Tests
             SetFlow(level, 1, 0, Pos.Right); SetFlow(level, 2, 0, Pos.Up);
             SetFlow(level, 2, 1, Pos.Left); SetFlow(level, 1, 1, Pos.Down);
             level.SetBudget(Form.Boat, 1);
-            Assert.Empty(Rules.GetOptions(level, GameState.Initial(level), Form.Boat));
+            var options = Rules.GetOptions(level, GameState.Initial(level), Form.Boat);
+            Assert.DoesNotContain(options, o => o.Legal);
+            var loop = Assert.Single(options);
+            Assert.Equal(SailBlock.FlowLoop, loop.Blocked);
+            Assert.Equal(4, loop.Path.Count);
+            Assert.Empty(Rules.LegalMoves(level, GameState.Initial(level)));
+        }
+
+        [Fact]
+        public void LegalBoatMove_WinsOverBlockedOne_OnClick()
+        {
+            // Влево из (2,0) — против течения (серый вариант), вправо — к финишу. Клик по воде справа — легальный ход.
+            var level = LevelDef.FromRows("~S~E");
+            SetFlow(level, 0, 0, Pos.Right);
+            level.SetBudget(Form.Boat, 1);
+            var s = GameState.Initial(level);
+            var click = Rules.ResolveClick(level, s, Form.Boat, new Pos(2, 0));
+            Assert.True(click.Legal);
+            Assert.Equal(new Pos(3, 0), click.Target);
         }
 
         // ── Прилив ────────────────────────────────────────────────────────────
@@ -100,6 +125,21 @@ namespace Paperbound.Core.Tests
             Assert.Contains(s1.Events, e => e.Type == MoveEventType.Carried);
             var s2 = Move(level, s1.After, Form.Crane, 1, 0); // шаг назад на воду невозможен
             Assert.False(s2.Success);
+        }
+
+        [Fact]
+        public void RaftStep_PredictsNextDrift_ForView()
+        {
+            var level = RaftLevel();
+            level.SetBudget(Form.Crane, 1);
+            var s = GameState.Initial(level);
+            Assert.True(Rules.RaftStep(level, s, 0, out Pos to));
+            Assert.Equal(new Pos(2, 0), to);
+            var r = Move(level, s, Form.Crane, 1, 0);
+            Assert.Equal(to, r.After.Entities[0].Position); // предсказание совпало с ходом
+            var still = LevelDef.FromRows("S~.E");
+            still.Entities.Add(new EntityDef { Kind = EntityKind.Raft, Position = new Pos(1, 0) });
+            Assert.False(Rules.RaftStep(still, GameState.Initial(still), 0, out _)); // без течения стрелки нет
         }
 
         [Fact]

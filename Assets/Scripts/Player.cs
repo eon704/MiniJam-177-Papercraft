@@ -86,12 +86,14 @@ public class Player : MonoBehaviour
 
     private List<CellPrefab> _moveOptionCells;
     private List<CellPrefab> _hoverPathCells = new();
+    private OceanView _oceanView;
     private bool _isInitialized;
 
     public void Initialize(BoardPiece boardPiece, CellPrefab startCell, BoardPrefab boardPrefab)
     {
         _boardPrefab = boardPrefab;
         BoardPiecePrefab.Initialize(boardPiece, startCell, boardPrefab);
+        _oceanView = OceanView.Create(boardPrefab); // течение и плоты; null, если их в уровне нет
         BoardPiecePrefab.BoardPiece.OccupiedCell.OnChanged += OnPlayerMoved;
         BoardPiecePrefab.BoardPiece.OnCollectedStar += OnCollectStar;
         _isInitialized = true;
@@ -282,6 +284,9 @@ public class Player : MonoBehaviour
 
         CellPrefab startCell = BoardPiecePrefab.CurrentCell;
         CellPrefab endCell = path[path.Count - 1];
+        // Плот мог увезти фигурку дальше цели хода: модель ставится туда, куда довёз плот, анимация — в два этапа.
+        bool drift = _oceanView != null && OceanView.HasDrift(result);
+        CellPrefab finalCell = drift && deathIndex < 0 ? _boardPrefab.GetCellPrefab(result.After.Player.ToVector()) : endCell;
         bool multiHop = path.Count > 1;
 
         // Визуалы звёзд и обрушений откладываются до момента, когда фигурка долетит до клетки.
@@ -307,7 +312,7 @@ public class Player : MonoBehaviour
         }
         if (leafCollected)
             RefreshMovesLeft(); // листок добавил ходы другой форме
-        BoardPiecePrefab.BoardPiece.TeleportTo(endCell.Cell);
+        BoardPiecePrefab.BoardPiece.TeleportTo(finalCell.Cell);
         OnUndoHistoryChange?.Invoke(Board.BoardHistory.Count);
 
         isMovementLocked = true;
@@ -317,8 +322,14 @@ public class Player : MonoBehaviour
         float shakeDelay = multiHop ? path.Count * BoardPiecePrefab.HopDuration : 0.5f;
         endCell.ShakeCell(shakeDelay);
 
-        BoardPiecePrefab.PlayMove(startCell, path, () => OnMoveAnimated(result),
-            onLastHopStart: () => isStateChangeLocked = false);
+        HideHoverPath();
+        if (drift)
+            BoardPiecePrefab.PlayMove(startCell, path,
+                () => _oceanView.PlayDrift(result, BoardPiecePrefab, () => OnMoveAnimated(result)),
+                onLastHopStart: () => isStateChangeLocked = false);
+        else
+            BoardPiecePrefab.PlayMove(startCell, path, () => OnMoveAnimated(result),
+                onLastHopStart: () => isStateChangeLocked = false);
 
         int left = result.After.BudgetOf(form);
         OnMovesLeftChanged?.Invoke(type, left);
@@ -351,6 +362,7 @@ public class Player : MonoBehaviour
         // Клетки — до телепорта, чтобы целевая клетка существовала.
         Board.SyncCells(previous, syncTerrain: true, animateCollapse: false);
         _biomeCellSystem?.Refresh();
+        _oceanView?.Refresh(previous);
         RefreshMovesLeft();
 
         isMovementLocked = true;
@@ -373,6 +385,8 @@ public class Player : MonoBehaviour
         HideHoverPath();
 
         MoveOption option = BoardPiecePrefab.BoardPiece.ResolveClick(hoveredCell.Cell);
+        if (_oceanView != null && _stateMachine.CurrentState is IState hovered)
+            _oceanView.ShowPreview(option, Board.State, hovered.StateType.ToForm()); // путь лодки, серый ход, «плот повезёт»
         if (option == null || !option.Legal || option.Path.Count < 2)
             return;
 
@@ -390,6 +404,7 @@ public class Player : MonoBehaviour
         foreach (var cell in _hoverPathCells)
             cell.SetIsPathPreview(false);
         _hoverPathCells.Clear();
+        _oceanView?.HidePreview();
     }
 
     private void OnDisable()

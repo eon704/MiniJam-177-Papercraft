@@ -18,6 +18,12 @@ public class LevelData : ScriptableObject
     public List<VolcanoConfig> VolcanoConfigs = new();
     public List<IceSourceConfig> IceSourceConfigs = new();
 
+    [Header("Ocean")]
+    [Tooltip("Течение: клетки воды, где лодку поворачивает, а плот сносит на клетку за ход. Не скомпилировано в Unity.")]
+    public List<FlowConfig> Flow = new();
+    [Tooltip("Плоты: стартовые клетки на воде.")]
+    public List<RaftConfig> Rafts = new();
+
     [Header("Items")]
     [Tooltip("Листки: +Amount ходов форме Form, подбираются как звезда (самолёт и лодка — на пролёте).")]
     public List<LeafConfig> Leaves = new();
@@ -145,6 +151,20 @@ public class IceSourceConfig
     public Vector2Int Position;
     public int Period = 3;
     public List<Vector2Int> FreezeSequence = new();
+}
+
+[Serializable]
+public class FlowConfig
+{
+    public Vector2Int Position;
+    [Tooltip("Направление: (1,0), (-1,0), (0,1) или (0,-1).")]
+    public Vector2Int Direction;
+}
+
+[Serializable]
+public class RaftConfig
+{
+    public Vector2Int Position;
 }
 
 [Serializable]

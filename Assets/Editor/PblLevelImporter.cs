@@ -60,11 +60,19 @@ public static class PblLevelImporter
             message = $"✗ {name}: {string.Join(" ", errors)}";
             return false;
         }
-        if (def.Entities.Count > 0)
-        {
-            message = $"✗ {name}: сущности (entity) в LevelData пока не поддерживаются.";
-            return false;
-        }
+        foreach (EntityDef e in def.Entities)
+            if (e.Kind != EntityKind.Raft)
+            {
+                message = $"✗ {name}: сущности «{e.Kind}» в LevelData пока не поддерживаются (есть только плоты).";
+                return false;
+            }
+
+        foreach (ScheduleDef s in def.Schedules)
+            if (s.Kind != "volcano" && s.Kind != "ice")
+            {
+                message = $"✗ {name}: расписание «{s.Kind}» (например, прилив) в игре пока не поддерживается.";
+                return false;
+            }
 
         foreach (TerrainType t in def.Terrain)
             if (t > TerrainType.LilyPad)
@@ -73,10 +81,11 @@ public static class PblLevelImporter
                 return false;
             }
 
-        foreach (Pos f in def.Flow)
-            if (f.X != 0 || f.Y != 0)
+        // Течение на воде (Океан) поддерживается видом OceanView. Ветер на суше (Пустыня) — пока нет.
+        for (int i = 0; i < def.CellCount; i++)
+            if (def.Flow[i] != Pos.Zero && def.Terrain[i] != TerrainType.Water)
             {
-                message = $"✗ {name}: течение в игре пока не поддерживается.";
+                message = $"✗ {name}: ветер на суше ({def.PosOf(i)}) в игре пока не поддерживается.";
                 return false;
             }
 
@@ -132,6 +141,16 @@ public static class PblLevelImporter
             else
                 Debug.LogWarning($"{def.Name}: расписание вида «{s.Kind}» в LevelData не поддерживается и пропущено.");
         }
+
+        data.Flow = new List<FlowConfig>();
+        for (int i = 0; i < def.CellCount; i++)
+            if (def.Flow[i] != Pos.Zero)
+                data.Flow.Add(new FlowConfig { Position = def.PosOf(i).ToVector(), Direction = def.Flow[i].ToVector() });
+
+        data.Rafts = new List<RaftConfig>();
+        foreach (EntityDef e in def.Entities)
+            if (e.Kind == EntityKind.Raft)
+                data.Rafts.Add(new RaftConfig { Position = e.Position.ToVector() });
 
         data.Leaves = new List<LeafConfig>();
         foreach (ItemDef item in def.Items)

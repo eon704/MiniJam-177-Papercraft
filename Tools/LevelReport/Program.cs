@@ -37,8 +37,12 @@ switch (command)
         if (rest.Length < 1) { Console.Error.WriteLine("trace <файл .pbl> — проиграть маршрут на 3★ по шагам"); return 2; }
         Trace(rest[0]);
         return 0;
+    case "play":
+        if (rest.Length < 1) { Console.Error.WriteLine("play <файл .pbl> crane:x,y frog:x,y ... — проиграть свои ходы"); return 2; }
+        Play(rest[0], rest.Skip(1).ToArray());
+        return 0;
     default:
-        Console.Error.WriteLine($"Неизвестная команда «{command}». Есть: report, check, export, summary, trace.");
+        Console.Error.WriteLine($"Неизвестная команда «{command}». Есть: report, check, export, summary, trace, play.");
         return 2;
 }
 
@@ -77,6 +81,12 @@ static bool Check(string path)
     Console.WriteLine($"  мёртвые клетки: {dead.Count} ({LevelMetrics.DeadShare(level):P0}){(dead.Count > 0 ? " " + string.Join(" ", dead) : "")}");
     double forg = LevelMetrics.Forgiveness(level, out int good, out int total);
     Console.WriteLine($"  прощение (первые два хода): {forg:P0} ({good}/{total})");
+    if (level.Entities.Exists(e => e.Kind == EntityKind.Raft))
+    {
+        int rides = r.ThreeStarPath != null ? LevelMetrics.RidesInPath(level, r.ThreeStarPath) : 0;
+        List<int> still = LevelMetrics.StaticRafts(level);
+        Console.WriteLine($"  плот: ходов на движущемся плоту в решении {rides}, поездка обязательна: {(LevelMetrics.RideRequired(level) ? "да" : "нет")}, неподвижных плотов {still.Count}");
+    }
     Console.WriteLine($"  состояний: {r.StatesExplored}");
     return errors.Count == 0 && r.CanThreeStar;
 }
@@ -93,6 +103,29 @@ static void Trace(string path)
         MoveResult m = Rules.Apply(level, s, st.Form, st.Target);
         s = m.After;
         Console.WriteLine($"-- {st}  [{string.Join(" ", m.Events.Where(e => e.Type != MoveEventType.Enter))}]");
+        Console.Write(LevelAssetReader.Render(level, s));
+    }
+}
+
+static void Play(string path, string[] moves)
+{
+    LevelDef level = Load(path);
+    GameState s = GameState.Initial(level);
+    Console.Write(LevelAssetReader.Render(level, s));
+    foreach (string mv in moves)
+    {
+        string[] parts = mv.Split(':', ',');
+        Form f = Enum.Parse<Form>(parts[0], true);
+        var target = new Pos(int.Parse(parts[1]), int.Parse(parts[2]));
+        var opts = Rules.GetOptions(level, s, f);
+        MoveResult m = Rules.Apply(level, s, f, target);
+        if (!m.Success)
+        {
+            Console.WriteLine($"-- {mv}: нельзя ({m.Failure}); варианты {f}: {string.Join(" ", opts.Where(o => o.Legal).Select(o => o.Target))}");
+            return;
+        }
+        s = m.After;
+        Console.WriteLine($"-- {mv}  [{string.Join(" ", m.Events.Where(e => e.Type != MoveEventType.Enter))}] {s.Status}");
         Console.Write(LevelAssetReader.Render(level, s));
     }
 }
@@ -214,8 +247,8 @@ void Export(string assetsDir, string jsonDir, string outDir)
 static void Summary(string dir, string output)
 {
     var sb = new StringBuilder();
-    sb.AppendLine("| Уровень | Поле | Бюджет C/P/B/F | Финиш | Запас | 3★ | Финиш/3★ | Решений 3★ | Складок | Хрупкие | Кувшинки | Листки | Мёртвые | Прощение | Качество |");
-    sb.AppendLine("| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |");
+    sb.AppendLine("| Уровень | Поле | Бюджет C/P/B/F | Финиш | Запас | 3★ | Финиш/3★ | Решений 3★ | Складок | Хрупкие | Кувшинки | Листки | Мёртвые | Прощение | На плоту | Качество |");
+    sb.AppendLine("| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |");
     var cards = new StringBuilder();
     foreach (string file in Directory.GetFiles(dir, "*" + LevelText.Extension).OrderBy(f => f))
     {
@@ -228,8 +261,15 @@ static void Summary(string dir, string output)
         string budget = string.Join("/", new[] { Form.Crane, Form.Plane, Form.Boat, Form.Frog }.Select(f => level.Budget[(int)f]));
         int fragile = level.Fragile.Count(b => b);
         int lily = level.Terrain.Count(t => t == TerrainType.LilyPad);
+        string ride = "—";
+        if (level.Entities.Any(e => e.Kind == EntityKind.Raft))
+        {
+            int rides = r.ThreeStarPath != null ? LevelMetrics.RidesInPath(level, r.ThreeStarPath) : 0;
+            int still = LevelMetrics.StaticRafts(level).Count;
+            ride = $"{rides}{(LevelMetrics.RideRequired(level) ? ", обязательно" : "")}{(still > 0 ? $", стоят: {still}" : "")}";
+        }
         string ratio = r.CanThreeStar && r.CanFinish ? $"{(double)r.MinMovesToFinish / r.MinMovesThreeStars:0.00}" : "—";
-        sb.AppendLine($"| {level.Name} | {level.Width}x{level.Height} | {budget} | {(r.CanFinish ? r.MinMovesToFinish : -1)} | {r.FinishSlack} | {(r.CanThreeStar ? r.MinMovesThreeStars : -1)} | {ratio} | {r.ThreeStarSolutionCount} | {r.MinFoldsThreeStars} | {fragile} | {lily} | {level.Items.Count} | {LevelMetrics.DeadCells(level).Count} | {LevelMetrics.Forgiveness(level):P0} | {(flags.Count == 0 ? "ок" : string.Join("; ", flags))} |");
+        sb.AppendLine($"| {level.Name} | {level.Width}x{level.Height} | {budget} | {(r.CanFinish ? r.MinMovesToFinish : -1)} | {r.FinishSlack} | {(r.CanThreeStar ? r.MinMovesThreeStars : -1)} | {ratio} | {r.ThreeStarSolutionCount} | {r.MinFoldsThreeStars} | {fragile} | {lily} | {level.Items.Count} | {LevelMetrics.DeadCells(level).Count} | {LevelMetrics.Forgiveness(level):P0} | {ride} | {(flags.Count == 0 ? "ок" : string.Join("; ", flags))} |");
         string idea = text.Split('\n').Select(l => l.Trim()).FirstOrDefault(l => l.StartsWith("# идея:"));
         cards.AppendLine($"### {level.Name}");
         cards.AppendLine();

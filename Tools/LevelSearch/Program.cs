@@ -246,7 +246,7 @@ if (opt.ContainsKey("tighten"))
         for (int k = 0; k < l.Items.Count; k++) if (end.HasItem(k)) l.Budget[(int)l.Items[k].Form] -= l.Items[k].Amount;
         return l.Budget.All(b => b >= 0);
     }
-    bool keepFlow = Get("keepflow", "0") == "1", keepRaft = Get("keepraft", "0") == "1";
+    bool keepFlow = Get("keepflow", "0") == "1", keepRaft = Get("keepraft", "0") == "1", keepRide = Get("keepride", "0") == "1";
     bool KeepsMechanics(LevelDef l, SolveReport r)
     {
         bool Differs(Action<LevelDef> strip)
@@ -258,6 +258,7 @@ if (opt.ContainsKey("tighten"))
         }
         if (keepFlow && !Differs(c => Array.Clear(c.Flow, 0, c.Flow.Length))) return false;
         if (keepRaft && !Differs(c => c.Entities.RemoveAll(e => e.Kind == EntityKind.Raft))) return false;
+        if (keepRide && (LevelMetrics.StaticRafts(l, 100000).Count > 0 || !LevelMetrics.RideRequired(l, 100000))) return false;
         return true;
     }
     for (int step = 0; step < steps && cur.FinishSlack > 0; step++)
@@ -332,6 +333,8 @@ bool waterStars = Get("waterstars", "0") == "1";
 double minForg = D("forg", 0), maxForg = D("forgmax", 1);
 int streams = I("streams", 0), rafts = I("rafts", 0), tideCells = I("tide", 0), tidePeriodMax = I("tideperiod", 3);
 bool needCarry = Get("needcarry", "0") == "1";
+bool needRide = Get("needride", "0") == "1"; // поездка на плоту обязательна для 3★ и неподвижных плотов нет
+bool raftOnFlow = Get("raftonflow", "0") == "1"; // плоты ставить только на воду с течением
 int boxes = I("boxes", 0), plates = I("plates", 0), gates = I("gates", 0);
 int guards = I("guards", 0), toriiPairs = I("torii", 0);
 bool needGuard = Get("needguard", "0") == "1", needTorii = Get("needtorii", "0") == "1";
@@ -409,7 +412,7 @@ for (int it = 0; it < iters && found < want; it++)
             c += d;
         }
     }
-    var freeWater = water.Where(i => level.StarIndex(level.PosOf(i)) < 0).OrderBy(_ => rng.Next()).ToList();
+    var freeWater = water.Where(i => level.StarIndex(level.PosOf(i)) < 0 && (!raftOnFlow || level.Flow[i] != Pos.Zero)).OrderBy(_ => rng.Next()).ToList();
     if (freeWater.Count < rafts) continue;
     for (int k = 0; k < rafts; k++) level.Entities.Add(new EntityDef { Kind = EntityKind.Raft, Position = level.PosOf(freeWater[k]) });
     if (tideCells > 0)
@@ -565,6 +568,7 @@ for (int it = 0; it < iters && found < want; it++)
         if (!carried) continue;
     }
     if (needTide && (level.Schedules.Count == 0 || !Matters(c => c.Schedules.Clear()))) continue;
+    if (needRide && (LevelMetrics.StaticRafts(level, 100000).Count > 0 || !LevelMetrics.RideRequired(level, 100000))) continue;
     if (needLily)
     {
         var copy = LevelText.Parse(LevelText.Write(level));

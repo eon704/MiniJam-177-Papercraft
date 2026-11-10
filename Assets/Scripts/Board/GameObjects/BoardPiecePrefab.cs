@@ -160,6 +160,13 @@ public class BoardPiecePrefab : MonoBehaviour
 
     public const float HopDuration = 0.44f;
 
+    /// <summary>Плавно переместить фигурку на клетку без прыжка (плот везёт). Модель уже стоит на этой клетке.</summary>
+    public Tween Drift(CellPrefab targetCell, float duration)
+    {
+        Vector3 targetPos = targetCell.FinalWorldPosition + Vector3.up * heightOffset;
+        return transform.DOMove(targetPos, duration).SetEase(Ease.InOutSine);
+    }
+
     public void Teleport(CellPrefab targetCell, bool tweenMovement = false, UnityAction onComplete = null)
     {
         bool success = BoardPiece.TeleportTo(targetCell.Cell);

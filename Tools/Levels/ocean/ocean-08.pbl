@@ -5,8 +5,8 @@ budget: crane=2 plane=0 boat=2 frog=2
 map:
 x00000
 000000
-PPPW+0
-WW++WW
++PPW+0
+PW++WW
 0000y+
 marks:
 ......
@@ -21,4 +21,3 @@ flow:
 <<...v
 ......
 leaf: 3,1 crane +1
-entity: kind=raft at=0,1 dir=0,0 data=0
