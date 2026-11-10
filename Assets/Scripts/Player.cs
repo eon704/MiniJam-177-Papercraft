@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
+using Paperbound.Core;
 using PlayerStateMachine;
 using UnityEngine;
 using UnityEngine.Events;
@@ -20,7 +21,10 @@ public class Player : MonoBehaviour
     public readonly UnityEvent OnAllMovesExhausted = new();
     public readonly UnityEvent OnNoMovesAvailable = new();
 
-    private int MovesLeftForCurrentState => _movesPerForm[(_stateMachine.CurrentState as IState)!.StateType];
+    private Board Board => _boardPrefab.Board;
+
+    /// <summary>Фигурка погибла; ход отменяется кнопкой Undo.</summary>
+    public bool IsDead => _boardPrefab != null && Board.State.Status == GameStatus.Dead;
 
     private StateMachine _stateMachine;
 
@@ -37,7 +41,6 @@ public class Player : MonoBehaviour
     private IState _boatState;
     private IState _frogState;
 
-    private const int TotalStars = 3;
 
     private Sequence _pulseSequence;
     private Tween _spinTween;
@@ -60,6 +63,7 @@ public class Player : MonoBehaviour
         if (_pendingEruptions == 0 && _unlockAfterEruption)
         {
             _unlockAfterEruption = false;
+            if (Board.State.Status != GameStatus.Playing) return;
             isMovementLocked = false;
             isStateChangeLocked = false;
         }
@@ -80,15 +84,16 @@ public class Player : MonoBehaviour
         Frog
     }
 
-    private Dictionary<StateType, int> _movesPerForm;
     private List<CellPrefab> _moveOptionCells;
     private List<CellPrefab> _hoverPathCells = new();
+    private OceanView _oceanView;
     private bool _isInitialized;
 
     public void Initialize(BoardPiece boardPiece, CellPrefab startCell, BoardPrefab boardPrefab)
     {
         _boardPrefab = boardPrefab;
         BoardPiecePrefab.Initialize(boardPiece, startCell, boardPrefab);
+        _oceanView = OceanView.Create(boardPrefab); // течение и плоты; null, если их в уровне нет
         BoardPiecePrefab.BoardPiece.OccupiedCell.OnChanged += OnPlayerMoved;
         BoardPiecePrefab.BoardPiece.OnCollectedStar += OnCollectStar;
         _isInitialized = true;
@@ -99,14 +104,14 @@ public class Player : MonoBehaviour
         _biomeCellSystem = biomeCellSystem;
     }
 
-    public void SetTransformationLimits(Dictionary<StateType, int> startingMoves)
+    /// <summary>Разослать UI текущий бюджет каждой формы из состояния партии.</summary>
+    public void RefreshMovesLeft()
     {
-        _movesPerForm = new Dictionary<StateType, int>(startingMoves);
-
-        OnMovesLeftChanged?.Invoke(StateType.Boat, _movesPerForm[StateType.Boat]);
-        OnMovesLeftChanged?.Invoke(StateType.Crane, _movesPerForm[StateType.Crane]);
-        OnMovesLeftChanged?.Invoke(StateType.Frog, _movesPerForm[StateType.Frog]);
-        OnMovesLeftChanged?.Invoke(StateType.Plane, _movesPerForm[StateType.Plane]);
+        GameState state = Board.State;
+        OnMovesLeftChanged?.Invoke(StateType.Boat, state.BudgetOf(Form.Boat));
+        OnMovesLeftChanged?.Invoke(StateType.Crane, state.BudgetOf(Form.Crane));
+        OnMovesLeftChanged?.Invoke(StateType.Frog, state.BudgetOf(Form.Frog));
+        OnMovesLeftChanged?.Invoke(StateType.Plane, state.BudgetOf(Form.Plane));
     }
 
     private void Awake()
@@ -126,7 +131,7 @@ public class Player : MonoBehaviour
         yield return new WaitUntil(() => _isInitialized);
         SetDefaultState();
         yield return null;
-        AddHistoryRecord();
+        OnUndoHistoryChange?.Invoke(Board.BoardHistory.Count);
     }
 
     private void OnPlayerMoved(Observable<Cell> cell, Cell oldCell, Cell newCell)
@@ -212,28 +217,36 @@ public class Player : MonoBehaviour
     public void SetCraneState()
     {
         if (isStateChangeLocked) return;
+        if (Board.State.Status != GameStatus.Playing) return;
         FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxChangeState);
+        Board.Fold(Form.Crane);
         SetState(_craneState);
     }
 
     public void SetFrogState()
     {
         if (isStateChangeLocked) return;
+        if (Board.State.Status != GameStatus.Playing) return;
         FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxChangeState);
+        Board.Fold(Form.Frog);
         SetState(_frogState);
     }
 
     public void SetPlaneState()
     {
         if (isStateChangeLocked) return;
+        if (Board.State.Status != GameStatus.Playing) return;
         FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxChangeState);
+        Board.Fold(Form.Plane);
         SetState(_planeState);
     }
 
     public void SetBoatState()
     {
         if (isStateChangeLocked) return;
+        if (Board.State.Status != GameStatus.Playing) return;
         FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxChangeState);
+        Board.Fold(Form.Boat);
         SetState(_boatState);
     }
 
@@ -241,146 +254,124 @@ public class Player : MonoBehaviour
     {
         if (isMovementLocked)
             return;
+        if (Board.State.Status != GameStatus.Playing)
+            return;
 
         IState currentState = (_stateMachine.CurrentState as IState)!;
         StateType type = currentState.StateType;
+        Form form = type.ToForm();
+        GameState before = Board.State;
 
-        // Лодка: клик по воде — находим клетку приземления на другом берегу
-        if (type == StateType.Boat && targetCell.Cell.Terrain == TerrainType.Water)
+        // Клик по воде (лодка) или по первой клетке льда (журавль) означает ход до конца пути.
+        MoveOption option = BoardPiecePrefab.BoardPiece.ResolveClick(targetCell.Cell);
+        MoveResult result = option != null ? Rules.Apply(Board.Def, before, form, option.Target) : null;
+
+        if (result == null || !result.Success)
         {
-            Cell landing = BoardPiecePrefab.BoardPiece.FindBoatLandingCell(targetCell.Cell);
-            if (landing == null) return;
-            targetCell = _boardPrefab.GetCellPrefab(landing);
+            BoardPiecePrefab.PlayFailShake();
+            return;
         }
 
-        bool forceFailMovement = _movesPerForm[type] <= 0;
+        // Путь для анимации обрезается на клетке гибели (самолёт над огнём).
+        int deathIndex = -1;
+        foreach (MoveEvent e in result.Events)
+            if (e.Type == MoveEventType.Died && e.PathIndex < result.Path.Count) { deathIndex = e.PathIndex; break; }
+        int animatedCount = deathIndex >= 0 ? deathIndex + 1 : result.Path.Count;
 
-        // Для лодки строим путь через воду для пошаговой анимации
-        List<CellPrefab> boatPath = null;
-        if (type == StateType.Boat && !forceFailMovement)
+        var path = new List<CellPrefab>(animatedCount);
+        for (int i = 0; i < animatedCount; i++)
+            path.Add(_boardPrefab.GetCellPrefab(result.Path[i].ToVector()));
+
+        CellPrefab startCell = BoardPiecePrefab.CurrentCell;
+        CellPrefab endCell = path[path.Count - 1];
+        // Плот мог увезти фигурку дальше цели хода: модель ставится туда, куда довёз плот, анимация — в два этапа.
+        bool drift = _oceanView != null && OceanView.HasDrift(result);
+        CellPrefab finalCell = drift && deathIndex < 0 ? _boardPrefab.GetCellPrefab(result.After.Player.ToVector()) : endCell;
+        bool multiHop = path.Count > 1;
+
+        // Визуалы звёзд и обрушений откладываются до момента, когда фигурка долетит до клетки.
+        foreach (MoveEvent e in result.Events)
         {
-            var pathCells = BoardPiecePrefab.BoardPiece.GetBoatPathCells(targetCell.Cell);
-            boatPath = new List<CellPrefab>(pathCells.Count);
-            foreach (var c in pathCells)
-                boatPath.Add(_boardPrefab.GetCellPrefab(c));
+            CellPrefab cell = _boardPrefab.GetCellPrefab(e.Pos.ToVector());
+            if (e.Type == MoveEventType.StarCollected)
+                cell.SetStarVisualDeferred(() => StarAmount.Value += 1);
+            else if (e.Type == MoveEventType.Collapsed && (multiHop || e.PathIndex >= 0))
+                cell.DeferCollapseVisual();
         }
 
-        // Для самолёта строим путь по диагонали для пошаговой анимации
-        List<CellPrefab> planePath = null;
-        if (type == StateType.Plane && !forceFailMovement)
+        // Модель: новое состояние, клетки (без террейна расписаний — его покажет BiomeCellSystem), фигурка.
+        Board.Commit(result.After);
+        Board.SyncCells(result.After, syncTerrain: false, animateCollapse: true);
+        bool leafCollected = false;
+        foreach (MoveEvent e in result.Events)
         {
-            var pathCells = BoardPiecePrefab.BoardPiece.GetPlanePathCells(targetCell.Cell);
-            planePath = new List<CellPrefab>(pathCells.Count);
-            foreach (var c in pathCells)
-                planePath.Add(_boardPrefab.GetCellPrefab(c));
+            if (e.Type == MoveEventType.Sank)
+                Board.GetCell(e.Pos.ToVector())?.SetTerrain(e.NewTerrain); // кувшинка утонула
+            else if (e.Type == MoveEventType.ItemCollected)
+                leafCollected = true;
         }
+        if (leafCollected)
+            RefreshMovesLeft(); // листок добавил ходы другой форме
+        BoardPiecePrefab.BoardPiece.TeleportTo(finalCell.Cell);
+        OnUndoHistoryChange?.Invoke(Board.BoardHistory.Count);
 
-        bool success = BoardPiecePrefab.Move(targetCell, OnMove, forceFailMovement, boatPath, planePath: planePath,
-            onStarCollected: () => StarAmount.Value += 1,
-            onFireCell: cell => { cell.ActivateFireSplash(); OnPlayerDied?.Invoke(); },
-            onLastHopStart: () => isStateChangeLocked = false);
+        isMovementLocked = true;
+        isStateChangeLocked = true;
+        if (!multiHop)
+            FMODAudioManager.Instance.PlayStepSound(endCell.Cell.Terrain, endCell.Cell.IsFragile);
+        float shakeDelay = multiHop ? path.Count * BoardPiecePrefab.HopDuration : 0.5f;
+        endCell.ShakeCell(shakeDelay);
 
-        if (success)
-        {
-            isMovementLocked = true;
-            isStateChangeLocked = true;
-            if (boatPath == null && planePath == null)
-                FMODAudioManager.Instance.PlayStepSound(targetCell.Cell.Terrain, targetCell.Cell.IsFragile);
-            const float hopDuration = 0.44f;
-            float shakeDelay = boatPath != null ? boatPath.Count * hopDuration
-                             : planePath != null ? planePath.Count * hopDuration
-                             : 0.5f;
-            targetCell.ShakeCell(shakeDelay);
-            _movesPerForm[type]--;
-            OnMovesLeftChanged?.Invoke(type, _movesPerForm[type]);
+        HideHoverPath();
+        if (drift)
+            BoardPiecePrefab.PlayMove(startCell, path,
+                () => _oceanView.PlayDrift(result, BoardPiecePrefab, () => OnMoveAnimated(result)),
+                onLastHopStart: () => isStateChangeLocked = false);
+        else
+            BoardPiecePrefab.PlayMove(startCell, path, () => OnMoveAnimated(result),
+                onLastHopStart: () => isStateChangeLocked = false);
 
-            if (_movesPerForm[type] <= 0)
-                OnOutOfMoves();
+        int left = result.After.BudgetOf(form);
+        OnMovesLeftChanged?.Invoke(type, left);
+        if (left <= 0)
+            OnOutOfMoves();
 
-            bool allExhausted = true;
-            foreach (var kvp in _movesPerForm)
-                if (kvp.Value > 0) { allExhausted = false; break; }
-            if (allExhausted)
-                OnAllMovesExhausted?.Invoke();
-
-        }
+        bool allExhausted = true;
+        foreach (Form f in Forms.Movable)
+            if (result.After.BudgetOf(f) > 0) { allExhausted = false; break; }
+        if (allExhausted && result.After.Status == GameStatus.Playing)
+            OnAllMovesExhausted?.Invoke();
     }
 
     public void UndoMove()
     {
-        if (isMovementLocked)
+        // После гибели фигурка заблокирована, но Undo доступен — им смерть и отменяется.
+        bool deadAndSettled = IsDead && _pendingEruptions == 0;
+        if (isMovementLocked && !deadAndSettled)
             return;
 
-        BoardRecord? lastRecord = _boardPrefab.Board.BoardHistory.Undo();
-        if (!lastRecord.HasValue)
+        GameState previous = Board.Undo();
+        if (previous == null)
             return;
 
         FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxUndo);
-        OnUndoHistoryChange?.Invoke(_boardPrefab.Board.BoardHistory.Count);
+        OnUndoHistoryChange?.Invoke(Board.BoardHistory.Count);
         BoardPiecePrefab.CancelMove();
         BoardPiecePrefab.BoardPiece.OccupiedCell.Value.FreePiece();
 
-        Vector2Int playerPosition = lastRecord.Value.PlayerPosition;
-        StateType playerState = lastRecord.Value.PlayerState;
-        List<Vector2Int> starsRemaining = lastRecord.Value.StarsRemaining;
-
-        _movesPerForm = new Dictionary<StateType, int>(lastRecord.Value.MovesPerForm);
-        foreach (var kvp in _movesPerForm)
-            OnMovesLeftChanged?.Invoke(kvp.Key, kvp.Value);
-
-        // Restore fragile cells BEFORE teleporting so the target cell exists.
-        // Only reset cells NOT in the target collapsed list — cells that stay collapsed
-        // must not be animated (reset → instant-collapse would trigger two animations).
-        var targetCollapsed = new System.Collections.Generic.HashSet<Vector2Int>(lastRecord.Value.CollapsedCells);
-        foreach (var cell in _boardPrefab.Board.FragileCells)
-            if (!targetCollapsed.Contains(cell.Position))
-                cell.ResetCollapse();
-        foreach (var pos in lastRecord.Value.CollapsedCells)
-            _boardPrefab.Board.GetCell(pos)?.CollapseInstant();
-
-        _biomeCellSystem?.RestoreSnapshot(lastRecord.Value.BiomeSnapshot);
+        // Клетки — до телепорта, чтобы целевая клетка существовала.
+        Board.SyncCells(previous, syncTerrain: true, animateCollapse: false);
+        _biomeCellSystem?.Refresh();
+        _oceanView?.Refresh(previous);
+        RefreshMovesLeft();
 
         isMovementLocked = true;
-        BoardPiecePrefab.Teleport(_boardPrefab.GetCellPrefab(playerPosition), tweenMovement: true,
+        isStateChangeLocked = true;
+        BoardPiecePrefab.Teleport(_boardPrefab.GetCellPrefab(previous.Player.ToVector()), tweenMovement: true,
             onComplete: () => { isMovementLocked = false; isStateChangeLocked = false; });
-        SetState(GetState(playerState));
+        SetState(GetState(previous.Form.ToStateType()));
 
-        foreach (var cell in starsRemaining)
-            _boardPrefab.GetCellPrefab(cell).Cell.ReassignStar();
-
-        StarAmount.Value = TotalStars - starsRemaining.Count;
-    }
-
-    private void AddHistoryRecord()
-    {
-        Vector2Int playerPosition = BoardPiecePrefab.CurrentCell.Cell.Position;
-        StateType playerState = (_stateMachine.CurrentState as IState)!.StateType;
-        List<Vector2Int> starsRemaining = new();
-
-        foreach (var cell in _boardPrefab.Board.StarCells)
-        {
-            if (cell.Item == CellItem.Star)
-                starsRemaining.Add(cell.Position);
-        }
-
-        List<Vector2Int> collapsedCells = new();
-        foreach (var cell in _boardPrefab.Board.FragileCells)
-        {
-            if (cell.IsCollapsed)
-                collapsedCells.Add(cell.Position);
-        }
-
-        BiomeCellSnapshot biomeSnapshot = _biomeCellSystem?.TakeSnapshot() ?? default;
-        _boardPrefab.Board.BoardHistory.AddRecord(
-            playerPosition,
-            playerState,
-            starsRemaining,
-            new Dictionary<StateType, int>(_movesPerForm),
-            collapsedCells,
-            biomeSnapshot
-        );
-
-        OnUndoHistoryChange?.Invoke(_boardPrefab.Board.BoardHistory.Count);
+        StarAmount.Value = previous.StarsCollected;
     }
 
     private void Update()
@@ -393,30 +384,15 @@ public class Player : MonoBehaviour
     {
         HideHoverPath();
 
-        IState currentState = (_stateMachine.CurrentState as IState)!;
-        StateType type = currentState.StateType;
+        MoveOption option = BoardPiecePrefab.BoardPiece.ResolveClick(hoveredCell.Cell);
+        if (_oceanView != null && _stateMachine.CurrentState is IState hovered)
+            _oceanView.ShowPreview(option, Board.State, hovered.StateType.ToForm()); // путь лодки, серый ход, «плот повезёт»
+        if (option == null || !option.Legal || option.Path.Count < 2)
+            return;
 
-        List<CellPrefab> pathCells = new();
-
-        if (type == StateType.Boat && hoveredCell.Cell.Terrain == TerrainType.Water)
+        foreach (Cell c in BoardPiecePrefab.BoardPiece.GetPathCells(option))
         {
-            Cell landing = BoardPiecePrefab.BoardPiece.FindBoatLandingCell(hoveredCell.Cell);
-            if (landing != null)
-            {
-                var boatPath = BoardPiecePrefab.BoardPiece.GetBoatPathCells(landing);
-                foreach (var c in boatPath)
-                    pathCells.Add(_boardPrefab.GetCellPrefab(c));
-            }
-        }
-        else if (type == StateType.Plane)
-        {
-            var planePath = BoardPiecePrefab.BoardPiece.GetPlanePathCells(hoveredCell.Cell);
-            foreach (var c in planePath)
-                pathCells.Add(_boardPrefab.GetCellPrefab(c));
-        }
-
-        foreach (var cell in pathCells)
-        {
+            CellPrefab cell = _boardPrefab.GetCellPrefab(c);
             if (cell == hoveredCell) continue;
             cell.SetIsPathPreview(true);
             _hoverPathCells.Add(cell);
@@ -428,6 +404,7 @@ public class Player : MonoBehaviour
         foreach (var cell in _hoverPathCells)
             cell.SetIsPathPreview(false);
         _hoverPathCells.Clear();
+        _oceanView?.HidePreview();
     }
 
     private void OnDisable()
@@ -477,28 +454,29 @@ public class Player : MonoBehaviour
 
     private void OnCollectStar() { }
 
-    private void OnMove()
+    private void OnMoveAnimated(MoveResult result)
     {
-        // Tick biome (volcano/ice) only after the player's movement animation completes
-        _biomeCellSystem?.OnPlayerMoved();
-        AddHistoryRecord();
+        // Расписания (вулкан, лёд) показываются после анимации хода.
+        _biomeCellSystem?.PlayEvents(result);
 
-        Cell targetCell = BoardPiecePrefab.CurrentCell.Cell;
-        if (targetCell.Terrain == TerrainType.End)
+        GameState state = result.After;
+        StarAmount.Value = state.StarsCollected;
+
+        if (state.Status == GameStatus.Won)
         {
-            OnPlayerWon?.Invoke(StarAmount);
+            OnPlayerWon?.Invoke(state.StarsCollected);
             // keep locked — game is over
         }
-        else if (targetCell.Terrain == TerrainType.Fire || targetCell.Terrain == TerrainType.Lava)
+        else if (state.Status == GameStatus.Dead && state.Death != DeathCause.Schedule)
         {
             BoardPiecePrefab.CurrentCell.ActivateFireSplash();
             OnPlayerDied?.Invoke();
-            // keep locked — player died
+            // keep locked — Undo отменяет смерть
         }
         else if (_pendingEruptions > 0)
         {
+            // Гибель от снаряда вулкана объявит GameController, когда снаряд долетит.
             _unlockAfterEruption = true;
-            // stay locked until eruption visual finishes
         }
         else
         {
