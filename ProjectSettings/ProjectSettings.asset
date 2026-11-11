@@ -167,7 +167,7 @@ PlayerSettings:
   androidMinAspectRatio: 1
   applicationIdentifier:
     Android: com.eon704.paperbound
-    Standalone: com.DefaultCompany.2D-URP
+    Standalone: com.DoubleDouble.Paperbound
     iPhone: com.eon704.paperbound
   buildNumber:
     Standalone: 0
