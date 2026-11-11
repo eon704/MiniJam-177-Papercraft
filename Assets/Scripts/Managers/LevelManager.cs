@@ -36,7 +36,7 @@ public class LevelManager : Singleton<LevelManager>
 
         if (Instance == this)
         {
-            NextLevelIndex = PlayerPrefs.GetInt("NextLevelIndex", 1);
+            RecomputeNextLevelIndex();
             CurrentLevelIndex = NextLevelIndex;
 
 #if UNITY_EDITOR
@@ -67,41 +67,60 @@ public class LevelManager : Singleton<LevelManager>
         SetCurrentLevel(CurrentLevelIndex + 1);
     }
 
+    /// <summary>
+    /// Stable id used in the save file: the LevelData asset name. Progress is stored by id, not by
+    /// position, so reordering or replacing the level list never moves stars onto other levels.
+    /// </summary>
+    public string GetLevelId(int levelIndex)
+    {
+        if (levelIndex <= 0 || levelIndex >= levels.Count || levels[levelIndex] == null)
+            return null;
+        return levels[levelIndex].name;
+    }
+
     public int GetLevelStars(int levelIndex)
     {
-        string key = "level" + levelIndex + "_stars";
-        return PlayerPrefs.GetInt(key, 0);
+        return SaveSystem.Progress.GetStars(GetLevelId(levelIndex));
     }
 
     public void UnlockAllLevels()
     {
-        NextLevelIndex = levels.Count - 1;
-        PlayerPrefs.SetInt("NextLevelIndex", NextLevelIndex);
+        SaveSystem.Progress.allUnlocked = true;
+        RecomputeNextLevelIndex();
+        SaveSystem.SaveNow();
     }
 
     public void ResetProgress()
     {
-        for (int i = 1; i < levels.Count; i++)
-            PlayerPrefs.DeleteKey("level" + i + "_stars");
-
-        NextLevelIndex = 1;
+        SaveSystem.Progress.Reset();
+        RecomputeNextLevelIndex();
         CurrentLevelIndex = 1;
-        PlayerPrefs.SetInt("NextLevelIndex", 1);
-        PlayerPrefs.Save();
+        SaveSystem.SaveNow();
     }
 
     public void SetCurrentLevelComplete(int stars)
     {
-        string key = "level" + Instance.CurrentLevelIndex + "_stars";
-        int bestStars = PlayerPrefs.GetInt(key, 0);
-        if (stars > bestStars)
-            PlayerPrefs.SetInt(key, stars);
+        if (SaveSystem.Progress.Complete(GetLevelId(CurrentLevelIndex), stars))
+            SaveSystem.SaveNow();
+        RecomputeNextLevelIndex();
+    }
 
-        if (CurrentLevelIndex + 1 <= NextLevelIndex)
-            return;
+    /// <summary>Levels unlock in order: the next level is the first one in the list not completed yet.</summary>
+    private void RecomputeNextLevelIndex()
+    {
+        int next = levels.Count;
+        for (int i = 1; i < levels.Count; i++)
+        {
+            if (!SaveSystem.Progress.IsCompleted(GetLevelId(i)))
+            {
+                next = i;
+                break;
+            }
+        }
 
-        NextLevelIndex = CurrentLevelIndex + 1;
-        PlayerPrefs.SetInt("NextLevelIndex", NextLevelIndex);
-        PlayerPrefs.Save();
+        if (SaveSystem.Progress.allUnlocked)
+            next = Mathf.Max(next, levels.Count - 1);
+
+        NextLevelIndex = Mathf.Max(1, next);
     }
 }

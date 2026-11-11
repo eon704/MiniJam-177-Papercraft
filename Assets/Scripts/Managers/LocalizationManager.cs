@@ -16,15 +16,9 @@ public class LocalizationManager : Singleton<LocalizationManager>
   {
     yield return LocalizationSettings.InitializationOperation;
 
-    int localeIndex;
-    if (!PlayerPrefs.HasKey("localeIndex"))
-    {
+    int localeIndex = SaveSystem.Settings.localeIndex;
+    if (localeIndex < 0)
       localeIndex = GetLocaleIndexFromSystemLanguage(Application.systemLanguage);
-    }
-    else
-    {
-      localeIndex = PlayerPrefs.GetInt("localeIndex", 0);
-    }
 
     ChangeLocale(localeIndex);
   }
@@ -42,13 +36,27 @@ public class LocalizationManager : Singleton<LocalizationManager>
     ChangeLocale(localeIndex);
   }
 
-  public int CurrentLocaleIndex => PlayerPrefs.GetInt("localeIndex", 0);
+  public int CurrentLocaleIndex
+  {
+    get
+    {
+      int index = SaveSystem.Settings.localeIndex;
+      return index >= 0 ? index : GetLocaleIndexFromSystemLanguage(Application.systemLanguage);
+    }
+  }
 
   private void ChangeLocale(int localeIndex)
   {
-    var selectedLocale = LocalizationSettings.AvailableLocales.Locales[localeIndex];
-    LocalizationSettings.SelectedLocale = selectedLocale;
-    PlayerPrefs.SetInt("localeIndex", localeIndex);
+    var locales = LocalizationSettings.AvailableLocales.Locales;
+    if (localeIndex < 0 || localeIndex >= locales.Count)
+      localeIndex = 0;
+
+    LocalizationSettings.SelectedLocale = locales[localeIndex];
+    if (SaveSystem.Settings.localeIndex != localeIndex)
+    {
+      SaveSystem.Settings.localeIndex = localeIndex;
+      SaveSystem.RequestSave();
+    }
   }
 
   private int GetLocaleIndexFromSystemLanguage(SystemLanguage language)

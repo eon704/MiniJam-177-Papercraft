@@ -11,6 +11,8 @@ public class StateCardUI : MonoBehaviour,
     [SerializeField] private Player.StateType stateType;
     [SerializeField] private Player player;
 
+    public Player.StateType StateType => stateType;
+
     [Header("Moves")]
     [SerializeField] private TMP_Text movesText;
     [SerializeField] private Image movesImage;
