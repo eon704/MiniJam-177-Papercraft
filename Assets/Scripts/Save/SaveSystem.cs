@@ -173,7 +173,16 @@ public static class SaveSystem
         if (data.version > SaveData.CurrentVersion)
             Debug.LogWarning($"[SaveSystem] Save version {data.version} is newer than the game ({SaveData.CurrentVersion}).");
 
-        // if (data.version < 2) { ...; data.version = 2; }
+        if (data.version < 2)
+        {
+            // v1 keyed progress by position in the level list. The list was replaced by the new Forest
+            // levels, so those indexes point at different levels now: drop them rather than move stars
+            // onto the wrong levels. Settings are kept.
+            data.progress ??= new ProgressData();
+            data.progress.ClearLegacy();
+            data.progress.levels?.Clear();
+            data.version = 2;
+        }
 
         data.version = Mathf.Max(data.version, SaveData.CurrentVersion);
     }
@@ -187,43 +196,32 @@ public static class SaveSystem
     }
 }
 
-/// <summary>One-time import of the PlayerPrefs keys used before the file save existed.</summary>
+/// <summary>One-time import of the PlayerPrefs settings used before the file save existed.</summary>
 internal static class PlayerPrefsMigration
 {
     // Keys used by LevelManager, SettingsManager and LocalizationManager up to version 1.2.0.
-    private const string NextLevelKey = "NextLevelIndex";
     private const string SfxKey = "SFXVolume";
     private const string MusicKey = "SoundtrackVolume";
     private const string LocaleKey = "localeIndex";
-    private const int MaxLevelsToScan = 256;
 
     public static SaveData TryImport()
     {
-        bool any = PlayerPrefs.HasKey(NextLevelKey) || PlayerPrefs.HasKey(SfxKey) ||
-                   PlayerPrefs.HasKey(MusicKey) || PlayerPrefs.HasKey(LocaleKey);
+        bool any = PlayerPrefs.HasKey(SfxKey) || PlayerPrefs.HasKey(MusicKey) || PlayerPrefs.HasKey(LocaleKey);
 
         var data = new SaveData();
 
-        for (int i = 1; i < MaxLevelsToScan; i++)
-        {
-            string key = "level" + i + "_stars";
-            if (!PlayerPrefs.HasKey(key))
-                continue;
-            any = true;
-            data.progress.SetBestStars(i, PlayerPrefs.GetInt(key, 0));
-        }
-
+        // Old progress was stored by level index for a level list that no longer exists, so only
+        // settings are imported.
         if (!any)
             return null;
 
         data.migratedFromPlayerPrefs = true;
-        data.progress.nextLevelIndex = PlayerPrefs.GetInt(NextLevelKey, 1);
         data.settings.sfxVolume = PlayerPrefs.GetFloat(SfxKey, 1f);
         data.settings.musicVolume = PlayerPrefs.GetFloat(MusicKey, 1f);
         data.settings.localeIndex = PlayerPrefs.HasKey(LocaleKey) ? PlayerPrefs.GetInt(LocaleKey, 0) : -1;
 
         // PlayerPrefs are left in place on purpose: the import is non-destructive.
-        Debug.Log("[SaveSystem] Imported progress and settings from PlayerPrefs.");
+        Debug.Log("[SaveSystem] Imported settings from PlayerPrefs.");
         return data;
     }
 }

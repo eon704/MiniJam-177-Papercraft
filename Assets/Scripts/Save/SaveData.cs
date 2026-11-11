@@ -10,7 +10,7 @@ using UnityEngine;
 [Serializable]
 public class SaveData
 {
-    public const int CurrentVersion = 1;
+    public const int CurrentVersion = 2;
 
     public int version = CurrentVersion;
 
@@ -30,50 +30,77 @@ public class SaveData
 }
 
 [Serializable]
+public class LevelProgress
+{
+    /// <summary>Stable level id: the LevelData asset name. Survives reordering of the level list.</summary>
+    public string id;
+    public bool completed;
+    public int stars;
+}
+
+[Serializable]
 public class ProgressData
 {
-    /// <summary>First level that is not completed yet. Level 0 is the debug level, so playable levels start at 1.</summary>
-    public int nextLevelIndex = 1;
+    /// <summary>Per-level results, keyed by level id (not by list index).</summary>
+    public List<LevelProgress> levels = new();
 
-    /// <summary>Best star count per level, indexed by level index (index 0 is unused).</summary>
+    /// <summary>Debug "unlock all levels".</summary>
+    public bool allUnlocked;
+
+    // Version 1 stored progress by list index. Kept only so old files deserialize; cleared on upgrade.
+    public int nextLevelIndex;
     public List<int> levelStars = new();
 
-    public int GetStars(int levelIndex)
+    public LevelProgress Find(string levelId)
     {
-        if (levelIndex < 0 || levelIndex >= levelStars.Count)
-            return 0;
-        return levelStars[levelIndex];
+        if (string.IsNullOrEmpty(levelId)) return null;
+        foreach (var entry in levels)
+            if (entry != null && entry.id == levelId)
+                return entry;
+        return null;
     }
 
-    /// <summary>Stores the star count if it beats the previous best. Returns true when the value changed.</summary>
-    public bool SetBestStars(int levelIndex, int stars)
+    public bool IsCompleted(string levelId) => Find(levelId)?.completed ?? false;
+
+    public int GetStars(string levelId) => Find(levelId)?.stars ?? 0;
+
+    /// <summary>Marks the level completed and keeps the best star count. Returns true when anything changed.</summary>
+    public bool Complete(string levelId, int stars)
     {
-        if (levelIndex < 0)
-            return false;
+        if (string.IsNullOrEmpty(levelId)) return false;
+        stars = Mathf.Clamp(stars, 0, 3);
 
-        while (levelStars.Count <= levelIndex)
-            levelStars.Add(0);
+        var entry = Find(levelId);
+        if (entry == null)
+        {
+            levels.Add(new LevelProgress { id = levelId, completed = true, stars = stars });
+            return true;
+        }
 
-        if (stars <= levelStars[levelIndex])
-            return false;
-
-        levelStars[levelIndex] = stars;
-        return true;
+        bool changed = !entry.completed || stars > entry.stars;
+        entry.completed = true;
+        entry.stars = Mathf.Max(entry.stars, stars);
+        return changed;
     }
 
     public void Reset()
     {
-        nextLevelIndex = 1;
-        levelStars.Clear();
+        levels.Clear();
+        allUnlocked = false;
+    }
+
+    public void ClearLegacy()
+    {
+        nextLevelIndex = 0;
+        levelStars?.Clear();
     }
 
     public void Sanitize()
     {
-        levelStars ??= new List<int>();
-        if (nextLevelIndex < 1)
-            nextLevelIndex = 1;
-        for (int i = 0; i < levelStars.Count; i++)
-            levelStars[i] = Mathf.Clamp(levelStars[i], 0, 3);
+        levels ??= new List<LevelProgress>();
+        levels.RemoveAll(e => e == null || string.IsNullOrEmpty(e.id));
+        foreach (var e in levels)
+            e.stars = Mathf.Clamp(e.stars, 0, 3);
     }
 }
 
