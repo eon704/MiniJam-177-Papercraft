@@ -233,6 +233,9 @@ MonoBehaviour:
     - {x: 6, y: 3}
     - {x: 6, y: 1}
   IceSourceConfigs: []
+  Flow: []
+  Rafts: []
+  Leaves: []
   cachedSolution:
   - Position: {x: 4, y: 2}
     State: 0
