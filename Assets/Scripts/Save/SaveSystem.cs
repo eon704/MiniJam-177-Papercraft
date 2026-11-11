@@ -92,8 +92,12 @@ public static class SaveSystem
         else
         {
             _data = loaded;
+            int loadedVersion = loaded.version;
             Upgrade(loaded);
             loaded.Sanitize();
+            // Persist upgraded layouts right away (the previous file is kept as save.json.bak).
+            if (loaded.version != loadedVersion)
+                SaveNow();
         }
 
         OnLoaded?.Invoke();
