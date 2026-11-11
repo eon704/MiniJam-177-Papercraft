@@ -15,6 +15,7 @@ using UnityEngine.UI;
 ///                  Q / E and LB / RB cycle through the same list
 ///   undo         — Z / Backspace / gamepad X
 ///   restart      — R / gamepad Y
+///   hint         — H / gamepad Select (View)
 /// In menus the regular uGUI navigation is used; this component only gives focus to the first
 /// button when a keyboard or gamepad user starts navigating with nothing selected.
 ///
@@ -35,6 +36,7 @@ public class PcInputController : MonoBehaviour
     private InputAction _confirm;
     private InputAction _undo;
     private InputAction _restart;
+    private InputAction _hint;
     private InputAction _prevForm;
     private InputAction _nextForm;
     private const int MaxFormKeys = 9;
@@ -134,6 +136,10 @@ public class PcInputController : MonoBehaviour
         _restart.AddBinding("<Keyboard>/r");
         _restart.AddBinding("<Gamepad>/buttonNorth");
 
+        _hint = new InputAction("Hint", InputActionType.Button);
+        _hint.AddBinding("<Keyboard>/h");
+        _hint.AddBinding("<Gamepad>/select");
+
         _prevForm = new InputAction("PrevForm", InputActionType.Button);
         _prevForm.AddBinding("<Keyboard>/q");
         _prevForm.AddBinding("<Gamepad>/leftShoulder");
@@ -157,6 +163,7 @@ public class PcInputController : MonoBehaviour
         yield return _confirm;
         yield return _undo;
         yield return _restart;
+        yield return _hint;
         yield return _prevForm;
         yield return _nextForm;
         foreach (var a in _formKeys) yield return a;
@@ -317,6 +324,13 @@ public class PcInputController : MonoBehaviour
 
         if (_restart.WasPressedThisFrame())
             _game.ResetMap();
+
+        if (_hint.WasPressedThisFrame() && HintButton.Active != null)
+        {
+            var hintButton = HintButton.Active.GetComponent<Button>();
+            if (hintButton != null && hintButton.IsInteractable())
+                HintButton.Active.Reveal();
+        }
 
         for (int i = 0; i < _formKeys.Length; i++)
             if (_formKeys[i].WasPressedThisFrame())

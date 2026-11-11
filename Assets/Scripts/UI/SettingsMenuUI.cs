@@ -136,39 +136,82 @@ public class SettingsMenuUI : MonoBehaviour
 }
 
 /// <summary>
-/// Labels for generated dropdown options. Temporary inline translations until the strings are
-/// moved into a Unity Localization string table (needs the editor).
-/// Order matches LocalizationManager.Locale: en, ru, kk, zh.
+/// Strings for the PC settings rows and generated dropdown options.
+/// Looked up in the "Paperbound Localization Table" string table; the inline translations below are
+/// the source for Tools → Localization → Add PC settings strings (editor) and the fallback when a key
+/// is missing. Order matches LocalizationManager.Locale: en, ru, kk, zh-Hans.
 /// </summary>
-internal static class SettingsLabels
+public static class SettingsLabels
 {
+    public const string TableName = "Paperbound Localization Table";
+
+    public const string KeyResolution = "Settings.Resolution";
+    public const string KeyWindowMode = "Settings.WindowMode";
+    public const string KeyQuality = "Settings.Quality";
+    public const string KeyFrameCap = "Settings.FrameCap";
+    public const string KeyVSync = "Settings.VSync";
+    public const string KeyBorderless = "Settings.WindowMode.Borderless";
+    public const string KeyFullscreen = "Settings.WindowMode.Fullscreen";
+    public const string KeyWindowed = "Settings.WindowMode.Windowed";
+    public const string KeyUnlimited = "Settings.FrameCap.Unlimited";
+    public const string KeyHint = "HintButton";
+
+    /// <summary>key → (en, ru, kk, zh-Hans).</summary>
+    public static readonly IReadOnlyDictionary<string, string[]> Entries = new Dictionary<string, string[]>
+    {
+        [KeyResolution] = new[] { "Resolution", "Разрешение", "Ажыратымдылық", "分辨率" },
+        [KeyWindowMode] = new[] { "Display mode", "Режим экрана", "Экран режимі", "显示模式" },
+        [KeyQuality] = new[] { "Graphics quality", "Качество графики", "Графика сапасы", "画质" },
+        [KeyFrameCap] = new[] { "Frame rate limit", "Лимит FPS", "Кадр жиілігі шегі", "帧率上限" },
+        [KeyVSync] = new[] { "VSync", "Вертикальная синхронизация", "Тік синхрондау", "垂直同步" },
+        [KeyBorderless] = new[] { "Borderless", "Окно без рамки", "Жиексіз терезе", "无边框窗口" },
+        [KeyFullscreen] = new[] { "Fullscreen", "Полный экран", "Толық экран", "全屏" },
+        [KeyWindowed] = new[] { "Windowed", "В окне", "Терезеде", "窗口" },
+        [KeyUnlimited] = new[] { "Unlimited", "Без ограничения", "Шектеусіз", "无限制" },
+        ["Settings.Quality.Very Low"] = new[] { "Very low", "Очень низкое", "Өте төмен", "极低" },
+        ["Settings.Quality.Low"] = new[] { "Low", "Низкое", "Төмен", "低" },
+        ["Settings.Quality.Medium"] = new[] { "Medium", "Среднее", "Орташа", "中" },
+        ["Settings.Quality.High"] = new[] { "High", "Высокое", "Жоғары", "高" },
+        ["Settings.Quality.Very High"] = new[] { "Very high", "Очень высокое", "Өте жоғары", "极高" },
+        ["Settings.Quality.Ultra"] = new[] { "Ultra", "Ультра", "Ультра", "超高" },
+        [KeyHint] = new[] { "Hint", "Подсказка", "Кеңес", "提示" },
+    };
+
+    public static readonly string[] LocaleCodes = { "en", "ru", "kk", "zh-Hans" };
+
     private static int Lang => Mathf.Clamp(LocalizationManager.Instance != null ? LocalizationManager.Instance.CurrentLocaleIndex : 0, 0, 3);
 
-    private static string Pick(string en, string ru, string kk, string zh) => Lang switch
+    public static string Get(string key, string fallback = null)
     {
-        1 => ru,
-        2 => kk,
-        3 => zh,
-        _ => en
-    };
+        try
+        {
+            var table = LocalizationSettings.StringDatabase.GetTable(TableName);
+            var entry = table != null ? table.GetEntry(key) : null;
+            if (entry != null)
+            {
+                string value = entry.GetLocalizedString();
+                if (!string.IsNullOrEmpty(value))
+                    return value;
+            }
+        }
+        catch (System.Exception)
+        {
+            // Localization not initialised yet: fall through to the inline text.
+        }
+
+        if (Entries.TryGetValue(key, out var texts))
+            return texts[Lang];
+        return fallback ?? key;
+    }
 
     public static string WindowMode(FullScreenMode mode) => mode switch
     {
-        FullScreenMode.ExclusiveFullScreen => Pick("Fullscreen", "Полный экран", "Толық экран", "全屏"),
-        FullScreenMode.Windowed => Pick("Windowed", "В окне", "Терезеде", "窗口"),
-        _ => Pick("Borderless", "Окно без рамки", "Жиексіз терезе", "无边框窗口"),
+        FullScreenMode.ExclusiveFullScreen => Get(KeyFullscreen),
+        FullScreenMode.Windowed => Get(KeyWindowed),
+        _ => Get(KeyBorderless),
     };
 
-    public static string Unlimited() => Pick("Unlimited", "Без ограничения", "Шектеусіз", "无限制");
+    public static string Unlimited() => Get(KeyUnlimited);
 
-    public static string Quality(int index, string fallback) => fallback switch
-    {
-        "Very Low" => Pick("Very low", "Очень низкое", "Өте төмен", "极低"),
-        "Low" => Pick("Low", "Низкое", "Төмен", "低"),
-        "Medium" => Pick("Medium", "Среднее", "Орташа", "中"),
-        "High" => Pick("High", "Высокое", "Жоғары", "高"),
-        "Very High" => Pick("Very high", "Очень высокое", "Өте жоғары", "极高"),
-        "Ultra" => Pick("Ultra", "Ультра", "Ультра", "超高"),
-        _ => fallback
-    };
+    public static string Quality(int index, string qualityName) => Get("Settings.Quality." + qualityName, qualityName);
 }

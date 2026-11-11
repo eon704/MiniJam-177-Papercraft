@@ -185,6 +185,70 @@ MonoBehaviour:
       limited. Reach the finish within the given number of steps.
     m_Metadata:
       m_Items: []
+  - m_Id: 219371189865529344
+    m_Localized: Resolution
+    m_Metadata:
+      m_Items: []
+  - m_Id: 219371190050078720
+    m_Localized: Display mode
+    m_Metadata:
+      m_Items: []
+  - m_Id: 219371190050078721
+    m_Localized: Graphics quality
+    m_Metadata:
+      m_Items: []
+  - m_Id: 219371190050078722
+    m_Localized: Frame rate limit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 219371190050078723
+    m_Localized: VSync
+    m_Metadata:
+      m_Items: []
+  - m_Id: 219371190050078724
+    m_Localized: Borderless
+    m_Metadata:
+      m_Items: []
+  - m_Id: 219371190050078725
+    m_Localized: Fullscreen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 219371190050078726
+    m_Localized: Windowed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 219371190050078727
+    m_Localized: Unlimited
+    m_Metadata:
+      m_Items: []
+  - m_Id: 219371190050078728
+    m_Localized: Very low
+    m_Metadata:
+      m_Items: []
+  - m_Id: 219371190050078729
+    m_Localized: Low
+    m_Metadata:
+      m_Items: []
+  - m_Id: 219371190050078730
+    m_Localized: Medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 219371190050078731
+    m_Localized: High
+    m_Metadata:
+      m_Items: []
+  - m_Id: 219371190050078732
+    m_Localized: Very high
+    m_Metadata:
+      m_Items: []
+  - m_Id: 219371190050078733
+    m_Localized: Ultra
+    m_Metadata:
+      m_Items: []
+  - m_Id: 219371190050078734
+    m_Localized: Hint
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:
