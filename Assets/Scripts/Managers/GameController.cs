@@ -45,18 +45,18 @@ public class GameController : MonoBehaviour
     public void ResetMap()
     {
         PlayerPrefab.CancelPendingEruptions();
-        BoardPrefab.ResetFragileCells();
-        _biomeCellSystem?.Reset();
+        PlayerPrefab.BoardPiecePrefab.CancelMove();
+
+        var initial = BoardPrefab.Board.ResetToStart();
+        BoardPrefab.Board.SyncCells(initial, syncTerrain: true, animateCollapse: false);
+        _biomeCellSystem?.Refresh();
 
         CellPrefab startCell = BoardPrefab.GetStartCellPrefab();
-        startCell.Cell.FreePiece();
-
-        List<CellPrefab> starCells = BoardPrefab.GetStarCellPrefabs();
-        starCells.ForEach(cell => cell.Cell.ReassignStar());
+        PlayerPrefab.BoardPiecePrefab.BoardPiece.OccupiedCell.Value?.FreePiece();
 
         PlayerPrefab.StarAmount.Value = 0;
+        PlayerPrefab.OnUndoHistoryChange?.Invoke(BoardPrefab.Board.BoardHistory.Count);
 
-        BoardPrefab.Board.BoardHistory.Reset();
         FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxReset);
         OnMapReset?.Invoke();
 
@@ -67,7 +67,7 @@ public class GameController : MonoBehaviour
         respawnSequence.Append(PlayerPrefab.transform.DOScale(0, 0.5f));
         respawnSequence.AppendCallback(() => PlayerPrefab.SetDefaultState());
         respawnSequence.AppendCallback(() => PlayerPrefab.BoardPiecePrefab.Teleport(startCell));
-        respawnSequence.AppendCallback(() => PlayerPrefab.SetTransformationLimits(startMovesPerForm));
+        respawnSequence.AppendCallback(() => PlayerPrefab.RefreshMovesLeft());
         respawnSequence.Append(PlayerPrefab.transform.DOScale(1f, 0.5f));
         respawnSequence.AppendCallback(() => { PlayerPrefab.isMovementLocked = false; PlayerPrefab.isStateChangeLocked = false; });
 
@@ -106,9 +106,9 @@ public class GameController : MonoBehaviour
         FMODAudioManager.Instance.PlayMusicForBiome(biome);
         cameraObject = Camera.main;
 
-        BoardPrefab.Initialize(LevelManager.Instance.CurrentLevel);
+        BoardPrefab.Initialize(LevelManager.Instance.CurrentLevel, startMovesPerForm);
 
-        _biomeCellSystem = new BiomeCellSystem(BoardPrefab.Board, LevelManager.Instance.CurrentLevel);
+        _biomeCellSystem = new BiomeCellSystem(BoardPrefab.Board);
         _biomeCellSystem.OnEruptionVisual += HandleVolcanoEruptionVisual;
         _biomeCellSystem.OnNextTargetsChanged += RefreshVolcanoWarnings;
 
@@ -118,13 +118,13 @@ public class GameController : MonoBehaviour
         PlayerPrefab.Initialize(playerPiece, cellPrefab, BoardPrefab);
         PlayerPrefab.SetBiomeCellSystem(_biomeCellSystem);
         PlayerPrefab.OnPlayerWon.AddListener(OnWin);
-        PlayerPrefab.OnPlayerDied.AddListener(ResetMap);
+        PlayerPrefab.OnPlayerDied.AddListener(OnPlayerDied);
         PlayerPrefab.OnPlayerWon.AddListener(_ => { FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxWin); FMODAudioManager.Instance.StopMusic(); });
         PlayerPrefab.OnPlayerDied.AddListener(() => FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxLose));
         PlayerPrefab.transform.localScale = Vector3.zero;
 
         yield return null;
-        PlayerPrefab.SetTransformationLimits(startMovesPerForm);
+        PlayerPrefab.RefreshMovesLeft();
 
         yield return new WaitUntil(() => BoardPrefab.IsSpawnAnimationComplete);
         PlayerPrefab.isMovementLocked = true;
@@ -250,6 +250,16 @@ public class GameController : MonoBehaviour
             foreach (var (_, wPos, cd) in _biomeCellSystem.GetNextLavaData())
                 BoardPrefab.GetCellPrefab(wPos)?.EnableVolcanoBorder(cd);
         PlayerPrefab.EndEruption();
+    }
+
+    /// <summary>
+    /// Гибель не перезапускает уровень: фигурка остаётся на месте гибели, ходы и смена формы
+    /// заблокированы, а Undo отменяет роковой ход. Рестарт — кнопкой перезапуска.
+    /// </summary>
+    private void OnPlayerDied()
+    {
+        PlayerPrefab.isMovementLocked = true;
+        PlayerPrefab.isStateChangeLocked = true;
     }
 
     private void OnWin(int stars)
