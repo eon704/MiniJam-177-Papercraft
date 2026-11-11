@@ -163,6 +163,70 @@ MonoBehaviour:
     m_Key: New Entry
     m_Metadata:
       m_Items: []
+  - m_Id: 219371189865529344
+    m_Key: Settings.Resolution
+    m_Metadata:
+      m_Items: []
+  - m_Id: 219371190050078720
+    m_Key: Settings.WindowMode
+    m_Metadata:
+      m_Items: []
+  - m_Id: 219371190050078721
+    m_Key: Settings.Quality
+    m_Metadata:
+      m_Items: []
+  - m_Id: 219371190050078722
+    m_Key: Settings.FrameCap
+    m_Metadata:
+      m_Items: []
+  - m_Id: 219371190050078723
+    m_Key: Settings.VSync
+    m_Metadata:
+      m_Items: []
+  - m_Id: 219371190050078724
+    m_Key: Settings.WindowMode.Borderless
+    m_Metadata:
+      m_Items: []
+  - m_Id: 219371190050078725
+    m_Key: Settings.WindowMode.Fullscreen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 219371190050078726
+    m_Key: Settings.WindowMode.Windowed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 219371190050078727
+    m_Key: Settings.FrameCap.Unlimited
+    m_Metadata:
+      m_Items: []
+  - m_Id: 219371190050078728
+    m_Key: Settings.Quality.Very Low
+    m_Metadata:
+      m_Items: []
+  - m_Id: 219371190050078729
+    m_Key: Settings.Quality.Low
+    m_Metadata:
+      m_Items: []
+  - m_Id: 219371190050078730
+    m_Key: Settings.Quality.Medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 219371190050078731
+    m_Key: Settings.Quality.High
+    m_Metadata:
+      m_Items: []
+  - m_Id: 219371190050078732
+    m_Key: Settings.Quality.Very High
+    m_Metadata:
+      m_Items: []
+  - m_Id: 219371190050078733
+    m_Key: Settings.Quality.Ultra
+    m_Metadata:
+      m_Items: []
+  - m_Id: 219371190050078734
+    m_Key: HintButton
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
