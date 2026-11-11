@@ -75,3 +75,8 @@ crashlytics-build.properties
 .DS_Store
 .utmp
 .vscode
+
+# Pure C# tools and tests outside Unity (dotnet)
+!/Tools/**/*.csproj
+/Tools/**/bin/
+/Tools/**/obj/

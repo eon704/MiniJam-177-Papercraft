@@ -1,244 +1,71 @@
 using System;
 using System.Collections.Generic;
+using Paperbound.Core;
 using UnityEngine;
 
+/// <summary>
+/// Вид расписаний биома (вулкан, источник льда и будущие). Логика и счётчики — в ядре (GameState),
+/// здесь только проигрывание событий хода и данные для предупреждений.
+/// </summary>
 public class BiomeCellSystem
 {
- 
     public event Action<Vector2Int, Vector2Int> OnEruptionVisual;
     public event Action OnNextTargetsChanged;
+
     private readonly Board _board;
 
-    private readonly List<VolcanoConfig> _volcanoConfigs;
-    private readonly Dictionary<Vector2Int, int> _volcanoCountdowns = new();
-    private readonly Dictionary<Vector2Int, int> _volcanoLavaIndexes = new();
-
-    private readonly List<IceSourceConfig> _iceSourceConfigs;
-    private readonly Dictionary<Vector2Int, int> _iceCountdowns = new();
-    private readonly Dictionary<Vector2Int, int> _iceFreezeIndexes = new();
-
-    private Dictionary<Vector2Int, TerrainType> _currentDynamicTerrain = new();
-
-    public BiomeCellSystem(Board board, LevelData levelData)
+    public BiomeCellSystem(Board board)
     {
         _board = board;
-
-        _volcanoConfigs = levelData.VolcanoConfigs ?? new List<VolcanoConfig>();
-        foreach (var cfg in _volcanoConfigs)
-        {
-            _volcanoCountdowns[cfg.Position] = cfg.Period;
-            _volcanoLavaIndexes[cfg.Position] = 0;
-        }
-
-        _iceSourceConfigs = levelData.IceSourceConfigs ?? new List<IceSourceConfig>();
-        foreach (var cfg in _iceSourceConfigs)
-        {
-            _iceCountdowns[cfg.Position] = cfg.Period;
-            _iceFreezeIndexes[cfg.Position] = 0;
-        }
     }
 
-    public void OnPlayerMoved()
+    /// <summary>Проиграть изменения клеток от расписаний после анимации хода.</summary>
+    public void PlayEvents(MoveResult result)
     {
-        TickVolcanoes();
-        TickIceSources();
+        foreach (MoveEvent e in result.Events)
+        {
+            if (e.Type != MoveEventType.TerrainChanged) continue;
+            ScheduleDef schedule = _board.Def.Schedules[e.ScheduleIndex];
+
+            if (schedule.Kind == "volcano")
+            {
+                // Лава применяется к клеткам, когда снаряд долетит (ApplyLava из GameController).
+                OnEruptionVisual?.Invoke(e.Source.ToVector(), e.Pos.ToVector());
+                continue;
+            }
+
+            Cell cell = _board.GetCell(e.Pos.ToVector());
+            cell?.SetTerrain(e.NewTerrain);
+            if (e.NewTerrain == TerrainType.Ice)
+                FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxIceFreeze);
+        }
+
         OnNextTargetsChanged?.Invoke();
     }
 
-    /// <summary>Returns the next cell each active volcano will target.</summary>
-    public IEnumerable<Vector2Int> GetNextLavaTargets()
+    /// <summary>Снаряд вулкана долетел: показать террейн, который уже стоит в состоянии.</summary>
+    public void ApplyLava(Vector2Int targetPos)
     {
-        foreach (var cfg in _volcanoConfigs)
-        {
-            if (cfg.LavaSequence == null || cfg.LavaSequence.Count == 0)
-                continue;
-            int index = _volcanoLavaIndexes[cfg.Position];
-            if (index >= cfg.LavaSequence.Count)
-                continue;
-            yield return cfg.LavaSequence[index];
-        }
-    }
-
-    /// <summary>Returns (targetCell, movesUntilEruption) for each active volcano.</summary>
-    public IEnumerable<(Vector2Int target, int countdown)> GetNextLavaTargetsWithCountdown()
-    {
-        foreach (var cfg in _volcanoConfigs)
-        {
-            if (cfg.LavaSequence == null || cfg.LavaSequence.Count == 0)
-                continue;
-            int index = _volcanoLavaIndexes[cfg.Position];
-            if (index >= cfg.LavaSequence.Count)
-                continue;
-            yield return (cfg.LavaSequence[index], _volcanoCountdowns[cfg.Position]);
-        }
+        Cell cell = _board.GetCell(targetPos);
+        if (cell == null) return;
+        TerrainType terrain = _board.State.TerrainAt(_board.Def, targetPos.ToPos());
+        if (cell.Terrain != terrain)
+            cell.SetTerrain(terrain);
     }
 
     /// <summary>Returns (volcanoPos, targetCell, movesUntilEruption) for each active volcano.</summary>
     public IEnumerable<(Vector2Int volcanoPos, Vector2Int target, int countdown)> GetNextLavaData()
     {
-        foreach (var cfg in _volcanoConfigs)
+        foreach (var (schedule, source, target, countdown) in Rules.UpcomingEffects(_board.Def, _board.State))
         {
-            if (cfg.LavaSequence == null || cfg.LavaSequence.Count == 0)
-                continue;
-            int index = _volcanoLavaIndexes[cfg.Position];
-            if (index >= cfg.LavaSequence.Count)
-                continue;
-            yield return (cfg.Position, cfg.LavaSequence[index], _volcanoCountdowns[cfg.Position]);
+            if (_board.Def.Schedules[schedule].Kind != "volcano") continue;
+            yield return (source.ToVector(), target.ToVector(), countdown);
         }
     }
 
-    // ── Volcano ────────────────────────────────────────────────────────────
-
-    private void TickVolcanoes()
+    /// <summary>Состояние сменилось целиком (Undo, рестарт) — обновить предупреждения.</summary>
+    public void Refresh()
     {
-        foreach (var cfg in _volcanoConfigs)
-        {
-            if (cfg.LavaSequence == null || cfg.LavaSequence.Count == 0)
-                continue;
-
-            _volcanoCountdowns[cfg.Position]--;
-            if (_volcanoCountdowns[cfg.Position] <= 0)
-            {
-                _volcanoCountdowns[cfg.Position] = cfg.Period;
-                Erupt(cfg);
-            }
-        }
-    }
-
-    private void Erupt(VolcanoConfig cfg)
-    {
-        int index = _volcanoLavaIndexes[cfg.Position];
-        if (index >= cfg.LavaSequence.Count)
-            return;
-
-        Vector2Int targetPos = cfg.LavaSequence[index];
-        _volcanoLavaIndexes[cfg.Position] = index + 1;
-
-        Cell targetCell = _board.GetCell(targetPos);
-        if (targetCell == null || targetCell.Terrain == TerrainType.Volcano || targetCell.Terrain == TerrainType.Lava)
-            return;
-
-        // Lava is applied later, when the projectile visually lands (via ApplyLava)
-        OnEruptionVisual?.Invoke(cfg.Position, targetPos);
-    }
-
-    /// <summary>Called by GameController when the projectile lands to apply lava to the model.</summary>
-    public void ApplyLava(Vector2Int targetPos)
-    {
-        Cell targetCell = _board.GetCell(targetPos);
-        if (targetCell == null || targetCell.Terrain == TerrainType.Lava) return;
-        _currentDynamicTerrain[targetPos] = TerrainType.Lava;
-        targetCell.SetTerrain(TerrainType.Lava);
-    }
-
-    // ── Ice sources ────────────────────────────────────────────────────────
-
-    private void TickIceSources()
-    {
-        foreach (var cfg in _iceSourceConfigs)
-        {
-            if (cfg.FreezeSequence == null || cfg.FreezeSequence.Count == 0)
-                continue;
-
-            _iceCountdowns[cfg.Position]--;
-            if (_iceCountdowns[cfg.Position] <= 0)
-            {
-                _iceCountdowns[cfg.Position] = cfg.Period;
-                FreezeNext(cfg);
-            }
-        }
-    }
-
-    private void FreezeNext(IceSourceConfig cfg)
-    {
-        int index = _iceFreezeIndexes[cfg.Position];
-        if (index >= cfg.FreezeSequence.Count)
-            return;
-
-        Vector2Int targetPos = cfg.FreezeSequence[index];
-        Cell targetCell = _board.GetCell(targetPos);
-        if (targetCell != null && targetCell.Terrain != TerrainType.Ice)
-        {
-            _currentDynamicTerrain[targetPos] = TerrainType.Ice;
-            targetCell.SetTerrain(TerrainType.Ice);
-            FMODAudioManager.Instance.PlayOneShot(FMODAudioManager.Instance.sfxIceFreeze);
-        }
-
-        _iceFreezeIndexes[cfg.Position] = index + 1;
-    }
-
-    // ── Snapshot / Undo ────────────────────────────────────────────────────
-
-    public BiomeCellSnapshot TakeSnapshot()
-    {
-        return new BiomeCellSnapshot
-        {
-            DynamicTerrainState = new Dictionary<Vector2Int, TerrainType>(_currentDynamicTerrain),
-            VolcanoCountdowns   = new Dictionary<Vector2Int, int>(_volcanoCountdowns),
-            VolcanoLavaIndexes  = new Dictionary<Vector2Int, int>(_volcanoLavaIndexes),
-            IceCountdowns       = new Dictionary<Vector2Int, int>(_iceCountdowns),
-            IceFreezeIndexes    = new Dictionary<Vector2Int, int>(_iceFreezeIndexes)
-        };
-    }
-
-    public void RestoreSnapshot(BiomeCellSnapshot snap)
-    {
-        foreach (var kvp in _currentDynamicTerrain)
-        {
-            var cell = _board.GetCell(kvp.Key);
-            if (cell != null) cell.SetTerrain(cell.OriginalTerrain);
-        }
-
-        _currentDynamicTerrain = snap.DynamicTerrainState != null
-            ? new Dictionary<Vector2Int, TerrainType>(snap.DynamicTerrainState)
-            : new Dictionary<Vector2Int, TerrainType>();
-
-        foreach (var kvp in _currentDynamicTerrain)
-        {
-            var cell = _board.GetCell(kvp.Key);
-            if (cell != null) cell.SetTerrain(kvp.Value);
-        }
-
-        if (snap.VolcanoCountdowns != null)
-            foreach (var kvp in snap.VolcanoCountdowns)
-                _volcanoCountdowns[kvp.Key] = kvp.Value;
-
-        if (snap.VolcanoLavaIndexes != null)
-            foreach (var kvp in snap.VolcanoLavaIndexes)
-                _volcanoLavaIndexes[kvp.Key] = kvp.Value;
-
-        if (snap.IceCountdowns != null)
-            foreach (var kvp in snap.IceCountdowns)
-                _iceCountdowns[kvp.Key] = kvp.Value;
-
-        if (snap.IceFreezeIndexes != null)
-            foreach (var kvp in snap.IceFreezeIndexes)
-                _iceFreezeIndexes[kvp.Key] = kvp.Value;
-
-        OnNextTargetsChanged?.Invoke();
-    }
-
-    public void Reset()
-    {
-        foreach (var kvp in _currentDynamicTerrain)
-        {
-            var cell = _board.GetCell(kvp.Key);
-            if (cell != null) cell.SetTerrain(cell.OriginalTerrain);
-        }
-        _currentDynamicTerrain.Clear();
-
-        foreach (var cfg in _volcanoConfigs)
-        {
-            _volcanoCountdowns[cfg.Position] = cfg.Period;
-            _volcanoLavaIndexes[cfg.Position] = 0;
-        }
-
-        foreach (var cfg in _iceSourceConfigs)
-        {
-            _iceCountdowns[cfg.Position] = cfg.Period;
-            _iceFreezeIndexes[cfg.Position] = 0;
-        }
-
         OnNextTargetsChanged?.Invoke();
     }
 }

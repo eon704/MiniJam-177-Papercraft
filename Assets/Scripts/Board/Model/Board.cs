@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Paperbound.Core;
 using UnityEngine;
 
 public class Board
@@ -12,10 +13,20 @@ public class Board
 
     public readonly BoardHistory BoardHistory = new();
 
+    /// <summary>Описание уровня для ядра правил.</summary>
+    public LevelDef Def { get; private set; }
+
+    /// <summary>Текущее состояние партии — источник истины для правил. Cell — его отображение для вида.</summary>
+    public GameState State { get; private set; }
+
     private int currentHintStep = 1;
 
-    public Board(Vector2Int size, CellData[] map, LevelData levelData)
+    public Board(Vector2Int size, CellData[] map, LevelData levelData, IReadOnlyDictionary<Player.StateType, int> budgetOverride = null)
     {
+        Def = levelData.ToLevelDef(budgetOverride);
+        State = GameState.Initial(Def);
+        BoardHistory.Clear(State);
+
         Size = size;
         CellArray = new Cell[size.x, size.y];
         LevelData = levelData;
@@ -58,6 +69,10 @@ public class Board
                 cell.SetNeighbors(neighbours);
             }
         }
+
+        foreach (ItemDef item in Def.Items)
+            if (item.Kind == ItemKind.Leaf && Def.InBounds(item.Position))
+                CellArray[item.Position.X, item.Position.Y].PlaceLeaf(item.Form.ToStateType(), item.Amount);
     }
 
     public Cell GetCell(Vector2Int coord)
@@ -85,6 +100,84 @@ public class Board
     {
         foreach (Cell cell in FragileCells)
             cell.ResetCollapse();
+    }
+
+    // ── Состояние партии ──────────────────────────────────────────────────
+
+    /// <summary>Сменить форму (складка). В историю Undo не пишется: Undo откатывает к состоянию после хода.</summary>
+    public void Fold(Form form)
+    {
+        State = Rules.Fold(State, form);
+    }
+
+    /// <summary>Принять результат хода: новое состояние становится текущим и попадает в историю.</summary>
+    public void Commit(GameState state)
+    {
+        State = state;
+        BoardHistory.Push(state);
+    }
+
+    /// <summary>Откатить последний ход. null — откатывать нечего.</summary>
+    public GameState Undo()
+    {
+        GameState previous = BoardHistory.Undo();
+        if (previous != null)
+            State = previous;
+        return previous;
+    }
+
+    /// <summary>Начать уровень заново.</summary>
+    public GameState ResetToStart()
+    {
+        State = GameState.Initial(Def);
+        BoardHistory.Clear(State);
+        return State;
+    }
+
+    /// <summary>
+    /// Привести клетки (вид модели) к состоянию: звёзды, обрушения и при syncTerrain — террейн.
+    /// animateCollapse = false — обрушенные клетки исчезают мгновенно (Undo).
+    /// </summary>
+    public void SyncCells(GameState state, bool syncTerrain, bool animateCollapse)
+    {
+        for (int x = 0; x < Size.x; x++)
+        {
+            for (int y = 0; y < Size.y; y++)
+            {
+                Cell cell = CellArray[x, y];
+                var pos = new Pos(x, y);
+                int i = Def.Index(pos);
+
+                if (syncTerrain && cell.Terrain != state.Terrain[i])
+                    cell.SetTerrain(state.Terrain[i]);
+
+                if (cell.IsFragile)
+                {
+                    if (state.Collapsed[i] && !cell.IsCollapsed)
+                    {
+                        if (animateCollapse) cell.Collapse();
+                        else cell.CollapseInstant();
+                    }
+                    else if (!state.Collapsed[i] && cell.IsCollapsed)
+                        cell.ResetCollapse();
+                }
+
+                bool starRemains = state.StarRemainsAt(Def, pos);
+                if (starRemains && cell.Item.Value != CellItem.Star)
+                    cell.ReassignStar();
+                else if (!starRemains && cell.Item.Value == CellItem.Star)
+                    cell.RemoveStar();
+            }
+        }
+
+        for (int k = 0; k < Def.Items.Count; k++)
+        {
+            ItemDef item = Def.Items[k];
+            Cell cell = GetCell(item.Position.ToVector());
+            if (cell == null || item.Kind != ItemKind.Leaf) continue;
+            bool remains = !state.HasItem(k);
+            if (cell.HasLeaf.Value != remains) cell.HasLeaf.Value = remains;
+        }
     }
 
     public (Cell, int) RevealNextHint(out bool areAllHintsRevealed)

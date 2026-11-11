@@ -21,11 +21,12 @@ public class BoardPrefab : MonoBehaviour
 
     private const int GridSize = 8;
 
-    public void Initialize(LevelData levelData)
+    /// <param name="budgetOverride">Бюджет ходов вместо уровневого (отладочные бесконечные ходы); null — из уровня.</param>
+    public void Initialize(LevelData levelData, IReadOnlyDictionary<Player.StateType, int> budgetOverride = null)
     {
         LevelData = levelData;
         Size = levelData.MapSize;
-        Board = new Board(Size, levelData.Map, levelData);
+        Board = new Board(Size, levelData.Map, levelData, budgetOverride);
         cellPrefabs = new CellPrefab[Size.x, Size.y];
 
         ComputeBoardCenterPosition();

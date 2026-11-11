@@ -77,7 +77,8 @@ public class LevelEditorWindow : EditorWindow
         TerrainType.Stone,
         TerrainType.Fire,
         TerrainType.Volcano,
-        TerrainType.Ice
+        TerrainType.Ice,
+        TerrainType.LilyPad
     };
 
     private List<CellItem> toolItemTypes = new() {
@@ -92,6 +93,22 @@ public class LevelEditorWindow : EditorWindow
         { '3', CellItem.Star }
     };
 
+    private static void DrawSolveReport(Paperbound.Core.SolveReport r)
+    {
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine("Solver report (shared game rules):");
+        sb.AppendLine(r.CanFinish
+            ? $"Finish: {r.MinMovesToFinish} moves, budget {r.TotalBudget}, slack {r.FinishSlack}, max stars at finish {r.MaxStarsAtFinish}"
+            : "Finish: unreachable");
+        sb.AppendLine(r.CanThreeStar
+            ? $"3 stars: {r.MinMovesThreeStars} moves, min folds {r.MinFoldsThreeStars}"
+            : "3 stars: impossible");
+        sb.AppendLine($"Solutions: {r.FinishSolutionCount} to finish, {r.ThreeStarSolutionCount} with 3 stars{(r.CountSaturated ? " (capped)" : "")}");
+        sb.Append($"States explored: {r.StatesExplored}{(r.Truncated ? " — TRUNCATED" : "")}");
+        MessageType type = !r.CanThreeStar || r.Truncated ? MessageType.Warning : MessageType.Info;
+        EditorGUILayout.HelpBox(sb.ToString(), type);
+    }
+
     private TerrainType selectedTerrainType = TerrainType.Default;
     private CellItem? selectedItemType = null;
 
@@ -104,6 +121,7 @@ public class LevelEditorWindow : EditorWindow
     private List<(Player.StateType state, int remaining)> wastedMoves = null; // Forms with leftover moves in the regular solution
     private bool isCheckingSolvability = false;
     private List<TurnInfo> currentSolutionPath = null;
+    private Paperbound.Core.SolveReport lastSolveReport = null;
     private bool showSolutionPath = false;
 
     // Fallback colors for terrain types that have no texture
@@ -111,7 +129,8 @@ public class LevelEditorWindow : EditorWindow
     {
         { TerrainType.Volcano, new Color(0.4f, 0.1f, 0.1f) },
         { TerrainType.Lava,    new Color(1f,   0.3f, 0f) },
-        { TerrainType.Ice,     new Color(0.6f, 0.85f, 1f) }
+        { TerrainType.Ice,     new Color(0.6f, 0.85f, 1f) },
+        { TerrainType.LilyPad, new Color(0.35f, 0.7f, 0.35f) }
     };
 
     // Colors for different player states
@@ -552,7 +571,7 @@ public class LevelEditorWindow : EditorWindow
                 EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.LabelField(moveEntry.State.ToString(), GUILayout.Width(80));
 
-                int newMoves = EditorGUILayout.IntField(moveEntry.Moves);
+                int newMoves = Mathf.Max(0, EditorGUILayout.IntField(moveEntry.Moves));
                 if (newMoves != moveEntry.Moves)
                 {
                     moveEntry.Moves = newMoves;
@@ -636,6 +655,9 @@ public class LevelEditorWindow : EditorWindow
                     }
                 }
             }
+
+            if (!isCheckingSolvability && lastSolveReport != null)
+                DrawSolveReport(lastSolveReport);
 
             EditorGUILayout.Space();
 
@@ -1424,6 +1446,11 @@ public class LevelEditorWindow : EditorWindow
         return solution != null;
     }
 
+    /// <summary>
+    /// Решение уровня на общих правилах Paperbound.Core.Rules (те же, что в игре).
+    /// Первый элемент — старт, далее по ходу на шаг. null — решения нет.
+    /// requireAllMovesExhausted — только решения, тратящие весь бюджет; requireLooseSolution — только оставляющие запас.
+    /// </summary>
     public static List<TurnInfo> SolveLevel(LevelData level, bool requireAllMovesExhausted = false, bool requireLooseSolution = false)
     {
         if (level == null || level.Map == null || level.Map.Length == 0)
@@ -1432,174 +1459,78 @@ public class LevelEditorWindow : EditorWindow
             return null;
         }
 
-        // Check if level is valid
         if (!level.IsValid())
         {
             Debug.LogError("LevelData is not valid.");
             return null;
         }
 
-        // Find the start and end positions
-        Vector2Int startPos = Vector2Int.zero;
-        Vector2Int endPos = Vector2Int.zero;
+        Paperbound.Core.LevelDef def = level.ToLevelDef();
+        int allMask = (1 << def.Stars.Count) - 1;
 
-        for (int y = 0; y < level.MapSize.y; y++)
+        bool Goal(Paperbound.Core.GameState s)
         {
-            for (int x = 0; x < level.MapSize.x; x++)
-            {
-                int index = y * level.MapSize.x + x;
-                CellData cell = level.Map[index];
-                
-                if (cell.Terrain == TerrainType.Start)
-                    startPos = new Vector2Int(x, y);
-                if (cell.Terrain == TerrainType.End)
-                    endPos = new Vector2Int(x, y);
-            }
+            if (s.Status != Paperbound.Core.GameStatus.Won || (s.StarMask & allMask) != allMask) return false;
+            bool exhausted = Paperbound.Core.Solver.BudgetExhausted(def, s);
+            return requireAllMovesExhausted ? exhausted
+                 : requireLooseSolution     ? !exhausted
+                 : true;
         }
 
-        // --- Precompute biome state cache (lava/ice cells per move count) ---
-        // The biome is deterministic: after N moves each volcano has erupted floor(N/period) times.
-        // We cache up to maxTotalMoves+1 so the BFS can look up any step cheaply.
-        int maxTotalMoves = level.StartMovesPerForm
-            .Where(e => e.State != Player.StateType.Default && e.Moves > 0)
-            .Sum(e => e.Moves);
-        var lavaCellsCache = new Dictionary<int, HashSet<Vector2Int>>(maxTotalMoves + 2);
-        var iceCellsCache  = new Dictionary<int, HashSet<Vector2Int>>(maxTotalMoves + 2);
-        for (int m = 0; m <= maxTotalMoves + 1; m++)
+        List<Paperbound.Core.SolverStep> steps = Paperbound.Core.Solver.FindShortest(def, Goal);
+        return steps == null ? null : ToTurns(def, steps);
+    }
+
+    /// <summary>Полный отчёт решателя: финиш, три звезды, минимум складок, число решений.</summary>
+    public static Paperbound.Core.SolveReport AnalyzeLevel(LevelData level)
+    {
+        if (level == null || level.Map == null || level.Map.Length == 0) return null;
+        return Paperbound.Core.Solver.Solve(level.ToLevelDef());
+    }
+
+    private static List<TurnInfo> ToTurns(Paperbound.Core.LevelDef def, List<Paperbound.Core.SolverStep> steps)
+    {
+        var turns = new List<TurnInfo>(steps.Count + 1);
+        Paperbound.Core.GameState s = Paperbound.Core.GameState.Initial(def);
+        turns.Add(MakeTurn(def, s, Player.StateType.Default));
+        foreach (Paperbound.Core.SolverStep step in steps)
         {
-            lavaCellsCache[m] = ComputeLavaCells(level, m);
-            iceCellsCache[m]  = ComputeDynamicIceCells(level, m);
-        }
-
-        // BFS to find solution
-        Queue<TurnInfo> queue = new(); // Include depth to prevent infinite search
-        HashSet<string> visited = new();
-        Dictionary<string, TurnInfo> parent = new();
-
-        // Initial state
-        TurnInfo initialTurn = new TurnInfo
-        {
-            Position = startPos,
-            Stars = 0,
-            MovesPerForm = level.StartMovesPerForm.ToDictionary(m => m.State, m => m.Moves),
-            State = Player.StateType.Default,
-            CollectedStarPositions = new HashSet<Vector2Int>(),
-            CollapsedCells = new HashSet<Vector2Int>(),
-            MoveCount = 0
-        };
-
-        queue.Enqueue(initialTurn);
-        string initialKey = GetStateKey(initialTurn);
-        visited.Add(initialKey);
-        int steps = 10000;
-
-        while (queue.Count > 0 && steps > 0)
-        {
-            steps--;
-            var current = queue.Dequeue();
-            string currentKey = GetStateKey(current);
-
-            bool _exhausted = AllMovesExhausted(current.MovesPerForm, level.StartMovesPerForm);
-            bool _goalMet = requireAllMovesExhausted ? _exhausted
-                          : requireLooseSolution     ? !_exhausted
-                          : true;
-
-            if (current.Position == endPos && current.Stars == 3 && _goalMet)
+            Paperbound.Core.MoveResult r = Paperbound.Core.Rules.Apply(def, s, step.Form, step.Target);
+            if (!r.Success)
             {
-                // Reconstruct path
-                List<TurnInfo> solution = new();
-                string key = currentKey;
-                while (parent.ContainsKey(key))
-                {
-                    solution.Insert(0, parent[key]);
-                    key = GetStateKey(parent[key]);
-                }
-                solution.Add(current);
-
-                Debug.Log($"Found solution with {solution.Count} steps, Position={current.Position}, Stars={current.Stars}");
-
-                if (ValidateSolution(solution, endPos))
-                    return solution;
-
-                Debug.LogError("Solution failed validation despite meeting BFS goal condition - this should not happen!");
+                Debug.LogError($"Solver produced an illegal step {step}");
                 return null;
             }
-
-            // Try all possible states from current position
-            foreach (Player.StateType stateType in System.Enum.GetValues(typeof(Player.StateType)))
-            {
-                if (stateType == Player.StateType.Default) continue;
-
-                // For non-default states, check if we have moves left
-                if (current.MovesPerForm[stateType] <= 0) continue;
-
-                // Get the state model for movement options
-                if (!StateModelInfo.StateModels.TryGetValue(stateType, out StateModel stateModel)) continue;
-
-                // Biome state BEFORE this move (used to evaluate which moves are legal)
-                var curLava = lavaCellsCache.TryGetValue(current.MoveCount, out var cl) ? cl : null;
-                var curIce  = iceCellsCache .TryGetValue(current.MoveCount, out var ci) ? ci : null;
-
-                // Determine which cells are collapsed when leaving the current cell
-                HashSet<Vector2Int> collapsedAfterMove = new(current.CollapsedCells ?? new HashSet<Vector2Int>());
-                int curIdx = current.Position.y * level.MapSize.x + current.Position.x;
-                if (level.Map[curIdx].IsFragile)
-                    collapsedAfterMove.Add(current.Position);
-
-                // Generate target positions using current biome terrain
-                foreach (Vector2Int newPos in GetMoveTargets(current.Position, stateModel, level, collapsedAfterMove, curLava, curIce))
-                {
-                    int cellIndex = newPos.y * level.MapSize.x + newPos.x;
-                    CellData staticCell = level.Map[cellIndex];
-
-                    // Static fire is always fatal
-                    if (staticCell.Terrain == TerrainType.Fire) continue;
-
-                    // Current lava (from previous eruptions) — landing here kills the player
-                    if (curLava != null && curLava.Contains(newPos)) continue;
-
-                    // After this move the biome ticks — check if the target cell BECOMES lava
-                    // exactly as the player lands there (OnMove fires after the tick)
-                    int newMoveCount = current.MoveCount + 1;
-                    var nextLava = lavaCellsCache.TryGetValue(newMoveCount, out var nl) ? nl : null;
-                    if (nextLava != null && nextLava.Contains(newPos)) continue;
-
-                    // Stars
-                    int newStars = current.Stars;
-                    HashSet<Vector2Int> newCollectedStars = new(current.CollectedStarPositions ?? new HashSet<Vector2Int>());
-                    if (staticCell.Item == CellItem.Star && !newCollectedStars.Contains(newPos))
-                    {
-                        newStars++;
-                        newCollectedStars.Add(newPos);
-                    }
-
-                    // Move count
-                    Dictionary<Player.StateType, int> newMovesPerForm = new(current.MovesPerForm);
-                    newMovesPerForm[stateType]--;
-
-                    TurnInfo nextTurn = new TurnInfo
-                    {
-                        Position               = newPos,
-                        Stars                  = newStars,
-                        MovesPerForm           = newMovesPerForm,
-                        State                  = stateType,
-                        CollectedStarPositions = newCollectedStars,
-                        CollapsedCells         = collapsedAfterMove,
-                        MoveCount              = newMoveCount,
-                    };
-
-                    string nextKey = GetStateKey(nextTurn);
-                    if (!visited.Contains(nextKey))
-                    {
-                        visited.Add(nextKey);
-                        parent[nextKey] = current;
-                        queue.Enqueue(nextTurn);
-                    }
-                }
-            }
+            s = r.After;
+            turns.Add(MakeTurn(def, s, step.Form.ToStateType()));
         }
+        return turns;
+    }
 
-        return null; // No solution found
+    private static TurnInfo MakeTurn(Paperbound.Core.LevelDef def, Paperbound.Core.GameState s, Player.StateType form)
+    {
+        var moves = new Dictionary<Player.StateType, int>();
+        for (int i = 0; i < Paperbound.Core.Forms.Count; i++)
+            moves[(Player.StateType)i] = s.Budget[i];
+
+        var stars = new HashSet<Vector2Int>();
+        for (int i = 0; i < def.Stars.Count; i++)
+            if (s.HasStar(i)) stars.Add(def.Stars[i].ToVector());
+
+        var collapsed = new HashSet<Vector2Int>();
+        for (int i = 0; i < def.CellCount; i++)
+            if (s.Collapsed[i]) collapsed.Add(def.PosOf(i).ToVector());
+
+        return new TurnInfo
+        {
+            Position = s.Player.ToVector(),
+            Stars = s.StarsCollected,
+            MovesPerForm = moves,
+            State = form,
+            CollectedStarPositions = stars,
+            CollapsedCells = collapsed,
+            MoveCount = s.MovesMade,
+        };
     }
 
     public struct TurnInfo
@@ -1615,147 +1546,6 @@ public class LevelEditorWindow : EditorWindow
         /// (which cells are covered in lava / dynamic ice) deterministically.
         /// </summary>
         public int MoveCount;
-    }
-
-    public static string GetStateKey(TurnInfo state)
-    {
-        string movesKey = string.Join(",", state.MovesPerForm.OrderBy(kvp => kvp.Key).Select(kvp => $"{kvp.Key}:{kvp.Value}"));
-        string starsKey = string.Join(";", (state.CollectedStarPositions ?? new HashSet<Vector2Int>()).OrderBy(p => p.x).ThenBy(p => p.y).Select(p => $"{p.x},{p.y}"));
-        string collapsedKey = string.Join(";", (state.CollapsedCells ?? new HashSet<Vector2Int>()).OrderBy(p => p.x).ThenBy(p => p.y).Select(p => $"{p.x},{p.y}"));
-        // MoveCount is included so that different biome states are never conflated
-        return $"{state.Position.x},{state.Position.y},{state.State},{state.Stars},{movesKey},{starsKey}|{collapsedKey}|mc{state.MoveCount}";
-    }
-
-    // ── Biome simulation helpers ──────────────────────────────────────────────
-
-    /// <summary>
-    /// Returns the set of cells covered in lava after exactly <paramref name="moveCount"/> player moves.
-    /// Each volcano erupts every cfg.Period moves (first eruption at move = cfg.Period).
-    /// </summary>
-    private static HashSet<Vector2Int> ComputeLavaCells(LevelData level, int moveCount)
-    {
-        var lava = new HashSet<Vector2Int>();
-        if (level.VolcanoConfigs == null) return lava;
-        foreach (var cfg in level.VolcanoConfigs)
-        {
-            if (cfg.LavaSequence == null || cfg.LavaSequence.Count == 0 || cfg.Period <= 0) continue;
-            int eruptions = moveCount / cfg.Period;
-            int covered   = Mathf.Min(eruptions, cfg.LavaSequence.Count);
-            for (int i = 0; i < covered; i++)
-                lava.Add(cfg.LavaSequence[i]);
-        }
-        return lava;
-    }
-
-    /// <summary>
-    /// Returns the set of cells frozen by IceSources after exactly <paramref name="moveCount"/> moves.
-    /// </summary>
-    private static HashSet<Vector2Int> ComputeDynamicIceCells(LevelData level, int moveCount)
-    {
-        var ice = new HashSet<Vector2Int>();
-        if (level.IceSourceConfigs == null) return ice;
-        foreach (var cfg in level.IceSourceConfigs)
-        {
-            if (cfg.FreezeSequence == null || cfg.FreezeSequence.Count == 0 || cfg.Period <= 0) continue;
-            int freezes = moveCount / cfg.Period;
-            int covered = Mathf.Min(freezes, cfg.FreezeSequence.Count);
-            for (int i = 0; i < covered; i++)
-                ice.Add(cfg.FreezeSequence[i]);
-        }
-        return ice;
-    }
-
-    // Returns true if every form that started with finite (>0) moves has used them all.
-    private static bool AllMovesExhausted(Dictionary<Player.StateType, int> movesPerForm, List<MovePerFormEntry> startMoves)
-    {
-        foreach (var entry in startMoves)
-        {
-            if (entry.State == Player.StateType.Default) continue;
-            if (entry.Moves <= 0) continue; // 0 = never usable, -1 = unlimited
-            if (movesPerForm.TryGetValue(entry.State, out int remaining) && remaining > 0)
-                return false;
-        }
-        return true;
-    }
-
-    // Returns all valid landing positions for a given state from 'pos', respecting MoveMode mechanics.
-    // lavaCells / dynamicIceCells override the static map terrain (simulate biome state at current move).
-    private static IEnumerable<Vector2Int> GetMoveTargets(
-        Vector2Int pos, StateModel stateModel, LevelData level,
-        HashSet<Vector2Int> collapsedCells,
-        HashSet<Vector2Int> lavaCells       = null,
-        HashSet<Vector2Int> dynamicIceCells = null)
-    {
-        bool InBounds(Vector2Int p) =>
-            p.x >= 0 && p.x < level.MapSize.x && p.y >= 0 && p.y < level.MapSize.y;
-        CellData Cell(Vector2Int p) => level.Map[p.y * level.MapSize.x + p.x];
-        bool Collapsed(Vector2Int p) => collapsedCells != null && collapsedCells.Contains(p);
-
-        // Effective terrain: dynamic lava/ice overrides the static map.
-        TerrainType EffTerrain(Vector2Int p)
-        {
-            if (lavaCells       != null && lavaCells.Contains(p))       return TerrainType.Lava;
-            if (dynamicIceCells != null && dynamicIceCells.Contains(p)) return TerrainType.Ice;
-            return Cell(p).Terrain;
-        }
-
-        switch (stateModel.MoveMode)
-        {
-            case MoveMode.Normal:
-            case MoveMode.FrogJump:
-                foreach (var offset in stateModel.MoveOptions)
-                {
-                    var target = pos + offset;
-                    if (!InBounds(target)) continue;
-                    var t = EffTerrain(target);
-                    if (t == TerrainType.Empty) continue;
-                    if (Collapsed(target)) continue;
-                    if (!stateModel.MoveTerrain.Contains(t)) continue;
-                    yield return target;
-                }
-                break;
-
-            case MoveMode.PlaneSlide:
-                // Fire AND Lava block the slide — player can't safely fly through them.
-                foreach (var dir in stateModel.MoveOptions)
-                {
-                    var cursor = pos + dir;
-                    while (InBounds(cursor))
-                    {
-                        var t = EffTerrain(cursor);
-                        if (t == TerrainType.Empty) break;
-                        if (t == TerrainType.Fire)  break;
-                        if (t == TerrainType.Lava)  break; // dynamic lava also blocks slide
-                        if (Collapsed(cursor)) break;
-                        if (!stateModel.MoveTerrain.Contains(t)) break;
-                        yield return cursor;
-                        cursor += dir;
-                    }
-                }
-                break;
-
-            case MoveMode.BoatSlide:
-                // First adjacent cell must be Water (static or effective).
-                foreach (var dir in stateModel.MoveOptions)
-                {
-                    var first = pos + dir;
-                    if (!InBounds(first)) continue;
-                    if (EffTerrain(first) != TerrainType.Water) continue;
-
-                    var cursor = first + dir;
-                    while (InBounds(cursor))
-                    {
-                        var t = EffTerrain(cursor);
-                        if (t == TerrainType.Water) { cursor += dir; continue; }
-                        // First non-water cell is the landing spot
-                        if (t != TerrainType.Empty && !Collapsed(cursor) &&
-                            stateModel.MoveTerrain.Contains(t))
-                            yield return cursor;
-                        break;
-                    }
-                }
-                break;
-        }
     }
 
     private IEnumerable<CellData> GetNeighbors(LevelData level, Vector2Int position)
@@ -1800,6 +1590,7 @@ public class LevelEditorWindow : EditorWindow
         isCheckingSolvability = false;
         lastSolvabilityResult = null;
         lastTightSolveResult = null;
+        lastSolveReport = null;
         wastedMoves = null;
         currentSolutionPath = null;
         showSolutionPath = false;
@@ -1822,6 +1613,8 @@ public class LevelEditorWindow : EditorWindow
             if (workingLevel != null)
             {
                 LevelData levelData = workingLevel.ToLevelData();
+
+                lastSolveReport = AnalyzeLevel(levelData);
 
                 // 1. Regular solve — just find any valid solution
                 var solution = SolveLevel(levelData);

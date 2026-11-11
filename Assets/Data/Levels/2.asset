@@ -220,19 +220,22 @@ MonoBehaviour:
   Biome: 1
   VolcanoConfigs: []
   IceSourceConfigs: []
+  Flow: []
+  Rafts: []
+  Leaves: []
   cachedSolution:
-  - Position: {x: 0, y: 2}
+  - Position: {x: 2, y: 5}
     State: 0
     StarsCollected: 0
-  - Position: {x: 0, y: 0}
+  - Position: {x: 2, y: 3}
     State: 4
     StarsCollected: 1
-  - Position: {x: 2, y: 0}
+  - Position: {x: 4, y: 3}
     State: 4
     StarsCollected: 2
-  - Position: {x: 2, y: 2}
+  - Position: {x: 4, y: 5}
     State: 4
     StarsCollected: 3
-  - Position: {x: 4, y: 2}
+  - Position: {x: 6, y: 5}
     State: 4
     StarsCollected: 3

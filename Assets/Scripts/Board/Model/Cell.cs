@@ -15,6 +15,11 @@ public class Cell
     public Observable<CellItem> Item { get; private set; }
     public Observable<int> IsHintRevealed { get; private set; }
 
+    /// <summary>На клетке лежит неподобранный листок. Форма и число ходов — LeafForm, LeafAmount.</summary>
+    public Observable<bool> HasLeaf { get; private set; } = new(false);
+    public Player.StateType LeafForm { get; private set; }
+    public int LeafAmount { get; private set; }
+
     public List<Cell> Neighbors { get; private set; }
 
     public event Action OnCollapsed;
@@ -39,6 +44,14 @@ public class Cell
         OnTerrainChanged?.Invoke(old, newTerrain);
     }
 
+    /// <summary>Положить листок при построении поля.</summary>
+    public void PlaceLeaf(Player.StateType form, int amount)
+    {
+        LeafForm = form;
+        LeafAmount = amount;
+        HasLeaf.Value = true;
+    }
+
     public void SetNeighbors(List<Cell> neighbors)
     {
         Neighbors = neighbors;
@@ -52,6 +65,12 @@ public class Cell
     public void ReassignStar()
     {
         Item.Value = CellItem.Star;
+    }
+
+    /// <summary>Убрать звезду без события сбора (синхронизация с состоянием ядра).</summary>
+    public void RemoveStar()
+    {
+        Item.Value = CellItem.None;
     }
 
     public void CollectStar()
@@ -71,6 +90,12 @@ public class Cell
 
         if (IsFragile && !IsCollapsed)
             Collapse();
+    }
+
+    /// <summary>Поставить фигурку без сбора звезды: звёзды собирает ядро правил, клетки лишь синхронизируются.</summary>
+    public void AssignPieceSilently(BoardPiece piece)
+    {
+        Piece = piece;
     }
 
     public void AssignPiece(BoardPiece piece)

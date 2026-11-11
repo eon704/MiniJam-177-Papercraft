@@ -16,6 +16,8 @@ public class UndoButton : MonoBehaviour
         player.OnUndoHistoryChange += OnUndoHistoryChange;
         player.OnNoMovesAvailable.AddListener(ShowHint);
         player.OnAllMovesExhausted.AddListener(ShowHint);
+        // Гибель отменяется одним Undo — подсвечиваем кнопку.
+        player.OnPlayerDied.AddListener(ShowHint);
     }
 
     private void OnClick()

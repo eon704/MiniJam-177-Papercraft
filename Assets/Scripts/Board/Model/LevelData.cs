@@ -18,6 +18,16 @@ public class LevelData : ScriptableObject
     public List<VolcanoConfig> VolcanoConfigs = new();
     public List<IceSourceConfig> IceSourceConfigs = new();
 
+    [Header("Ocean")]
+    [Tooltip("Течение: клетки воды, где лодку поворачивает, а плот сносит на клетку за ход. Не скомпилировано в Unity.")]
+    public List<FlowConfig> Flow = new();
+    [Tooltip("Плоты: стартовые клетки на воде.")]
+    public List<RaftConfig> Rafts = new();
+
+    [Header("Items")]
+    [Tooltip("Листки: +Amount ходов форме Form, подбираются как звезда (самолёт и лодка — на пролёте).")]
+    public List<LeafConfig> Leaves = new();
+
     [Header("Solution Data")]
     [SerializeField] private List<SolutionStep> cachedSolution;
 
@@ -41,11 +51,11 @@ public class LevelData : ScriptableObject
 
             defaultLevel.StartMovesPerForm = new List<MovePerFormEntry>()
             {
-                new() { State = Player.StateType.Default, Moves = -1 },
-                new() { State = Player.StateType.Crane,   Moves = -1 },
-                new() { State = Player.StateType.Plane,   Moves = -1 },
-                new() { State = Player.StateType.Boat,    Moves = -1 },
-                new() { State = Player.StateType.Frog,    Moves = -1 }
+                new() { State = Player.StateType.Default, Moves = 0 },
+                new() { State = Player.StateType.Crane,   Moves = 0 },
+                new() { State = Player.StateType.Plane,   Moves = 0 },
+                new() { State = Player.StateType.Boat,    Moves = 0 },
+                new() { State = Player.StateType.Frog,    Moves = 0 }
             };
             defaultLevel.cachedSolution = new List<SolutionStep>();
             return defaultLevel;
@@ -107,11 +117,20 @@ public class LevelData : ScriptableObject
                 return false;
             }
 
-            if (entry.Moves < -1)
+            if (entry.Moves < 0)
             {
-                Debug.LogError($"Invalid moves count for state {entry.State}: {entry.Moves}. Must be either -1 or a non-negative integer.");
+                Debug.LogError($"Invalid moves count for state {entry.State}: {entry.Moves}. Must be a non-negative integer (-1 is no longer supported).");
                 return false;
             }
+        }
+
+        // Общий валидатор ядра (размер поля, расписания и т.д.).
+        List<string> coreErrors = Paperbound.Core.LevelValidator.Validate(this.ToLevelDef());
+        if (coreErrors.Count > 0)
+        {
+            foreach (string error in coreErrors)
+                Debug.LogError(error);
+            return false;
         }
 
         return true;
@@ -132,6 +151,28 @@ public class IceSourceConfig
     public Vector2Int Position;
     public int Period = 3;
     public List<Vector2Int> FreezeSequence = new();
+}
+
+[Serializable]
+public class FlowConfig
+{
+    public Vector2Int Position;
+    [Tooltip("Направление: (1,0), (-1,0), (0,1) или (0,-1).")]
+    public Vector2Int Direction;
+}
+
+[Serializable]
+public class RaftConfig
+{
+    public Vector2Int Position;
+}
+
+[Serializable]
+public class LeafConfig
+{
+    public Vector2Int Position;
+    public Player.StateType Form = Player.StateType.Crane;
+    public int Amount = 1;
 }
 
 [Serializable]
